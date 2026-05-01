@@ -1,0 +1,27 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python (scripts de migration temporaires)
+__pycache__/
+*.pyc
+_*.py
+
+# Logs
+*.log
+
+# Local notes (à toi)
+NOTES.local.md
+TODO.local.md
+
+# Sources de référence (non commitées dans le repo public Pages)
+*.pdf
+docs/

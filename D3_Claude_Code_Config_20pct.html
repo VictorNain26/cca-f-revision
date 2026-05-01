@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>CCA Revision — D3 — Configuration et workflows de Claude Code (20 %)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<nav class="navbar">
+  <a class="home" href="index.html">CCA-F</a>
+  <a href="index.html">Accueil</a>
+  <a href="D0_API_Fundamentals.html">D0 Fondamentaux</a>
+  <a href="D1_Architecture_Orchestration_27pct.html">D1 Architecture</a>
+  <a href="D2_Tool_Design_MCP_18pct.html">D2 Tools/MCP</a>
+  <a class="current" href="D3_Claude_Code_Config_20pct.html">D3 Claude Code</a>
+  <a href="D4_Prompt_Engineering_20pct.html">D4 Prompt Eng.</a>
+  <a href="D5_Context_Fiabilite_15pct.html">D5 Context</a>
+  <a href="Practice_Questions.html">Practice</a>
+  <a href="Scenarios_Exam.html">Scenarios</a>
+  <a href="Exam_Strategy.html">Strategie J</a>
+</nav>
+
+<div class="header-bar">
+<h1>D3 — Configuration et workflows de Claude Code (20 %)</h1>
+<p>6 Task Statements · Sources : guide officiel, chapitre 5</p>
+</div>
+
+<div class="toc">
+<strong>Sommaire</strong>
+<ol>
+<li><a href="#s1">La hierarchie <code>CLAUDE.md</code> et l'organisation modulaire</a>
+  <ul>
+    <li><a href="#s1b"><code>settings.json</code> vs <code>settings.local.json</code> et permissions Bash</a></li>
+  </ul>
+</li>
+<li><a href="#s2">Les slash commands et les skills</a></li>
+<li><a href="#s3">Les regles conditionnelles par chemin</a></li>
+<li><a href="#s4">Planning mode vs. direct execution</a></li>
+<li><a href="#s5">Le raffinement iteratif</a></li>
+<li><a href="#s6">L'integration dans les pipelines CI/CD</a>
+  <ul>
+    <li><a href="#s6b">Les hooks Claude Code (au niveau config)</a></li>
+    <li><a href="#s6c">Configuration des serveurs MCP via la CLI</a></li>
+  </ul>
+</li>
+<li><a href="#s7">Arbre de decision : quelle fonctionnalite utiliser</a></li>
+<li><a href="#s8">Synthese — les points cles</a></li>
+<li><a href="#s9">Auto-evaluation</a></li>
+</ol>
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s1">1. La hierarchie <code>CLAUDE.md</code> et l'organisation modulaire (Task 3.1)</h2></div>
+
+<h3>Le probleme que cela resout</h3>
+<p>Dans une equipe, chaque developpeur a ses preferences, mais le projet impose aussi des standards communs. Il faut un mecanisme pour separer ces niveaux d'instruction et garantir que chaque membre recoit les bonnes directives.</p>
+
+<h3>Les trois niveaux</h3>
+<table>
+<tr><th>Niveau</th><th>Emplacement</th><th>Partage ?</th><th>Usage</th></tr>
+<tr><td><strong>User</strong></td><td><code>~/.claude/CLAUDE.md</code></td><td>Non (personnel, hors VCS)</td><td>Preferences personnelles, style de travail</td></tr>
+<tr><td><strong>Project</strong></td><td><code>.claude/CLAUDE.md</code> ou racine</td><td>Oui (versionne, partage via Git)</td><td>Standards de code, conventions de test, architecture</td></tr>
+<tr><td><strong>Directory</strong></td><td><code>CLAUDE.md</code> dans un sous-dossier</td><td>Oui (versionne)</td><td>Conventions propres a cette partie du codebase</td></tr>
+</table>
+
+<div class="anti-pattern">
+<strong>Erreur classique :</strong> trois developpeurs experimentes beneficient de l'instruction "always include comprehensive error handling", mais un nouveau ne la recoit pas. Cause : les instructions etaient dans <code>~/.claude/CLAUDE.md</code> (user-level) au lieu de <code>.claude/CLAUDE.md</code> (project-level). Le nouveau n'a pas les fichiers personnels des anciens. Solution : deplacer vers le project-level pour que tout le monde en beneficie.
+</div>
+
+<h3>La syntaxe <code>@path</code> pour les imports</h3>
+<p>Plutot que de concentrer toutes les instructions dans un seul fichier, vous pouvez referencer des fichiers externes :</p>
+<pre># Dans CLAUDE.md
+Les standards de code sont decrits dans @./standards/coding-style.md
+Les exigences de test sont dans @./standards/testing-requirements.md
+La vue d'ensemble du projet est dans @README.md</pre>
+<p>Le <code>@</code> se place immediatement avant le path (sans espace). Les paths relatifs sont resolus par rapport au fichier contenant l'import. La profondeur maximale d'imbrication est de <strong>5 niveaux</strong>.</p>
+
+<h3>Le repertoire <code>.claude/rules/</code></h3>
+<p>Une alternative au <code>CLAUDE.md</code> monolithique : des fichiers thematiques dont le chargement depend des fichiers en cours d'edition.</p>
+<pre>.claude/rules/
+  testing.md          — conventions de test
+  api-conventions.md  — conventions API
+  deployment.md       — regles de deploiement
+  react-patterns.md   — patterns React</pre>
+
+<p>Chaque fichier inclut un YAML frontmatter avec le champ <code>paths</code> qui specifie quand le charger :</p>
+<pre>---
+paths: ["src/api/**/*"]
+---
+Pour les fichiers API, utiliser async/await avec une gestion d'erreurs explicite.
+Chaque endpoint doit retourner un wrapper de reponse standard.</pre>
+
+<div class="key-concept">
+<strong>Quand utiliser <code>.claude/rules/</code> vs. un directory <code>CLAUDE.md</code> :</strong> les fichiers <code>.claude/rules/</code> avec glob patterns sont preferables quand les conventions s'appliquent a des fichiers disperses dans le codebase (tests co-localises, migrations cross-directory). Un <code>CLAUDE.md</code> dans un sous-dossier convient quand les regles sont specifiques a un repertoire bien defini.
+</div>
+
+<h3>Les commandes <code>/memory</code> et <code>/compact</code></h3>
+<p><em>(Source : guide officiel, sections 5.7 et 5.8.)</em></p>
+<ul>
+<li><strong><code>/memory</code></strong> ouvre le fichier <code>CLAUDE.md</code> pour edition. Les notes et preferences que vous y enregistrez persistent entre les sessions et sont chargees automatiquement au demarrage. C'est l'alternative a reexpliquer les memes instructions a chaque conversation.</li>
+<li><strong><code>/compact</code></strong> compresse le contexte en resumant l'historique. Utile dans les longues sessions d'investigation, mais avec un risque : les valeurs numeriques exactes, les dates et les details precis peuvent etre perdus lors de la compression.</li>
+</ul>
+
+<!-- ================================================================== -->
+<div class="subsection"><h3 id="s1b"><code>settings.json</code> vs <code>settings.local.json</code> et permissions Bash</h3></div>
+
+<p><strong>Pourquoi cette distinction est critique :</strong> a cote de <code>CLAUDE.md</code> (qui contient des <em>instructions</em> en prose), Claude Code utilise des fichiers JSON de <em>configuration</em> qui controlent les <strong>permissions</strong>, les <strong>variables d'environnement</strong>, les <strong>hooks</strong>, et les <strong>serveurs MCP</strong>. Confondre les deux est une erreur classique a l'examen.</p>
+
+<h3>Les trois niveaux de <code>settings.json</code></h3>
+<table>
+<tr><th>Niveau</th><th>Emplacement</th><th>Versionne ?</th><th>Usage</th></tr>
+<tr><td><strong>User</strong></td><td><code>~/.claude/settings.json</code></td><td>Non — personnel</td><td>Preferences globales (theme, model par defaut)</td></tr>
+<tr><td><strong>Project (partage)</strong></td><td><code>.claude/settings.json</code></td><td><strong>Oui</strong> — commit dans Git</td><td>Standards d'equipe : permissions, hooks, MCP partages</td></tr>
+<tr><td><strong>Project (local)</strong></td><td><code>.claude/settings.local.json</code></td><td><strong>Non</strong> — dans <code>.gitignore</code></td><td>Surcharges locales par developpeur (chemins absolus, secrets)</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Ordre de precedence (du plus haut au plus bas) :</strong> <code>settings.local.json</code> &gt; <code>settings.json</code> (projet) &gt; <code>~/.claude/settings.json</code> (user) &gt; defauts. Les valeurs sont fusionnees champ par champ : une autorisation ajoutee en local n'efface pas celles du projet.
+</div>
+
+<div class="anti-pattern">
+<strong>Anti-pattern :</strong> commiter <code>.claude/settings.local.json</code>. Ce fichier doit etre dans <code>.gitignore</code> par convention — il contient des chemins specifiques a la machine, des cles d'API, ou des autorisations dangereuses (<code>Bash(rm:*)</code>) que vous ne voulez pas imposer a l'equipe.
+</div>
+
+<h3>Le bloc <code>permissions</code> : allowlist et denylist</h3>
+<p>Le mecanisme de permissions de Claude Code fonctionne par <strong>allowlist explicite</strong>. Sans entree dans <code>permissions.allow</code>, chaque appel d'outil declenche une demande de confirmation utilisateur — bloquant pour les pipelines CI.</p>
+
+<pre>// .claude/settings.json
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npm run lint:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Read(./src/**)",
+      "Edit(./src/**)",
+      "WebFetch(domain:docs.anthropic.com)"
+    ],
+    "deny": [
+      "Bash(rm:*)",
+      "Bash(curl:*)",
+      "Read(./.env)",
+      "Read(./secrets/**)"
+    ],
+    "defaultMode": "acceptEdits"
+  }
+}</pre>
+
+<h3>Syntaxe des allowlists Bash</h3>
+<table>
+<tr><th>Pattern</th><th>Signification</th><th>Exemple</th></tr>
+<tr><td><code>Bash(commande)</code></td><td>Commande exacte uniquement</td><td><code>Bash(git status)</code> autorise <em>uniquement</em> <code>git status</code></td></tr>
+<tr><td><code>Bash(commande:*)</code></td><td>Commande avec n'importe quels arguments</td><td><code>Bash(npm test:*)</code> autorise <code>npm test --watch</code>, <code>npm test src/foo</code>, etc.</td></tr>
+<tr><td><code>Bash(prefixe:*)</code></td><td>Prefixe de mot suivi de tout</td><td><code>Bash(git diff:*)</code> autorise <code>git diff main</code> mais <strong>pas</strong> <code>git push</code></td></tr>
+</table>
+
+<div class="exam-tip">
+<strong>EXAM TIP :</strong> <code>Bash(npm test)</code> sans <code>:*</code> n'autorise que la commande exacte. Un <code>npm test --coverage</code> declencherait quand meme une demande. Pour CI, utilisez systematiquement <code>:*</code> apres le verbe.
+</div>
+
+<h3>Les modes de permission (<code>defaultMode</code>)</h3>
+<table>
+<tr><th>Mode</th><th>Comportement</th><th>Quand l'utiliser</th></tr>
+<tr><td><code>"default"</code></td><td>Demande pour chaque outil non explicitement autorise</td><td>Developpement local interactif</td></tr>
+<tr><td><code>"acceptEdits"</code></td><td>Auto-accepte les editions de fichiers, demande pour Bash et reseau</td><td>Refactor sur un dossier connu</td></tr>
+<tr><td><code>"plan"</code></td><td>Mode planification : aucune modification, lecture seule</td><td>Investigation, audit</td></tr>
+<tr><td><code>"bypassPermissions"</code></td><td>Aucune demande — DANGEREUX</td><td>Sandbox isole uniquement (<strong>jamais en CI sur prod</strong>)</td></tr>
+</table>
+
+<h3>Le bloc <code>env</code> et les variables d'environnement</h3>
+<pre>// .claude/settings.json
+{
+  "env": {
+    "API_BASE_URL": "https://staging.example.com",
+    "NODE_ENV": "development"
+  }
+}</pre>
+<p>Les variables ici sont injectees dans toutes les commandes <code>Bash</code> executees par Claude Code. Pour les <strong>secrets</strong>, utilisez <code>settings.local.json</code> (non versionne) ou des references aux variables shell : <code>"API_KEY": "${ANTHROPIC_API_KEY}"</code>.</p>
+
+<div class="exam-tip">
+<strong>Scenario d'examen :</strong> un developpeur a configure des autorisations dans <code>.claude/settings.local.json</code> et constate qu'elles ne s'appliquent pas sur la machine de son collegue. Cause : <code>settings.local.json</code> est explicitement <strong>non versionne</strong>. Solution : deplacer les regles partagees dans <code>.claude/settings.json</code>.
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s2">2. Les slash commands et les skills (Task 3.2)</h2></div>
+
+<h3>Le probleme que cela resout</h3>
+<p>Si vous repetez regulierement les memes instructions ("fais une revue en suivant ce format", "genere des tests selon nos conventions"), il est plus efficace de les encapsuler dans une commande reutilisable.</p>
+
+<h3>Les slash commands (format legacy)</h3>
+<p>Les slash commands sont le format historique, stocke dans <code>.claude/commands/</code>. Elles restent fonctionnelles mais sont considerees comme legacy.</p>
+<table>
+<tr><th>Portee</th><th>Emplacement</th><th>Partage</th></tr>
+<tr><td><strong>Projet</strong></td><td><code>.claude/commands/</code></td><td>Versionne via VCS, disponible apres clonage</td></tr>
+<tr><td><strong>Personnel</strong></td><td><code>~/.claude/commands/</code></td><td>Personnel, non partage</td></tr>
+</table>
+<p>Le nom du fichier determine le nom de la commande : <code>review.md</code> devient <code>/review</code>. Le placeholder <code>$ARGUMENTS</code> accepte des parametres.</p>
+
+<h3>Les skills (format actuel)</h3>
+<p>Les skills sont le format actuel et recommande, plus puissant que les slash commands. Chaque skill vit dans un repertoire contenant un fichier <code>SKILL.md</code> avec un YAML frontmatter :</p>
+<pre>---
+name: pr-description
+description: Writes pull request descriptions. Use when creating
+  a PR or summarizing changes for a review.
+context: fork
+allowed-tools: Read, Grep, Glob, Bash
+argument-hint: "Branch name to compare against main"
+---
+Quand tu rediges une description de PR :
+1. Executer `git diff main...HEAD` pour voir les changements
+2. Ecrire une description structuree : What / Why / Changes</pre>
+
+<h3>Les parametres du frontmatter</h3>
+<table>
+<tr><th>Parametre</th><th>Obligatoire</th><th>Role</th></tr>
+<tr><td><code>name</code></td><td>Oui</td><td>Identifie le skill.</td></tr>
+<tr><td><code>description</code></td><td>Oui</td><td>Determine <em>quand</em> Claude active le skill (matching semantique) et influence <em>comment</em> il redige le prompt.</td></tr>
+<tr><td><code>context: fork</code></td><td>Non</td><td>Execute le skill dans un contexte isole de subagent. La sortie verbeuse ne pollue pas la session principale.</td></tr>
+<tr><td><code>allowed-tools</code></td><td>Non</td><td>Restreint les outils disponibles (ex. : lecture seule = ni <code>Edit</code> ni <code>Write</code>).</td></tr>
+<tr><td><code>argument-hint</code></td><td>Non</td><td>Demande un parametre quand le skill est invoque sans argument.</td></tr>
+</table>
+
+<div class="exam-tip">
+<strong>Scenario d'examen :</strong> apres avoir execute un skill d'analyse lourde, Claude devient moins reactif et perd le fil de la tache originale. Solution : ajouter <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> pour isoler l'execution dans un subagent separe.
+</div>
+
+<h3>Skills personnels vs. skills projet</h3>
+<table>
+<tr><th>Portee</th><th>Emplacement</th><th>Partage</th></tr>
+<tr><td><strong>Projet</strong></td><td><code>.claude/skills/</code></td><td>Versionne via VCS, partage avec l'equipe</td></tr>
+<tr><td><strong>Personnel</strong></td><td><code>~/.claude/skills/</code></td><td>Local, non partage</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Priorite en cas de conflit de nom :</strong> un skill projet l'emporte sur un skill personnel de meme nom. Les skills personnels dans <code>~/.claude/skills/</code> doivent donc utiliser des <strong>noms differents</strong> de ceux du projet pour ne pas etre masques. Par exemple, utilisez <code>/my-commit</code> au lieu de <code>/commit</code> si le projet definit deja un skill <code>/commit</code>.
+<br><br>
+Hierarchie complete : <strong>Enterprise</strong> (la plus haute) &gt; <strong>Personnel</strong> &gt; <strong>Projet</strong> &gt; <strong>Plugins</strong> (la plus basse).
+</div>
+
+<h3>Skills et subagents</h3>
+<p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents integres (Explore subagent, Plan) ne peuvent pas y acceder. Seuls les agents personnalises (dans <code>.claude/agents/</code>) peuvent utiliser des skills, a condition qu'ils soient listes dans le frontmatter de l'agent.</p>
+
+<h3>Custom agents (<code>.claude/agents/</code>)</h3>
+<p>Les <strong>custom agents</strong> sont des subagents specialises definis au niveau projet ou user, distincts des agents integres (Explore, Plan, etc.). Ils s'invoquent via le Task tool ou le slash <code>/agents</code>.</p>
+
+<pre>// .claude/agents/security-reviewer.md
+---
+name: security-reviewer
+description: Reviews code changes for security issues — SQL injection,
+  XSS, auth bypass, secrets in code. Use when reviewing PRs that touch
+  authentication, data input handling, or external integrations.
+allowed-tools: Read, Grep, Glob, Bash(git diff:*)
+allowed-skills: ["sql-pattern-check", "secrets-scan"]
+model: claude-opus-4-7
+---
+You are a security-focused code reviewer. For each file in the diff:
+1. Identify auth checks (or their absence)
+2. Look for direct SQL string concatenation
+3. Flag any hardcoded credentials or tokens
+4. Check input validation on external boundaries
+
+Output JSON: { issues: [{severity, file, line, message}] }</pre>
+
+<table>
+<tr><th>Champ</th><th>Role</th></tr>
+<tr><td><code>name</code></td><td>Identifiant pour invocation (<code>/agents security-reviewer</code> ou via Task tool)</td></tr>
+<tr><td><code>description</code></td><td>Determine quand l'agent est invoque automatiquement (matching semantique)</td></tr>
+<tr><td><code>allowed-tools</code></td><td>Restreint les outils — typique : lecture seule pour un reviewer</td></tr>
+<tr><td><code>allowed-skills</code></td><td>Liste les skills accessibles a cet agent (sinon il n'en voit aucun)</td></tr>
+<tr><td><code>model</code></td><td>Override du modele : opus pour les analyses complexes, haiku pour les taches mecaniques</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Custom agents vs Skills vs Subagents integres :</strong>
+<ul>
+<li><strong>Skills</strong> = workflow encapsule (instructions + tools + skill name)</li>
+<li><strong>Custom agents</strong> = persona avec son propre system prompt, modele, et perimetre d'outils — peut utiliser des skills</li>
+<li><strong>Subagents integres</strong> (Explore, Plan) = primitives fournies par Claude Code, non-personnalisables</li>
+</ul>
+Les custom agents brillent quand vous voulez une <em>persona</em> (security-reviewer, refactor-architect, doc-writer) reutilisable avec ses propres outils et skills.
+</div>
+
+<h3>Output styles</h3>
+<p>Les <strong>output styles</strong> personnalisent le ton et le format des reponses de Claude Code sans modifier le system prompt principal. Configures dans <code>~/.claude/output-styles/</code> ou <code>.claude/output-styles/</code>.</p>
+
+<pre>// .claude/output-styles/concise.md
+---
+name: concise
+description: Terse responses, minimal explanations
+---
+Be terse. No filler phrases. No "I'll do X" announcements before doing X.
+Bullet points over paragraphs. Code over prose. Skip the closing summary.</pre>
+
+<p>Activation : <code>/output-style concise</code> ou via le bloc <code>"outputStyle"</code> dans <code>settings.json</code>. Cas d'usage typique : pair-programming pro (concise) vs pedagogique (verbose).</p>
+
+<h3>Statusline (configuration de la barre d'etat)</h3>
+<p>La <strong>statusline</strong> affiche en bas de l'interface des informations contextuelles (branche Git, modele actif, tokens consommes, etc.). Elle se configure via une commande shell qui produit la ligne :</p>
+
+<pre>// .claude/settings.json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "echo \"$(git branch --show-current) | $(date +%H:%M)\""
+  }
+}</pre>
+
+<div class="exam-tip">
+<strong>Note pour l'examen :</strong> output styles et statusline sont des sujets <em>marginaux</em> (peu probables mais pas impossibles). L'important est de savoir qu'ils existent et de ne pas les confondre avec les skills, hooks, ou settings de permissions. Si une question parle de "personnaliser le ton des reponses sans toucher au system prompt", c'est <code>output-styles</code>.
+</div>
+
+<h3>Permissions par tool avec patterns</h3>
+<p>En complement des allowlists Bash vues en §1 (settings.json), les permissions s'appliquent aussi aux outils <code>Read</code>, <code>Edit</code>, <code>Write</code>, <code>WebFetch</code> avec des glob patterns :</p>
+
+<pre>{
+  "permissions": {
+    "allow": [
+      "Read(./src/**)",          // Lire src/, mais pas les autres dossiers
+      "Edit(./src/**)",
+      "Write(./tests/**)",       // N'ecrire QUE des tests
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:github.com)"
+    ],
+    "deny": [
+      "Read(./.env)",            // Ne JAMAIS lire .env meme si dans src/
+      "Read(./secrets/**)",
+      "Edit(./.github/workflows/**)"  // Pas de modif des workflows CI
+    ]
+  }
+}</pre>
+
+<div class="key-concept">
+<strong>Precedence :</strong> <code>deny</code> &gt; <code>allow</code> (defense en profondeur). Une regle <code>deny</code> sur un sous-chemin l'emporte sur une regle <code>allow</code> plus large. Cela permet d'ouvrir <code>Read(./src/**)</code> tout en bloquant explicitement <code>Read(./src/secrets/**)</code>.
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s3">3. Les regles conditionnelles par chemin (Task 3.3)</h2></div>
+
+<h3>Le probleme que cela resout</h3>
+<p>Les conventions de test s'appliquent a des fichiers disperses dans tout le codebase (co-localises avec le code source). Un <code>CLAUDE.md</code> par sous-repertoire serait fastidieux ; un <code>CLAUDE.md</code> unique chargerait des regles non pertinentes en permanence. Les fichiers <code>.claude/rules/</code> avec glob patterns resolvent ce probleme.</p>
+
+<h3>Exemple concret</h3>
+<pre># .claude/rules/testing.md
+---
+paths:
+  - "**/*.test.tsx"
+  - "**/*.test.ts"
+  - "**/*.spec.ts"
+---
+Conventions de test :
+- Utiliser des blocs describe/it.
+- Utiliser des data factories, pas de donnees codees en dur.
+- Ne pas mocker la base de donnees — utiliser une base de test.</pre>
+
+<div class="key-concept">
+<strong>Chargement conditionnel :</strong> la regle ne se charge que lorsque Claude Code edite un fichier correspondant au glob pattern. Cela economise du contexte et des tokens : les conventions non pertinentes ne sont jamais chargees.
+<br><br>
+<strong>Glob patterns vs. directory <code>CLAUDE.md</code> :</strong> les glob patterns sont preferables pour les conventions cross-directory (tests co-localises, fichiers de migration disperses). Un directory <code>CLAUDE.md</code> convient pour les regles strictement locales a un sous-dossier.
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s4">4. Planning mode vs. direct execution (Task 3.4)</h2></div>
+
+<h3>Le probleme que cela resout</h3>
+<p>Corriger un bug cible n'exige pas la meme approche que restructurer un monolithe. Utiliser le meme mode pour les deux mene soit a de la lenteur inutile, soit a des erreurs couteuses.</p>
+
+<table>
+<tr><th></th><th>Planning mode</th><th>Direct execution</th></tr>
+<tr><td><strong>Actions</strong></td><td>Explore et planifie, ne modifie rien</td><td>Applique les changements immediatement</td></tr>
+<tr><td><strong>Outils</strong></td><td><code>Read</code>, <code>Grep</code>, <code>Glob</code></td><td><code>Edit</code>, <code>Write</code>, <code>Bash</code></td></tr>
+<tr><td><strong>Cas d'usage</strong></td><td>Changements importants, choix architecturaux, codebase inconnu, migrations (45+ fichiers), multiples approches possibles</td><td>Corrections ciblees sur un seul fichier, ajout d'une validation simple</td></tr>
+</table>
+
+<p>La combinaison la plus courante : <strong>planning mode</strong> pour l'investigation, approbation du plan, puis <strong>direct execution</strong> pour l'implementation.</p>
+
+<div class="key-concept">
+<strong>Plan = largeur</strong> (explorer plus de fichiers). <strong>Thinking = profondeur</strong> (raisonnement approfondi sur un probleme precis). Les deux se combinent pour les taches complexes.
+<br><br>
+Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de decouverte et retourne un resume concis, preservant le contexte principal pour les phases suivantes.
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s5">5. Le raffinement iteratif (Task 3.5)</h2></div>
+
+<h3>Le probleme que cela resout</h3>
+<p>Meme avec des instructions detaillees en prose, Claude peut interpreter differemment vos attentes a chaque iteration. Il faut des methodes plus precises pour converger.</p>
+
+<h3>Des exemples concrets d'entree/sortie (I/O examples)</h3>
+<p>La methode la plus efficace. Si Claude produit des resultats differents de vos attentes malgre les descriptions textuelles, fournissez 2 a 3 paires input/output concretes montrant la transformation voulue.</p>
+
+<h3>L'iteration guidee par les tests (TDD iteration)</h3>
+<ol>
+<li>Ecrire les tests d'abord (cas attendus, cas limites, exigences de performance).</li>
+<li>Demander a Claude d'implementer le code.</li>
+<li>Iterer sur les echecs jusqu'a ce que tous les tests passent.</li>
+</ol>
+
+<h3>Le interview pattern</h3>
+<p>Avant d'implementer, Claude pose des questions de clarification pour faire emerger des considerations non anticipees :</p>
+<pre>"Avant d'implementer le cache pour l'API, quelques questions :
+1. Preferez-vous une invalidation par TTL ou par evenement ?
+2. Les donnees perimees sont-elles acceptables si le cache tombe ?
+3. Le cache doit-il etre par utilisateur ou global ?
+4. Quel volume de donnees est attendu ?"</pre>
+
+<div class="exam-tip">
+<strong>Quand utiliser le interview pattern :</strong> domaine peu familier (fintech, sante), implications non evidentes (strategies de cache, modes de defaillance), ou multiples approches valides dont le meilleur choix depend du contexte.
+</div>
+
+<h3>Batch vs. sequential feedback</h3>
+<p>Deux strategies pour fournir du feedback a Claude :</p>
+<table>
+<tr><th>Strategie</th><th>Quand l'utiliser</th><th>Exemple</th></tr>
+<tr><td><strong>Batch feedback</strong></td><td>Quand vous avez plusieurs remarques independantes a transmettre d'un coup</td><td>"Renomme la variable, ajoute le type de retour, et corrige l'indentation"</td></tr>
+<tr><td><strong>Sequential feedback</strong></td><td>Quand chaque correction depend de la precedente, ou quand vous voulez valider etape par etape</td><td>"D'abord corrige l'architecture du module, puis on verra les tests"</td></tr>
+</table>
+<div class="key-concept">
+Le batch feedback est plus efficace en tokens (un seul echange), mais le sequential feedback permet de verifier chaque etape avant de continuer. Pour les changements a haut risque ou les domaines complexes, privilegiez le sequential feedback.
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header page-break"><h2 id="s6">6. L'integration dans les pipelines CI/CD (Task 3.6)</h2></div>
+
+<h3>Le probleme que cela resout</h3>
+<p>Claude Code est interactif par defaut. Sans configuration adaptee, un job CI se bloquera indefiniment en attente d'une saisie utilisateur.</p>
+
+<h3>Le flag <code>-p</code> (<code>--print</code>)</h3>
+<pre>claude -p "Analyse cette pull request pour les problemes de securite"</pre>
+<p>Le flag <code>-p</code> (alias <code>--print</code>) active le mode non interactif : Claude traite le prompt, imprime le resultat sur la sortie standard, puis se termine. C'est la <strong>seule maniere documentee</strong> d'executer Claude Code en CI/CD.</p>
+
+<h3>Les sorties structurees</h3>
+<pre>claude -p "Revue de cette PR" --output-format json --json-schema '{...}'</pre>
+<p>Le resultat est un JSON conforme au schema fourni via <code>--json-schema</code>, que vous pouvez parser pour poster automatiquement des commentaires inline via l'API GitHub.</p>
+
+<h3>L'isolation de session pour la revue</h3>
+<div class="key-concept">
+La meme session Claude qui a genere le code est moins efficace pour le reviewer. Elle conserve son contexte de raisonnement et questionne moins ses propres decisions — un biais analogue a celui d'un developpeur relisant son propre code. Utilisez une <strong>instance independante</strong> (session separee) pour la revue.
+</div>
+
+<h3>Bonnes pratiques CI/CD</h3>
+<ul>
+<li><strong>Eviter les commentaires dupliques :</strong> quand vous relancez une revue apres de nouveaux commits, incluez les resultats de la revue precedente dans le contexte et demandez a Claude de ne signaler que les problemes nouveaux ou non resolus.</li>
+<li><strong>Ameliorer la generation de tests :</strong> documentez les standards de test et les fixtures dans <code>CLAUDE.md</code>, et incluez les fichiers de test existants en contexte pour garder un style coherent.</li>
+</ul>
+
+<h3>Le mode <em>headless</em> (terminologie Anthropic)</h3>
+<p>Le mode non interactif active par <code>-p</code> / <code>--print</code> est designe officiellement comme <strong>headless mode</strong> dans la documentation Anthropic. Caracteristiques :</p>
+<ul>
+<li>Pas de prompt interactif, pas d'attente de saisie</li>
+<li>Sortie sur stdout, code de retour exploitable (<code>$?</code>)</li>
+<li>Combinable avec <code>--output-format json</code> pour parsing programmatique</li>
+<li>Combinable avec <code>--max-turns N</code> pour limiter les iterations agentiques</li>
+<li>Nessite des permissions explicites (sinon les demandes bloquent silencieusement)</li>
+</ul>
+
+<h3>Workflow GitHub Actions concret</h3>
+<pre>name: Claude Code Review
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # historique complet pour git diff main...HEAD
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run Claude review (headless)
+        id: review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          claude -p "Review the diff git diff origin/main...HEAD \
+            for security issues, bugs, and style violations. \
+            Output JSON matching the schema." \
+            --output-format json \
+            --max-turns 10 \
+            --json-schema '{
+              "type":"object",
+              "properties":{
+                "issues":{"type":"array","items":{
+                  "type":"object",
+                  "properties":{
+                    "severity":{"enum":["critical","major","minor"]},
+                    "file":{"type":"string"},
+                    "line":{"type":"integer"},
+                    "message":{"type":"string"}
+                  },
+                  "required":["severity","file","message"]
+                }}
+              }
+            }' &gt; review.json
+
+      - name: Post inline comments
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const review = require('./review.json');
+            for (const issue of review.issues) {
+              await github.rest.pulls.createReviewComment({
+                ...context.repo,
+                pull_number: context.issue.number,
+                body: `**[${issue.severity}]** ${issue.message}`,
+                commit_id: context.payload.pull_request.head.sha,
+                path: issue.file,
+                line: issue.line
+              });
+            }</pre>
+
+<div class="key-concept">
+<strong>Points cles du workflow :</strong>
+<ul>
+<li><code>fetch-depth: 0</code> — sans ca, <code>git diff origin/main...HEAD</code> echoue (historique tronque)</li>
+<li><code>ANTHROPIC_API_KEY</code> dans les <strong>secrets</strong> du repo, pas dans le YAML</li>
+<li><code>--max-turns</code> evite une boucle agentique infinie qui consommerait du budget</li>
+<li>Les permissions GitHub Actions doivent inclure <code>pull-requests: write</code> pour poster des commentaires</li>
+<li>L'instance de revue est <strong>distincte</strong> de toute instance de generation : pas de biais self-review</li>
+</ul>
+</div>
+
+<div class="anti-pattern">
+<strong>Anti-pattern :</strong> executer Claude sans <code>--max-turns</code> en CI. Un agent peut entrer en boucle sur un edge case et consommer 50+ iterations, faisant exploser le temps et le cout du job. <code>--max-turns 10</code> ou <code>--max-turns 15</code> est un garde-fou raisonnable pour la plupart des taches de revue.
+</div>
+
+<!-- ================================================================== -->
+<div class="subsection"><h3 id="s6b">Les hooks Claude Code (au niveau config)</h3></div>
+
+<p><strong>Distinction critique a retenir pour l'examen :</strong></p>
+<table>
+<tr><th>Type de hook</th><th>Defini ou ?</th><th>Quand l'utiliser</th></tr>
+<tr><td><strong>Hooks Agent SDK</strong> (D1 §5)</td><td>Code Python/TS, dans la configuration de l'agent</td><td>Quand vous construisez un agent via le SDK</td></tr>
+<tr><td><strong>Hooks Claude Code (config)</strong></td><td>Bloc <code>"hooks"</code> dans <code>settings.json</code></td><td>Pour la CLI Claude Code, sans coder un agent</td></tr>
+</table>
+
+<h3>Les evenements declencheurs des hooks Claude Code</h3>
+<table>
+<tr><th>Evenement</th><th>Quand il se declenche</th><th>Cas d'usage typiques</th></tr>
+<tr><td><code>UserPromptSubmit</code></td><td>Avant l'envoi du prompt utilisateur a Claude</td><td>Injecter du contexte (date, branche Git), redacter des secrets, bloquer des prompts interdits</td></tr>
+<tr><td><code>PreToolUse</code></td><td>Avant l'execution d'un outil par Claude</td><td>Validation supplementaire d'un <code>Bash</code> dangereux, audit log</td></tr>
+<tr><td><code>PostToolUse</code></td><td>Apres l'execution d'un outil</td><td>Lint automatique apres <code>Edit</code>, formatage, verification de schema</td></tr>
+<tr><td><code>Stop</code></td><td>Quand Claude termine son tour</td><td>Notification de fin, sauvegarde de transcript, declenchement de tests</td></tr>
+<tr><td><code>SessionStart</code></td><td>Au demarrage d'une session Claude Code</td><td>Charger des variables d'env, verifier la branche Git, afficher un statut</td></tr>
+<tr><td><code>Notification</code></td><td>Quand Claude veut notifier l'utilisateur (idle, attente)</td><td>Envoyer une notification systeme, log</td></tr>
+<tr><td><code>PreCompact</code></td><td>Avant un <code>/compact</code> automatique ou manuel</td><td>Sauvegarder l'etat avant compression</td></tr>
+</table>
+
+<h3>Anatomie d'un hook</h3>
+<pre>// .claude/settings.json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run lint -- --fix \"$CLAUDE_FILE_PATHS\"",
+            "timeout": 30000
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"Branche actuelle : $(git branch --show-current)\"",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/notify-done.sh"
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+
+<table>
+<tr><th>Champ</th><th>Role</th></tr>
+<tr><td><code>matcher</code></td><td>Filtre regex sur le nom de l'outil (PreToolUse / PostToolUse) ou <code>"*"</code> pour tous</td></tr>
+<tr><td><code>type</code></td><td>Toujours <code>"command"</code> dans la config (les hooks programmatiques sont via le SDK)</td></tr>
+<tr><td><code>command</code></td><td>Commande shell executee. Variables disponibles : <code>$CLAUDE_FILE_PATHS</code>, <code>$CLAUDE_TOOL_NAME</code>, <code>$CLAUDE_TOOL_INPUT</code></td></tr>
+<tr><td><code>timeout</code></td><td>Millisecondes avant kill (defaut : 60000). Important pour eviter de bloquer la session</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Code de retour du hook :</strong>
+<ul>
+<li><strong>0</strong> — succes, Claude continue normalement</li>
+<li><strong>2</strong> — erreur "blocking" : <code>stderr</code> est renvoye a Claude qui peut reagir (auto-correction, ajustement)</li>
+<li><strong>autre code non-zero</strong> — erreur "non-blocking" : log mais Claude continue</li>
+</ul>
+Pour PreToolUse, un code 2 <strong>annule l'appel d'outil</strong> et permet de forcer Claude a reformuler.
+</div>
+
+<div class="exam-tip">
+<strong>Scenario d'examen :</strong> votre equipe veut que tous les fichiers TypeScript soient automatiquement reformates apres edition par Claude. Solution : un hook <code>PostToolUse</code> avec <code>matcher: "Edit|Write"</code> qui execute <code>prettier --write "$CLAUDE_FILE_PATHS"</code>. Pas besoin d'instructions dans <code>CLAUDE.md</code> ni de skill — le hook est <strong>deterministe</strong> (toujours execute), contrairement aux instructions textuelles que Claude peut oublier.
+</div>
+
+<h3>Hooks vs. instructions vs. skills : quand utiliser quoi</h3>
+<table>
+<tr><th>Besoin</th><th>Solution</th><th>Pourquoi</th></tr>
+<tr><td>"Toujours formater apres edition"</td><td><strong>Hook</strong> PostToolUse</td><td>Deterministe, pas dependant du raisonnement de Claude</td></tr>
+<tr><td>"Suivre nos conventions de style"</td><td><strong>CLAUDE.md</strong></td><td>Guidance souple appliquee par le modele</td></tr>
+<tr><td>"Generer un changelog selon notre format"</td><td><strong>Skill</strong></td><td>Workflow structure, invocation a la demande</td></tr>
+<tr><td>"Bloquer <code>rm -rf</code> sur des chemins critiques"</td><td><strong>Permissions deny</strong> + <strong>hook PreToolUse</strong></td><td>Defense en profondeur</td></tr>
+</table>
+
+<!-- ================================================================== -->
+<div class="subsection"><h3 id="s6c">Configuration des serveurs MCP via la CLI</h3></div>
+
+<p>Les serveurs MCP peuvent etre declares de deux manieres : dans un fichier <code>.mcp.json</code> a la racine du projet (versionne, partage equipe), ou via la CLI <code>claude mcp add</code> qui edite <code>~/.claude.json</code> (user-level).</p>
+
+<h3>La commande <code>claude mcp add</code></h3>
+<pre># Ajout d'un serveur stdio (transport local par sous-processus)
+claude mcp add github -- npx -y @modelcontextprotocol/server-github
+
+# Ajout avec variables d'env (token API, URL de base)
+claude mcp add postgres \
+  -e DATABASE_URL=postgres://... \
+  -- npx -y @modelcontextprotocol/server-postgres
+
+# Ajout d'un serveur HTTP/SSE distant
+claude mcp add my-api --transport http https://api.example.com/mcp
+
+# Lister les serveurs enregistres
+claude mcp list
+
+# Supprimer
+claude mcp remove github</pre>
+
+<h3>Structure du fichier <code>.mcp.json</code> (projet)</h3>
+<pre>// .mcp.json a la racine du projet — versionne avec Git
+{
+  "mcpServers": {
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "internal-docs": {
+      "type": "http",
+      "url": "https://docs.internal/mcp",
+      "headers": {
+        "Authorization": "Bearer ${DOCS_TOKEN}"
+      }
+    }
+  }
+}</pre>
+
+<div class="exam-tip">
+<strong>EXAM TIP :</strong> les <strong>secrets</strong> ne doivent jamais etre ecrits en clair dans <code>.mcp.json</code> (versionne). Utilisez la syntaxe <code>${VAR}</code> pour referencer des variables d'environnement, ou definissez le serveur dans <code>~/.claude.json</code> (user, non versionne) via <code>claude mcp add -e</code>.
+</div>
+
+<div class="key-concept">
+<strong>Hierarchie de resolution MCP :</strong> au demarrage de Claude Code, les serveurs sont charges depuis (priorite croissante) : config user (<code>~/.claude.json</code>) → <code>.mcp.json</code> du projet → arguments CLI <code>--mcp-config</code>. Un meme nom dans plusieurs sources entraine une fusion, l'entree de plus haute priorite l'emporte.
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s7">7. Arbre de decision : quelle fonctionnalite utiliser</h2></div>
+
+<p>Claude Code offre plusieurs mecanismes. Voici comment choisir le bon :</p>
+
+<table>
+<tr><th>Fonctionnalite</th><th>Chargement</th><th>Declenchement</th><th>Isolation</th><th>Usage ideal</th></tr>
+<tr><td><strong>CLAUDE.md</strong></td><td>Toujours</td><td>Automatique</td><td>Non</td><td>Standards universels du projet</td></tr>
+<tr><td><strong>Skills</strong></td><td>A la demande</td><td>Matching semantique</td><td>Optionnelle (<code>context: fork</code>)</td><td>Expertise specifique a une tache</td></tr>
+<tr><td><strong>Slash commands</strong></td><td>A l'invocation</td><td>Manuel (<code>/commande</code>)</td><td>Non</td><td>Workflows repetables explicites (legacy)</td></tr>
+<tr><td><strong>Hooks</strong></td><td>Evenementiel</td><td>Evenement (appel d'outil)</td><td>Non</td><td>Operations automatiques (lint, validation)</td></tr>
+<tr><td><strong>Subagents</strong></td><td>A la demande</td><td>Delegation explicite</td><td><strong>Oui</strong></td><td>Taches deleguees avec isolation</td></tr>
+<tr><td><strong>Serveurs MCP</strong></td><td>A la connexion</td><td>Via les outils</td><td>Non</td><td>Outils et integrations externes</td></tr>
+</table>
+
+<p><em>Pour les hooks de l'Agent SDK (PostToolUse, PreToolUse) au niveau programmatique, voir D1, section 5.</em></p>
+
+<!-- ================================================================== -->
+<div class="section-header page-break"><h2 id="s8">8. Synthese — les points cles</h2></div>
+
+<h3>CLAUDE.md</h3>
+<ul>
+<li>Trois niveaux : user (personnel), project (equipe), directory (local).</li>
+<li>Erreur classique : mettre les instructions au user-level au lieu du project-level.</li>
+<li>Syntaxe <code>@path</code> pour les imports modulaires (profondeur max : 5 niveaux).</li>
+<li><code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> et glob patterns pour le chargement conditionnel.</li>
+<li>Glob patterns preferables pour les conventions cross-directory ; directory <code>CLAUDE.md</code> pour les regles strictement locales.</li>
+<li><code>/memory</code> pour persister des notes entre sessions ; <code>/compact</code> pour compresser le contexte.</li>
+</ul>
+
+<h3>Skills et slash commands</h3>
+<ul>
+<li>Slash commands dans <code>.claude/commands/</code> : format legacy, partage via VCS.</li>
+<li>Skills dans <code>.claude/skills/</code> : format actuel, <code>SKILL.md</code> avec YAML frontmatter.</li>
+<li>Skills personnels dans <code>~/.claude/skills/</code> : doivent utiliser des <strong>noms differents</strong> des skills projet (le projet prend priorite pour un meme nom).</li>
+<li><code>context: fork</code> pour l'isolation dans un subagent, <code>allowed-tools</code> pour restreindre les outils.</li>
+<li>Priorite : Enterprise &gt; Personnel &gt; Projet &gt; Plugins.</li>
+</ul>
+
+<h3>Modes de travail</h3>
+<ul>
+<li>Planning mode pour les taches complexes, codebase inconnu, migrations 45+ fichiers.</li>
+<li>Direct execution pour les corrections ciblees sur un seul fichier.</li>
+<li>Combinaison : planning mode puis direct execution apres approbation.</li>
+<li>Le Explore subagent isole la sortie verbeuse de la decouverte.</li>
+<li>Le interview pattern fait emerger les considerations non anticipees avant implementation.</li>
+<li>Batch feedback pour les remarques independantes ; sequential feedback pour les etapes dependantes.</li>
+</ul>
+
+<h3>CI/CD</h3>
+<ul>
+<li>Le flag <code>-p</code> (<code>--print</code>) active le <strong>headless mode</strong>, obligatoire en CI.</li>
+<li><code>--output-format json</code> + <code>--json-schema</code> pour des sorties structurees.</li>
+<li><code>--max-turns N</code> est un garde-fou contre les boucles agentiques infinies.</li>
+<li>Instance independante pour la revue (pas la meme session qui a genere le code).</li>
+<li>Inclure les resultats de revue precedents pour eviter les commentaires dupliques.</li>
+<li><code>fetch-depth: 0</code> obligatoire dans GitHub Actions pour <code>git diff origin/main...HEAD</code>.</li>
+<li><code>ANTHROPIC_API_KEY</code> dans les secrets, jamais en clair dans le YAML.</li>
+</ul>
+
+<h3>Configuration JSON et permissions</h3>
+<ul>
+<li><strong>Trois niveaux</strong> : <code>~/.claude/settings.json</code> (user) / <code>.claude/settings.json</code> (projet, versionne) / <code>.claude/settings.local.json</code> (local, dans <code>.gitignore</code>).</li>
+<li>Precedence : <code>settings.local.json</code> &gt; <code>settings.json</code> projet &gt; user &gt; defauts.</li>
+<li><code>permissions.allow</code> : allowlist explicite necessaire en CI pour eviter les blocages.</li>
+<li>Syntaxe Bash : <code>Bash(npm test)</code> = exact ; <code>Bash(npm test:*)</code> = avec arguments libres.</li>
+<li><code>defaultMode</code> : <code>"default"</code> / <code>"acceptEdits"</code> / <code>"plan"</code> / <code>"bypassPermissions"</code> (dangereux).</li>
+<li><code>permissions.deny</code> a precedence sur <code>allow</code> (defense en profondeur).</li>
+</ul>
+
+<h3>Hooks Claude Code (config-level)</h3>
+<ul>
+<li>Definis dans le bloc <code>"hooks"</code> de <code>settings.json</code> — distincts des hooks Agent SDK (D1).</li>
+<li>Evenements : <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>, <code>SessionStart</code>, <code>Notification</code>, <code>PreCompact</code>.</li>
+<li>Code de retour : 0 = OK, 2 = blocking (Claude reagit), autre = non-blocking.</li>
+<li>Variables : <code>$CLAUDE_FILE_PATHS</code>, <code>$CLAUDE_TOOL_NAME</code>, <code>$CLAUDE_TOOL_INPUT</code>.</li>
+<li>Hook = deterministe (toujours execute) ; CLAUDE.md = instruction souple ; skill = workflow invocable.</li>
+</ul>
+
+<h3>MCP dans Claude Code</h3>
+<ul>
+<li><code>.mcp.json</code> au projet (versionne) ou <code>~/.claude.json</code> (user, via <code>claude mcp add</code>).</li>
+<li>Transports : <code>stdio</code> (sous-processus local) ou <code>http</code> (distant).</li>
+<li>Secrets via <code>${VAR}</code> ou via flag <code>-e</code> de <code>claude mcp add</code>.</li>
+</ul>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s9">9. Auto-evaluation</h2></div>
+
+<details>
+<summary>Q1 : Trois developpeurs anciens beneficient de "always include comprehensive error handling", mais un nouveau qui vient de rejoindre ne l'a pas. Tous travaillent sur le meme repo. Cause probable ?
+A) L'instruction est dans <code>~/.claude/CLAUDE.md</code> (user-level) au lieu de <code>.claude/CLAUDE.md</code> (project-level).
+B) Le <code>~/.claude/CLAUDE.md</code> du nouveau contient des instructions conflictuelles.
+C) Claude Code apprend les preferences par utilisateur au fil du temps.
+D) Le nouveau doit relancer Claude Code.</summary>
+<p><strong>Reponse : A.</strong> Le fichier <code>~/.claude/CLAUDE.md</code> est au user-level : il est personnel et non partage via VCS. Les trois anciens developpeurs l'ont chacun dans leur propre configuration, mais le nouveau n'en dispose pas. La solution est de deplacer cette instruction dans <code>.claude/CLAUDE.md</code> (project-level), qui est versionne et partage avec toute l'equipe.</p>
+</details>
+
+<details>
+<summary>Q2 : Votre codebase a des conventions differentes pour React, API, et database. Les tests sont co-localises avec le code. Quelle approche ?
+A) Des fichiers <code>.claude/rules/</code> avec YAML frontmatter et glob patterns.
+B) Tout mettre dans le root <code>CLAUDE.md</code>.
+C) Des skills dans <code>.claude/skills/</code>.
+D) Un <code>CLAUDE.md</code> dans chaque repertoire.</summary>
+<p><strong>Reponse : A.</strong> Les fichiers <code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> et glob patterns permettent un chargement conditionnel : chaque convention n'est chargee que quand Claude edite un fichier correspondant. C'est l'approche preferee pour les conventions cross-directory (tests co-localises disperses dans le codebase). B gaspillerait du contexte en chargeant tout systematiquement. C est pour les taches, pas les conventions. D serait fastidieux a maintenir avec des tests disperses.</p>
+</details>
+
+<details>
+<summary>Q3 : Un skill <code>/analyze-codebase</code> fait du deep analysis. Apres l'avoir lance, Claude devient moins responsif et perd le contexte de la tache originale. Comment fixer ?
+A) Ajouter <code>context: fork</code> dans le frontmatter du skill.
+B) Utiliser <code>/compact</code> apres le skill.
+C) Reduire les outils du skill avec <code>allowed-tools</code>.
+D) Decouper le skill en plus petits skills.</summary>
+<p><strong>Reponse : A.</strong> Le parametre <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> execute le skill dans un subagent isole. La sortie verbeuse ne pollue pas la session principale, et Claude conserve le contexte de la tache originale. B compresserait le contexte mais avec perte d'information. C limiterait les capacites du skill sans resoudre le probleme de pollution du contexte. D ajouterait de la complexite sans isolation.</p>
+</details>
+
+<details>
+<summary>Q4 : Votre pipeline CI execute <code>claude 'Analyze this PR for security issues'</code> mais le job reste bloque indefiniment. Quel est le probleme ?
+A) Ajouter <code>--batch</code>.
+B) Utiliser le flag <code>-p</code>.
+C) Rediriger stdin depuis <code>/dev/null</code>.
+D) Setter <code>CLAUDE_HEADLESS=true</code>.</summary>
+<p><strong>Reponse : B.</strong> Le flag <code>-p</code> (alias <code>--print</code>) est la maniere documentee d'executer Claude Code en mode non interactif (<em>headless mode</em>) pour les pipelines CI/CD. Sans ce flag, Claude Code attend une saisie utilisateur interactive, ce qui bloque le job. La commande correcte est <code>claude -p 'Analyze this PR for security issues'</code>.</p>
+</details>
+
+<details>
+<summary>Q5 : Une developpeuse a ajoute des autorisations dans <code>.claude/settings.local.json</code>. Son collegue clone le repo mais les autorisations ne s'appliquent pas. Cause ?
+A) Il faut redemarrer Claude Code pour recharger la config.
+B) <code>settings.local.json</code> est dans <code>.gitignore</code>, il n'est pas versionne ni partage.
+C) Les permissions sont stockees par utilisateur dans une base locale.
+D) Le collegue doit lancer <code>claude --sync-permissions</code>.</summary>
+<p><strong>Reponse : B.</strong> Par convention (et habituellement par <code>.gitignore</code>), <code>.claude/settings.local.json</code> n'est pas versionne. Il sert aux surcharges <strong>locales</strong> par developpeur (chemins absolus, secrets, autorisations dangereuses). Pour partager des autorisations avec l'equipe, elles doivent etre dans <code>.claude/settings.json</code> (versionne). A est faux (la config est rechargee), C et D ne correspondent pas a des fonctionnalites Claude Code.</p>
+</details>
+
+<details>
+<summary>Q6 : Vous voulez autoriser <code>npm test</code> avec n'importe quels arguments en CI, mais bloquer toute autre commande npm. Quelle entree dans <code>permissions.allow</code> ?
+A) <code>"Bash(npm test)"</code>.
+B) <code>"Bash(npm test:*)"</code>.
+C) <code>"Bash(npm:*)"</code>.
+D) <code>"Bash(npm test --*)"</code>.</summary>
+<p><strong>Reponse : B.</strong> <code>"Bash(npm test:*)"</code> autorise <code>npm test</code> suivi de n'importe quels arguments (<code>npm test --watch</code>, <code>npm test src/foo</code>). A est trop restrictif : seul <code>npm test</code> exact passerait. C autoriserait toute commande npm (<code>npm publish</code>, <code>npm install</code>) — trop large. D n'est pas la syntaxe valide des allowlists Claude Code (<code>:*</code> est le suffixe officiel).</p>
+</details>
+
+<details>
+<summary>Q7 : Votre equipe veut que tous les fichiers TypeScript soient automatiquement formates par Prettier apres edition par Claude. Quelle approche est la plus fiable ?
+A) Ajouter "Always run prettier after editing" dans <code>CLAUDE.md</code>.
+B) Creer un skill <code>/format</code> que les developpeurs invoquent.
+C) Configurer un hook <code>PostToolUse</code> avec <code>matcher: "Edit|Write"</code> qui execute <code>prettier --write</code>.
+D) Demander a Claude d'inclure <code>prettier</code> dans chaque commit.</summary>
+<p><strong>Reponse : C.</strong> Un hook <code>PostToolUse</code> est <strong>deterministe</strong> : il s'execute apres chaque <code>Edit</code> ou <code>Write</code>, sans dependre du raisonnement du modele. A repose sur la conformite du modele aux instructions textuelles, qui peut etre oubliee dans des contextes longs. B est manuel et fragile. D melange les responsabilites (formatage en commit). Le hook est l'option choisie pour les actions automatiques garanties — c'est precisement leur raison d'etre.</p>
+</details>
+
+<details>
+<summary>Q8 : Votre workflow GitHub Actions execute <code>claude -p</code> mais Claude entre parfois dans une boucle qui consomme 50+ iterations agentiques avant de s'arreter. Comment limiter cela proprement ?
+A) Ajouter <code>--max-turns 10</code> a la commande.
+B) Mettre un <code>timeout-minutes: 5</code> sur le job GitHub Actions.
+C) Reduire le contexte initial.
+D) Utiliser <code>--output-format json</code>.</summary>
+<p><strong>Reponse : A.</strong> <code>--max-turns N</code> est le garde-fou natif de Claude Code pour limiter le nombre d'iterations agentiques (cycles tool_use → tool_result). C'est l'option propre : Claude termine avec un resultat partiel exploitable. B (timeout du job) est un filet de securite mais coupe brutalement, sans output structure. C peut aider mais ne resout pas la cause. D controle le format de sortie, pas le nombre d'iterations. Combinez idealement A + B pour la defense en profondeur.</p>
+</details>
+
+<details>
+<summary>Q9 : Vous configurez un serveur MCP <code>github</code> qui necessite un <code>GITHUB_TOKEN</code>. Vous voulez le partager avec l'equipe sans exposer le token. Approche correcte ?
+A) Mettre <code>GITHUB_TOKEN: "ghp_xxx"</code> dans <code>.mcp.json</code>.
+B) Mettre <code>GITHUB_TOKEN: "${GITHUB_TOKEN}"</code> dans <code>.mcp.json</code> et chacun definit la variable d'env localement.
+C) Stocker le token dans <code>.claude/settings.json</code>.
+D) Encoder le token en base64 dans <code>.mcp.json</code>.</summary>
+<p><strong>Reponse : B.</strong> La syntaxe <code>${VAR}</code> dans <code>.mcp.json</code> est resolue au runtime depuis l'environnement. Le fichier reste versionne sans secret expose ; chaque developpeur fournit son propre token via son shell (<code>export GITHUB_TOKEN=...</code>) ou via un gestionnaire de secrets local. A et D exposent le secret dans Git. C melange les responsabilites et expose toujours le secret si <code>settings.json</code> est versionne. Alternative legitime : utiliser <code>claude mcp add github -e GITHUB_TOKEN=...</code> qui ecrit dans <code>~/.claude.json</code> (user-level, non versionne).</p>
+</details>
+
+<hr>
+<p style="text-align:center;color:#888;font-size:9pt;">
+CCA Revision — D3 Configuration et workflows · Sources : guide officiel CCA (chapitre 5) · 2026
+</p>
+
+</body>
+</html>

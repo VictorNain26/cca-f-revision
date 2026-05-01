@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>CCA Révision — D5 — Gestion du contexte et fiabilité (15 %)</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+<nav class="navbar">
+  <a class="home" href="index.html">CCA-F</a>
+  <a href="index.html">Accueil</a>
+  <a href="D0_API_Fundamentals.html">D0 Fondamentaux</a>
+  <a href="D1_Architecture_Orchestration_27pct.html">D1 Architecture</a>
+  <a href="D2_Tool_Design_MCP_18pct.html">D2 Tools/MCP</a>
+  <a href="D3_Claude_Code_Config_20pct.html">D3 Claude Code</a>
+  <a href="D4_Prompt_Engineering_20pct.html">D4 Prompt Eng.</a>
+  <a class="current" href="D5_Context_Fiabilite_15pct.html">D5 Context</a>
+  <a href="Practice_Questions.html">Practice</a>
+  <a href="Scenarios_Exam.html">Scenarios</a>
+  <a href="Exam_Strategy.html">Strategie J</a>
+</nav>
+
+<div class="header-bar">
+<h1>D5 — Gestion du contexte et fiabilité (15 %)</h1>
+<p>6 Task Statements · Sources : guide officiel, chapitres 9, 10, 11 et 12</p>
+</div>
+
+<div class="toc">
+<strong>Sommaire</strong>
+<ol>
+<li><a href="#s1">Préserver les informations critiques dans le contexte</a></li>
+<li><a href="#s1b">Prompt caching, token budgeting et progressive summarization</a></li>
+<li><a href="#s2">Les patterns d'escalation</a></li>
+<li><a href="#s3">La propagation d'erreurs dans les systèmes multi-agents</a></li>
+<li><a href="#s4">Gérer le contexte dans les grandes codebases</a></li>
+<li><a href="#s5">Le contrôle humain et la confidence calibration</a></li>
+<li><a href="#s6">La provenance et la synthèse multi-sources</a></li>
+<li><a href="#s7">Synthèse — les points clés</a></li>
+<li><a href="#s8">Auto-évaluation</a></li>
+</ol>
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s1">1. Préserver les informations critiques dans le contexte (Task 5.1)</h2></div>
+
+<h3>Le problème que cela résout</h3>
+<p>L'API Claude ne conserve aucun état entre les requêtes : vous devez envoyer le <strong>full history</strong> à chaque appel. Au fil d'une conversation longue, cet historique grossit, et trois phénomènes menacent la qualité des réponses :</p>
+
+<h4>1. La perte lors de la compression progressive</h4>
+<p>Quand l'historique est résumé pour libérer du contexte, les valeurs numériques, les pourcentages et les dates sont condensés en termes vagues. Un remboursement de 89,99 $ discuté vingt turns plus tôt devient « a promotional pricing was discussed » dans le résumé.</p>
+
+<div class="key-concept">
+<strong>Solution : le <code>case facts</code> block.</strong> Extraire les faits transactionnels (montants, dates, numéros de commande, statuts) dans un bloc structuré, inclus dans chaque prompt <em>en dehors</em> de l'historique résumé :
+<pre>=== CASE FACTS (mis à jour à chaque nouveau fait) ===
+Customer ID : CUST-12345
+Order ID    : ORD-67890
+Order Date  : 2025-01-15
+Amount      : $89.99
+Issue       : Article endommagé à la livraison
+Request     : Remboursement intégral
+Status      : En attente d'approbation
+===</pre>
+</div>
+
+<div class="exam-tip">
+<strong>Point clé :</strong> Le <code>case facts</code> block vit <em>en dehors</em> de l'historique résumé (summarized history). Il est inclus dans chaque prompt API, de sorte que même après un <code>/compact</code>, les faits critiques restent intacts.
+</div>
+
+<h4>2. L'effet <code>lost-in-the-middle</code></h4>
+<p>Les modèles traitent de manière fiable les informations situées au <strong>début</strong> et à la <strong>fin</strong> des entrées longues, mais peuvent manquer des éléments placés au milieu. La parade : placer les conclusions clés en tête et les actions requises en fin de document.</p>
+<pre>[CONCLUSIONS CLÉS — en haut]
+Trois vulnérabilités critiques identifiées...
+
+[RÉSULTATS DÉTAILLÉS — au milieu]
+=== auth.ts === ...
+=== database.ts === ...
+
+[ACTIONS REQUISES — en bas]
+Priorité : corriger auth.ts avant le merge.</pre>
+
+<h4>3. L'accumulation des <code>tool results</code></h4>
+<p>Si <code>lookup_order</code> retourne 40 champs mais que seuls 5 sont pertinents pour la tâche en cours, le contexte se remplit d'informations inutiles. La solution : un hook <code>PostToolUse</code> qui ne conserve que les champs nécessaires avant que le modèle ne traite le résultat.</p>
+
+<pre>@hook("PostToolUse", tool="lookup_order")
+def trim_order_fields(result):
+    return {
+        "order_id": result["order_id"],
+        "status": result["status"],
+        "total": result["total"],
+        "items": result["items"],
+        "return_eligible": result["return_eligible"]
+    }</pre>
+
+<div class="exam-tip">
+<strong>À retenir :</strong> Le trimming des <code>tool results</code> se fait via un hook <code>PostToolUse</code> (pas <code>PreToolUse</code>). Le hook intervient <em>après</em> l'exécution de l'outil, avant que le résultat ne soit ajouté au contexte du modèle.
+</div>
+
+<h3>Les autres techniques de gestion du contexte</h3>
+<ul>
+<li><strong><code>/compact</code> :</strong> compresse le contexte en résumant l'historique. Utile dans les longues sessions, mais avec le risque de perdre des détails exacts — d'où l'importance du <code>case facts</code> block.</li>
+<li><strong>Fichiers <code>scratchpad</code> :</strong> l'agent écrit ses découvertes clés dans un fichier (<code>investigation-scratchpad.md</code>) et le consulte quand le contexte se dégrade.</li>
+<li><strong>Délégation aux <code>subagent</code>s :</strong> isoler les phases de découverte verbeuses dans un <code>subagent</code> qui ne retourne qu'un résumé concis au thread principal.</li>
+<li><strong>Budgets de contexte contraints :</strong> envoyer un contexte minimal aux <code>subagent</code>s, exiger des résultats structurés (pas de dumps bruts), et limiter les outils disponibles pour réduire les distractions.</li>
+<li><strong>Métadonnées obligatoires dans les sorties des <code>subagent</code>s :</strong> les <code>subagent</code>s doivent inclure les dates, sources et <code>attribution</code>s dans leurs résultats structurés, faute de quoi la synthèse en aval perd la <code>provenance</code>.</li>
+</ul>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s1b">Prompt caching, token budgeting et progressive summarization</h2></div>
+
+<h3>Le problème que cela résout</h3>
+<p>Le <code>case facts</code> block et les fichiers <code>scratchpad</code> protègent les <em>contenus</em> critiques. Mais dans une boucle agentique longue, le coût et la latence explosent à cause de la <strong>répétition</strong> du même prefix (system prompt, tool definitions, historique stable) à chaque appel API. Le <code>prompt caching</code> et le <code>token budgeting</code> traitent cet axe coût/performance.</p>
+
+<h3>Le mécanisme du prompt caching</h3>
+<p>Le <code>prompt caching</code> stocke côté serveur Anthropic les portions <strong>stables</strong> d'une requête. Lors de l'appel suivant, si le prefix est identique, Claude lit depuis le cache au lieu de retraiter les tokens.</p>
+
+<table>
+<tr><th>Métrique</th><th>Sans cache</th><th>Avec cache (cache hit)</th></tr>
+<tr><td>Coût des input tokens cachés</td><td>1× tarif standard</td><td><strong>0,1×</strong> tarif standard (90% de réduction)</td></tr>
+<tr><td>Écriture cache (cache write, premier appel)</td><td>—</td><td><strong>1,25×</strong> tarif standard (TTL 5 min) ou <strong>2×</strong> (TTL 1h)</td></tr>
+<tr><td>Latence (TTFT)</td><td>1×</td><td>Réduite (souvent ~50% sur prompts longs)</td></tr>
+<tr><td>TTL (durée de vie)</td><td>—</td><td>5 minutes (par défaut) ou 1 heure (option)</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Règle économique :</strong> le cache est rentable dès que le prefix mis en cache est <strong>réutilisé au moins 2 fois</strong> dans la fenêtre TTL. En dessous, le surcoût de cache write (1,25×) n'est pas amorti.
+</div>
+
+<h3>Les <code>cache_control</code> breakpoints</h3>
+<p>Le <code>cache_control</code> est un marqueur que vous placez sur des blocs spécifiques. Tout ce qui se trouve <strong>avant</strong> le breakpoint (et inclus dans le prefix de la requête) est mis en cache. Maximum <strong>4 breakpoints</strong> par requête.</p>
+
+<pre>{
+  "model": "claude-sonnet-4-6",
+  "max_tokens": 1024,
+  "system": [
+    {
+      "type": "text",
+      "text": "Tu es un assistant juridique spécialisé...",
+      "cache_control": { "type": "ephemeral" }    <-- breakpoint 1 (system stable)
+    }
+  ],
+  "tools": [
+    { "name": "search_cases", "description": "...", "input_schema": {...} },
+    { "name": "fetch_doc", "description": "...", "input_schema": {...},
+      "cache_control": { "type": "ephemeral" }   <-- breakpoint 2 (tools stables)
+    }
+  ],
+  "messages": [
+    { "role": "user", "content": [
+        { "type": "text",
+          "text": "Voici le dossier complet (50k tokens)...",
+          "cache_control": { "type": "ephemeral" }  <-- breakpoint 3 (gros doc)
+        }
+    ]},
+    { "role": "assistant", "content": "..." },
+    { "role": "user", "content": "Question de suivi" }
+  ]
+}</pre>
+
+<h3>L'ordre de placement (du plus stable au moins stable)</h3>
+<table>
+<tr><th>Position</th><th>Contenu</th><th>Stabilité</th></tr>
+<tr><td>1. <code>system</code></td><td>System prompt</td><td>Très stable (rarement modifié)</td></tr>
+<tr><td>2. <code>tools</code></td><td>Définitions d'outils</td><td>Stable (change avec le déploiement)</td></tr>
+<tr><td>3. Premier <code>user</code></td><td>Documents larges, contexte de tâche</td><td>Stable pendant une session</td></tr>
+<tr><td>4. Derniers <code>messages</code></td><td>Historique de conversation</td><td>Variable (à NE PAS cacher)</td></tr>
+</table>
+
+<div class="exam-tip">
+<strong>EXAM TIP :</strong> les blocs sont mis en cache <strong>jusqu'au dernier breakpoint inclus</strong>. Si vous placez un breakpoint sur le system prompt et un autre sur le dernier message, vous payez 2 cache writes mais cachez tout l'entre-deux. Pour un agent multi-turn, l'optimum est : breakpoint sur system, breakpoint sur tools, breakpoint sur le contexte initial du dossier — <em>jamais</em> sur les messages mouvants.
+</div>
+
+<div class="anti-pattern">
+<strong>Anti-pattern :</strong> mettre <code>cache_control</code> sur chaque message utilisateur. Chaque turn invalide le cache du turn précédent (le contenu n'est plus identique) et déclenche un cache write inutile. Résultat : surcoût net au lieu d'économie.
+</div>
+
+<h3>Quand le cache est invalidé</h3>
+<ul>
+<li>Toute modification du <strong>system prompt</strong> invalide tout le cache aval</li>
+<li>Toute modification des <strong>tool definitions</strong> invalide le cache à partir des tools</li>
+<li>Tout changement <em>avant</em> un breakpoint invalide ce breakpoint et tous les suivants</li>
+<li>Expiration du TTL (5 min ou 1h selon configuration)</li>
+<li>Changement de modèle (le cache est lié au modèle exact)</li>
+</ul>
+
+<h3>Lecture des métriques cache dans la réponse</h3>
+<pre>"usage": {
+  "input_tokens": 120,                      // tokens nouveaux (non cachés)
+  "cache_creation_input_tokens": 0,         // tokens écrits dans le cache
+  "cache_read_input_tokens": 8500,          // tokens lus depuis le cache (économie 90%)
+  "output_tokens": 350
+}</pre>
+
+<div class="key-concept">
+<strong>Cache hit rate :</strong> ratio <code>cache_read_input_tokens / (cache_read + cache_creation + input)</code>. Un agent bien configuré dépasse 80% sur les turns 2+ d'une session. Si votre hit rate est faible, le breakpoint est mal placé ou les contenus en amont changent trop souvent.
+</div>
+
+<h3>Token budgeting</h3>
+<p>Le <strong>token budgeting</strong> est l'allocation explicite, par avance, des budgets de tokens entre les composants d'un système agentique. Sans budget, le contexte se remplit anarchiquement et atteint la limite du modèle au pire moment.</p>
+
+<h4>Composantes d'un budget pour un agent type</h4>
+<table>
+<tr><th>Composante</th><th>Budget typique (sur 200k)</th><th>Stratégie</th></tr>
+<tr><td>System prompt + tools</td><td>2 000 — 8 000 tokens</td><td>Stable, cacher</td></tr>
+<tr><td>Case facts / scratchpad</td><td>1 000 — 4 000 tokens</td><td>Mis à jour, ne pas cacher</td></tr>
+<tr><td>Contexte de tâche initial (docs, codebase)</td><td>20 000 — 60 000 tokens</td><td>Cacher (breakpoint dédié)</td></tr>
+<tr><td>Historique de conversation</td><td>10 000 — 50 000 tokens</td><td>Compresser via <code>/compact</code> au-delà</td></tr>
+<tr><td>Tool results accumulés</td><td>5 000 — 30 000 tokens</td><td>Trimmer via hook PostToolUse (D5 §1)</td></tr>
+<tr><td>Réserve pour la réponse</td><td>= <code>max_tokens</code> requis</td><td>Toujours laisser cette marge</td></tr>
+</table>
+
+<div class="exam-tip">
+<strong>Règle de calcul :</strong> contexte effectif disponible = limite du modèle − <code>max_tokens</code> de la réponse − tokens stables (system, tools) − tool results restants. Si le budget calculé est négatif avant un appel, déclencher <code>/compact</code> ou déléguer à un subagent <em>avant</em> l'appel, pas après l'erreur 400.
+</div>
+
+<h3>Progressive summarization (compression progressive)</h3>
+<p>La <strong>progressive summarization</strong> est la stratégie consistant à résumer l'historique <em>au fur et à mesure</em> qu'il grossit, au lieu d'attendre la saturation. Trois niveaux :</p>
+
+<table>
+<tr><th>Niveau</th><th>Mécanisme</th><th>Quand l'utiliser</th></tr>
+<tr><td><strong>Niveau 1 — Résumé naturel</strong></td><td><code>/compact</code> manuel ou auto par Claude Code</td><td>Sessions interactives longues</td></tr>
+<tr><td><strong>Niveau 2 — Résumé structuré</strong></td><td>Subagent dédié qui produit un résumé selon un schema fixe (acteurs, faits, décisions, todos)</td><td>Workflows agentiques multi-turn</td></tr>
+<tr><td><strong>Niveau 3 — Résumé hiérarchique</strong></td><td>Résumé des résumés. Les tours 1-50 deviennent un résumé. Les tours 51-100 deviennent un autre résumé. Les deux résumés sont à leur tour résumés une fois 200 tours atteints.</td><td>Sessions très longues (debugging, recherche)</td></tr>
+</table>
+
+<div class="anti-pattern">
+<strong>Risque connu de la summarization (rappelé en D0) :</strong> les valeurs numériques exactes (montants, dates, IDs) sont les premières victimes. C'est précisément la raison d'être du <code>case facts</code> block — il vit <em>en dehors</em> du résumé et reste fiable même après plusieurs cycles de compression. Toujours combiner <code>summarization</code> + <code>case facts</code>.
+</div>
+
+<h3>L'approche CALM (Context-Aware LLM Management)</h3>
+<p>La littérature désigne parfois sous l'acronyme <strong>CALM</strong> l'ensemble des pratiques de gestion contextuelle adaptative : surveillance active du remplissage du contexte, déclenchement automatique de compression, allocation dynamique des budgets. Pas un produit Anthropic — un cadre conceptuel utile pour structurer les patterns vus dans ce domaine :</p>
+<ul>
+<li><strong>C</strong>ompression — quand et comment résumer (progressive summarization)</li>
+<li><strong>A</strong>llocation — token budgeting par composante</li>
+<li><strong>L</strong>oss prevention — case facts, scratchpads, structured handoffs</li>
+<li><strong>M</strong>onitoring — métriques cache, taille du contexte, qualité des sorties</li>
+</ul>
+
+<div class="key-concept">
+<strong>Synthèse opérationnelle :</strong>
+<ul>
+<li><strong>Pour la fiabilité</strong> : case facts + structured handoff + claim-source mapping (sections 1, 2, 6)</li>
+<li><strong>Pour le coût/latence</strong> : prompt caching avec cache_control breakpoints sur system/tools/contexte initial</li>
+<li><strong>Pour la longévité de session</strong> : progressive summarization à 3 niveaux + tool result trimming</li>
+<li><strong>Pour le crash recovery</strong> : manifest.json + état par subagent (section 4)</li>
+</ul>
+Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaison, pas en alternative.
+</div>
+
+<h3>Le memory tool (Anthropic)</h3>
+<p>Le <strong>memory tool</strong> est une primitive cliente fournie par Anthropic qui permet à Claude de stocker et lire des informations <em>persistantes hors du context window</em>, dans un système de fichiers virtuel géré par le client. Distinct de <code>/memory</code> de Claude Code (qui édite <code>CLAUDE.md</code>).</p>
+
+<table>
+<tr><th>Mécanisme</th><th>Où vit la donnée</th><th>Persistance</th><th>Cas d'usage</th></tr>
+<tr><td><code>case facts</code> block</td><td>Dans le prompt à chaque appel</td><td>Tant que le caller le ré-injecte</td><td>Faits transactionnels d'une session</td></tr>
+<tr><td><code>scratchpad</code> fichier</td><td>Sur disque, lu via tool</td><td>Tant que le fichier existe</td><td>Découvertes de longue session</td></tr>
+<tr><td><code>/memory</code> Claude Code</td><td><code>CLAUDE.md</code></td><td>Permanente, versionnée</td><td>Préférences et standards stables</td></tr>
+<tr><td><strong>Memory tool</strong> (API)</td><td>FS virtuel client</td><td>Permanente entre sessions</td><td>Préférences user à long terme dans une app</td></tr>
+</table>
+
+<pre>// Le memory tool expose 4 opérations standard
+{
+  "name": "memory",
+  "type": "memory_20250818"  // version officielle
+}
+
+// Claude appelle automatiquement :
+// - memory(action="view", path="/")          → lister les fichiers
+// - memory(action="view", path="/notes.md")  → lire un fichier
+// - memory(action="create", path="/notes.md", file_text="...")  → écrire
+// - memory(action="str_replace", path="/notes.md", old_str=..., new_str=...)
+// - memory(action="delete", path="/notes.md")</pre>
+
+<div class="key-concept">
+<strong>Quand utiliser :</strong> applications conversationnelles à long terme où Claude doit se souvenir de préférences user (style préféré, contraintes médicales, projets en cours) entre sessions, <em>sans</em> tout réinjecter dans le prompt à chaque turn. C'est le complément naturel du prompt caching : le cache économise sur les contenus stables ; le memory tool stocke ce qui doit être rappelé sélectivement.
+</div>
+
+<div class="exam-tip">
+<strong>Distinction examen :</strong> ne pas confondre <code>/memory</code> (slash command Claude Code → édite CLAUDE.md) avec le <strong>memory tool</strong> (primitive API pour applications custom). Si une question parle de "permettre à Claude de retenir des préférences user entre sessions dans une application chat", la bonne réponse est le memory tool.
+</div>
+
+<h3>Token budgeting : un calcul chiffré pas-à-pas</h3>
+<p>Mettons en pratique le concept de §1 (settings.json) sur un cas concret : <strong>agent juridique multi-turn, modèle Claude Sonnet 4.6 (200k tokens), session de 15 turns sur un dossier de 50k tokens</strong>.</p>
+
+<table>
+<tr><th>Composante</th><th>Tokens alloués</th><th>Stratégie</th></tr>
+<tr><td>System prompt (rôle, sécurité, format)</td><td>3 000</td><td>Cache_control (breakpoint 1)</td></tr>
+<tr><td>Tool definitions (8 tools juridiques)</td><td>5 000</td><td>Cache_control (breakpoint 2)</td></tr>
+<tr><td>Dossier juridique initial</td><td>50 000</td><td>Cache_control (breakpoint 3)</td></tr>
+<tr><td>Case facts block (mis à jour)</td><td>2 000</td><td>NON caché (mouvant)</td></tr>
+<tr><td>Historique 15 turns (~3000 tok/turn)</td><td>45 000</td><td>NON caché ; <code>/compact</code> au-delà</td></tr>
+<tr><td>Tool results accumulés</td><td>15 000</td><td>Trim via hook PostToolUse</td></tr>
+<tr><td>Réserve réponse (<code>max_tokens</code>)</td><td>4 096</td><td>—</td></tr>
+<tr><td><strong>Total prévu turn 15</strong></td><td><strong>124 096</strong></td><td>62 % du budget — OK</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Calcul d'économie cache (turn 2 → 15) :</strong>
+<ul>
+<li>Tokens cachés (stables) = 3 000 + 5 000 + 50 000 = <strong>58 000 tokens</strong></li>
+<li>Coût input standard Sonnet 4.6 ≈ 3 $/1M tokens</li>
+<li>Sans cache, sur 14 turns = 58 000 × 14 = 812 000 tokens × 3 $/1M = <strong>2,44 $</strong></li>
+<li>Avec cache (lecture à 0,1× = 0,30 $/1M) :
+  <ul>
+    <li>1 cache write = 58 000 × 1,25 × 3 $/1M = 0,22 $</li>
+    <li>14 cache reads = 58 000 × 14 × 0,30 $/1M = 0,24 $</li>
+    <li>Total = <strong>0,46 $</strong></li>
+  </ul>
+</li>
+<li><strong>Économie nette : 1,98 $ par session, soit ~80 %</strong></li>
+</ul>
+À l'échelle (1000 sessions/jour), ça fait ~2000 $/jour économisés, juste avec un placement intelligent de 3 breakpoints.
+</div>
+
+<h3>Quand le budget passe au rouge : décision tree</h3>
+<table>
+<tr><th>Symptôme</th><th>Action immédiate</th></tr>
+<tr><td>Total prévu &gt; 80 % du contexte</td><td>Déclencher <code>/compact</code> ou progressive summarization niveau 2</td></tr>
+<tr><td>Tool results accumulent &gt; 20 % du contexte</td><td>Vérifier le hook PostToolUse de trimming (D5 §1)</td></tr>
+<tr><td>Cache hit rate &lt; 50 %</td><td>Le prefix change trop — déplacer les contenus mouvants après le dernier breakpoint</td></tr>
+<tr><td>Erreur 400 "context length exceeded"</td><td>Subagent Explore + scratchpad + nouvelle session avec résumé</td></tr>
+<tr><td>Faits critiques perdus après <code>/compact</code></td><td>Le case facts block n'était pas en place — l'ajouter et restaurer depuis scratchpad</td></tr>
+</table>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s2">2. Les patterns d'escalation (Task 5.2)</h2></div>
+
+<h3>Le problème que cela résout</h3>
+<p>Un agent de support client doit savoir quand résoudre un problème de manière autonome et quand passer la main à un humain. Une mauvaise calibration entraîne deux types d'échecs : l'agent escalade des cas simples (perte d'efficacité) ou tente de traiter des cas complexes hors de sa portée (erreurs, frustration client).</p>
+
+<h3>Les déclencheurs fiables d'<code>escalation</code></h3>
+<table>
+<tr><th>Situation</th><th>Action</th></tr>
+<tr><td>Le client demande explicitement un humain</td><td>Escalader <strong>immédiatement</strong>, sans tenter de résoudre d'abord</td></tr>
+<tr><td>La politique ne couvre pas la demande (policy gap)</td><td>Escalader (ex. : alignement de prix concurrent quand la politique ne couvre que le propre site)</td></tr>
+<tr><td>L'agent ne fait plus de progrès (no progress)</td><td>Escalader après un nombre raisonnable de tentatives</td></tr>
+<tr><td>Opération financière au-dessus d'un seuil (financial threshold)</td><td>Escalader (de préférence via un hook, pas une instruction)</td></tr>
+<tr><td>Plusieurs correspondances client</td><td>Demander des identifiants supplémentaires ; ne <em>pas</em> deviner</td></tr>
+</table>
+
+<h3>Les déclencheurs NON fiables</h3>
+<div class="anti-pattern">
+<table>
+<tr><th>Méthode</th><th>Pourquoi elle échoue</th></tr>
+<tr><td><strong>Sentiment analysis</strong></td><td>L'humeur du client ne corrèle pas avec la complexité du cas. Un client frustré peut avoir un problème simple.</td></tr>
+<tr><td><strong>Self-rated confidence (1-10)</strong></td><td>Le modèle peut être confiant à tort. La <code>confidence calibration</code> est insuffisante.</td></tr>
+<tr><td><strong>Automatic classifier</strong></td><td>Sur-ingénierie. Nécessite des données d'entraînement souvent indisponibles.</td></tr>
+</table>
+</div>
+
+<h3>Les 3 patterns concrets d'<code>escalation</code></h3>
+<table>
+<tr><th>Pattern</th><th>Situation</th><th>Comportement attendu</th></tr>
+<tr><td><strong>Immediate</strong></td><td>« I want a manager »</td><td>Appeler <code>escalate_to_human</code> immédiatement. Ne pas tenter de résoudre.</td></tr>
+<tr><td><strong>After attempt</strong></td><td>Client insatisfait de la solution proposée</td><td>Proposer d'abord une résolution, escalader si le client refuse.</td></tr>
+<tr><td><strong>Nuanced (acknowledge → resolve → escalate on reiteration)</strong></td><td>« This is outrageous! »</td><td>Reconnaître la frustration → proposer une solution → escalader uniquement si le client <strong>réitère</strong> sa demande d'humain.</td></tr>
+</table>
+
+<div class="exam-tip">
+<strong>Piège classique :</strong> « This is outrageous, I'm very unhappy! » ne justifie <strong>pas</strong> une <code>escalation</code> immédiate. Le sentiment n'est pas un déclencheur fiable. Le bon pattern : acknowledge → resolve → escalate only on reiteration.
+</div>
+
+<h3>Calibrer l'<code>escalation</code> : critères explicites + few-shot examples</h3>
+<p>Quand un agent escalade trop (cas simples) ou pas assez (cas complexes), la solution la plus efficace combine <strong>deux éléments dans le system prompt</strong> :</p>
+<ol>
+<li><strong>Des critères d'<code>escalation</code> explicites</strong> — les règles claires (quand escalader, quand résoudre).</li>
+<li><strong>Des few-shot examples</strong> — qui montrent comment appliquer ces règles dans les cas ambigus.</li>
+</ol>
+
+<pre>/* Few-shot escalation examples dans le system prompt */
+Request: "Get me a manager"
+Action: Immediately call escalate_to_human.
+Rationale: Explicit human request. Do not attempt to solve.
+
+Request: "This is outrageous, I'm very unhappy!"
+Action: Acknowledge frustration, propose resolution.
+Rationale: Frustration ≠ human request. Escalate only on reiteration.</pre>
+
+<div class="exam-tip">
+<strong>À retenir :</strong> la bonne réponse est toujours la <strong>combinaison</strong> critères explicites + few-shot examples. Jamais l'un sans l'autre. Les distracteurs classiques : self-rated confidence, automatic classifier, sentiment analysis.
+</div>
+
+<h3>Le <code>structured handoff</code> protocol</h3>
+<p>L'opérateur humain qui prend le relais n'a <em>pas</em> accès au transcript complet. Le résumé transmis doit donc être complet et autosuffisant pour l'humain :</p>
+<pre>{
+  "customer_id": "CUST-12345",
+  "issue_summary": "Demande de remboursement pour article endommagé",
+  "order_id": "ORD-67890",
+  "root_cause": "Article arrivé endommagé",
+  "actions_taken": [
+    "Identité vérifiée via get_customer",
+    "Commande confirmée via lookup_order",
+    "Remplacement proposé — client insiste pour un remboursement"
+  ],
+  "refund_amount": "$89.99",
+  "recommended_action": "Approuver le remboursement intégral",
+  "escalation_reason": "Le client a demandé un responsable"
+}</pre>
+
+<div class="key-concept">
+<strong><code>Structured handoff</code> :</strong> Le résumé transmis à l'opérateur humain doit inclure <em>tout</em> ce qui est nécessaire pour reprendre le cas sans relire le transcript. C'est un protocole complet, pas un simple message d'<code>escalation</code>.
+</div>
+
+<!-- ================================================================== -->
+<div class="section-header page-break"><h2 id="s3">3. La propagation d'erreurs dans les systèmes multi-agents (Task 5.3)</h2></div>
+
+<p><em>Ce sujet complète D1 (architecture hub-and-spoke) et D2 (erreurs structurées MCP). Ici, l'accent est mis sur la propagation entre agents et la synthèse avec <code>coverage annotations</code>.</em></p>
+
+<h3>Le problème que cela résout</h3>
+<p>Dans un système multi-agents, un <code>subagent</code> peut échouer (timeout, document corrompu, API indisponible). Le coordinateur a besoin d'informations structurées pour décider intelligemment de la suite : retry ? Modifier la requête ? Continuer avec des résultats partiels ? Abandonner cette branche et annoter le manque ?</p>
+
+<h3>Le contexte d'erreur structuré d'un <code>subagent</code></h3>
+<p>Chaque erreur retournée au coordinateur doit inclure quatre éléments : <code>failure_type</code>, la requête tentée (<code>query</code>), les résultats partiels (<code>partial_results</code>), et les alternatives (<code>alternatives</code>).</p>
+<pre>{
+  "status": "partial_failure",
+  "failure_type": "timeout",
+  "attempted_query": "AI impact on music industry 2024",
+  "partial_results": [
+    {"title": "AI Music Generation Report", "url": "...", "relevance": 0.8}
+  ],
+  "alternative_approaches": [
+    "Requête plus ciblée : 'AI music composition tools'",
+    "Source de données alternative"
+  ],
+  "coverage_impact": "Non couvert : impact de l'IA sur la production musicale"
+}</pre>
+
+<h3>Distinguer timeout et résultats vides</h3>
+<div class="key-concept">
+<strong>Distinction critique :</strong> Un <strong>timeout</strong> est un access failure — la requête n'a pas abouti, et un retry peut être pertinent. Des <strong>résultats vides (0 results)</strong> signifient que la requête a abouti mais n'a rien trouvé — c'est un valid query avec un résultat légitime. Les traiter de la même manière (comme des « failures ») est un anti-pattern.
+</div>
+
+<table>
+<tr><th>Situation</th><th>Type</th><th>Action du coordinateur</th></tr>
+<tr><td>Connection timeout</td><td>Access failure</td><td>Retry decision (1-2 tentatives), puis propager si l'échec persiste</td></tr>
+<tr><td>0 results retournés</td><td>Valid empty result</td><td>Accepter comme résultat légitime, annoter dans la synthèse</td></tr>
+</table>
+
+<h3>Les 4 anti-patterns de gestion d'erreur</h3>
+<table>
+<tr><th>Anti-pattern</th><th>Pourquoi c'est un problème</th><th>Approche correcte</th></tr>
+<tr><td>Statut générique (« search unavailable »)</td><td>Le coordinateur ne peut pas choisir sa stratégie de récupération</td><td>Retourner <code>failure_type</code>, <code>query</code>, <code>partial_results</code>, <code>alternatives</code></td></tr>
+<tr><td>Suppression silencieuse (silent suppression : résultat vide = succès)</td><td>Le coordinateur croit qu'il n'y a pas de résultats</td><td>Distinguer « 0 results » (valid query) de « access failure »</td></tr>
+<tr><td>Abandon du workflow entier (abort whole workflow)</td><td>On perd tous les résultats partiels obtenus</td><td>Continuer avec les résultats disponibles, annoter les lacunes</td></tr>
+<tr><td>Retries infinis (infinite retries) dans le <code>subagent</code></td><td>Latence excessive et gaspillage de ressources</td><td>Récupération locale (1-2 retries), puis propagation au coordinateur</td></tr>
+</table>
+
+<h3>Les <code>coverage annotations</code> dans la synthèse</h3>
+<p>Quand la synthèse est produite à partir de résultats incomplets, elle doit l'indiquer explicitement :</p>
+<pre>## Rapport : impact de l'IA sur les industries créatives
+### Art visuel (FULL COVERAGE)
+[résultats de recherche]
+
+### Musique (PARTIAL COVERAGE — timeout du subagent de recherche)
+[résultats partiels]
+Note : la couverture de cette section est limitée.
+
+### Littérature (FULL COVERAGE)
+[résultats de recherche]</pre>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s4">4. Gérer le contexte dans les grandes codebases (Task 5.4)</h2></div>
+
+<h3>Le problème : la dégradation du contexte dans les longues sessions</h3>
+<p>Dans les sessions d'investigation longues, le modèle commence à produire des réponses instables et à se référer à des « patterns typiques » au lieu de citer des classes ou des fichiers spécifiques du codebase. C'est le signe d'une <strong>context degradation</strong> : le contexte utile a été noyé ou perdu.</p>
+
+<h3>Les solutions</h3>
+
+<h4>1. Fichiers <code>scratchpad</code></h4>
+<p>L'agent consigne ses découvertes clés dans un fichier qu'il peut consulter plus tard, quand le contexte se dégrade :</p>
+<pre># investigation-scratchpad.md
+## Découvertes clés
+- PaymentProcessor dans src/payments/processor.ts hérite de BaseProcessor
+- refund() est appelé depuis 3 endroits : OrderController, AdminPanel, CronJob
+- L'API PaymentGateway externe a une limite de 100 req/min
+- La migration n° 47 a ajouté refund_reason (NOT NULL) — 2024-12-01</pre>
+
+<h4>2. Délégation aux <code>subagent</code>s</h4>
+<p>L'agent principal demande à un <code>subagent</code> <code>Explore</code> d'investiguer les dépendances d'un module. Le <code>subagent</code> lit 15 fichiers dans son propre contexte et retourne un résumé concis au thread principal. Le contexte principal garde une ligne au lieu de 15 fichiers :</p>
+<pre>// Résultat du subagent Explore → résumé retourné au coordinateur
+"Le module Payments dépend de AuthService, OrderModel
+ et de l'API externe PaymentGateway."</pre>
+
+<h4>3. <code>/compact</code></h4>
+<p>La commande <code>/compact</code> compresse le contexte en résumant l'historique de la conversation. Utile quand le contexte approche de sa limite, mais les faits critiques doivent être protégés par un <code>case facts</code> block ou un fichier <code>scratchpad</code>.</p>
+
+<h4>4. Persistance d'état structurée avec <code>manifest.json</code> (crash recovery)</h4>
+<p>Quand un workflow multi-agents est long, chaque <code>subagent</code> exporte son état dans un fichier JSON connu. Le coordinateur maintient un fichier <code>manifest.json</code> qui résume l'état global du workflow. En cas de crash ou de redémarrage, le coordinateur charge ce manifeste et reprend là où il s'était arrêté.</p>
+
+<div class="key-concept">
+<strong>Exemple : état d'un <code>subagent</code></strong>
+<pre>// agent-state/web-search-agent.json
+{
+  "status": "completed",
+  "queries_executed": ["AI music 2024", "AI music composition"],
+  "results_count": 12,
+  "key_findings": [
+    "AI-generated music grew 300% on streaming platforms in 2024",
+    "Major labels investing in AI composition tools"
+  ],
+  "coverage": ["music composition", "music production"],
+  "gaps": ["music distribution", "music licensing"]
+}</pre>
+</div>
+
+<div class="key-concept">
+<strong>Exemple : <code>manifest.json</code> du coordinateur</strong>
+<pre>// agent-state/manifest.json
+{
+  "web-search": "completed",
+  "doc-analysis": "in_progress",
+  "synthesis": "not_started"
+}</pre>
+<p>Au redémarrage, le coordinateur lit <code>manifest.json</code>, constate que <code>web-search</code> est terminé et que <code>doc-analysis</code> est en cours, et reprend le workflow sans relancer les tâches déjà complétées. Le fichier d'état de chaque <code>subagent</code> (ex. <code>web-search-agent.json</code>) contient le détail de ses résultats, ses lacunes (<code>gaps</code>), et sa couverture.</p>
+</div>
+
+<div class="exam-tip">
+<strong>À retenir :</strong> La persistance d'état structurée via <code>manifest.json</code> est le pattern recommandé pour le crash recovery dans les workflows multi-agents longs. Chaque <code>subagent</code> écrit son propre fichier d'état ; le coordinateur maintient le manifeste global. Ce pattern est distinct du <code>scratchpad</code> (qui protège le contexte d'un agent unique).
+</div>
+
+<h4>5. Modifier les agents en amont</h4>
+<p>Quand les agents en aval ont des budgets de contexte limités, les agents en amont doivent retourner des <strong>données structurées</strong> (faits clés, citations, scores de pertinence) plutôt que du contenu verbeux et des chaînes de raisonnement.</p>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s5">5. Le contrôle humain et la <code>confidence calibration</code> (Task 5.5)</h2></div>
+
+<h3>Le problème que cela résout</h3>
+<p>Un système d'extraction de données affiche une accuracy globale de 97 %. En apparence, tout va bien. Mais en creusant, on découvre que l'accuracy sur un type de document spécifique (les factures scannées) est de 60 %, et que certains champs (les numéros de TVA) ont un taux d'erreur de 40 %. <strong>Les métriques agrégées masquent des problèmes localisés.</strong></p>
+
+<div class="key-concept">
+<strong>Exemple concret :</strong> 97% aggregate accuracy peut masquer 40% d'erreurs sur un type de document spécifique. C'est pourquoi l'analyse doit toujours se faire <strong>par document type ET par field</strong>, pas en agrégé.
+</div>
+
+<h3>Le <code>stratified random sampling</code></h3>
+<p>Même pour les extractions à haute confiance, il faut maintenir un <strong><code>stratified random sampling</code></strong> régulier pour mesurer les taux d'erreur réels et détecter de nouveaux patterns d'erreur. L'analyse doit se faire :</p>
+<ul>
+<li><strong>Par document type</strong> (factures, contrats, formulaires...)</li>
+<li><strong>Par field</strong> (montants, dates, noms, numéros de TVA...)</li>
+<li>Pas seulement en agrégé</li>
+</ul>
+
+<h3>Les field-level confidence scores</h3>
+<ul>
+<li>Faire produire au modèle un <strong>confidence score par champ</strong> extrait.</li>
+<li>Calibrer les seuils de revue en utilisant des <strong>ensembles de validation étiquetés</strong>.</li>
+<li>Haute confiance + accuracy stable → traitement automatisé.</li>
+<li>Basse confiance ou sources ambiguës → revue humaine.</li>
+</ul>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s6">6. La <code>provenance</code> et la synthèse multi-sources (Task 5.6)</h2></div>
+
+<h3>Le problème : <code>attribution</code> loss pendant la summarization</h3>
+<p>Quand un agent agrège des résultats provenant de plusieurs sources, la synthèse peut perdre le lien entre chaque affirmation et sa source (<code>attribution</code> loss). L'utilisateur final ne sait plus d'où viennent les chiffres, ce qui rend le rapport inutilisable pour la prise de décision.</p>
+
+<h3>Les <code>claim-source mapping</code>s</h3>
+<p>Chaque affirmation dans la synthèse doit être liée à sa source via un mapping structuré incluant l'URL, le nom du document et des citations directes :</p>
+<div class="anti-pattern">
+<strong>Mauvais :</strong> « Le marché de la musique IA est estimé à 3,2 milliards de dollars. » (Pas de source, pas de date — <code>attribution</code> perdue.)
+</div>
+<div class="key-concept">
+<strong>Bon — <code>claim-source mapping</code> :</strong>
+<pre>{
+  "claim": "Le marché de la musique IA est estimé à 3,2 Mds $",
+  "source_url": "https://example.com/report",
+  "source_name": "Global AI Music Report 2024",
+  "quote": "The AI music market reached $3.2B in 2024",
+  "publication_date": "2024-06-15",
+  "confidence": 0.9
+}</pre>
+</div>
+
+<h3>Gérer les données contradictoires</h3>
+<p>Quand deux sources crédibles donnent des statistiques différentes, il ne faut <em>pas</em> choisir arbitrairement l'une des deux. Il faut préserver les deux valeurs avec leur <code>attribution</code> et annoter le conflit. Le coordinateur (ou l'utilisateur) décide :</p>
+<pre>{
+  "claim": "Part de la musique générée par IA sur le streaming",
+  "values": [
+    {"value": "12%", "source": "Spotify Annual Report 2024",
+     "date": "2024-03", "methodology": "Classification automatisée"},
+    {"value": "8%", "source": "Music Industry Association Survey",
+     "date": "2024-07", "methodology": "Enquête auprès de 500 labels"}
+  ],
+  "conflict_detected": true,
+  "possible_explanation": "Différence de méthodologie et de période"
+}</pre>
+
+<h3>Inclure les dates pour le contexte temporel</h3>
+<p>Sans les dates, des différences temporelles peuvent être interprétées à tort comme des contradictions :</p>
+<ul>
+<li><strong>Mauvais :</strong> « Source A dit 10 %, Source B dit 15 %. Contradiction. »</li>
+<li><strong>Bon :</strong> « Source A (2023) dit 10 %, Source B (2024) dit 15 %. Probable croissance de 5 % sur un an — pas une contradiction. »</li>
+</ul>
+
+<div class="exam-tip">
+<strong>À retenir :</strong> 10% en 2023 + 15% en 2024 = growth, pas contradiction. Les dates transforment un conflit apparent en tendance. Toujours inclure les dates dans les <code>claim-source mapping</code>s.
+</div>
+
+<h3>Adapter le rendu au content type</h3>
+<table>
+<tr><th>Content type</th><th>Format de rendu adapté</th></tr>
+<tr><td>Données financières</td><td>Tables</td></tr>
+<tr><td>Actualités et analyses</td><td>Prose</td></tr>
+<tr><td>Résultats techniques</td><td>Structured lists</td></tr>
+<tr><td>Séries temporelles</td><td>Ordre chronologique</td></tr>
+</table>
+
+<!-- ================================================================== -->
+<div class="section-header page-break"><h2 id="s7">7. Synthèse — les points clés</h2></div>
+
+<h3>Gestion du contexte</h3>
+<ul>
+<li>L'API ne conserve rien entre les requêtes : envoyer le <strong>full history</strong> à chaque appel.</li>
+<li>Le <code>case facts</code> block préserve les faits transactionnels en dehors du summarized history.</li>
+<li>L'effet <code>lost-in-the-middle</code> : conclusions clés en tête, actions en fin.</li>
+<li>Réduire les <code>tool results</code> aux champs pertinents via des hooks <code>PostToolUse</code>.</li>
+<li><code>/compact</code> pour compresser ; <code>scratchpad</code> pour persister ; <code>subagent</code>s pour isoler.</li>
+<li>Persistance d'état structurée via <code>manifest.json</code> pour le crash recovery.</li>
+<li>Les <code>subagent</code>s doivent inclure les métadonnées (dates, sources) dans leurs sorties structurées.</li>
+</ul>
+
+<h3>Prompt caching et token budgeting</h3>
+<ul>
+<li><code>cache_control: {"type":"ephemeral"}</code> marque un breakpoint — tout le prefix antérieur est mis en cache.</li>
+<li>Maximum <strong>4 breakpoints</strong> par requête. Placement type : system, tools, contexte initial du dossier.</li>
+<li>Économie : <strong>90 % sur les input tokens cachés</strong> ; surcoût write : 1,25× (TTL 5 min) ou 2× (TTL 1 h).</li>
+<li>Rentable dès <strong>2 réutilisations</strong> du prefix dans la fenêtre TTL.</li>
+<li>Anti-pattern : cacher les messages mouvants (chaque turn invalide le précédent).</li>
+<li>Métriques : <code>cache_creation_input_tokens</code> (write), <code>cache_read_input_tokens</code> (hit). Hit rate cible &gt; 80 % sur turns 2+.</li>
+<li>Token budget = limite modèle − <code>max_tokens</code> − stables − tool results. Anticiper, ne pas attendre l'erreur 400.</li>
+<li>Progressive summarization à 3 niveaux : naturelle (<code>/compact</code>), structurée (subagent), hiérarchique (résumé des résumés).</li>
+<li>CALM (concept) : Compression / Allocation / Loss prevention / Monitoring — combinaison, pas alternative.</li>
+</ul>
+
+<h3>Escalation</h3>
+<ul>
+<li>Déclencheurs fiables : demande explicite d'humain, policy gap, no progress, financial threshold.</li>
+<li>Déclencheurs NON fiables : <code>sentiment analysis</code>, <code>self-rated confidence</code> (1-10), <code>automatic classifier</code>.</li>
+<li>3 patterns : immediate, after attempt, nuanced (acknowledge → resolve → escalate on reiteration).</li>
+<li>La calibration passe par la <strong>combinaison</strong> critères explicites + few-shot examples dans le system prompt.</li>
+<li>Le <code>structured handoff</code> protocol doit être complet et autosuffisant (l'humain n'a pas le transcript).</li>
+</ul>
+
+<h3>Erreurs multi-agents</h3>
+<ul>
+<li>Retourner un contexte d'erreur structuré : <code>failure_type</code>, <code>query</code>, <code>partial_results</code>, <code>alternatives</code>.</li>
+<li>Distinguer timeout (access failure → retry decision) de empty results (valid query → résultat légitime).</li>
+<li>4 anti-patterns : generic status, silent suppression, abort whole workflow, infinite retries.</li>
+<li><code>Coverage annotations</code> dans la synthèse : FULL COVERAGE / PARTIAL COVERAGE.</li>
+</ul>
+
+<h3>Confidence et <code>provenance</code></h3>
+<ul>
+<li>97% aggregate accuracy peut masquer 40% d'erreurs sur certains document types.</li>
+<li>Analyser par document type et par field via <code>stratified random sampling</code>.</li>
+<li>Préserver les <code>claim-source mapping</code>s (URL, nom, quotes) à travers la synthèse.</li>
+<li>Annoter les conflits avec <code>attribution</code> ; ne jamais choisir arbitrairement une valeur.</li>
+<li>Inclure les dates pour le contexte temporel (éviter les faux conflits).</li>
+<li>Adapter le rendu au content type : financier → tables, news → prose, technique → structured lists.</li>
+</ul>
+
+<!-- ================================================================== -->
+<div class="section-header"><h2 id="s8">8. Auto-évaluation</h2></div>
+
+<div class="quiz-section">
+<h3>4 questions pour tester votre compréhension</h3>
+
+<details>
+<summary><strong>Q1.</strong> Situation : un remboursement de $89.99 discuté 20 turns plus tôt est devenu « a promotional pricing was discussed » dans le résumé. Comment prévenir cette perte ?</summary>
+<div>
+<p>A) Augmenter le context window.<br>
+B) Extraire les faits transactionnels dans un <code>case facts</code> block inclus dans chaque prompt, en dehors du summarized history.<br>
+C) Utiliser <code>/compact</code> moins souvent.<br>
+D) Ajouter des few-shot examples.</p>
+<p class="answer-block"><strong>Réponse : B.</strong> Le <code>case facts</code> block persiste les informations critiques (montants, dates, IDs) en dehors de l'historique résumé. Même après un <code>/compact</code>, ces faits restent intacts dans le prompt. Augmenter le context window (A) ne fait que retarder le problème ; utiliser <code>/compact</code> moins souvent (C) aussi. Les few-shot examples (D) ne concernent pas la préservation des faits.</p>
+</div>
+</details>
+
+<details>
+<summary><strong>Q2.</strong> Situation : le client dit « This is outrageous, I'm very unhappy! » L'agent doit-il escalader immédiatement ?</summary>
+<div>
+<p>A) Oui, le sentiment négatif indique une <code>escalation</code> nécessaire.<br>
+B) Non — acknowledge l'émotion, proposer une résolution, et escalader seulement si le client réitère sa demande de parler à un humain.<br>
+C) Oui, utiliser <code>sentiment analysis</code> pour détecter la frustration.<br>
+D) Non, ignorer l'émotion et se concentrer sur le problème technique.</p>
+<p class="answer-block"><strong>Réponse : B.</strong> Le pattern nuanced : acknowledge → resolve → escalate only on reiteration. La <code>sentiment analysis</code> n'est <strong>pas</strong> un déclencheur fiable d'<code>escalation</code> (A et C sont des pièges). Ignorer l'émotion (D) est une mauvaise pratique — il faut reconnaître la frustration avant de proposer une solution.</p>
+</div>
+</details>
+
+<details>
+<summary><strong>Q3.</strong> Situation : trois catégories de sources retournent des résultats différents : academic databases = 15 papers, industry reports = « 0 results », patent databases = « Connection timeout ». Comment propager au coordinateur ?</summary>
+<div>
+<p>A) Agréger en « 67% source coverage ».<br>
+B) Reporter timeout et 0 results comme des failures.<br>
+C) Retry automatiquement les failures transitoires.<br>
+D) Distinguer les access failures (timeout = retry decision) des valid empty results (0 results = successful query).</p>
+<p class="answer-block"><strong>Réponse : D.</strong> Un timeout est un access failure — la requête n'a pas abouti et un retry peut être pertinent. Des résultats vides (0 results) signifient que la requête a réussi mais n'a rien trouvé — c'est un résultat légitime. Les traiter de la même manière (B) ou les agréger en un pourcentage générique (A) masque cette distinction sémantique critique.</p>
+</div>
+</details>
+
+<details>
+<summary><strong>Q4.</strong> Situation : l'accuracy globale de votre système d'extraction est 97%. Faut-il s'en satisfaire ?</summary>
+<div>
+<p>A) Oui, 97% est excellent.<br>
+B) Non — l'accuracy agrégée peut masquer 40% d'erreurs sur un document type spécifique. Analyser par document type et par field.<br>
+C) Oui, si les tests unitaires passent.<br>
+D) Non, implémenter un classifier pour détecter les erreurs.</p>
+<p class="answer-block"><strong>Réponse : B.</strong> L'analyse par <code>stratified random sampling</code> — par document type ET par field — peut révéler que certains types de documents (factures scannées, formulaires manuscrits) ou certains champs (numéros de TVA, adresses) ont des taux d'erreur bien plus élevés que la moyenne. 97% en agrégé ne garantit rien sur les sous-catégories.</p>
+</div>
+</details>
+
+<details>
+<summary><strong>Q5.</strong> Vous construisez un agent juridique qui charge 50k tokens de jurisprudence pertinente au début de chaque session, puis enchaîne 10-15 turns de questions. La latence et le coût sont élevés. Quelle stratégie de caching est optimale ?</summary>
+<div>
+<p>A) Mettre <code>cache_control</code> sur chaque message utilisateur.<br>
+B) Cacher uniquement le system prompt.<br>
+C) Placer 3 breakpoints <code>cache_control</code> : sur le system prompt, sur les tool definitions, et sur le bloc de jurisprudence du premier message — laisser les messages suivants non cachés.<br>
+D) Désactiver le caching et augmenter <code>max_tokens</code>.</p>
+<p class="answer-block"><strong>Réponse : C.</strong> Les contenus stables sur l'ensemble de la session (system, tools, dossier juridique de 50k tokens) sont d'excellents candidats au cache : ils sont lus à chaque turn. Les breakpoints sur ces 3 éléments offrent un cache hit rate &gt; 90 % sur les turns 2-15, avec une économie de 90 % sur ces tokens. A est l'anti-pattern type (chaque turn invalide le précédent). B sous-utilise le cache (le gros volume est dans la jurisprudence). D ne résout rien.</p>
+</div>
+</details>
+
+<details>
+<summary><strong>Q6.</strong> Votre agent multi-turn approche de la limite du context window après 80 turns d'investigation. Les premiers turns contiennent des décisions architecturales importantes que vous ne voulez pas perdre. Quelle est la meilleure stratégie ?</summary>
+<div>
+<p>A) Lancer <code>/compact</code> immédiatement et continuer.<br>
+B) Combiner progressive summarization (résumé structuré des turns anciens) avec un <code>case facts</code> block extérieur qui contient les décisions architecturales clés.<br>
+C) Augmenter <code>max_tokens</code>.<br>
+D) Démarrer une nouvelle session et oublier l'historique.</p>
+<p class="answer-block"><strong>Réponse : B.</strong> La progressive summarization compresse l'historique long (libère du budget), tandis que le <code>case facts</code> block protège les informations critiques en dehors du résumé. C'est la combinaison qui garantit à la fois longévité de session et préservation des faits. A seule risque de perdre les décisions architecturales (la summarization dilue les détails). C confond <code>max_tokens</code> (budget de réponse) et limite de contexte. D perd tout l'historique utile.</p>
+</div>
+</details>
+
+</div>
+
+<hr>
+<p style="text-align:center;color:#888;font-size:9pt;">
+CCA Révision — D5 Gestion du contexte et fiabilité · Sources : guide officiel CCA (chapitres 9, 10, 11, 12) · 2026
+</p>
+
+</body>
+</html>
