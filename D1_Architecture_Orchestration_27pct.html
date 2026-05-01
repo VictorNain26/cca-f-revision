@@ -34,7 +34,7 @@
 <li><a href="#s1">Workflows vs. agents : le choix fondamental</a></li>
 <li><a href="#s2">L'agentic loop (boucle agentique)</a></li>
 <li><a href="#s3">L'architecture hub-and-spoke</a></li>
-<li><a href="#s4">Les strategies de decomposition</a></li>
+<li><a href="#s4">Les strategies de décomposition</a></li>
 <li><a href="#s5">Le Task tool, context passing et spawning</a></li>
 <li><a href="#s6">Programmatic enforcement et hooks</a>
   <ul>
@@ -50,19 +50,19 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s1">1. Workflows vs. agents : le choix fondamental (Task 1.6 complement)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Quand on concoit un systeme base sur Claude, il faut choisir entre un <strong>workflow</strong> (sequence d'etapes predefinies, orchestree par le code) et un <strong>agent</strong> (sequence d'etapes decidees dynamiquement par le modele). Le mauvais choix entraine soit un systeme rigide qui ne s'adapte pas, soit un systeme imprevisible difficile a tester.</p>
+<h3>Le problème que cela resout</h3>
+<p>Quand on concoit un système base sur Claude, il faut choisir entre un <strong>workflow</strong> (séquence d'etapes predefinies, orchestree par le code) et un <strong>agent</strong> (séquence d'etapes decidees dynamiquement par le modèle). Le mauvais choix entraine soit un système rigide qui ne s'adapte pas, soit un système imprevisible difficile a tester.</p>
 
 <table>
 <tr><th></th><th>Workflows</th><th>Agents</th></tr>
-<tr><td><strong>Etapes</strong></td><td>Predeterminees par le developpeur</td><td>Choisies dynamiquement par le modele</td></tr>
-<tr><td><strong>Testability</strong></td><td>Facile (sequence connue)</td><td>Difficile (chemin imprevisible)</td></tr>
-<tr><td><strong>Reliability</strong></td><td>Taux de completion eleve</td><td>Plus bas (complexite deleguee au modele)</td></tr>
+<tr><td><strong>Etapes</strong></td><td>Predéterminees par le développeur</td><td>Choisies dynamiquement par le modèle</td></tr>
+<tr><td><strong>Testability</strong></td><td>Facile (séquence connue)</td><td>Difficile (chemin imprevisible)</td></tr>
+<tr><td><strong>Reliability</strong></td><td>Taux de completion eleve</td><td>Plus bas (complexite déléguée au modèle)</td></tr>
 <tr><td><strong>Quand les utiliser</strong></td><td>Les etapes exactes sont connues a l'avance</td><td>Les details de la tache sont flous ou variables</td></tr>
 </table>
 
 <div class="key-concept">
-<strong>Regle de decision :</strong> privilegiez les workflows pour la reliability. N'utilisez un agent que lorsque la flexibilite est reellement necessaire. Les utilisateurs veulent des produits fiables, pas des agents impressionnants.
+<strong>Regle de decision :</strong> privilegiez les workflows pour la reliability. N'utilisez un agent que lorsque la flexibilite est reellement nécessaire. Les utilisateurs veulent des produits fiables, pas des agents impressionnants.
 </div>
 
 <h3>Les quatre workflow patterns</h3>
@@ -70,21 +70,21 @@
 <tr><th>Pattern</th><th>Principe</th><th>Cas d'usage typique</th></tr>
 <tr><td><strong>Parallelization</strong></td><td>Sous-taches simultanees, puis agregation</td><td>Taches decomposables sans dependances entre elles</td></tr>
 <tr><td><strong>Chaining</strong></td><td>Etapes sequentielles distinctes</td><td>Claude ignore des contraintes dans les prompts longs → decouper en etapes</td></tr>
-<tr><td><strong>Routing</strong></td><td>Classifier l'entree, puis dispatcher vers le bon pipeline</td><td>Differents types de requetes necessitant un traitement different</td></tr>
+<tr><td><strong>Routing</strong></td><td>Classifier l'entree, puis dispatcher vers le bon pipeline</td><td>Differents types de requêtes necessitant un traitement different</td></tr>
 <tr><td><strong>Evaluator-optimizer</strong></td><td>Produire → evaluer → boucler jusqu'a satisfaction</td><td>Qualite variable necessitant un raffinement iteratif</td></tr>
 </table>
 
 <h3>Quand les subagents sont utiles — et quand ils nuisent</h3>
 <p>La question cle : <strong>est-ce que le travail intermediaire m'interesse ?</strong></p>
 <ul>
-<li><strong>Non</strong> (seul le resultat compte) → deleguer a un subagent. Exemple : explorer comment l'authentification fonctionne dans un codebase inconnu.</li>
+<li><strong>Non</strong> (seul le resultat compte) → déléguér a un subagent. Exemple : explorer comment l'authentification fonctionne dans un codebase inconnu.</li>
 <li><strong>Oui</strong> (je dois voir et reagir a chaque etape) → garder dans le thread principal. Exemple : executer des tests et analyser les erreurs.</li>
 </ul>
 
 <div class="anti-pattern">
 <strong>Trois anti-patterns de subagents a connaitre :</strong>
 <ul>
-<li><strong>Les « expert claims » :</strong> « You are a Python expert » n'ajoute aucune capacite reelle. Claude possede deja ces connaissances. Preferer une description factuelle du role et du perimetre.</li>
+<li><strong>Les « expert claims » :</strong> « You are a Python expert » n'ajoute aucune capacite reelle. Claude possede déjà ces connaissances. Preferer une description factuelle du role et du perimetre.</li>
 <li><strong>Les sequential pipelines :</strong> quand chaque etape depend des decouvertes de la precedente (reproduire → debugger → corriger), l'information se perd dans les transferts entre agents. Garder dans le thread principal.</li>
 <li><strong>Les test runners en subagent :</strong> un subagent qui retourne simplement « tests failed » cache les details de diagnostic dont on a besoin pour comprendre l'echec.</li>
 </ul>
@@ -93,10 +93,10 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s2">2. L'agentic loop — la boucle agentique (Task 1.1)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Un appel classique a l'API Claude produit une reponse en une seule fois. Mais dans un systeme agentique, la tache necessite souvent <strong>plusieurs actions successives</strong> : chercher un client, consulter sa commande, puis decider d'un remboursement. Il faut donc un mecanisme pour que Claude puisse agir, observer le resultat, puis agir a nouveau — en boucle — jusqu'a ce que le travail soit termine.</p>
+<h3>Le problème que cela resout</h3>
+<p>Un appel classique a l'API Claude produit une réponse en une seule fois. Mais dans un système agentique, la tache necessite souvent <strong>plusieurs actions successives</strong> : chercher un client, consulter sa commande, puis decider d'un remboursement. Il faut donc un mécanisme pour que Claude puisse agir, observer le resultat, puis agir a nouveau — en boucle — jusqu'a ce que le travail soit termine.</p>
 
-<p>C'est exactement ce que fait l'<strong>agentic loop</strong> : un cycle <code>request → response → tool execution → new request</code> pilote par le modele lui-meme.</p>
+<p>C'est exactement ce que fait l'<strong>agentic loop</strong> : un cycle <code>request → response → tool execution → new request</code> pilote par le modèle lui-meme.</p>
 
 <h3>Le cycle <em>observe — think — act — respond</em></h3>
 
@@ -104,13 +104,13 @@
 <strong>Statut de l'acronyme OTAR :</strong> "observe-think-act-respond" est une <em>mnemonique pedagogique communautaire</em>, pas un terme officiel Anthropic. La doc officielle parle d'<code>agentic loop lifecycle</code> centre sur <code>stop_reason</code> et de phases <em>gather context → take action → verify results</em>. Connais le concept, mais ne cherche pas "OTAR" dans la doc Anthropic — tu ne le trouveras pas. C'est une grille de lecture utile pour raisonner autour des hooks et de l'API.
 </div>
 
-<p>Chaque iteration de la boucle se decompose en quatre phases conceptuelles, exposees au modele de maniere implicite :</p>
+<p>Chaque iteration de la boucle se décompose en quatre phases conceptuelles, exposees au modèle de maniere implicite :</p>
 
 <table>
-<tr><th>Phase</th><th>Ce que fait le modele</th><th>Element de l'API</th></tr>
+<tr><th>Phase</th><th>Ce que fait le modèle</th><th>Element de l'API</th></tr>
 <tr><td><strong>Observe</strong></td><td>Lit le contexte courant : messages historiques, tool results recents, system prompt</td><td>Tableau <code>messages</code> (avec <code>tool_result</code> blocks)</td></tr>
 <tr><td><strong>Think</strong></td><td>Raisonne sur l'etat (eventuellement via extended thinking, voir D4)</td><td><code>thinking</code> blocks (si actives) ou raisonnement implicite</td></tr>
-<tr><td><strong>Act</strong></td><td>Decide d'appeler un outil ou de produire une reponse finale</td><td><code>tool_use</code> block ou <code>text</code> block</td></tr>
+<tr><td><strong>Act</strong></td><td>Decide d'appeler un outil ou de produire une réponse finale</td><td><code>tool_use</code> block ou <code>text</code> block</td></tr>
 <tr><td><strong>Respond</strong></td><td>Soit attend le <code>tool_result</code> (boucle continue), soit termine</td><td><code>stop_reason</code> : <code>"tool_use"</code> ou <code>"end_turn"</code></td></tr>
 </table>
 
@@ -119,17 +119,17 @@
 </div>
 
 <h3>Comment ca fonctionne</h3>
-<p>A chaque iteration, votre code envoie l'historique complet a Claude (messages + tool results). Claude repond, et sa reponse contient un champ <code>stop_reason</code> qui determine la suite :</p>
+<p>A chaque iteration, votre code envoie l'historique complet a Claude (messages + tool results). Claude repond, et sa réponse contient un champ <code>stop_reason</code> qui détermine la suite :</p>
 
 <table>
 <tr><th>Valeur de <code>stop_reason</code></th><th>Signification</th><th>Action dans votre code</th></tr>
 <tr><td><code>"tool_use"</code></td><td>Claude veut appeler un outil</td><td>Executer l'outil, ajouter le <code>tool_result</code> a l'historique, relancer une iteration</td></tr>
 <tr><td><code>"end_turn"</code></td><td>Claude a termine</td><td>Afficher le resultat a l'utilisateur, sortir de la boucle</td></tr>
-<tr><td><code>"max_tokens"</code></td><td>La limite de tokens est atteinte</td><td>La reponse est tronquee ; envisager d'augmenter <code>max_tokens</code></td></tr>
+<tr><td><code>"max_tokens"</code></td><td>La limite de tokens est atteinte</td><td>La réponse est tronquee ; envisager d'augmenter <code>max_tokens</code></td></tr>
 </table>
 
 <div class="key-concept">
-<strong>L'approche est model-driven.</strong> C'est Claude qui choisit quel outil appeler a chaque etape, en s'appuyant sur le contexte accumule et les tool results precedents. Cela differe fondamentalement d'un arbre de decision code en dur (hardcoded), ou la sequence d'actions est figee a l'avance.
+<strong>L'approche est model-driven.</strong> C'est Claude qui choisit quel outil appeler a chaque etape, en s'appuyant sur le contexte accumule et les tool results precedents. Cela differe fondamentalement d'un arbre de decision code en dur (hardcoded), ou la séquence d'actions est figee a l'avance.
 </div>
 
 <h3>Exemple de code</h3>
@@ -139,7 +139,7 @@
         messages=messages,
         tools=tools
     )
-    # On ajoute la reponse complete a l'historique
+    # On ajoute la réponse complete a l'historique
     messages.append({"role": "assistant", "content": response.content})
 
     # Le SEUL signal fiable pour decider de la suite
@@ -152,26 +152,26 @@
 
 <h3>Les anti-patterns a connaitre</h3>
 <div class="anti-pattern">
-<p>Trois erreurs classiques dans les systemes agentiques mal concus :</p>
+<p>Trois erreurs classiques dans les systèmes agentiques mal concus :</p>
 <ul>
 <li><strong>Parser le texte de l'assistant</strong> pour y detecter des phrases comme « Task completed » ou « I'm done ». Le langage naturel n'est pas un signal fiable ; Claude peut ecrire « done » tout en ayant encore un tool call en attente.</li>
 <li><strong>Utiliser une limite d'iterations arbitraire</strong> (<code>max_iterations=5</code>) comme condition d'arret principale. Cela peut interrompre une tache legitime en cours d'execution.</li>
-<li><strong>Verifier la presence de texte</strong> dans la reponse comme signal de fin. Claude peut generer du texte explicatif ET un <code>tool_use</code> block dans la meme reponse.</li>
+<li><strong>Verifier la presence de texte</strong> dans la réponse comme signal de fin. Claude peut generer du texte explicatif ET un <code>tool_use</code> block dans la meme réponse.</li>
 </ul>
 <p><strong>Le seul signal fiable est <code>stop_reason == "end_turn"</code>.</strong></p>
 </div>
 
 <div class="exam-tip">
-<strong>Pour l'examen :</strong> quand on vous demande comment determiner si la boucle doit continuer ou s'arreter, la bonne reponse est toujours <code>stop_reason</code>. Les distracteurs proposeront du text parsing, des limites d'iterations ou la detection de contenu textuel.
+<strong>Pour l'examen :</strong> quand on vous demande comment déterminer si la boucle doit continuer ou s'arreter, la bonne réponse est toujours <code>stop_reason</code>. Les distracteurs proposeront du text parsing, des limites d'iterations ou la detection de contenu textuel.
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s3">3. L'architecture hub-and-spoke (Task 1.2)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Quand une tache est trop complexe pour un seul agent — par exemple, produire un rapport de recherche qui necessite a la fois de la recherche web, de l'analyse documentaire et de la synthese — il faut repartir le travail entre plusieurs agents specialises. Mais ces agents ont besoin d'etre coordonnes : qui fait quoi ? Qui agrege les resultats ? Qui gere les erreurs ?</p>
+<h3>Le problème que cela resout</h3>
+<p>Quand une tache est trop complexe pour un seul agent — par exemple, produire un rapport de recherche qui necessite a la fois de la recherche web, de l'analyse documentaire et de la synthese — il faut repartir le travail entre plusieurs agents spécialisés. Mais ces agents ont besoin d'etre coordonnes : qui fait quoi ? Qui agrege les resultats ? Qui gere les erreurs ?</p>
 
-<p>L'architecture <strong>hub-and-spoke</strong> repond a ce besoin : un agent <strong>coordinateur</strong> (le hub) orchestre plusieurs <strong>subagents</strong> specialises (les spokes).</p>
+<p>L'architecture <strong>hub-and-spoke</strong> repond a ce besoin : un agent <strong>coordinateur</strong> (le hub) orchestre plusieurs <strong>subagents</strong> spécialisés (les spokes).</p>
 
 <pre>           Coordinator (hub)
            /     |     \
@@ -181,45 +181,45 @@
 <h3>Les responsabilites du coordinateur</h3>
 <p>Le coordinateur est le chef d'orchestre. Il se charge de :</p>
 <ol>
-<li><strong>Decomposer</strong> la tache principale en sous-taches coherentes.</li>
-<li><strong>Selectionner dynamiquement</strong> les subagents necessaires.</li>
+<li><strong>Decomposer</strong> la tache principale en sous-taches cohérentes.</li>
+<li><strong>Selectionner dynamiquement</strong> les subagents nécessaires.</li>
 <li><strong>Deleguer</strong> en fournissant a chaque subagent le contexte dont il a besoin.</li>
 <li><strong>Agreger et valider</strong> les resultats renvoyes par les subagents.</li>
-<li><strong>Gerer les erreurs</strong> : decider de retry, d'adapter la requete ou de continuer avec des resultats partiels.</li>
+<li><strong>Gerer les erreurs</strong> : decider de retry, d'adapter la requête ou de continuer avec des resultats partiels.</li>
 <li><strong>Communiquer</strong> le resultat final a l'utilisateur.</li>
 </ol>
 
 <div class="key-concept">
 <strong>Principe fondamental : le contexte des subagents est isole.</strong>
-<p>Les subagents n'heritent <em>pas</em> automatiquement de l'historique de conversation du coordinateur. Ils ne partagent pas non plus de memoire entre eux. Toute information necessaire doit etre <strong>explicitement transmise</strong> dans le prompt du subagent. Et toute communication entre subagents transite par le coordinateur — jamais en direct — ce qui garantit l'observabilite et le controle des erreurs.</p>
+<p>Les subagents n'heritent <em>pas</em> automatiquement de l'historique de conversation du coordinateur. Ils ne partagent pas non plus de memoire entre eux. Toute information nécessaire doit etre <strong>explicitement transmise</strong> dans le prompt du subagent. Et toute communication entre subagents transite par le coordinateur — jamais en direct — ce qui garantit l'observabilite et le controle des erreurs.</p>
 </div>
 
-<h3>Le risque d'une decomposition trop etroite</h3>
-<p>Un piege frequent : le coordinateur decompose la tache de maniere trop restrictive, ce qui cree des angles morts.</p>
+<h3>Le risque d'une décomposition trop etroite</h3>
+<p>Un piege frequent : le coordinateur décompose la tache de maniere trop restrictive, ce qui cree des angles morts.</p>
 
 <div class="anti-pattern">
-<strong>Exemple concret :</strong> le coordinateur recoit « AI impact on creative industries » et cree trois sous-taches : « AI in digital art », « AI in graphic design » et « AI in photography ». Chaque subagent execute correctement sa mission, mais le rapport final ne couvre que l'art visuel — la musique, la litterature et le cinema sont totalement absents. Le probleme n'est pas dans l'execution des subagents, mais dans la <strong>decomposition</strong> faite par le coordinateur.
+<strong>Exemple concret :</strong> le coordinateur recoit « AI impact on creative industries » et cree trois sous-taches : « AI in digital art », « AI in graphic design » et « AI in photography ». Chaque subagent execute correctement sa mission, mais le rapport final ne couvre que l'art visuel — la musique, la litterature et le cinema sont totalement absents. Le problème n'est pas dans l'execution des subagents, mais dans la <strong>décomposition</strong> faite par le coordinateur.
 </div>
 
 <h3>Bonnes pratiques</h3>
 <ul>
-<li><strong>Partitionner explicitement l'espace de recherche</strong> avant de deleguer, pour eviter les doublons et les angles morts.</li>
-<li><strong>Prevoir des boucles de raffinement :</strong> le coordinateur evalue la synthese, identifie les lacunes et relance des sous-taches si necessaire.</li>
+<li><strong>Partitionner explicitement l'espace de recherche</strong> avant de déléguér, pour eviter les doublons et les angles morts.</li>
+<li><strong>Prevoir des boucles de raffinement :</strong> le coordinateur evalue la synthese, identifie les lacunes et relance des sous-taches si nécessaire.</li>
 <li><strong>Ne jamais court-circuiter le coordinateur :</strong> meme si cela semble plus efficace qu'un subagent envoie directement ses resultats a un autre, le passage systematique par le hub assure la visibilite centralisee, la gestion uniforme des erreurs et le controle de ce que chaque subagent recoit.</li>
 </ul>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s4">4. Les strategies de decomposition (Task 1.6)</h2></div>
+<div class="section-header"><h2 id="s4">4. Les strategies de décomposition (Task 1.6)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Toutes les taches ne se decomposent pas de la meme maniere. Une code review suit toujours les memes etapes (lire, analyser, reporter), tandis qu'une investigation dans un codebase inconnu revele ses sous-taches au fur et a mesure. Choisir la mauvaise strategie entraine soit de la rigidite inutile, soit du chaos.</p>
+<h3>Le problème que cela resout</h3>
+<p>Toutes les taches ne se décomposent pas de la meme maniere. Une code review suit toujours les memes etapes (lire, analyser, reporter), tandis qu'une investigation dans un codebase inconnu revele ses sous-taches au fur et a mesure. Choisir la mauvaise strategie entraine soit de la rigidite inutile, soit du chaos.</p>
 
 <h3>Fixed pipeline (prompt chaining)</h3>
-<p>Chaque etape est definie a l'avance et s'execute en sequence :</p>
+<p>Chaque etape est definie a l'avance et s'execute en séquence :</p>
 <pre>Document → Metadata extraction → Data extraction → Validation → Enrichment → Output</pre>
 <p><strong>Quand l'utiliser :</strong> la structure de la tache est previsible, toutes les etapes sont connues, et on a besoin de stabilite et de reproductibilite.</p>
 
-<h3>Dynamic adaptive decomposition</h3>
+<h3>Dynamic adaptive décomposition</h3>
 <p>Les sous-taches emergent en fonction des resultats intermediaires :</p>
 <ol>
 <li>Objectif : « Ajouter des tests pour un codebase legacy. »</li>
@@ -237,19 +237,19 @@
 <p>La solution : decouper en <strong>deux passes</strong> :</p>
 <table>
 <tr><th>Passe</th><th>Perimetre</th><th>Ce qu'elle detecte</th></tr>
-<tr><td><strong>Pass 1 — per-file</strong></td><td>Chaque fichier analyse individuellement</td><td>Bugs locaux, problemes de qualite, vulnerabilites</td></tr>
-<tr><td><strong>Pass 2 — integration</strong></td><td>Relations entre les fichiers</td><td>Types inconsistants, dependances circulaires, flux de donnees casses</td></tr>
+<tr><td><strong>Pass 1 — per-file</strong></td><td>Chaque fichier analyse individuellement</td><td>Bugs locaux, problèmes de qualite, vulnerabilites</td></tr>
+<tr><td><strong>Pass 2 — intégration</strong></td><td>Relations entre les fichiers</td><td>Types inconsistants, dependances circulaires, flux de donnees casses</td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>Pour l'examen :</strong> le prompt chaining convient aux taches previsibles et repetables (review, migration). La dynamic decomposition convient aux investigations ouvertes ou les sous-taches emergent en cours d'execution.
+<strong>Pour l'examen :</strong> le prompt chaining convient aux taches previsibles et repetables (review, migration). La dynamic décomposition convient aux investigations ouvertes ou les sous-taches emergent en cours d'execution.
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s5">5. Le Task tool, context passing et spawning (Task 1.3)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Le coordinateur a besoin d'un mecanisme concret pour creer des subagents et leur transmettre leur mission. Dans le Claude Agent SDK, ce mecanisme s'appelle l'outil <strong>Task</strong>.</p>
+<h3>Le problème que cela resout</h3>
+<p>Le coordinateur a besoin d'un mécanisme concret pour creer des subagents et leur transmettre leur mission. Dans le Claude Agent SDK, ce mécanisme s'appelle l'outil <strong>Task</strong>.</p>
 
 <h3>Comment ca fonctionne</h3>
 <p>Pour qu'un coordinateur puisse creer des subagents, son <code>allowedTools</code> doit inclure <code>"Task"</code>. Chaque appel a Task cree un subagent avec son propre contexte isole.</p>
@@ -260,7 +260,7 @@
 )</pre>
 
 <h3>Le context passing explicite</h3>
-<p>Les subagents ne recoivent rien automatiquement du coordinateur. Tout le contexte necessaire doit figurer dans le prompt de la tache deleguee.</p>
+<p>Les subagents ne recoivent rien automatiquement du coordinateur. Tout le contexte nécessaire doit figurer dans le prompt de la tache déléguée.</p>
 
 <div class="anti-pattern">
 <strong>Mauvais :</strong> <code>Task: "Analyse le document."</code> — le subagent ne sait pas quel document, n'a aucun resultat anterieur et ignore le format de sortie attendu.
@@ -273,8 +273,8 @@
 <p>Lors du context passing, utilisez des <strong>formats structures qui separent clairement les donnees des metadonnees</strong> (source, date, type). Cela evite toute confusion et facilite l'agregation par le coordinateur. <em>(Source : guide officiel, Task 1.3.)</em></p>
 
 <h3>Le parallel spawning</h3>
-<p>Le coordinateur peut emettre <strong>plusieurs appels Task dans une seule reponse</strong>. Les subagents s'executent alors en parallele, ce qui accelere considerablement le traitement :</p>
-<pre># Une seule reponse du coordinateur contient :
+<p>Le coordinateur peut emettre <strong>plusieurs appels Task dans une seule réponse</strong>. Les subagents s'executent alors en parallele, ce qui accelere considerablement le traitement :</p>
+<pre># Une seule réponse du coordinateur contient :
 Task 1 : "Rechercher des articles sur X"
 Task 2 : "Analyser le document Y"
 Task 3 : "Rechercher des articles sur Z"
@@ -289,7 +289,7 @@ Task 3 : "Rechercher des articles sur Z"
                    "process_refund", "escalate_to_human"]
 )</pre>
 
-<p>La <strong>description</strong> joue un double role : elle determine <em>quand</em> le coordinateur decide de lancer ce subagent, et elle influence la qualite du <em>prompt</em> que le coordinateur redige pour lui. Une description vague produit des delegations vagues.</p>
+<p>La <strong>description</strong> joue un double role : elle détermine <em>quand</em> le coordinateur decide de lancer ce subagent, et elle influence la qualite du <em>prompt</em> que le coordinateur redige pour lui. Une description vague produit des delegations vagues.</p>
 
 <p>Redigez les prompts du coordinateur en termes d'<strong>objectifs et de criteres de qualite</strong> (« le rapport doit couvrir au moins cinq secteurs avec des sources datees ») plutot qu'en instructions procedurales etape par etape.</p>
 
@@ -311,21 +311,21 @@ You are an expert code reviewer. Provide your review in:
 <h3>Les quatre caracteristiques d'un subagent efficace</h3>
 <table>
 <tr><th>#</th><th>Caracteristique</th><th>Pourquoi c'est important</th></tr>
-<tr><td>1</td><td><strong>Une description specifique</strong></td><td>Elle controle quand le subagent est lance et influence la qualite du prompt d'entree.</td></tr>
+<tr><td>1</td><td><strong>Une description spécifique</strong></td><td>Elle controle quand le subagent est lance et influence la qualite du prompt d'entree.</td></tr>
 <tr><td>2</td><td><strong>Un structured output format</strong></td><td>C'est l'amelioration n° 1 : cela cree des points d'arret naturels et empeche le subagent de tourner trop longtemps.</td></tr>
 <tr><td>3</td><td><strong>Le signalement des obstacles</strong></td><td>Si le subagent decouvre un contournement (dependance manquante, flag special), cette information doit remonter pour eviter que le thread principal ne la redecouvre.</td></tr>
-<tr><td>4</td><td><strong>Des outils limites au strict necessaire</strong></td><td>Un subagent de recherche n'a besoin que de <code>Glob, Grep, Read</code>. Un reviewer y ajoute <code>Bash</code>. Trop d'outils (18 au lieu de 4-5) degrade la fiabilite de selection.</td></tr>
+<tr><td>4</td><td><strong>Des outils limites au strict nécessaire</strong></td><td>Un subagent de recherche n'a besoin que de <code>Glob, Grep, Read</code>. Un reviewer y ajoute <code>Bash</code>. Trop d'outils (18 au lieu de 4-5) degrade la fiabilite de selection.</td></tr>
 </table>
 
-<p><em>Voir aussi : D2, section 3 pour le parametre <code>tool_choice</code> et D2, section 5 pour la reference complete des outils integres.</em></p>
+<p><em>Voir aussi : D2, section 3 pour le paramètre <code>tool_choice</code> et D2, section 5 pour la reference complete des outils integres.</em></p>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Tasks 1.4 &amp; 1.5)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
+<h3>Le problème que cela resout</h3>
 <p>Dans un workflow de support client, il est critique de verifier l'identite du client <em>avant</em> de traiter un remboursement. On peut l'ecrire dans le prompt… mais les instructions dans le prompt ont un taux de conformite de l'ordre de 90-95 %, pas 100 %. Sur des milliers d'interactions, meme un faible taux d'echec peut causer des remboursements verses au mauvais client.</p>
 
-<p>Le <strong>programmatic enforcement</strong> resout ce probleme en rendant la violation <em>impossible</em> par le code, plutot qu'<em>improbable</em> par le prompt.</p>
+<p>Le <strong>programmatic enforcement</strong> resout ce problème en rendant la violation <em>impossible</em> par le code, plutot qu'<em>improbable</em> par le prompt.</p>
 
 <p>De meme, les outils MCP tiers renvoient souvent des donnees dans des formats heterogenes : un outil retourne des timestamps Unix, un autre de l'ISO 8601, un troisieme des codes numeriques de statut. Si Claude recoit ces formats bruts, il peut mal les interpreter. Les <strong>hooks</strong> repondent a ces besoins en interceptant les tool calls a des points precis de l'agentic loop.</p>
 
@@ -334,7 +334,7 @@ You are an expert code reviewer. Provide your review in:
 <div class="key-concept">
 <strong>Exemple concret :</strong> les logs de production montrent que dans 12 % des cas, l'agent saute l'appel a <code>get_customer</code> et appelle directement <code>lookup_order</code> en se fiant au nom fourni par le client, ce qui entraine parfois des remboursements incorrects.
 <br><br>
-<strong>La solution :</strong> un prerequis programmatique qui <strong>bloque</strong> les appels a <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourne un identifiant client verifie. Ni les few-shot examples ni un prompt renforce ne suffisent — les consequences financieres exigent une garantie deterministe.
+<strong>La solution :</strong> un prerequis programmatique qui <strong>bloque</strong> les appels a <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourne un identifiant client verifie. Ni les few-shot examples ni un prompt renforce ne suffisent — les conséquences financieres exigent une garantie deterministe.
 </div>
 
 <h3><code>PreToolUse</code> : bloquer les actions non conformes</h3>
@@ -345,7 +345,7 @@ def enforce_refund_limit(tool_call):
         return redirect_to_escalation(tool_call)</pre>
 
 <h3><code>PostToolUse</code> : normaliser les donnees avant qu'elles n'atteignent Claude</h3>
-<p>Ce hook intercepte le tool result <em>apres</em> l'execution de l'outil, mais <em>avant</em> que le modele ne le traite :</p>
+<p>Ce hook intercepte le tool result <em>après</em> l'execution de l'outil, mais <em>avant</em> que le modèle ne le traite :</p>
 <pre>@hook("PostToolUse")
 def normalize_dates(tool_result):
     # Unix timestamp  →  ISO 8601
@@ -381,11 +381,11 @@ def normalize_dates(tool_result):
 
 <p><em>Voir aussi : D5, section 2 pour les escalation patterns detailles et la calibration par criteres + few-shot.</em></p>
 
-<h3>Les requetes multi-aspects</h3>
-<p>Quand un client inclut plusieurs problemes dans un meme message (« Je veux un remboursement pour la commande #1234 ET mettre a jour l'adresse de livraison de la commande #5678 »), la bonne approche consiste a <strong>decomposer en elements distincts</strong>, les traiter en parallele avec un contexte client partage, puis synthetiser une reponse unifiee.</p>
+<h3>Les requêtes multi-aspects</h3>
+<p>Quand un client inclut plusieurs problèmes dans un meme message (« Je veux un remboursement pour la commande #1234 ET mettre a jour l'adresse de livraison de la commande #5678 »), la bonne approche consiste a <strong>décomposer en elements distincts</strong>, les traiter en parallele avec un contexte client partage, puis synthetiser une réponse unifiee.</p>
 
 <div class="exam-tip">
-<strong>La regle absolue :</strong> quand l'echec a des consequences financieres, legales ou de securite → <strong>hooks</strong>. Les prompt instructions ne suffisent jamais pour ces cas-la.
+<strong>La regle absolue :</strong> quand l'echec a des conséquences financieres, legales ou de securite → <strong>hooks</strong>. Les prompt instructions ne suffisent jamais pour ces cas-la.
 </div>
 
 <!-- ================================================================== -->
@@ -405,22 +405,22 @@ client = Anthropic(max_retries=3)</pre>
 <tr><th>Type d'erreur</th><th>Retry pertinent ?</th><th>Strategie</th></tr>
 <tr><td>503, timeout, network</td><td>Oui</td><td>Backoff exponentiel, 3-4 tentatives</td></tr>
 <tr><td>429 (rate limit)</td><td>Oui</td><td>Respecter <code>Retry-After</code> header</td></tr>
-<tr><td>400 (validation)</td><td>Oui apres correction</td><td>Modifier la requete (retry-with-feedback, voir D4 §4.4)</td></tr>
+<tr><td>400 (validation)</td><td>Oui après correction</td><td>Modifier la requête (retry-with-feedback, voir D4 §4.4)</td></tr>
 <tr><td>401, 403 (auth)</td><td>Non</td><td>Escalader, refresh token</td></tr>
 <tr><td>500 (erreur serveur metier)</td><td>Selon contexte</td><td>1 retry max, sinon propager</td></tr>
 </table>
 
 <h3>Pattern 2 — Circuit breaker</h3>
-<p>Apres N echecs consecutifs sur un meme outil ou serveur, <strong>arreter de tenter</strong> pendant une fenetre de temps. Evite de saturer un service deja en panne et permet a l'agent de degrader proprement.</p>
+<p>Apres N echecs consecutifs sur un meme outil ou serveur, <strong>arreter de tenter</strong> pendant une fenetre de temps. Evite de saturer un service déjà en panne et permet a l'agent de degrader proprement.</p>
 
 <pre>// Etats d'un circuit breaker
 CLOSED   : tout passe normalement (etat initial)
 OPEN     : echec persistant detecte, on bloque sans tenter (cooldown 30s-5min)
-HALF-OPEN: cooldown ecoule, on laisse passer 1 requete test
+HALF-OPEN: cooldown ecoule, on laisse passer 1 requête test
            — succes → CLOSED ; echec → OPEN a nouveau</pre>
 
 <div class="key-concept">
-<strong>Quand l'utiliser :</strong> dans les systemes multi-agents avec dependances externes (API tierces, MCP servers distants). Un circuit breaker par dependance evite l'effet domino — un service en panne ne fait pas tomber l'agent entier.
+<strong>Quand l'utiliser :</strong> dans les systèmes multi-agents avec dependances externes (API tierces, MCP servers distants). Un circuit breaker par dependance evite l'effet domino — un service en panne ne fait pas tomber l'agent entier.
 </div>
 
 <h3>Pattern 3 — Partial results / graceful degradation</h3>
@@ -437,11 +437,11 @@ HALF-OPEN: cooldown ecoule, on laisse passer 1 requete test
 }</pre>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> sur les questions de scenario Multi-Agent Research, la bonne reponse face a un echec partiel est presque toujours <strong>"continuer avec partial results et annoter les lacunes"</strong>, pas "abandonner le workflow" ni "retry indefiniment".
+<strong>EXAM TIP :</strong> sur les questions de scenario Multi-Agent Research, la bonne réponse face a un echec partiel est presque toujours <strong>"continuer avec partial results et annoter les lacunes"</strong>, pas "abandonner le workflow" ni "retry indefiniment".
 </div>
 
 <h3>Pattern 4 — Compensating actions (rollback)</h3>
-<p>Quand un workflow multi-etapes echoue au milieu (etape 3 sur 5), il faut <strong>defaire</strong> les effets des etapes deja executees pour eviter un etat incoherent. Distinct des transactions DB classiques car les agents font souvent appel a des systemes sans transactions distribuees.</p>
+<p>Quand un workflow multi-etapes echoue au milieu (etape 3 sur 5), il faut <strong>defaire</strong> les effets des etapes déjà executees pour eviter un etat incohérent. Distinct des transactions DB classiques car les agents font souvent appel a des systèmes sans transactions distribuees.</p>
 
 <pre>// Saga pattern : a chaque action, definir sa compensation
 def book_trip():
@@ -456,14 +456,14 @@ def book_trip():
             raise</pre>
 
 <h3>Pattern 5 — Idempotence et keys</h3>
-<p>Pour rendre les retries surs, chaque action doit etre <strong>idempotente</strong> : la repeter ne change pas le resultat. Les API exposent souvent un parametre <code>idempotency_key</code> pour cela.</p>
+<p>Pour rendre les retries surs, chaque action doit etre <strong>idempotente</strong> : la repeter ne change pas le resultat. Les API exposent souvent un paramètre <code>idempotency_key</code> pour cela.</p>
 
 <pre>// Stripe-style : meme key = meme charge, jamais double
 POST /v1/refunds
 Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
 
 <div class="anti-pattern">
-<strong>Anti-pattern critique :</strong> retry sans idempotence sur une action a effet de bord. Exemple classique : retry de <code>process_refund</code> apres un timeout reseau — sans idempotency key, vous avez peut-etre rembourse deux fois. <strong>Toujours</strong> verifier l'idempotence avant d'autoriser un retry sur une action transactionnelle.
+<strong>Anti-pattern critique :</strong> retry sans idempotence sur une action a effet de bord. Exemple classique : retry de <code>process_refund</code> après un timeout reseau — sans idempotency key, vous avez peut-etre rembourse deux fois. <strong>Toujours</strong> verifier l'idempotence avant d'autoriser un retry sur une action transactionnelle.
 </div>
 
 <h3>Decision tree : quel pattern utiliser</h3>
@@ -514,11 +514,11 @@ Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
 // boucler avec poll_approval(APR-2024-0042) selon la latence acceptable</pre>
 
 <div class="key-concept">
-<strong>Couplage avec les hooks :</strong> un approval gate est typiquement implemente via un hook <code>PreToolUse</code> qui intercepte les actions sensibles, declenche une notification humaine, et bloque l'execution jusqu'a reponse. Le hook offre la <strong>garantie deterministe</strong> que l'humain est consulte (vs. une simple instruction dans le prompt qui peut etre contournee).
+<strong>Couplage avec les hooks :</strong> un approval gate est typiquement implemente via un hook <code>PreToolUse</code> qui intercepte les actions sensibles, declenche une notification humaine, et bloque l'execution jusqu'a réponse. Le hook offre la <strong>garantie deterministe</strong> que l'humain est consulte (vs. une simple instruction dans le prompt qui peut etre contournee).
 </div>
 
 <h3>Pattern 2 — Disambiguation</h3>
-<p>Quand l'agent detecte une ambiguite (3 clients avec le meme nom de famille, requete avec plusieurs interpretations possibles), au lieu de deviner, il <strong>demande des informations supplementaires</strong>.</p>
+<p>Quand l'agent detecte une ambiguite (3 clients avec le meme nom de famille, requête avec plusieurs interpretations possibles), au lieu de deviner, il <strong>demande des informations supplementaires</strong>.</p>
 
 <pre>// L'agent detecte 3 matches et n'invente pas
 "J'ai trouve 3 comptes au nom de Smith. Pour confirmer le votre,
@@ -534,7 +534,7 @@ Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
 
 <table>
 <tr><th>Strategie d'echantillonnage</th><th>Cas d'usage</th></tr>
-<tr><td>Aleatoire stratifie par categorie</td><td>Mesure du taux d'erreur global</td></tr>
+<tr><td>Aleatoire stratifie par catégorie</td><td>Mesure du taux d'erreur global</td></tr>
 <tr><td>Tous les cas low-confidence (&lt; 0.7)</td><td>Calibration des seuils</td></tr>
 <tr><td>Cas a fort enjeu (montant &gt; 1000$)</td><td>Risk-weighted review</td></tr>
 <tr><td>Nouveaux patterns detectes</td><td>Adaptation aux donnees</td></tr>
@@ -543,7 +543,7 @@ Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
 <h3>Pattern 4 — Escalation handoff</h3>
 <p>Vu en detail en D5 §2 (escalation patterns + structured handoff). C'est le pattern HITL "fin de boucle" — l'agent passe la main quand il a epuise ses options ou rencontre un cas hors perimetre.</p>
 
-<h3>Architecture combinee : les 4 patterns dans un meme systeme</h3>
+<h3>Architecture combinee : les 4 patterns dans un meme système</h3>
 <pre>+----------------------------------------------+
 |  Agent de support client                     |
 |                                              |
@@ -561,14 +561,14 @@ Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
 +----------------------------------------------+</pre>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> les questions de scenario Customer Support testent souvent la <strong>combinaison</strong> de plusieurs patterns HITL, pas un seul. Si une question oppose "ajouter une instruction dans le prompt" et "implementer un hook PreToolUse comme approval gate" pour une action critique, la bonne reponse est <strong>toujours</strong> le hook (deterministe). Voir aussi §6 sur le programmatic enforcement.
+<strong>EXAM TIP :</strong> les questions de scenario Customer Support testent souvent la <strong>combinaison</strong> de plusieurs patterns HITL, pas un seul. Si une question oppose "ajouter une instruction dans le prompt" et "implementer un hook PreToolUse comme approval gate" pour une action critique, la bonne réponse est <strong>toujours</strong> le hook (deterministe). Voir aussi §6 sur le programmatic enforcement.
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. La gestion des sessions (Task 1.7)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Les investigations complexes s'etalent souvent sur plusieurs sessions de travail. Entre deux sessions, des fichiers peuvent etre modifies, et le contexte accumule peut devenir obsolete. Il faut des mecanismes pour reprendre intelligemment la ou l'on s'est arrete — ou choisir de repartir de zero avec un resume.</p>
+<h3>Le problème que cela resout</h3>
+<p>Les investigations complexes s'etalent souvent sur plusieurs sessions de travail. Entre deux sessions, des fichiers peuvent etre modifies, et le contexte accumule peut devenir obsolete. Il faut des mécanismes pour reprendre intelligemment la ou l'on s'est arrete — ou choisir de repartir de zero avec un resume.</p>
 
 <h3><code>--resume</code> : reprendre une session</h3>
 <pre>claude --resume investigation-auth-bug</pre>
@@ -585,7 +585,7 @@ Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
 
 <h3>Quand choisir quoi</h3>
 <table>
-<tr><th>Situation</th><th>Choix recommande</th></tr>
+<tr><th>Situation</th><th>Choix recommandé</th></tr>
 <tr><td>Le contexte precedent est encore valide (fichiers inchanges)</td><td><code>--resume</code></td></tr>
 <tr><td>Les tool results sont obsoletes (fichiers modifies)</td><td>Nouvelle session avec un resume structure injecte</td></tr>
 <tr><td>On veut comparer deux approches</td><td><code>fork_session</code></td></tr>
@@ -618,7 +618,7 @@ Il est souvent plus fiable de demarrer une nouvelle session avec un resume struc
 <h3>Failure recovery</h3>
 <ul>
 <li>5 patterns : retry+backoff exponentiel / circuit breaker / partial results / compensating actions (saga) / idempotency keys.</li>
-<li>Retry pertinent : 503, timeout, rate limit (429), 400 apres correction. Non pertinent : 401/403.</li>
+<li>Retry pertinent : 503, timeout, rate limit (429), 400 après correction. Non pertinent : 401/403.</li>
 <li>Circuit breaker (CLOSED/OPEN/HALF-OPEN) pour les dependances externes en panne prolongee.</li>
 <li>Partial results + coverage annotations pour les workflows multi-source (lien D5 §3).</li>
 <li><strong>Anti-pattern critique :</strong> retry sans idempotency key sur action a effet de bord (double remboursement).</li>
@@ -627,33 +627,33 @@ Il est souvent plus fiable de demarrer une nouvelle session avec un resume struc
 <h3>Human-in-the-loop (HITL)</h3>
 <ul>
 <li>4 patterns : approval gate / disambiguation / quality review (echantillon) / escalation handoff.</li>
-<li>Approval gate = hook PreToolUse + notification humaine + blocage jusqu'a reponse.</li>
+<li>Approval gate = hook PreToolUse + notification humaine + blocage jusqu'a réponse.</li>
 <li>Disambiguation = demander des infos quand plusieurs candidats matchent ; ne jamais deviner.</li>
 <li>Quality review = echantillonnage stratifie + calibration des seuils (lien D5 §5).</li>
 <li>Escalation handoff = structured handoff (lien D5 §2).</li>
-<li>Combinaison : les 4 patterns coexistent dans un systeme robuste, ils ne s'excluent pas.</li>
+<li>Combinaison : les 4 patterns coexistent dans un système robuste, ils ne s'excluent pas.</li>
 </ul>
 
 <h3>L'architecture multi-agents (hub-and-spoke)</h3>
 <ul>
 <li>Le coordinateur (hub) gere <em>toute</em> la communication entre subagents (spokes).</li>
 <li>Les subagents ont un contexte isole : le context passing doit etre explicite.</li>
-<li>L'outil <code>Task</code> est le mecanisme de creation ; <code>allowedTools</code> doit inclure <code>"Task"</code>.</li>
-<li>Plusieurs appels <code>Task</code> dans une seule reponse = parallel execution.</li>
-<li>Attention a la decomposition trop etroite → couverture incomplete.</li>
+<li>L'outil <code>Task</code> est le mécanisme de creation ; <code>allowedTools</code> doit inclure <code>"Task"</code>.</li>
+<li>Plusieurs appels <code>Task</code> dans une seule réponse = parallel execution.</li>
+<li>Attention a la décomposition trop etroite → couverture incomplete.</li>
 </ul>
 
 <h3>Le programmatic enforcement et les hooks</h3>
 <ul>
-<li>Consequences financieres, legales ou de securite → <strong>hooks</strong> (garantie a 100 %).</li>
+<li>Conséquences financieres, legales ou de securite → <strong>hooks</strong> (garantie a 100 %).</li>
 <li>Preferences et recommandations → prompt instructions (probabiliste).</li>
 <li><code>PostToolUse</code> pour normaliser les donnees heterogenes. <code>PreToolUse</code> pour bloquer les actions non conformes.</li>
 </ul>
 
-<h3>La decomposition</h3>
+<h3>La décomposition</h3>
 <ul>
-<li>Fixed pipeline (prompt chaining) pour les taches previsibles. Dynamic decomposition pour les investigations ouvertes.</li>
-<li>Multi-pass review pour les grosses PR : pass per-file + pass integration.</li>
+<li>Fixed pipeline (prompt chaining) pour les taches previsibles. Dynamic décomposition pour les investigations ouvertes.</li>
+<li>Multi-pass review pour les grosses PR : pass per-file + pass intégration.</li>
 </ul>
 
 <h3>Les sessions</h3>
@@ -667,25 +667,25 @@ Il est souvent plus fiable de demarrer une nouvelle session avec un resume struc
 <details>
 <summary>Q1 : Situation : les logs montrent que dans 12% des cas, l'agent saute <code>get_customer</code> et appelle directement <code>lookup_order</code>, causant des remboursements incorrects. Quel changement est le plus efficace ? A) Ajouter un programmatic precondition qui bloque <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourne un ID verifie. B) Ameliorer le system prompt. C) Ajouter des few-shot examples. D) Implementer un routing classifier.</summary>
 <p><strong>Reponse : A</strong></p>
-<p>Les consequences financieres (remboursements incorrects) exigent un programmatic enforcement deterministe, pas une amelioration probabiliste du prompt. B et C ameliorent la conformite mais ne la garantissent pas (toujours un risque residuel sur des milliers d'interactions). D (routing classifier) resout un probleme de dispatch, pas un probleme de sequencage obligatoire d'outils. Seul un precondition programmatique rend la violation <em>impossible</em>.</p>
+<p>Les conséquences financieres (remboursements incorrects) exigent un programmatic enforcement deterministe, pas une amelioration probabiliste du prompt. B et C ameliorent la conformite mais ne la garantissent pas (toujours un risque residuel sur des milliers d'interactions). D (routing classifier) resout un problème de dispatch, pas un problème de sequencage obligatoire d'outils. Seul un precondition programmatique rend la violation <em>impossible</em>.</p>
 </details>
 
 <details>
-<summary>Q2 : Situation : le systeme de recherche sur 'AI impact on creative industries' ne couvre que l'art visuel. Le coordinateur a decompose en : 'AI in digital art', 'AI in graphic design', 'AI in photography'. Quelle est la cause ? A) Le synthesis agent ne detecte pas les lacunes. B) Le coordinateur a decompose trop etroitement. C) Le web search agent ne cherche pas assez. D) Le document analysis agent filtre les sources non-visuelles.</summary>
+<summary>Q2 : Situation : le système de recherche sur 'AI impact on creative industries' ne couvre que l'art visuel. Le coordinateur a décompose en : 'AI in digital art', 'AI in graphic design', 'AI in photography'. Quelle est la cause ? A) Le synthesis agent ne detecte pas les lacunes. B) Le coordinateur a décompose trop etroitement. C) Le web search agent ne cherche pas assez. D) Le document analysis agent filtre les sources non-visuelles.</summary>
 <p><strong>Reponse : B</strong></p>
-<p>Le coordinateur a decompose la tache en sous-taches toutes centrees sur l'art visuel, excluant la musique, la litterature et le cinema. Chaque subagent a correctement execute sa mission — le probleme est en amont, dans la decomposition trop etroite. A est incorrect car le synthesis agent ne peut synthetiser que ce qu'il recoit. C et D sont incorrects car les subagents ont bien fait leur travail dans le perimetre qu'on leur a donne.</p>
+<p>Le coordinateur a décompose la tache en sous-taches toutes centrees sur l'art visuel, excluant la musique, la litterature et le cinema. Chaque subagent a correctement execute sa mission — le problème est en amont, dans la décomposition trop etroite. A est incorrect car le synthesis agent ne peut synthetiser que ce qu'il recoit. C et D sont incorrects car les subagents ont bien fait leur travail dans le perimetre qu'on leur a donne.</p>
 </details>
 
 <details>
 <summary>Q3 : Situation : un web-search subagent timeout. Comment propager l'erreur au coordinateur ? A) Retourner structured error context (failure type, query, partial results, alternatives). B) Retry automatique + status generique 'search unavailable'. C) Retourner un empty result set marque success. D) Propager l'exception au top-level handler qui termine tout le workflow.</summary>
 <p><strong>Reponse : A</strong></p>
-<p>Un structured error context permet au coordinateur de prendre une decision intelligente : relancer avec une requete differente, utiliser les resultats partiels, ou deleguer a un autre subagent. B masque l'information utile derriere un retry aveugle et un message generique. C est dangereux car il fait croire que la recherche a reussi alors qu'elle a echoue. D est disproportionne — un timeout d'un subagent ne devrait pas tuer tout le workflow.</p>
+<p>Un structured error context permet au coordinateur de prendre une decision intelligente : relancer avec une requête differente, utiliser les resultats partiels, ou déléguér a un autre subagent. B masque l'information utile derriere un retry aveugle et un message generique. C est dangereux car il fait croire que la recherche a reussi alors qu'elle a echoue. D est disproportionne — un timeout d'un subagent ne devrait pas tuer tout le workflow.</p>
 </details>
 
 <details>
-<summary>Q4 : Comment votre code determine-t-il si l'agentic loop doit continuer ou s'arreter ? A) Verifier <code>stop_reason</code> : continuer si <code>tool_use</code>, arreter si <code>end_turn</code>. B) Parser le texte de l'assistant pour des phrases comme 'I'm done'. C) Utiliser une limite d'iterations (<code>max_iterations=5</code>). D) Verifier si la reponse contient du texte.</summary>
+<summary>Q4 : Comment votre code détermine-t-il si l'agentic loop doit continuer ou s'arreter ? A) Verifier <code>stop_reason</code> : continuer si <code>tool_use</code>, arreter si <code>end_turn</code>. B) Parser le texte de l'assistant pour des phrases comme 'I'm done'. C) Utiliser une limite d'iterations (<code>max_iterations=5</code>). D) Verifier si la réponse contient du texte.</summary>
 <p><strong>Reponse : A</strong></p>
-<p><code>stop_reason</code> est le SEUL signal fiable pour determiner si la boucle doit continuer. B est fragile car Claude peut ecrire « done » tout en ayant un tool call en attente dans la meme reponse. C peut interrompre prematurement une tache legitime. D est trompeur car Claude peut generer du texte explicatif ET un <code>tool_use</code> block simultanement.</p>
+<p><code>stop_reason</code> est le SEUL signal fiable pour déterminer si la boucle doit continuer. B est fragile car Claude peut ecrire « done » tout en ayant un tool call en attente dans la meme réponse. C peut interrompre prematurement une tache legitime. D est trompeur car Claude peut generer du texte explicatif ET un <code>tool_use</code> block simultanement.</p>
 </details>
 
 <details>
@@ -696,29 +696,29 @@ Il est souvent plus fiable de demarrer une nouvelle session avec un resume struc
 
 <details>
 <summary>Q6 : Situation : votre agent appelle <code>process_refund</code> via une API tierce. Le premier appel timeout au bout de 30 secondes. L'agent retry automatiquement. Quel est le risque, et comment le neutraliser ?
-A) Aucun risque — un timeout signifie que la requete a echoue.
-B) Risque de double remboursement — passer un <code>idempotency_key</code> dans la requete pour que l'API reconnaisse les doublons.
+A) Aucun risque — un timeout signifie que la requête a echoue.
+B) Risque de double remboursement — passer un <code>idempotency_key</code> dans la requête pour que l'API reconnaisse les doublons.
 C) Augmenter le timeout a 60 secondes.
 D) Demander la confirmation a Claude avant de retry.</summary>
-<p><strong>Reponse : B.</strong> Un timeout reseau ne signifie <em>pas</em> que la requete n'a pas atteint le serveur — elle a peut-etre ete traitee, mais la reponse n'est jamais revenue au client. Sans <code>idempotency_key</code>, le retry creerait un second remboursement sur la meme commande. Avec une key (par exemple <code>refund-CUST-12345-ORDER-67890</code>), l'API reconnait que c'est la meme operation et retourne le resultat de la premiere execution. C ne resout pas le probleme de fond. D ne resout rien (Claude n'a pas plus d'info que le code).</p>
+<p><strong>Reponse : B.</strong> Un timeout reseau ne signifie <em>pas</em> que la requête n'a pas atteint le serveur — elle a peut-etre ete traitee, mais la réponse n'est jamais revenue au client. Sans <code>idempotency_key</code>, le retry creerait un second remboursement sur la meme commande. Avec une key (par exemple <code>refund-CUST-12345-ORDER-67890</code>), l'API reconnait que c'est la meme operation et retourne le resultat de la premiere execution. C ne resout pas le problème de fond. D ne resout rien (Claude n'a pas plus d'info que le code).</p>
 </details>
 
 <details>
-<summary>Q7 : Situation : votre agent multi-source dependait de 4 APIs externes. L'API patents tombe en panne pour 30 minutes. L'agent retry chaque appel 4 fois avant d'echouer, multipliant la latence par 4 sur cette branche pendant toute la duree de la panne. Quel pattern resout proprement ce probleme ?
+<summary>Q7 : Situation : votre agent multi-source dependait de 4 APIs externes. L'API patents tombe en panne pour 30 minutes. L'agent retry chaque appel 4 fois avant d'echouer, multipliant la latence par 4 sur cette branche pendant toute la duree de la panne. Quel pattern resout proprement ce problème ?
 A) Reduire le nombre de retries.
-B) Implementer un circuit breaker sur l'API patents : apres 3 echecs consecutifs, ouvrir le circuit pendant 5 min, puis tester en half-open.
+B) Implementer un circuit breaker sur l'API patents : après 3 echecs consecutifs, ouvrir le circuit pendant 5 min, puis tester en half-open.
 C) Supprimer la branche patents du workflow.
 D) Augmenter le nombre de subagents.</summary>
 <p><strong>Reponse : B.</strong> Un circuit breaker arrete les appels vers une dependance en panne prolongee, evitant le gaspillage de latence et de tokens. Les autres branches du workflow continuent de fonctionner ; la branche patents est annotee comme "indisponible" via partial results. A est un compromis grossier (degradera la fiabilite quand l'API marche). C abandonne la fonctionnalite. D ajoute de la complexite sans traiter la cause.</p>
 </details>
 
 <details>
-<summary>Q8 : Situation : votre agent de support client peut emettre des remboursements jusqu'a 5000$. La direction veut une approbation humaine au-dela de 500$. Vous avez le choix entre : (1) ajouter "always ask for approval if amount &gt; 500" dans le system prompt, (2) implementer un hook PreToolUse qui intercepte <code>process_refund</code>, ouvre une demande d'approbation et bloque jusqu'a reponse. Lequel et pourquoi ?
+<summary>Q8 : Situation : votre agent de support client peut emettre des remboursements jusqu'a 5000$. La direction veut une approbation humaine au-dela de 500$. Vous avez le choix entre : (1) ajouter "always ask for approval if amount &gt; 500" dans le system prompt, (2) implementer un hook PreToolUse qui intercepte <code>process_refund</code>, ouvre une demande d'approbation et bloque jusqu'a réponse. Lequel et pourquoi ?
 A) Option 1 — c'est plus rapide a implementer.
-B) Option 1 — Claude est tres fiable sur le suivi d'instructions.
+B) Option 1 — Claude est très fiable sur le suivi d'instructions.
 C) Option 2 — un approval gate via hook PreToolUse offre une garantie deterministe ; les instructions textuelles sont probabilistes (&gt; 90 % mais pas 100 %), insuffisantes pour des decisions financieres.
 D) Les deux donnent le meme resultat.</summary>
-<p><strong>Reponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement) couplee au pattern HITL "approval gate". Pour toute action a consequence financiere, legale ou de securite, l'enforcement doit etre <strong>deterministe</strong> via un hook. Une instruction prompt peut etre contournee, mal interpretee, ou oubliee dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable a 1 % d'echec sur des milliers de transactions.</p>
+<p><strong>Reponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement) couplee au pattern HITL "approval gate". Pour toute action a conséquence financiere, legale ou de securite, l'enforcement doit etre <strong>deterministe</strong> via un hook. Une instruction prompt peut etre contournee, mal interpretee, ou oubliee dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable a 1 % d'echec sur des milliers de transactions.</p>
 </details>
 
 <nav class="doc-nav">
