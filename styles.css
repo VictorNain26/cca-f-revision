@@ -834,23 +834,27 @@ details details.answer-reveal > p {
 }
 
 details details.answer-reveal > div .answer-correct {
-  font-weight: 700;
-  color: var(--concept-ink);
-  font-size: 11pt;
+  font-weight: 400;
+  color: var(--ink);
+  font-size: 10pt;
   margin: 0 0 12px 0;
-  padding: 8px 12px 8px 38px;
+  padding: 12px 14px 12px 44px;
   background: rgba(47, 157, 106, 0.08);
   border-left: 3px solid #2f9d6a;
-  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   position: relative;
-  line-height: 1.55;
+  line-height: 1.65;
+}
+details details.answer-reveal > div .answer-correct strong:first-child {
+  color: #1e7d4d;
+  font-weight: 700;
+  margin-right: 4px;
 }
 details details.answer-reveal > div .answer-correct::before {
   content: "✓";
   position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 12px;
+  top: 14px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -860,6 +864,13 @@ details details.answer-reveal > div .answer-correct::before {
   text-align: center;
   line-height: 22px;
   font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* Quand answer-block et answer-correct se cumulent (D5), désactiver answer-block */
+details details.answer-reveal > div .answer-block.answer-correct {
+  background: rgba(47, 157, 106, 0.08);
+  border-left: 3px solid #2f9d6a;
 }
 
 /* Bloc réponse legacy (toujours visible — pour rétrocompat) */
