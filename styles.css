@@ -837,23 +837,29 @@ details details.answer-reveal > div .answer-correct {
   font-weight: 700;
   color: var(--concept-ink);
   font-size: 11pt;
-  margin: 0 0 10px 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin: 0 0 12px 0;
+  padding: 8px 12px 8px 38px;
+  background: rgba(47, 157, 106, 0.08);
+  border-left: 3px solid #2f9d6a;
+  border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  position: relative;
+  line-height: 1.55;
 }
 details details.answer-reveal > div .answer-correct::before {
   content: "✓";
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   width: 22px;
   height: 22px;
   border-radius: 50%;
   background: #2f9d6a;
   color: white;
   font-size: 11pt;
-  flex-shrink: 0;
+  text-align: center;
+  line-height: 22px;
+  font-weight: 700;
 }
 
 /* Bloc réponse legacy (toujours visible — pour rétrocompat) */
