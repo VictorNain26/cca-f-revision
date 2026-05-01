@@ -867,10 +867,14 @@ details details.answer-reveal > div .answer-correct::before {
   flex-shrink: 0;
 }
 
-/* Quand answer-block et answer-correct se cumulent (D5), désactiver answer-block */
+/* Quand answer-block et answer-correct se cumulent (D5), neutraliser le padding/margin
+   d'answer-block (qui utilisent !important) */
 details details.answer-reveal > div .answer-block.answer-correct {
-  background: rgba(47, 157, 106, 0.08);
-  border-left: 3px solid #2f9d6a;
+  background: rgba(47, 157, 106, 0.08) !important;
+  border-left: 3px solid #2f9d6a !important;
+  padding: 12px 14px 12px 46px !important;
+  margin: 0 0 12px 0 !important;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0 !important;
 }
 
 /* Bloc réponse legacy (toujours visible — pour rétrocompat) */
