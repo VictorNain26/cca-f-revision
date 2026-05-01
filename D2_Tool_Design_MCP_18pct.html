@@ -687,7 +687,7 @@ async with stdio_client(...) as session:
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. Questions d'auto-evaluation</h2></div>
 
-<détails>
+<details>
 <summary>Q1 : Les logs montrent que les requêtes <em>"analyze the uploaded quarterly report"</em> sont routees vers le web-search agent 45 % du temps au lieu du document analysis agent. Les descriptions des outils sont <code>analyze_content</code> (<em>"analyzes content and extracts key information"</em>) et <code>analyze_document</code> (<em>"analyzes documents and extracts key information"</em>). Comment corriger ?<br>
 A) Ajouter un pre-routing classifier.<br>
 B) Renommer le web-search tool en <code>extract_web_results</code> et mettre a jour sa <code>description</code>.<br>
@@ -695,9 +695,9 @@ C) Ajouter des few-shot examples au coordinateur.<br>
 D) Enrichir seulement la <code>description</code> du document analysis tool.</summary>
 <p><strong>Reponse : B</strong></p>
 <p>Le problème est un chevauchement semantique entre les deux descriptions. Renommer le web-search tool en <code>extract_web_results</code> avec une description differenciee elimine l'ambiguite a la racine. Les options A et C ajoutent de la complexite sans traiter la cause. L'option D n'elimine pas le chevauchement cote web-search.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q2 : Un document analysis <code>subagent</code> a un outil generique <code>fetch_url</code>. Les logs montrent qu'il telecharge des pages de moteurs de recherche au lieu de documents. Quel fix appliquer ?<br>
 A) Remplacer <code>fetch_url</code> par <code>load_document</code> qui valide les URLs vers des formats document.<br>
 B) Retirer <code>fetch_url</code> et router via le coordinateur.<br>
@@ -705,9 +705,9 @@ C) Filtrer les domaines de moteurs de recherche.<br>
 D) Ajouter des instructions dans le prompt.</summary>
 <p><strong>Reponse : A</strong></p>
 <p>C'est le principe du moindre privilege applique au niveau de l'interface : contraindre l'outil lui-même plutot que de compter sur des instructions textuelles (option D, peu fiable) ou d'ajouter de la complexite architecturale (option B). L'option C est un filtre fragile qui ne couvre pas tous les cas.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q3 : Un outil MCP echoue avec <code>{"isError": true, "content": "Operation failed"}</code>. Pourquoi c'est un anti-pattern ?<br>
 A) L'agent ne peut pas decider s'il faut faire un retry, modifier la requête, ou escalader.<br>
 B) Le format JSON est incorrect.<br>
@@ -715,9 +715,9 @@ C) <code>isError</code> devrait être <code>false</code>.<br>
 D) Le message est trop court.</summary>
 <p><strong>Reponse : A</strong></p>
 <p>Une erreur generique ne fournit aucune information pour la prise de décision. Sans <code>errorCategory</code> ni <code>isRetryable</code>, l'agent ne sait pas si l'erreur est <code>transient</code> (retry), <code>validation</code> (corriger l'entree), <code>business</code> (expliquer a l'utilisateur) ou <code>permission</code> (escalader). Le format JSON est valide (B est faux), <code>isError: true</code> est correct (C est faux), et la longueur du message n'est pas le problème (D est faux).</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q4 : Vous voulez que Claude appelle toujours <code>extract_metadata</code> en premier avant tout autre traitement. Quelle valeur de <code>tool_choice</code> utiliser ?<br>
 A) <code>{"type": "auto"}</code><br>
 B) <code>{"type": "any"}</code><br>
@@ -725,34 +725,34 @@ C) <code>{"type": "tool", "name": "extract_metadata"}</code><br>
 D) Ajouter <em>"always call this first"</em> dans la <code>description</code>.</summary>
 <p><strong>Reponse : C</strong></p>
 <p>La forced selection (<code>{"type": "tool", "name": "extract_metadata"}</code>) garantit que Claude appellera exactement cet outil. <code>auto</code> (A) laisse Claude libre de ne pas appeler d'outil. <code>any</code> (B) force un appel mais sans garantir lequel. L'option D repose sur une instruction textuelle dans la <code>description</code>, ce qui est moins fiable qu'une contrainte programmatique.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q5 : Vous concevez un outil <code>create_refund</code>. La logique metier exige que <code>amount</code> et <code>reason</code> soient obligatoires <em>seulement si</em> <code>type == "refund"</code>. Si <code>type == "info_only"</code>, ces champs ne servent a rien. Comment exprimer cela proprement dans le <code>input_schema</code> ?<br>
 A) Mettre tous les champs dans <code>required</code>.<br>
 B) Utiliser <code>if</code>/<code>then</code> : si <code>type == "refund"</code>, alors <code>required: ["amount", "reason"]</code>.<br>
 C) Documenter la regle uniquement dans la <code>description</code>.<br>
 D) Creer deux outils separes.</summary>
 <p><strong>Reponse : B.</strong> JSON Schema draft-07 supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle. C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modèle a fournir <code>amount</code> même pour <code>info_only</code> (et il l'inventera). C deplace la responsabilite sur le modèle (peu fiable). D est correct mais ajoute de la complexite et du <code>misrouting</code> potentiel — preferer <code>if</code>/<code>then</code> si la logique est simple.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q6 : Votre extracteur de metadonnees produit un JSON valide mais Claude ajoute parfois des champs inattendus comme <code>"notes": "..."</code> qui ne sont pas dans votre schéma. Comment empecher cela cote schéma ?<br>
 A) Ajouter "notes" dans <code>properties</code>.<br>
 B) Mettre <code>"additionalProperties": false</code> au niveau de l'objet.<br>
 C) Lister les champs interdits dans une enum.<br>
 D) Utiliser <code>tool_choice: any</code>.</summary>
 <p><strong>Reponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code>. Le <code>tool_use</code> garantit que la sortie respecte le schéma, donc Claude est contraint de ne produire que les champs documentes. A le rendrait acceptable mais ne resout pas la question (le modèle continuerait a inventer d'autres champs). C n'a pas de sens semantique. D ne contraint pas la structure du resultat.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q7 : Votre équipe construit un serveur MCP qui doit acceder aux dossiers Google Drive de chaque développeur (chacun ses propres fichiers). Quel pattern d'authentification ?<br>
 A) Un service account Google partage, token dans <code>.mcp.json</code>.<br>
 B) Une clé API par développeur en variable d'environnement.<br>
 C) OAuth 2.1 — chaque utilisateur autorisé individuellement, le client MCP géré les tokens.<br>
 D) Authentification HTTP Basic.</summary>
 <p><strong>Reponse : C.</strong> Quand l'authentification est <strong>par utilisateur</strong> (ressources personnelles), seul OAuth 2.1 fournit la delegation propre : chaque dev passe par le flow d'autorisation Google, reçoit son propre <code>access_token</code>, et le client MCP le stocke. A est dangereux (un service account partage = tout le monde voit tout). B fonctionnerait pour des clés techniques, mais Google Drive ne distribue pas de clés API par utilisateur — il faut un flow OAuth. D est obsolete et inadapte.</p>
-</détails>
+</details>
 
 <nav class="doc-nav">
   <a class="prev" href="D1_Architecture_Orchestration_27pct.html"><span class="label">Précédent</span><span class="title">D1 — Architecture et orchestration</span></a>

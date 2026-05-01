@@ -423,7 +423,7 @@ Conventions de test :
 <div class="key-concept">
 <strong>Plan = largeur</strong> (explorer plus de fichiers). <strong>Thinking = profondeur</strong> (raisonnement approfondi sur un problème precis). Les deux se combinent pour les taches complexes.
 <br><br>
-Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de decouverte et retourné un resume concis, preservant le contexte principal pour les phases suivantes.
+Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de découverte et retourne un résumé concis, préservant le contexte principal pour les phases suivantes.
 </div>
 
 <!-- ================================================================== -->
@@ -819,86 +819,86 @@ claude mcp remove github</pre>
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s9">9. Auto-evaluation</h2></div>
 
-<détails>
+<details>
 <summary>Q1 : Trois développeurs anciens beneficient de "always include comprehensive error handling", mais un nouveau qui vient de rejoindre ne l'a pas. Tous travaillent sur le même repo. Cause probable ?
 A) L'instruction est dans <code>~/.claude/CLAUDE.md</code> (user-level) au lieu de <code>.claude/CLAUDE.md</code> (project-level).
 B) Le <code>~/.claude/CLAUDE.md</code> du nouveau contient des instructions conflictuelles.
 C) Claude Code apprend les preferences par utilisateur au fil du temps.
 D) Le nouveau doit relancer Claude Code.</summary>
 <p><strong>Reponse : A.</strong> Le fichier <code>~/.claude/CLAUDE.md</code> est au user-level : il est personnel et non partage via VCS. Les trois anciens développeurs l'ont chacun dans leur propre configuration, mais le nouveau n'en dispose pas. La solution est de deplacer cette instruction dans <code>.claude/CLAUDE.md</code> (project-level), qui est versionne et partage avec toute l'équipe.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q2 : Votre codebase a des conventions différentes pour React, API, et database. Les tests sont co-localises avec le code. Quelle approche ?
 A) Des fichiers <code>.claude/rules/</code> avec YAML frontmatter et glob patterns.
 B) Tout mettre dans le root <code>CLAUDE.md</code>.
 C) Des skills dans <code>.claude/skills/</code>.
 D) Un <code>CLAUDE.md</code> dans chaque repertoire.</summary>
 <p><strong>Reponse : A.</strong> Les fichiers <code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> et glob patterns permettent un chargement conditionnel : chaque convention n'est chargee que quand Claude edite un fichier correspondant. C'est l'approche preferee pour les conventions cross-directory (tests co-localises disperses dans le codebase). B gaspillerait du contexte en chargeant tout systematiquement. C est pour les taches, pas les conventions. D serait fastidieux a maintenir avec des tests disperses.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q3 : Un skill <code>/analyze-codebase</code> fait du deep analysis. Apres l'avoir lance, Claude devient moins responsif et perd le contexte de la tache originale. Comment fixer ?
 A) Ajouter <code>context: fork</code> dans le frontmatter du skill.
 B) Utiliser <code>/compact</code> après le skill.
 C) Reduire les outils du skill avec <code>allowed-tools</code>.
 D) Decouper le skill en plus petits skills.</summary>
 <p><strong>Reponse : A.</strong> Le paramètre <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> execute le skill dans un subagent isole. La sortie verbeuse ne pollue pas la session principale, et Claude conserve le contexte de la tache originale. B compresserait le contexte mais avec perte d'information. C limiterait les capacites du skill sans resoudre le problème de pollution du contexte. D ajouterait de la complexite sans isolation.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q4 : Votre pipeline CI execute <code>claude 'Analyze this PR for security issues'</code> mais le job reste bloque indefiniment. Quel est le problème ?
 A) Ajouter <code>--batch</code>.
 B) Utiliser le flag <code>-p</code>.
 C) Rediriger stdin depuis <code>/dev/null</code>.
 D) Setter <code>CLAUDE_HEADLESS=true</code>.</summary>
 <p><strong>Reponse : B.</strong> Le flag <code>-p</code> (alias <code>--print</code>) est la manière documentee d'executer Claude Code en mode non interactif (<em>headless mode</em>) pour les pipelines CI/CD. Sans ce flag, Claude Code attend une saisie utilisateur interactive, ce qui bloque le job. La commande correcte est <code>claude -p 'Analyze this PR for security issues'</code>.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q5 : Une developpeuse a ajoute des autorisations dans <code>.claude/settings.local.json</code>. Son collegue clone le repo mais les autorisations ne s'appliquent pas. Cause ?
 A) Il faut redemarrer Claude Code pour recharger la config.
 B) <code>settings.local.json</code> est dans <code>.gitignore</code>, il n'est pas versionne ni partage.
 C) Les permissions sont stockees par utilisateur dans une base locale.
 D) Le collegue doit lancer <code>claude --sync-permissions</code>.</summary>
 <p><strong>Reponse : B.</strong> Par convention (et habituellement par <code>.gitignore</code>), <code>.claude/settings.local.json</code> n'est pas versionne. Il sert aux surcharges <strong>locales</strong> par développeur (chemins absolus, secrets, autorisations dangereuses). Pour partager des autorisations avec l'équipe, elles doivent être dans <code>.claude/settings.json</code> (versionne). A est faux (la config est rechargee), C et D ne correspondent pas a des fonctionnalites Claude Code.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q6 : Vous voulez autoriser <code>npm test</code> avec n'importe quels arguments en CI, mais bloquer toute autre commande npm. Quelle entree dans <code>permissions.allow</code> ?
 A) <code>"Bash(npm test)"</code>.
 B) <code>"Bash(npm test:*)"</code>.
 C) <code>"Bash(npm:*)"</code>.
 D) <code>"Bash(npm test --*)"</code>.</summary>
 <p><strong>Reponse : B.</strong> <code>"Bash(npm test:*)"</code> autorisé <code>npm test</code> suivi de n'importe quels arguments (<code>npm test --watch</code>, <code>npm test src/foo</code>). A est trop restrictif : seul <code>npm test</code> exact passerait. C autoriserait toute commande npm (<code>npm publish</code>, <code>npm install</code>) — trop large. D n'est pas la syntaxe valide des allowlists Claude Code (<code>:*</code> est le suffixe officiel).</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q7 : Votre équipe veut que tous les fichiers TypeScript soient automatiquement formates par Prettier après edition par Claude. Quelle approche est la plus fiable ?
 A) Ajouter "Always run prettier after editing" dans <code>CLAUDE.md</code>.
 B) Creer un skill <code>/format</code> que les développeurs invoquent.
 C) Configurer un hook <code>PostToolUse</code> avec <code>matcher: "Edit|Write"</code> qui execute <code>prettier --write</code>.
 D) Demander a Claude d'inclure <code>prettier</code> dans chaque commit.</summary>
 <p><strong>Reponse : C.</strong> Un hook <code>PostToolUse</code> est <strong>deterministe</strong> : il s'execute après chaque <code>Edit</code> ou <code>Write</code>, sans dependre du raisonnement du modèle. A repose sur la conformite du modèle aux instructions textuelles, qui peut être oubliee dans des contextes longs. B est manuel et fragile. D melange les responsabilites (formatage en commit). Le hook est l'option choisie pour les actions automatiques garanties — c'est precisement leur raison d'être.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q8 : Votre workflow GitHub Actions execute <code>claude -p</code> mais Claude entre parfois dans une boucle qui consomme 50+ iterations agentiques avant de s'arreter. Comment limiter cela proprement ?
 A) Ajouter <code>--max-turns 10</code> a la commande.
 B) Mettre un <code>timeout-minutes: 5</code> sur le job GitHub Actions.
 C) Reduire le contexte initial.
 D) Utiliser <code>--output-format json</code>.</summary>
 <p><strong>Reponse : A.</strong> <code>--max-turns N</code> est le garde-fou natif de Claude Code pour limiter le nombre d'iterations agentiques (cycles tool_use → tool_result). C'est l'option propre : Claude termine avec un resultat partiel exploitable. B (timeout du job) est un filet de securite mais coupe brutalement, sans output structure. C peut aider mais ne resout pas la cause. D contrôle le format de sortie, pas le nombre d'iterations. Combinez idealement A + B pour la defense en profondeur.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q9 : Vous configurez un serveur MCP <code>github</code> qui necessite un <code>GITHUB_TOKEN</code>. Vous voulez le partager avec l'équipe sans exposer le token. Approche correcte ?
 A) Mettre <code>GITHUB_TOKEN: "ghp_xxx"</code> dans <code>.mcp.json</code>.
 B) Mettre <code>GITHUB_TOKEN: "${GITHUB_TOKEN}"</code> dans <code>.mcp.json</code> et chacun definit la variable d'env localement.
 C) Stocker le token dans <code>.claude/settings.json</code>.
 D) Encoder le token en base64 dans <code>.mcp.json</code>.</summary>
 <p><strong>Reponse : B.</strong> La syntaxe <code>${VAR}</code> dans <code>.mcp.json</code> est resolue au runtime depuis l'environnement. Le fichier reste versionne sans secret expose ; chaque développeur fournit son propre token via son shell (<code>export GITHUB_TOKEN=...</code>) ou via un gestionnaire de secrets local. A et D exposent le secret dans Git. C melange les responsabilites et expose toujours le secret si <code>settings.json</code> est versionne. Alternative legitime : utiliser <code>claude mcp add github -e GITHUB_TOKEN=...</code> qui écrit dans <code>~/.claude.json</code> (user-level, non versionne).</p>
-</détails>
+</details>
 
 <nav class="doc-nav">
   <a class="prev" href="D2_Tool_Design_MCP_18pct.html"><span class="label">Précédent</span><span class="title">D2 — Tool design et MCP</span></a>

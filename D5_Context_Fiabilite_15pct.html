@@ -530,7 +530,7 @@ Note : la couverture de cette section est limitée.
 - La migration n° 47 a ajouté refund_reason (NOT NULL) — 2024-12-01</pre>
 
 <h4>2. Délégation aux <code>subagent</code>s</h4>
-<p>L'agent principal demande à un <code>subagent</code> <code>Explore</code> d'investiguer les dépendances d'un module. Le <code>subagent</code> lit 15 fichiers dans son propre contexte et retourné un résumé concis au thread principal. Le contexte principal garde une ligne au lieu de 15 fichiers :</p>
+<p>L'agent principal demande à un <code>subagent</code> <code>Explore</code> d'investiguer les dépendances d'un module. Le <code>subagent</code> lit 15 fichiers dans son propre contexte et retourne un résumé concis au thread principal. Le contexte principal garde une ligne au lieu de 15 fichiers :</p>
 <pre>// Résultat du subagent Explore → résumé retourné au coordinateur
 "Le module Payments dépend de AuthService, OrderModel
  et de l'API externe PaymentGateway."</pre>
@@ -718,7 +718,7 @@ Note : la couverture de cette section est limitée.
 <div class="quiz-section">
 <h3>4 questions pour tester votre compréhension</h3>
 
-<détails>
+<details>
 <summary><strong>Q1.</strong> Situation : un remboursement de $89.99 discuté 20 turns plus tôt est devenu « a promotional pricing was discussed » dans le résumé. Comment prévenir cette perte ?</summary>
 <div>
 <p>A) Augmenter le context window.<br>
@@ -727,9 +727,9 @@ C) Utiliser <code>/compact</code> moins souvent.<br>
 D) Ajouter des few-shot examples.</p>
 <p class="answer-block"><strong>Réponse : B.</strong> Le <code>case facts</code> block persiste les informations critiques (montants, dates, IDs) en dehors de l'historique résumé. Même après un <code>/compact</code>, ces faits restent intacts dans le prompt. Augmenter le context window (A) ne fait que retarder le problème ; utiliser <code>/compact</code> moins souvent (C) aussi. Les few-shot examples (D) ne concernent pas la préservation des faits.</p>
 </div>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary><strong>Q2.</strong> Situation : le client dit « This is outrageous, I'm very unhappy! » L'agent doit-il escalader immédiatement ?</summary>
 <div>
 <p>A) Oui, le sentiment négatif indique une <code>escalation</code> nécessaire.<br>
@@ -738,9 +738,9 @@ C) Oui, utiliser <code>sentiment analysis</code> pour détecter la frustration.<
 D) Non, ignorer l'émotion et se concentrer sur le problème technique.</p>
 <p class="answer-block"><strong>Réponse : B.</strong> Le pattern nuanced : acknowledge → resolve → escalate only on reiteration. La <code>sentiment analysis</code> n'est <strong>pas</strong> un déclencheur fiable d'<code>escalation</code> (A et C sont des pièges). Ignorer l'émotion (D) est une mauvaise pratique — il faut reconnaître la frustration avant de proposer une solution.</p>
 </div>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary><strong>Q3.</strong> Situation : trois catégories de sources retournent des résultats différents : academic databases = 15 papers, industry reports = « 0 results », patent databases = « Connection timeout ». Comment propager au coordinateur ?</summary>
 <div>
 <p>A) Agréger en « 67% source coverage ».<br>
@@ -749,9 +749,9 @@ C) Retry automatiquement les failures transitoires.<br>
 D) Distinguer les access failures (timeout = retry décision) des valid empty results (0 results = successful query).</p>
 <p class="answer-block"><strong>Réponse : D.</strong> Un timeout est un access failure — la requête n'a pas abouti et un retry peut être pertinent. Des résultats vides (0 results) signifient que la requête a réussi mais n'a rien trouvé — c'est un résultat légitime. Les traiter de la même manière (B) ou les agréger en un pourcentage générique (A) masque cette distinction sémantique critique.</p>
 </div>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary><strong>Q4.</strong> Situation : l'accuracy globale de votre système d'extraction est 97%. Faut-il s'en satisfaire ?</summary>
 <div>
 <p>A) Oui, 97% est excellent.<br>
@@ -760,9 +760,9 @@ C) Oui, si les tests unitaires passent.<br>
 D) Non, implémenter un classifier pour détecter les erreurs.</p>
 <p class="answer-block"><strong>Réponse : B.</strong> L'analyse par <code>stratified random sampling</code> — par document type ET par field — peut révéler que certains types de documents (factures scannées, formulaires manuscrits) ou certains champs (numéros de TVA, adresses) ont des taux d'erreur bien plus élevés que la moyenne. 97% en agrégé ne garantit rien sur les sous-catégories.</p>
 </div>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary><strong>Q5.</strong> Vous construisez un agent juridique qui charge 50k tokens de jurisprudence pertinente au début de chaque session, puis enchaîne 10-15 turns de questions. La latence et le coût sont élevés. Quelle stratégie de caching est optimale ?</summary>
 <div>
 <p>A) Mettre <code>cache_control</code> sur chaque message utilisateur.<br>
@@ -771,9 +771,9 @@ C) Placer 3 breakpoints <code>cache_control</code> : sur le system prompt, sur l
 D) Désactiver le caching et augmenter <code>max_tokens</code>.</p>
 <p class="answer-block"><strong>Réponse : C.</strong> Les contenus stables sur l'ensemble de la session (system, tools, dossier juridique de 50k tokens) sont d'excellents candidats au cache : ils sont lus à chaque turn. Les breakpoints sur ces 3 éléments offrent un cache hit rate &gt; 90 % sur les turns 2-15, avec une économie de 90 % sur ces tokens. A est l'anti-pattern type (chaque turn invalide le précédent). B sous-utilise le cache (le gros volume est dans la jurisprudence). D ne résout rien.</p>
 </div>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary><strong>Q6.</strong> Votre agent multi-turn approche de la limite du context window après 80 turns d'investigation. Les premiers turns contiennent des décisions architecturales importantes que vous ne voulez pas perdre. Quelle est la meilleure stratégie ?</summary>
 <div>
 <p>A) Lancer <code>/compact</code> immédiatement et continuer.<br>
@@ -782,7 +782,7 @@ C) Augmenter <code>max_tokens</code>.<br>
 D) Démarrer une nouvelle session et oublier l'historique.</p>
 <p class="answer-block"><strong>Réponse : B.</strong> La progressive summarization compresse l'historique long (libère du budget), tandis que le <code>case facts</code> block protège les informations critiques en dehors du résumé. C'est la combinaison qui garantit à la fois longévité de session et préservation des faits. A seule risque de perdre les décisions architecturales (la summarization dilue les détails). C confond <code>max_tokens</code> (budget de réponse) et limite de contexte. D perd tout l'historique utile.</p>
 </div>
-</détails>
+</details>
 
 </div>
 

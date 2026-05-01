@@ -315,29 +315,29 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 <!-- ===== SECTION 9 ===== -->
 <div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-évaluation</h2></div>
 
-<détails>
+<details>
 <summary>Q1 : Votre pipeline CI appelle l'API Claude. Entre deux requêtes, un tool result de l'appel precedent est perdu. Quelle est la cause la plus probable ?</summary>
 <p><strong>Reponse :</strong> Le développeur n'a pas inclus l'historique complet de la conversation dans la requête suivante.</p>
 <p>L'API Claude est <strong>stateless</strong> : elle ne conserve aucun état entre les requêtes. A chaque appel, le tableau <code>messages</code> doit contenir l'integralite de l'historique, y compris les <code>tool_result</code> precedents. Si un <code>tool_result</code> est omis, le modèle ne sait pas que le tool a ete execute et peut re-appeler le même tool ou produire une réponse incohérente.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q2 : Le system prompt dit "always verify the customer's identity". Vous constatez que <code>get_customer</code> est appele même quand ce n'est pas nécessaire. Quelle est la cause racine ?</summary>
 <p><strong>Reponse :</strong> La formulation du system prompt cree une <strong>association non intentionnelle avec le tool</strong>.</p>
 <p>Le modèle interprété "always verify the customer" comme une instruction déclenchant systematiquement le tool le plus semantiquement proche — ici <code>get_customer</code>. La solution est de reformuler le system prompt de manière plus précise, en specifiant <em>quand</em> la vérification est nécessaire plutot que de dire "always".</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q3 : Vous avez besoin d'un structured output garanti de Claude. Quelle valeur de <code>tool_choice</code> assure qu'un tool est toujours appele ?</summary>
 <p><strong>Reponse : <code>{"type": "any"}</code></strong></p>
 <p>Avec <code>tool_choice: {"type": "any"}</code>, le modèle est <strong>force</strong> d'appeler au moins un tool, garantissant ainsi un output structure. Avec <code>"auto"</code> (defaut), le modèle peut choisir de répondre en texte libre. Avec <code>{"type": "tool", "name": "..."}</code>, un tool spécifique est force — c'est plus restrictif que <code>"any"</code>.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q4 : Un tool d'extraction a un champ <code>required</code> "company_name", mais certains documents ne mentionnent aucune entreprise. Que se passe-t-il ?</summary>
 <p><strong>Reponse :</strong> Le modèle <strong>fabrique une valeur</strong> (hallucination) pour satisfaire la contrainte <code>required</code>.</p>
 <p>Correction : rendre le champ <strong>nullable</strong> avec <code>"type": ["string", "null"]</code> et le retirer de <code>required</code>. Ainsi, le modèle retourné <code>null</code> quand l'information est absente au lieu d'inventer un nom d'entreprise.</p>
-</détails>
+</details>
 
 <nav class="doc-nav">
   <a class="prev" href="index.html"><span class="label">Précédent</span><span class="title">Accueil</span></a>

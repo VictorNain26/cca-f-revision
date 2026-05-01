@@ -664,62 +664,62 @@ Il est souvent plus fiable de demarrer une nouvelle session avec un resume struc
 
 <h3>Questions d'auto-evaluation</h3>
 
-<détails>
+<details>
 <summary>Q1 : Situation : les logs montrent que dans 12% des cas, l'agent saute <code>get_customer</code> et appelle directement <code>lookup_order</code>, causant des remboursements incorrects. Quel changement est le plus efficace ? A) Ajouter un programmatic precondition qui bloque <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourné un ID vérifié. B) Ameliorer le system prompt. C) Ajouter des few-shot examples. D) Implementer un routing classifier.</summary>
 <p><strong>Reponse : A</strong></p>
 <p>Les conséquences financieres (remboursements incorrects) exigent un programmatic enforcement deterministe, pas une amelioration probabiliste du prompt. B et C ameliorent la conformite mais ne la garantissent pas (toujours un risque residuel sur des milliers d'interactions). D (routing classifier) resout un problème de dispatch, pas un problème de sequencage obligatoire d'outils. Seul un precondition programmatique rend la violation <em>impossible</em>.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q2 : Situation : le système de recherche sur 'AI impact on creative industries' ne couvre que l'art visuel. Le coordinateur a décompose en : 'AI in digital art', 'AI in graphic design', 'AI in photography'. Quelle est la cause ? A) Le synthesis agent ne detecte pas les lacunes. B) Le coordinateur a décompose trop etroitement. C) Le web search agent ne cherche pas assez. D) Le document analysis agent filtre les sources non-visuelles.</summary>
 <p><strong>Reponse : B</strong></p>
 <p>Le coordinateur a décompose la tache en sous-taches toutes centrees sur l'art visuel, excluant la musique, la litterature et le cinema. Chaque subagent a correctement execute sa mission — le problème est en amont, dans la décomposition trop etroite. A est incorrect car le synthesis agent ne peut synthetiser que ce qu'il reçoit. C et D sont incorrects car les subagents ont bien fait leur travail dans le perimetre qu'on leur a donne.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q3 : Situation : un web-search subagent timeout. Comment propager l'erreur au coordinateur ? A) Retourner structured error context (failure type, query, partial results, alternatives). B) Retry automatique + status generique 'search unavailable'. C) Retourner un empty result set marque success. D) Propager l'exception au top-level handler qui termine tout le workflow.</summary>
 <p><strong>Reponse : A</strong></p>
 <p>Un structured error context permet au coordinateur de prendre une décision intelligente : relancer avec une requête différente, utiliser les résultats partiels, ou déléguér a un autre subagent. B masque l'information utile derriere un retry aveugle et un message generique. C est dangereux car il fait croire que la recherche a reussi alors qu'elle a echoue. D est disproportionne — un timeout d'un subagent ne devrait pas tuer tout le workflow.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q4 : Comment votre code détermine-t-il si l'agentic loop doit continuer ou s'arreter ? A) Verifier <code>stop_reason</code> : continuer si <code>tool_use</code>, arreter si <code>end_turn</code>. B) Parser le texte de l'assistant pour des phrases comme 'I'm done'. C) Utiliser une limite d'iterations (<code>max_iterations=5</code>). D) Verifier si la réponse contient du texte.</summary>
 <p><strong>Reponse : A</strong></p>
 <p><code>stop_reason</code> est le SEUL signal fiable pour déterminer si la boucle doit continuer. B est fragile car Claude peut écrire « done » tout en ayant un tool call en attente dans la même réponse. C peut interrompre prematurement une tache legitime. D est trompeur car Claude peut generer du texte explicatif ET un <code>tool_use</code> block simultanement.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q5 : Situation : une investigation complexe s'etale sur plusieurs jours. Les fichiers ont change depuis la derniere session. Comment reprendre ? A) <code>--resume</code> pour continuer la session. B) <code>fork_session</code> pour explorer deux pistes. C) Nouvelle session avec un resume structure injecte. D) Relancer la même commande.</summary>
 <p><strong>Reponse : C</strong></p>
 <p>Les fichiers ayant change, les tool results de la session precedente sont obsoletes (stale). <code>--resume</code> (A) chargerait ces résultats perimes, ce qui peut induire Claude en erreur. <code>fork_session</code> (B) sert a comparer deux approches, pas a gérer des donnees obsoletes. Relancer la même commande (D) perd tout le contexte accumule. Une nouvelle session avec un resume structure preserve les conclusions importantes tout en offrant un contexte frais base sur l'état actuel des fichiers.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q6 : Situation : votre agent appelle <code>process_refund</code> via une API tierce. Le premier appel timeout au bout de 30 secondes. L'agent retry automatiquement. Quel est le risque, et comment le neutraliser ?
 A) Aucun risque — un timeout signifie que la requête a echoue.
 B) Risque de double remboursement — passer un <code>idempotency_key</code> dans la requête pour que l'API reconnaisse les doublons.
 C) Augmenter le timeout a 60 secondes.
 D) Demander la confirmation a Claude avant de retry.</summary>
 <p><strong>Reponse : B.</strong> Un timeout reseau ne signifie <em>pas</em> que la requête n'a pas atteint le serveur — elle a peut-être ete traitee, mais la réponse n'est jamais revenue au client. Sans <code>idempotency_key</code>, le retry creerait un second remboursement sur la même commande. Avec une key (par exemple <code>refund-CUST-12345-ORDER-67890</code>), l'API reconnait que c'est la même opération et retourne le résultat de la première exécution. C ne resout pas le problème de fond. D ne resout rien (Claude n'a pas plus d'info que le code).</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q7 : Situation : votre agent multi-source dependait de 4 APIs externes. L'API patents tombe en panne pour 30 minutes. L'agent retry chaque appel 4 fois avant d'echouer, multipliant la latence par 4 sur cette branche pendant toute la durée de la panne. Quel pattern resout proprement ce problème ?
 A) Reduire le nombre de retries.
 B) Implementer un circuit breaker sur l'API patents : après 3 échecs consecutifs, ouvrir le circuit pendant 5 min, puis tester en half-open.
 C) Supprimer la branche patents du workflow.
 D) Augmenter le nombre de subagents.</summary>
 <p><strong>Reponse : B.</strong> Un circuit breaker arrete les appels vers une dependance en panne prolongee, evitant le gaspillage de latence et de tokens. Les autres branches du workflow continuent de fonctionner ; la branche patents est annotee comme "indisponible" via partial results. A est un compromis grossier (degradera la fiabilite quand l'API marche). C abandonne la fonctionnalite. D ajoute de la complexite sans traiter la cause.</p>
-</détails>
+</details>
 
-<détails>
+<details>
 <summary>Q8 : Situation : votre agent de support client peut emettre des remboursements jusqu'a 5000$. La direction veut une approbation humaine au-dela de 500$. Vous avez le choix entre : (1) ajouter "always ask for approval if amount &gt; 500" dans le system prompt, (2) implementer un hook PreToolUse qui intercepte <code>process_refund</code>, ouvre une demande d'approbation et bloque jusqu'a réponse. Lequel et pourquoi ?
 A) Option 1 — c'est plus rapide a implementer.
 B) Option 1 — Claude est très fiable sur le suivi d'instructions.
 C) Option 2 — un approval gate via hook PreToolUse offre une garantie deterministe ; les instructions textuelles sont probabilistes (&gt; 90 % mais pas 100 %), insuffisantes pour des décisions financieres.
 D) Les deux donnent le même résultat.</summary>
 <p><strong>Reponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement) couplee au pattern HITL "approval gate". Pour toute action a conséquence financiere, legale ou de securite, l'enforcement doit être <strong>deterministe</strong> via un hook. Une instruction prompt peut être contournee, mal interprétée, ou oubliee dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable a 1 % d'échec sur des milliers de transactions.</p>
-</détails>
+</details>
 
 <nav class="doc-nav">
   <a class="prev" href="D0_API_Fundamentals.html"><span class="label">Précédent</span><span class="title">D0 — Fondamentaux de l'API</span></a>
