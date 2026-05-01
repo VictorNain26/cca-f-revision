@@ -45,7 +45,7 @@
 </div>
 
 <!-- ===== SECTION 1 ===== -->
-<h2 id="s1">1. API Request Structure</h2>
+<div class="section-header"><h2 id="s1">1. API Request Structure</h2></div>
 
 <p>L'API Claude suit un modele <strong>request-response</strong> classique. Chaque appel est <strong>stateless</strong> : le modele ne conserve aucun etat entre les requetes. C'est au developpeur de renvoyer l'historique complet a chaque appel.</p>
 
@@ -95,7 +95,7 @@
 </div>
 
 <!-- ===== SECTION 2 ===== -->
-<h2 id="s2">2. Message Roles</h2>
+<div class="section-header"><h2 id="s2">2. Message Roles</h2></div>
 
 <p>Chaque message dans le tableau <code>messages</code> possede un <code>role</code> qui determine son origine :</p>
 
@@ -131,7 +131,7 @@
 </div>
 
 <!-- ===== SECTION 3 ===== -->
-<h2 id="s3">3. Le champ <code>stop_reason</code></h2>
+<div class="section-header"><h2 id="s3">3. Le champ <code>stop_reason</code></h2></div>
 
 <p>Chaque reponse de l'API contient un champ <code>stop_reason</code> qui indique pourquoi le modele a arrete de generer. Ce champ est essentiel pour controler le flux de votre application.</p>
 
@@ -153,7 +153,7 @@ Voir <strong>D1</strong> pour les details sur la boucle agentique.
 </div>
 
 <!-- ===== SECTION 4 ===== -->
-<h2 id="s4">4. System Prompt</h2>
+<div class="section-header"><h2 id="s4">4. System Prompt</h2></div>
 
 <p>Le system prompt est passe via le champ <code>system</code>, <strong>separe du tableau <code>messages</code></strong>. Il definit le comportement global du modele pour toute la conversation.</p>
 
@@ -173,7 +173,7 @@ Voir <strong>D1</strong> pour les details sur la boucle agentique.
 </div>
 
 <!-- ===== SECTION 5 ===== -->
-<h2 id="s5" class="page-break">5. Context Window</h2>
+<div class="section-header"><h2 id="s5" class="page-break">5. Context Window</h2></div>
 
 <p>Le context window represente la quantite totale de tokens que le modele peut traiter en une seule requete. Il inclut <strong>tout</strong> :</p>
 
@@ -202,7 +202,7 @@ Le modele traite de maniere fiable les informations en <strong>debut</strong> et
 </div>
 
 <!-- ===== SECTION 6 ===== -->
-<h2 id="s6">6. <code>tool_use</code> — le mecanisme</h2>
+<div class="section-header"><h2 id="s6">6. <code>tool_use</code> — le mecanisme</h2></div>
 
 <div class="key-concept">
 <strong>Point fondamental :</strong> Claude n'execute PAS de code. Il genere une <strong>requete structuree d'appel tool</strong> (nom + parametres). C'est <strong>votre code</strong> qui execute le tool et renvoie le resultat.
@@ -239,7 +239,7 @@ Le modele traite de maniere fiable les informations en <strong>debut</strong> et
 <p>Voir <strong>D2</strong> pour une etude approfondie du tool design.</p>
 
 <!-- ===== SECTION 7 ===== -->
-<h2 id="s7">7. Le parametre <code>tool_choice</code></h2>
+<div class="section-header"><h2 id="s7">7. Le parametre <code>tool_choice</code></h2></div>
 
 <p>Le parametre <code>tool_choice</code> controle comment le modele decide d'utiliser (ou non) un tool :</p>
 
@@ -257,7 +257,7 @@ Le modele traite de maniere fiable les informations en <strong>debut</strong> et
 <p>Voir <strong>D2 section 3</strong> pour les strategies avancees de <code>tool_choice</code>.</p>
 
 <!-- ===== SECTION 8 ===== -->
-<h2 id="s8" class="page-break">8. JSON Schemas pour structured output</h2>
+<div class="section-header"><h2 id="s8" class="page-break">8. JSON Schemas pour structured output</h2></div>
 
 <div class="key-concept">
 <strong>Point essentiel :</strong> Utiliser <code>tool_use</code> avec des JSON schemas est la methode <strong>la plus fiable</strong> pour obtenir du structured output de Claude. Le mecanisme <strong>garantit un JSON syntaxiquement valide</strong>.
@@ -313,7 +313,7 @@ Le modele traite de maniere fiable les informations en <strong>debut</strong> et
 <p>Voir <strong>D4</strong> pour les patterns avances de structured output.</p>
 
 <!-- ===== SECTION 9 ===== -->
-<h2 id="s9" class="page-break">9. Questions d'auto-evaluation</h2>
+<div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-evaluation</h2></div>
 
 <details>
 <summary>Q1 : Votre pipeline CI appelle l'API Claude. Entre deux requetes, un tool result de l'appel precedent est perdu. Quelle est la cause la plus probable ?</summary>

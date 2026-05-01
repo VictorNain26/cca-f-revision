@@ -462,7 +462,7 @@ td code, th code { font-size: 9pt; }
   background: rgba(255,255,255,0.6);
 }
 
-/* TL;DR : bandeau sombre inverse */
+/* TL;DR : bandeau sombre inverse avec label */
 .tldr {
   background: var(--tldr-bg);
   color: var(--tldr-ink);
@@ -474,6 +474,15 @@ td code, th code { font-size: 9pt; }
   margin: 22px 0;
   page-break-inside: avoid;
   box-shadow: var(--shadow);
+}
+.tldr::before {
+  content: "TL;DR";
+  display: block;
+  font-size: 9pt;
+  font-weight: 700;
+  color: var(--tldr-accent);
+  letter-spacing: 0.14em;
+  margin-bottom: 10px;
 }
 .tldr strong { color: var(--tldr-accent); font-weight: 700; }
 .tldr ul, .tldr ol { color: var(--tldr-ink); }
@@ -1249,7 +1258,15 @@ footer,
 .doc-nav .next { text-align: right; }
 .doc-nav .next .title::after { content: " →"; color: var(--primary); }
 .doc-nav .prev .title::before { content: "← "; color: var(--primary); }
-.doc-nav .empty { visibility: hidden; }
+
+/* Quand il n'y a qu'un seul lien (prev OU next), l'étendre sur toute la largeur */
+.doc-nav:has(> .empty:first-child) > a:not(.empty) { grid-column: 1 / -1; }
+.doc-nav:has(> .empty:last-child) > a:not(.empty) { grid-column: 1 / -1; }
+.doc-nav .empty { display: none; }
+
+@media (max-width: 720px) {
+  .doc-nav { grid-template-columns: 1fr; }
+}
 
 @media print {
   .doc-nav { display: none; }
