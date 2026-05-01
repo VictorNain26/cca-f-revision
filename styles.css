@@ -725,6 +725,13 @@ details > div p:last-child { margin-bottom: 0; }
 
 /* Choix correct (révélé après réponse) */
 .choices li.is-correct,
+.choices li.is-correct-pick,
+.choices li.is-wrong {
+  /* Réserver de l'espace à droite pour le ✓/✗ même en multi-ligne */
+  padding-right: 44px;
+}
+
+.choices li.is-correct,
 .choices li.is-correct-pick {
   border-color: #2f9d6a;
   background: #ecf9f1;
@@ -737,12 +744,12 @@ details > div p:last-child { margin-bottom: 0; }
 .choices li.is-correct-pick::after {
   content: "✓";
   position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 14px;
+  top: 12px;
   color: #1e7d4d;
   font-weight: 700;
   font-size: 14pt;
+  line-height: 1;
 }
 
 /* Choix sélectionné mais incorrect */
@@ -756,12 +763,12 @@ details > div p:last-child { margin-bottom: 0; }
 .choices li.is-wrong::after {
   content: "✗";
   position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 14px;
+  top: 12px;
   color: var(--anti-ink);
   font-weight: 700;
   font-size: 14pt;
+  line-height: 1;
 }
 
 /* Bouton "Voir la réponse" + nested details */
@@ -1122,11 +1129,34 @@ footer,
 
 @media (max-width: 720px) {
   .cca-progress-widget {
-    bottom: 12px;
-    left: 12px;
-    padding: 10px 12px;
-    min-width: 160px;
-    font-size: 9pt;
+    bottom: 8px;
+    left: 8px;
+    right: 8px;
+    padding: 8px 12px;
+    min-width: auto;
+    max-width: none;
+    font-size: 8.5pt;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .cca-progress-widget .prog-row,
+  .cca-progress-widget .prog-score {
+    flex: 1 1 auto;
+    margin: 0;
+    min-width: 90px;
+  }
+  .cca-progress-widget .prog-bar {
+    flex: 1 1 100%;
+    margin: 0;
+    height: 3px;
+  }
+  .cca-progress-widget .prog-reset {
+    flex: 0 0 auto;
+    width: auto;
+    padding: 4px 10px;
+    margin: 0;
   }
 }
 
