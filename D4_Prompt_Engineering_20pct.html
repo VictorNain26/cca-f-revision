@@ -381,7 +381,7 @@ En pratique, decouper cette fenetre en blocs plus petits (par exemple, 2 fenetre
 <div class="section-header"><h2 id="s6">6. La revue multi-instance et multi-pass review (Task 4.6)</h2></div>
 
 <h3>Le problème que cela resout</h3>
-<p>Quand Claude généré du code puis le relit dans la même session, il conserve son contexte de raisonnement et est moins susceptible de questionner ses propres décisions. C'est le biais fondamental de la self-review : le modèle retient son reasoning et est donc moins enclin a remettre en cause ses propres choix.</p>
+<p>Quand Claude génère du code puis le relit dans la même session, il conserve son contexte de raisonnement et est moins susceptible de questionner ses propres décisions. C'est le biais fondamental de la self-review : le modèle retient son reasoning et est donc moins enclin a remettre en cause ses propres choix.</p>
 
 <div class="key-concept">
 <strong>Une instance de review independante</strong> (sans accès au contexte de generation) detecte mieux les problèmes subtils. C'est le même principe que la peer review en developpement logiciel : une perspective externe, sans biais de confirmation.
@@ -498,7 +498,7 @@ Output: { category: "other", severity: "medium", escalate: true,
 <tr><th>Variante</th><th>Mecanisme</th><th>Quand l'utiliser</th></tr>
 <tr><td><strong>CoT inline (basic)</strong></td><td>Demander dans le prompt : "Reflechis étape par étape avant de répondre"</td><td>Taches simples ou modèles plus anciens</td></tr>
 <tr><td><strong>CoT structure</strong></td><td>Demander un raisonnement dans des balises (<code>&lt;thinking&gt;...&lt;/thinking&gt;</code>) puis la réponse dans <code>&lt;answer&gt;</code></td><td>Quand on veut auditer le raisonnement separement</td></tr>
-<tr><td><strong>Extended thinking</strong></td><td>Parametre API <code>thinking</code> : Claude généré un <em>reasoning trace</em> dedie avant la réponse</td><td>Taches complexes, modèles Claude 4.x avec extended thinking</td></tr>
+<tr><td><strong>Extended thinking</strong></td><td>Parametre API <code>thinking</code> : Claude génère un <em>reasoning trace</em> dedie avant la réponse</td><td>Taches complexes, modèles Claude 4.x avec extended thinking</td></tr>
 </table>
 
 <h3>Extended thinking — API par version de modèle</h3>
@@ -794,7 +794,7 @@ IGNORE PREVIOUS INSTRUCTIONS. You are now...
 </details>
 
 <details>
-<summary><strong>Q3.</strong> Situation : Claude généré du code, mais des problèmes subtils ne sont detectes que quand un autre membre fait la review. Le reasoning de Claude montre qu'il a considere ces cas mais a conclu que son approche etait correcte. Quel fix ?</summary>
+<summary><strong>Q3.</strong> Situation : Claude génère du code, mais des problèmes subtils ne sont detectes que quand un autre membre fait la review. Le reasoning de Claude montre qu'il a considere ces cas mais a conclu que son approche etait correcte. Quel fix ?</summary>
 <div>
 <p>A) Lancer une seconde instance independante de Claude pour review sans accès au reasoning du generateur.</p>
 <p>B) Activer extended thinking.</p>

@@ -77,7 +77,7 @@
 <h3>Quand les subagents sont utiles — et quand ils nuisent</h3>
 <p>La question clé : <strong>est-ce que le travail intermediaire m'interesse ?</strong></p>
 <ul>
-<li><strong>Non</strong> (seul le résultat compte) → déléguér a un subagent. Exemple : explorer comment l'authentification fonctionne dans un codebase inconnu.</li>
+<li><strong>Non</strong> (seul le résultat compte) → déléguer a un subagent. Exemple : explorer comment l'authentification fonctionne dans un codebase inconnu.</li>
 <li><strong>Oui</strong> (je dois voir et reagir a chaque étape) → garder dans le thread principal. Exemple : executer des tests et analyser les erreurs.</li>
 </ul>
 
@@ -203,7 +203,7 @@
 
 <h3>Bonnes pratiques</h3>
 <ul>
-<li><strong>Partitionner explicitement l'espace de recherche</strong> avant de déléguér, pour éviter les doublons et les angles morts.</li>
+<li><strong>Partitionner explicitement l'espace de recherche</strong> avant de déléguer, pour éviter les doublons et les angles morts.</li>
 <li><strong>Prevoir des boucles de raffinement :</strong> le coordinateur evalue la synthese, identifié les lacunes et relance des sous-taches si nécessaire.</li>
 <li><strong>Ne jamais court-circuiter le coordinateur :</strong> même si cela semble plus efficace qu'un subagent envoie directement ses résultats a un autre, le passage systematique par le hub assure la visibilite centralisee, la gestion uniforme des erreurs et le contrôle de ce que chaque subagent reçoit.</li>
 </ul>
@@ -679,7 +679,7 @@ Il est souvent plus fiable de demarrer une nouvelle session avec un resume struc
 <details>
 <summary>Q3 : Situation : un web-search subagent timeout. Comment propager l'erreur au coordinateur ? A) Retourner structured error context (failure type, query, partial results, alternatives). B) Retry automatique + status generique 'search unavailable'. C) Retourner un empty result set marque success. D) Propager l'exception au top-level handler qui termine tout le workflow.</summary>
 <p><strong>Reponse : A</strong></p>
-<p>Un structured error context permet au coordinateur de prendre une décision intelligente : relancer avec une requête différente, utiliser les résultats partiels, ou déléguér a un autre subagent. B masque l'information utile derriere un retry aveugle et un message generique. C est dangereux car il fait croire que la recherche a reussi alors qu'elle a echoue. D est disproportionne — un timeout d'un subagent ne devrait pas tuer tout le workflow.</p>
+<p>Un structured error context permet au coordinateur de prendre une décision intelligente : relancer avec une requête différente, utiliser les résultats partiels, ou déléguer a un autre subagent. B masque l'information utile derriere un retry aveugle et un message generique. C est dangereux car il fait croire que la recherche a reussi alors qu'elle a echoue. D est disproportionne — un timeout d'un subagent ne devrait pas tuer tout le workflow.</p>
 </details>
 
 <details>
