@@ -5,7 +5,7 @@
 <title>CCA Révision — D1 — Architecture et orchestration des agents (27 %)</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
 
 
 <nav class="navbar">
@@ -715,10 +715,34 @@ D) Les deux donnent le meme resultat.</summary>
 <p><strong>Reponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement) couplee au pattern HITL "approval gate". Pour toute action a consequence financiere, legale ou de securite, l'enforcement doit etre <strong>deterministe</strong> via un hook. Une instruction prompt peut etre contournee, mal interpretee, ou oubliee dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable a 1 % d'echec sur des milliers de transactions.</p>
 </details>
 
+<nav class="doc-nav">
+  <a class="prev" href="D0_API_Fundamentals.html"><span class="label">Précédent</span><span class="title">D0 — Fondamentaux de l'API</span></a>
+  <a class="next" href="D2_Tool_Design_MCP_18pct.html"><span class="label">Suivant</span><span class="title">D2 — Tool design et MCP</span></a>
+</nav>
+
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
 CCA Revision — D1 Architecture et orchestration · Sources : guide officiel CCA (chapitres 3, 8, 9) · 2026
 </p>
+
+
+<a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  function toggle() {
+    if (window.scrollY > 600) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
 
 </body>
 </html>

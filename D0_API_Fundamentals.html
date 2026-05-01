@@ -6,7 +6,7 @@
 <title>D0 — API Fundamentals</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
 
 
 <nav class="navbar">
@@ -338,10 +338,34 @@ Le modele traite de maniere fiable les informations en <strong>debut</strong> et
 <p>Correction : rendre le champ <strong>nullable</strong> avec <code>"type": ["string", "null"]</code> et le retirer de <code>required</code>. Ainsi, le modele retourne <code>null</code> quand l'information est absente au lieu d'inventer un nom d'entreprise.</p>
 </details>
 
+<nav class="doc-nav">
+  <a class="prev" href="index.html"><span class="label">Précédent</span><span class="title">Accueil</span></a>
+  <a class="next" href="D1_Architecture_Orchestration_27pct.html"><span class="label">Suivant</span><span class="title">D1 — Architecture et orchestration</span></a>
+</nav>
+
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
 CCA Revision — D0 API Fundamentals · Sources : guide officiel CCA (chapitres 1, 2) · 2026
 </p>
+
+
+<a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  function toggle() {
+    if (window.scrollY > 600) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
 
 </body>
 </html>

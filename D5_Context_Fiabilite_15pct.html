@@ -5,7 +5,7 @@
 <title>CCA Révision — D5 — Gestion du contexte et fiabilité (15 %)</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
 
 
 <nav class="navbar">
@@ -733,10 +733,34 @@ D) Démarrer une nouvelle session et oublier l'historique.</p>
 
 </div>
 
+<nav class="doc-nav">
+  <a class="prev" href="D4_Prompt_Engineering_20pct.html"><span class="label">Précédent</span><span class="title">D4 — Prompt engineering</span></a>
+  <a class="next" href="Scenarios_Exam.html"><span class="label">Suivant</span><span class="title">Les 6 scénarios d'examen</span></a>
+</nav>
+
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
 CCA Révision — D5 Gestion du contexte et fiabilité · Sources : guide officiel CCA (chapitres 9, 10, 11, 12) · 2026
 </p>
+
+
+<a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  function toggle() {
+    if (window.scrollY > 600) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
 
 </body>
 </html>

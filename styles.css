@@ -66,7 +66,11 @@
 
 * { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html {
+  scroll-behavior: smooth;
+  /* Compense la sticky navbar quand on saute à un anchor */
+  scroll-padding-top: 70px;
+}
 
 body {
   font-family: var(--font-sans);
@@ -83,6 +87,7 @@ body {
 
 /* ============================================================
    NAVBAR — bandeau de navigation inter-documents
+   Single-line sur desktop, scroll horizontal sur mobile
    ============================================================ */
 .navbar {
   position: sticky;
@@ -92,26 +97,33 @@ body {
   backdrop-filter: saturate(180%) blur(8px);
   -webkit-backdrop-filter: saturate(180%) blur(8px);
   border-bottom: 1px solid var(--border);
-  padding: 10px 0;
-  margin: 0 -28px 28px;
-  padding-left: 28px;
-  padding-right: 28px;
+  padding: 8px 0;
+  margin: 0 -28px 24px;
+  padding-left: 20px;
+  padding-right: 20px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  font-size: 9.5pt;
+  flex-wrap: nowrap;
+  gap: 1px;
+  font-size: 9pt;
   align-items: center;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
 }
+
+.navbar::-webkit-scrollbar { height: 4px; }
+.navbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 .navbar a {
   color: var(--ink-soft);
   text-decoration: none;
   border: none;
-  padding: 6px 11px;
+  padding: 5px 9px;
   border-radius: var(--radius-sm);
   transition: background 0.12s, color 0.12s;
   white-space: nowrap;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .navbar a:hover {
@@ -128,10 +140,11 @@ body {
 .navbar .home {
   font-weight: 700;
   color: var(--primary);
-  margin-right: 8px;
+  margin-right: 6px;
   border-right: 1px solid var(--border);
-  padding-right: 14px;
+  padding-right: 11px;
   border-radius: 0;
+  letter-spacing: -0.01em;
 }
 
 .navbar .home:hover {
@@ -150,9 +163,9 @@ body {
 .header-bar {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
   color: white;
-  padding: 32px 36px;
+  padding: 28px 32px;
   border-radius: var(--radius-lg);
-  margin-bottom: 32px;
+  margin-bottom: 28px;
   box-shadow: var(--shadow-lg);
 }
 
@@ -160,16 +173,16 @@ body {
   color: white;
   border: none;
   margin: 0;
-  font-size: 24pt;
+  font-size: 20pt;
   font-weight: 700;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.25;
 }
 
 .header-bar p {
   margin: 10px 0 0 0;
   opacity: 0.94;
-  font-size: 11pt;
+  font-size: 10.5pt;
   line-height: 1.5;
 }
 
@@ -248,13 +261,14 @@ em { color: var(--ink-soft); }
 .section-header {
   background: linear-gradient(90deg, var(--navy) 0%, var(--navy-soft) 100%);
   color: white;
-  padding: 14px 22px;
+  padding: 11px 20px;
   border-radius: var(--radius);
-  margin-top: 44px;
+  margin-top: 36px;
   margin-bottom: 4px;
   page-break-after: avoid;
   page-break-inside: avoid;
   box-shadow: var(--shadow);
+  scroll-margin-top: 70px;
 }
 
 .section-header h2 {
@@ -262,10 +276,10 @@ em { color: var(--ink-soft); }
   border: none;
   margin: 0;
   padding: 0;
-  font-size: 14.5pt;
+  font-size: 13pt;
   font-weight: 700;
   letter-spacing: -0.01em;
-  line-height: 1.3;
+  line-height: 1.35;
 }
 
 .section-header h2 code {
@@ -275,6 +289,9 @@ em { color: var(--ink-soft); }
   border-radius: 4px;
   font-size: 0.9em;
 }
+
+/* Saut d'ancre : compense la sticky navbar pour tous les anchors */
+[id] { scroll-margin-top: 70px; }
 
 /* Sous-section visuelle */
 .subsection {
@@ -785,6 +802,101 @@ footer,
   color: var(--ink-mute);
   margin: 4px 0 0 0;
   font-weight: 500;
+}
+
+/* ============================================================
+   BACK TO TOP — bouton flottant
+   ============================================================ */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 18pt;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 99;
+  border: none;
+  transition: transform 0.18s, background 0.18s;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.back-to-top.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.back-to-top:hover {
+  background: var(--primary-dark);
+  transform: translateY(-3px);
+  border: none;
+}
+
+@media print {
+  .back-to-top { display: none; }
+}
+
+/* ============================================================
+   FOOTER NAV — navigation prev/next entre domaines
+   ============================================================ */
+.doc-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 56px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.doc-nav a {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.doc-nav a:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.doc-nav .label {
+  font-size: 8.8pt;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-mute);
+  font-weight: 600;
+}
+
+.doc-nav .title {
+  font-size: 11pt;
+  font-weight: 600;
+  color: var(--navy);
+  letter-spacing: -0.01em;
+}
+
+.doc-nav .next { text-align: right; }
+.doc-nav .next .title::after { content: " →"; color: var(--primary); }
+.doc-nav .prev .title::before { content: "← "; color: var(--primary); }
+.doc-nav .empty { visibility: hidden; }
+
+@media print {
+  .doc-nav { display: none; }
 }
 
 /* ============================================================

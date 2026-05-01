@@ -6,7 +6,7 @@
 <title>CCA-F — Corpus de revision</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
 
 <nav class="navbar">
   <a class="home" href="index.html">CCA-F</a>
@@ -159,9 +159,33 @@
 <tr><td>Cout</td><td>Gratuit pour les 5000 premiers du Partner Network, 99 $ ensuite</td></tr>
 </table>
 
+<nav class="doc-nav">
+  <span class="empty"></span>
+  <a class="next" href="D0_API_Fundamentals.html"><span class="label">Suivant</span><span class="title">D0 — Fondamentaux de l'API</span></a>
+</nav>
+
 <footer class="footer-credit">
 CCA-F Revision · Corpus complet 9 documents · Mis a jour mai 2026
 </footer>
+
+
+<a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  function toggle() {
+    if (window.scrollY > 600) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
 
 </body>
 </html>

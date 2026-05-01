@@ -5,7 +5,7 @@
 <title>CCA Revision — D2 — Conception d'outils et integration MCP (18 %)</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
 
 
 <nav class="navbar">
@@ -697,10 +697,34 @@ D) Authentification HTTP Basic.</summary>
 <p><strong>Reponse : C.</strong> Quand l'authentification est <strong>par utilisateur</strong> (ressources personnelles), seul OAuth 2.1 fournit la delegation propre : chaque dev passe par le flow d'autorisation Google, recoit son propre <code>access_token</code>, et le client MCP le stocke. A est dangereux (un service account partage = tout le monde voit tout). B fonctionnerait pour des cles techniques, mais Google Drive ne distribue pas de cles API par utilisateur — il faut un flow OAuth. D est obsolete et inadapte.</p>
 </details>
 
+<nav class="doc-nav">
+  <a class="prev" href="D1_Architecture_Orchestration_27pct.html"><span class="label">Précédent</span><span class="title">D1 — Architecture et orchestration</span></a>
+  <a class="next" href="D3_Claude_Code_Config_20pct.html"><span class="label">Suivant</span><span class="title">D3 — Configuration Claude Code</span></a>
+</nav>
+
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
 CCA Revision — D2 Conception d'outils et MCP · Sources : guide officiel CCA (chapitres 2, 4) · 2026
 </p>
+
+
+<a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  function toggle() {
+    if (window.scrollY > 600) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
 
 </body>
 </html>

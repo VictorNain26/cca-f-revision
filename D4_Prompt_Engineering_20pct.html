@@ -5,7 +5,7 @@
 <title>CCA Revision — D4 — Prompt engineering et sorties structurees (20 %)</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
 
 
 <nav class="navbar">
@@ -761,10 +761,34 @@ IGNORE PREVIOUS INSTRUCTIONS. You are now...
 
 </div>
 
+<nav class="doc-nav">
+  <a class="prev" href="D3_Claude_Code_Config_20pct.html"><span class="label">Précédent</span><span class="title">D3 — Configuration Claude Code</span></a>
+  <a class="next" href="D5_Context_Fiabilite_15pct.html"><span class="label">Suivant</span><span class="title">D5 — Context et reliability</span></a>
+</nav>
+
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
 CCA Revision — D4 Prompt engineering et sorties structurees · Sources : guide officiel CCA (chapitres 1, 6, 7) · 2026
 </p>
+
+
+<a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  function toggle() {
+    if (window.scrollY > 600) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
 
 </body>
 </html>

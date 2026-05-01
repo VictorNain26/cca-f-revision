@@ -5,7 +5,7 @@
 <title>CCA Revision — D3 — Configuration et workflows de Claude Code (20 %)</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top">
 
 
 <nav class="navbar">
@@ -855,10 +855,34 @@ D) Encoder le token en base64 dans <code>.mcp.json</code>.</summary>
 <p><strong>Reponse : B.</strong> La syntaxe <code>${VAR}</code> dans <code>.mcp.json</code> est resolue au runtime depuis l'environnement. Le fichier reste versionne sans secret expose ; chaque developpeur fournit son propre token via son shell (<code>export GITHUB_TOKEN=...</code>) ou via un gestionnaire de secrets local. A et D exposent le secret dans Git. C melange les responsabilites et expose toujours le secret si <code>settings.json</code> est versionne. Alternative legitime : utiliser <code>claude mcp add github -e GITHUB_TOKEN=...</code> qui ecrit dans <code>~/.claude.json</code> (user-level, non versionne).</p>
 </details>
 
+<nav class="doc-nav">
+  <a class="prev" href="D2_Tool_Design_MCP_18pct.html"><span class="label">Précédent</span><span class="title">D2 — Tool design et MCP</span></a>
+  <a class="next" href="D4_Prompt_Engineering_20pct.html"><span class="label">Suivant</span><span class="title">D4 — Prompt engineering</span></a>
+</nav>
+
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
 CCA Revision — D3 Configuration et workflows · Sources : guide officiel CCA (chapitre 5) · 2026
 </p>
+
+
+<a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
+<script>
+(function() {
+  var btn = document.getElementById('back-to-top');
+  if (!btn) return;
+  function toggle() {
+    if (window.scrollY > 600) btn.classList.add('visible');
+    else btn.classList.remove('visible');
+  }
+  window.addEventListener('scroll', toggle, { passive: true });
+  toggle();
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+})();
+</script>
 
 </body>
 </html>
