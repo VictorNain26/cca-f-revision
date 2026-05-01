@@ -705,20 +705,61 @@ details > div p:last-child { margin-bottom: 0; }
   line-height: 1;
 }
 
-.choices li.is-correct {
+/* Choix cliquable */
+.choices li {
+  cursor: pointer;
+  user-select: none;
+}
+
+.choices li:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* État après réponse — désactiver le hover sur les non-sélectionnés */
+.choices.is-answered li { cursor: default; }
+.choices.is-answered li:not(.is-selected):not(.is-correct):hover {
+  background: var(--bg-card);
+  border-color: var(--border);
+}
+
+/* Choix correct (révélé après réponse) */
+.choices li.is-correct,
+.choices li.is-correct-pick {
   border-color: #2f9d6a;
   background: #ecf9f1;
 }
-.choices li.is-correct::before {
+.choices li.is-correct::before,
+.choices li.is-correct-pick::before {
   background: #2f9d6a;
 }
-.choices li.is-correct::after {
+.choices li.is-correct::after,
+.choices li.is-correct-pick::after {
   content: "✓";
   position: absolute;
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: #1e7d4d;
+  font-weight: 700;
+  font-size: 14pt;
+}
+
+/* Choix sélectionné mais incorrect */
+.choices li.is-wrong {
+  border-color: var(--anti-border);
+  background: var(--anti-bg);
+}
+.choices li.is-wrong::before {
+  background: var(--anti-border);
+}
+.choices li.is-wrong::after {
+  content: "✗";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--anti-ink);
   font-weight: 700;
   font-size: 14pt;
 }
@@ -730,9 +771,28 @@ details details.answer-reveal {
   background: transparent;
   box-shadow: none;
   border-radius: var(--radius-sm);
+  transition: opacity 0.18s, border-color 0.18s;
 }
 
 details details.answer-reveal:hover { box-shadow: none; }
+
+/* État verrouillé : tant que l'utilisateur n'a pas cliqué un choix */
+details details.answer-reveal.is-locked {
+  opacity: 0.55;
+  pointer-events: none;
+  border-style: dotted;
+}
+
+details details.answer-reveal.is-locked > summary {
+  cursor: not-allowed;
+  background: var(--bg-soft);
+  color: var(--ink-mute);
+}
+
+details details.answer-reveal .lock-hint {
+  font-size: 9.5pt;
+  font-weight: 500;
+}
 
 details details.answer-reveal > summary {
   background: var(--bg-soft);
@@ -958,6 +1018,98 @@ footer,
 }
 
 /* ============================================================
+   PROGRESS WIDGET — score live en bas à gauche
+   ============================================================ */
+.cca-progress-widget {
+  position: fixed;
+  bottom: 24px;
+  left: 24px;
+  z-index: 99;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-lg);
+  font-size: 9.5pt;
+  min-width: 180px;
+  max-width: 240px;
+}
+
+.cca-progress-widget .prog-row,
+.cca-progress-widget .prog-score {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.cca-progress-widget .prog-label {
+  color: var(--ink-mute);
+  font-size: 8.5pt;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+}
+
+.cca-progress-widget strong {
+  color: var(--navy);
+  font-weight: 700;
+  font-size: 10pt;
+}
+
+.cca-progress-widget strong.good { color: #2f9d6a; }
+.cca-progress-widget strong.warn { color: var(--primary); }
+
+.cca-progress-widget .prog-bar {
+  height: 5px;
+  background: var(--bg-soft);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 6px 0 8px 0;
+}
+
+.cca-progress-widget .prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--primary-soft));
+  transition: width 0.3s ease-out;
+}
+
+.cca-progress-widget .prog-reset {
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink-mute);
+  padding: 4px 0;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  font-size: 8.5pt;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+  transition: all 0.15s;
+}
+
+.cca-progress-widget .prog-reset:hover {
+  border-color: var(--anti-border);
+  color: var(--anti-ink);
+  background: var(--anti-bg);
+}
+
+@media print {
+  .cca-progress-widget { display: none; }
+}
+
+@media (max-width: 720px) {
+  .cca-progress-widget {
+    bottom: 12px;
+    left: 12px;
+    padding: 10px 12px;
+    min-width: 160px;
+    font-size: 9pt;
+  }
+}
+
+/* ============================================================
    BACK TO TOP — bouton flottant
    ============================================================ */
 .back-to-top {
@@ -1095,7 +1247,50 @@ footer,
   h2 { font-size: 15pt; }
   h3 { font-size: 12.5pt; }
   pre { font-size: 9pt; padding: 14px; }
-  table { font-size: 9.5pt; }
-  th, td { padding: 8px 10px; }
   .toc { padding: 18px 20px; }
+
+  /* Tables en mode "cartes" sur mobile : chaque <tr> devient une carte
+     avec les noms de colonnes injectés via data-label */
+  table {
+    border: none;
+    background: transparent;
+    box-shadow: none;
+    font-size: 9.8pt;
+  }
+  table thead { display: none; }
+  table tbody tr {
+    display: block;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+  }
+  table tbody tr:nth-child(even) td { background: transparent; }
+  table tbody tr:hover { background: var(--bg-card); }
+  table tbody td {
+    display: block;
+    border: none;
+    padding: 4px 0;
+    text-align: left;
+    line-height: 1.5;
+  }
+  table tbody td:not(:last-child) {
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+  /* Affiche le nom de colonne en label avant la valeur */
+  table tbody td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 8.5pt;
+    font-weight: 700;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+  table tbody td:empty { display: none; }
 }

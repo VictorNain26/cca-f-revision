@@ -98,6 +98,53 @@ def trim_order_fields(result):
 <strong>À retenir :</strong> Le trimming des <code>tool results</code> se fait via un hook <code>PostToolUse</code> (pas <code>PreToolUse</code>). Le hook intervient <em>après</em> l'exécution de l'outil, avant que le résultat ne soit ajouté au contexte du modèle.
 </div>
 
+<h3>Context Editing API officielle (alternative aux hooks custom)</h3>
+
+<p>Anthropic fournit une <strong>primitive native côté serveur</strong> qui fait exactement ce que le hook custom ci-dessus implémente — sans nécessiter de code applicatif. La stratégie <code>clear_tool_uses_20250919</code> efface automatiquement les anciens tool results quand le contexte dépasse un seuil configuré.</p>
+
+<pre>// Activation via beta header + bloc context_management
+// Header HTTP : anthropic-beta: context-management-2025-06-27
+
+{
+  "model": "claude-sonnet-4-6",
+  "max_tokens": 4096,
+  "context_management": {
+    "edits": [
+      {
+        "type": "clear_tool_uses_20250919",
+        "trigger":   { "type": "input_tokens", "value": 50000 },
+        "keep":      { "type": "tool_uses",   "value": 5 },
+        "clear_at_least": { "type": "input_tokens", "value": 5000 },
+        "exclude_tools": ["search_docs"],
+        "clear_tool_inputs": false
+      }
+    ]
+  },
+  "messages": [...]
+}</pre>
+
+<table>
+<tr><th>Paramètre</th><th>Rôle</th></tr>
+<tr><td><code>trigger</code></td><td>Condition de déclenchement : <code>input_tokens</code> (taille contexte) ou <code>tool_uses</code> (nombre d'appels)</td></tr>
+<tr><td><code>keep</code></td><td>Nombre de tool uses récents à <strong>préserver</strong> (les plus anciens sont effacés en priorité)</td></tr>
+<tr><td><code>clear_at_least</code></td><td>Quantité minimale à effacer pour que le clearing soit utile</td></tr>
+<tr><td><code>exclude_tools</code></td><td>Liste de tool names à <strong>jamais effacer</strong> (ex : recherches stables, retrievals)</td></tr>
+<tr><td><code>clear_tool_inputs</code></td><td>Si <code>true</code>, efface aussi les <em>paramètres</em> du tool_use (pas juste le résultat)</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Comportement :</strong> les tool results effacés sont remplacés par un placeholder textuel pour que Claude sache qu'ils ont été retirés. La réponse contient un bloc <code>context_management.applied_edits</code> avec le détail (combien de tool uses effacés, combien de tokens libérés).
+</div>
+
+<div class="exam-tip">
+<strong>EXAM TIP — distinction essentielle :</strong>
+<ul>
+<li><strong>Hook PostToolUse</strong> (D3 §6.bis) : transforme le tool result <em>avant</em> qu'il entre dans le contexte (trim de champs)</li>
+<li><strong>Context editing API</strong> (ici) : efface les anciens tool results <em>déjà dans</em> le contexte quand on dépasse un seuil</li>
+</ul>
+Les deux sont complémentaires : le hook réduit la taille initiale, l'API gère la croissance dans le temps.
+</div>
+
 <h3>Les autres techniques de gestion du contexte</h3>
 <ul>
 <li><strong><code>/compact</code> :</strong> compresse le contexte en résumant l'historique. Utile dans les longues sessions, mais avec le risque de perdre des détails exacts — d'où l'importance du <code>case facts</code> block.</li>
@@ -230,7 +277,12 @@ def trim_order_fields(result):
 </div>
 
 <h3>L'approche CALM (Context-Aware LLM Management)</h3>
-<p>La littérature désigne parfois sous l'acronyme <strong>CALM</strong> l'ensemble des pratiques de gestion contextuelle adaptative : surveillance active du remplissage du contexte, déclenchement automatique de compression, allocation dynamique des budgets. Pas un produit Anthropic — un cadre conceptuel utile pour structurer les patterns vus dans ce domaine :</p>
+
+<div class="anti-pattern">
+<strong>Statut de CALM :</strong> cadre conceptuel <em>pédagogique communautaire</em>, pas un terme Anthropic ni un produit officiel. Sert juste de mnémonique pour regrouper les pratiques de gestion contextuelle. Connais le concept (Compression / Allocation / Loss prevention / Monitoring), mais ne le cite pas comme une primitive ou une feature officielle.
+</div>
+
+<p>CALM regroupe en une grille les pratiques de gestion contextuelle adaptative : surveillance active du remplissage, déclenchement de compression, allocation dynamique des budgets. Cadre utile pour structurer les patterns du domaine :</p>
 <ul>
 <li><strong>C</strong>ompression — quand et comment résumer (progressive summarization)</li>
 <li><strong>A</strong>llocation — token budgeting par composante</li>

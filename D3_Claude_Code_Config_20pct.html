@@ -336,6 +336,50 @@ Bullet points over paragraphs. Code over prose. Skip the closing summary.</pre>
 <strong>Precedence :</strong> <code>deny</code> &gt; <code>allow</code> (defense en profondeur). Une regle <code>deny</code> sur un sous-chemin l'emporte sur une regle <code>allow</code> plus large. Cela permet d'ouvrir <code>Read(./src/**)</code> tout en bloquant explicitement <code>Read(./src/secrets/**)</code>.
 </div>
 
+<h3>Plugins Claude Code</h3>
+
+<p>Les <strong>plugins</strong> sont le mecanisme officiel de distribution et d'installation de bundles de fonctionnalites (skills, slash commands, hooks, agents, MCP servers) en une seule unite installable. Ils s'installent depuis des <em>marketplaces</em> publiques (officielle Anthropic ou communautaires) ou depuis n'importe quel repo Git.</p>
+
+<h3>Commandes principales</h3>
+<table>
+<tr><th>Commande</th><th>Effet</th></tr>
+<tr><td><code>/plugin marketplace add &lt;source&gt;</code></td><td>Ajoute une marketplace : <code>owner/repo</code> GitHub, URL Git, ou chemin local vers <code>marketplace.json</code></td></tr>
+<tr><td><code>/plugin install &lt;name&gt;@&lt;marketplace&gt;</code></td><td>Installe un plugin specifique (ex : <code>/plugin install commit-commands@anthropics-claude-code</code>)</td></tr>
+<tr><td><code>/plugin list</code></td><td>Liste les plugins installes et leur etat</td></tr>
+<tr><td><code>/reload-plugins</code></td><td>Recharge les plugins apres install ou modification</td></tr>
+<tr><td><code>/plugin market</code></td><td>Raccourci pour <code>/plugin marketplace</code></td></tr>
+</table>
+
+<h3>Marketplaces officielles vs communautaires</h3>
+<table>
+<tr><th>Source</th><th>Adresse</th><th>Contenu</th></tr>
+<tr><td><strong>Officielle Anthropic</strong></td><td><code>anthropics/claude-plugins-official</code></td><td>Plugins curated, qualite garantie (commit-commands, code-review, etc.)</td></tr>
+<tr><td><strong>Communautaires</strong></td><td><code>claude-plugins.dev</code>, <code>claudemarketplaces.com</code></td><td>Plugins tiers, varie en qualite</td></tr>
+<tr><td><strong>Repo prive</strong></td><td>URL Git de votre choix</td><td>Plugins maison pour l'equipe</td></tr>
+</table>
+
+<pre># Workflow typique
+claude
+&gt; /plugin marketplace add anthropics/claude-plugins-official
+&gt; /plugin install commit-commands@anthropics-claude-code
+&gt; /reload-plugins
+&gt; /plugin list
+
+# Le plugin est dispo dans VS Code et terminal Claude Code</pre>
+
+<div class="key-concept">
+<strong>Distinction importante :</strong>
+<ul>
+<li>Un <strong>skill</strong> est une unite individuelle (un fichier <code>SKILL.md</code> avec frontmatter)</li>
+<li>Un <strong>plugin</strong> est un <em>bundle</em> distribuable contenant plusieurs skills + commands + hooks + agents</li>
+</ul>
+La <strong>hierarchie de priorite</strong> rappelee : <code>Enterprise &gt; Personnel &gt; Projet &gt; Plugins</code>. Les plugins ont la priorite la plus basse — un skill projet local de meme nom ecrase le plugin.
+</div>
+
+<div class="exam-tip">
+<strong>Scenario d'examen :</strong> votre equipe veut standardiser les conventions de revue de code sans que chaque developpeur reconfigure son installation. Solution canonique : creer un plugin custom dans un repo Git partage, demander a l'equipe de faire <code>/plugin marketplace add &lt;votre-repo&gt;</code> + <code>/plugin install team-conventions</code>. Mise a jour : push au repo, chaque dev fait <code>/reload-plugins</code>.
+</div>
+
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s3">3. Les regles conditionnelles par chemin (Task 3.3)</h2></div>
 

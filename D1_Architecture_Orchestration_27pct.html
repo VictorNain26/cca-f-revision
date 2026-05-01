@@ -99,7 +99,12 @@
 <p>C'est exactement ce que fait l'<strong>agentic loop</strong> : un cycle <code>request → response → tool execution → new request</code> pilote par le modele lui-meme.</p>
 
 <h3>Le cycle <em>observe — think — act — respond</em></h3>
-<p>La litterature et les materiels CCA-F nomment ce cycle <strong>observe-think-act-respond (OTAR)</strong>. Chaque iteration de la boucle se decompose en quatre phases conceptuelles, exposees au modele de maniere implicite :</p>
+
+<div class="anti-pattern">
+<strong>Statut de l'acronyme OTAR :</strong> "observe-think-act-respond" est une <em>mnemonique pedagogique communautaire</em>, pas un terme officiel Anthropic. La doc officielle parle d'<code>agentic loop lifecycle</code> centre sur <code>stop_reason</code> et de phases <em>gather context → take action → verify results</em>. Connais le concept, mais ne cherche pas "OTAR" dans la doc Anthropic — tu ne le trouveras pas. C'est une grille de lecture utile pour raisonner autour des hooks et de l'API.
+</div>
+
+<p>Chaque iteration de la boucle se decompose en quatre phases conceptuelles, exposees au modele de maniere implicite :</p>
 
 <table>
 <tr><th>Phase</th><th>Ce que fait le modele</th><th>Element de l'API</th></tr>

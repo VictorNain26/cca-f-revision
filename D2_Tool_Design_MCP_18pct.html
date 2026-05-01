@@ -214,7 +214,63 @@
 <ul>
 <li><strong>Sampling :</strong> permet aux MCP servers de demander au client de generer du texte via son LLM, sans que le serveur ait besoin de cles API ni de supporter les couts de tokens. Utile pour les serveurs publics.</li>
 <li><strong>Roots :</strong> fichiers et dossiers auxquels l'utilisateur accorde l'acces au prealable. Ils offrent deux avantages : le <strong>controle des permissions</strong> (limiter l'acces aux zones autorisees) et la <strong>decouverte autonome</strong> (Claude navigue dans les roots sans que l'utilisateur fournisse le chemin complet).</li>
+<li><strong>Elicitation</strong> (spec MCP 2025-06-18 et 2025-11-25) : permet au serveur de <em>demander une input a l'utilisateur</em> au cours d'un appel — sans devoir prendre cette input en parametre du tool initial.</li>
 </ul>
+
+<h3>MCP elicitation — deux modes</h3>
+<p>L'elicitation est une primitive serveur officielle qui complete sampling et roots. Deux variantes :</p>
+
+<table>
+<tr><th>Mode</th><th>Spec</th><th>Cas d'usage</th></tr>
+<tr><td><strong>Form mode</strong></td><td>2025-06-18</td><td>Le serveur demande des inputs primitifs (string, number, boolean) avec un schema simple — typiquement un formulaire dans le client</td></tr>
+<tr><td><strong>URL mode</strong></td><td>2025-11-25 (SEP-1036)</td><td>Le serveur fournit une URL ; le client ouvre l'URL dans le navigateur pour les flows sensibles (OAuth, paiement, saisie de cle API)</td></tr>
+</table>
+
+<pre>// Form mode — schema d'inputs primitifs
+// Serveur → client
+{
+  "method": "elicitation/create",
+  "params": {
+    "message": "Confirmer l'envoi du remboursement ?",
+    "requestedSchema": {
+      "type": "object",
+      "properties": {
+        "approved": { "type": "boolean", "description": "Approuver le remboursement" },
+        "amount":   { "type": "number",  "description": "Montant en USD" }
+      }
+    }
+  }
+}
+
+// URL mode — flow externe (OAuth, paiement)
+{
+  "method": "elicitation/create",
+  "params": {
+    "mode": "url",
+    "url": "https://oauth.provider.com/authorize?client_id=...",
+    "message": "Connecte-toi a ton compte pour autoriser l'acces"
+  }
+}</pre>
+
+<div class="key-concept">
+<strong>Securite URL mode (obligatoire dans la spec) :</strong>
+<ul>
+<li>Le client NE DOIT PAS pre-fetch automatiquement l'URL ni ses metadonnees</li>
+<li>Le client NE DOIT PAS ouvrir l'URL sans consentement explicite de l'utilisateur</li>
+<li>Le client DOIT afficher l'URL complete avant le consentement (anti-phishing)</li>
+<li>L'URL DOIT s'ouvrir dans un navigateur securise (browser systeme), <strong>jamais</strong> dans un webview embarque</li>
+</ul>
+</div>
+
+<div class="exam-tip">
+<strong>EXAM TIP :</strong> distinction des 3 primitives <em>cote serveur</em> :
+<ul>
+<li><strong>Sampling</strong> : serveur demande au client de <em>generer du texte LLM</em></li>
+<li><strong>Roots</strong> : client declare au serveur les <em>chemins fichier autorises</em></li>
+<li><strong>Elicitation</strong> : serveur demande au client de <em>collecter une input utilisateur</em></li>
+</ul>
+Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilise quand est crucial.
+</div>
 
 <div class="anti-pattern">
 <strong>Point de securite important :</strong> le SDK MCP n'applique <em>pas</em> automatiquement les restrictions de roots. Le developpeur du serveur doit implementer manuellement les verifications d'acces avec une fonction comme <code>is_path_allowed()</code>. Sans cette implementation, les roots sont declaratifs mais pas effectivement appliques. <em>(Source : guide officiel, section Roots.)</em>

@@ -433,7 +433,11 @@ En pratique, decouper cette fenetre en blocs plus petits (par exemple, 2 fenetre
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s7b">Le framework PRECISE</h3></div>
 
-<p>PRECISE est un acronyme mnemotechnique frequemment cite dans les materiels CCA-F pour structurer un prompt complet. Il regroupe les leviers vus dans les sections precedentes en une checklist :</p>
+<div class="anti-pattern">
+<strong>Statut de PRECISE :</strong> mnemonique pedagogique <em>communautaire</em> (utilisee dans certains materiels prep tiers), pas un terme officiel Anthropic. La doc officielle Anthropic ne parle pas de "PRECISE" — elle parle des memes leviers (be clear and direct, structure with XML, give examples, etc.) sans les regrouper sous cet acronyme. Garde la checklist comme garde-fou mental, mais ne la cite pas comme source officielle.
+</div>
+
+<p>PRECISE regroupe les leviers vus dans les sections precedentes en une checklist :</p>
 
 <table>
 <tr><th>Lettre</th><th>Composante</th><th>Section de reference</th></tr>
@@ -497,28 +501,44 @@ Output: { category: "other", severity: "medium", escalate: true,
 <tr><td><strong>Extended thinking</strong></td><td>Parametre API <code>thinking</code> : Claude genere un <em>reasoning trace</em> dedie avant la reponse</td><td>Taches complexes, modeles Claude 4.x avec extended thinking</td></tr>
 </table>
 
-<h3>Extended thinking — utilisation API</h3>
-<pre>{
+<h3>Extended thinking — API par version de modele</h3>
+
+<p><strong>Sur Opus 4.7 (avril 2026) :</strong> seul le mode <code>adaptive</code> est accepte. Le parametre <code>budget_tokens</code> a ete <strong>retire</strong> ; le modele decide dynamiquement combien de tokens investir dans le raisonnement selon la complexite. Specifier <code>budget_tokens</code> retourne une erreur 400.</p>
+
+<pre>// Opus 4.7 — adaptive thinking (par defaut quand active)
+{
   "model": "claude-opus-4-7",
   "max_tokens": 4096,
-  "thinking": {
-    "type": "enabled",
-    "budget_tokens": 8000
-  },
+  "thinking": { "type": "adaptive" },
   "messages": [
     { "role": "user",
       "content": "Analyse ces 5 propositions techniques et recommande la meilleure..." }
   ]
 }</pre>
 
+<p><strong>Sur Opus 4.6 / Sonnet 4.6 :</strong> <code>budget_tokens</code> reste accepte mais est <strong>deprecie</strong> (sera retire dans une release future). Migrer vers <code>{type:"adaptive"}</code> recommande.</p>
+
+<pre>// Opus 4.6 / Sonnet 4.6 — l'ancienne API encore valide mais deprecie
+{
+  "model": "claude-opus-4-6",
+  "max_tokens": 4096,
+  "thinking": { "type": "enabled", "budget_tokens": 8000 },
+  ...
+}</pre>
+
 <div class="key-concept">
-<strong>Comportement :</strong>
+<strong>Comportement adaptive thinking :</strong>
 <ul>
-<li>Le <code>budget_tokens</code> alloue est un <em>maximum</em> — Claude peut en utiliser moins</li>
-<li>Le reasoning trace n'est pas affiche directement (mais accessible via <code>content[].type == "thinking"</code>)</li>
+<li>Pas de budget fixe — Claude decide selon la complexite (simple lookup = court raisonnement, debug complexe = raisonnement plus profond)</li>
+<li>Le modele voit un compteur de tokens restants et priorise pour finir gracieusement</li>
+<li>Le reasoning trace n'est pas affiche directement (accessible via <code>content[].type == "thinking"</code>)</li>
 <li>L'output principal arrive ensuite dans un block <code>type: "text"</code> separe</li>
-<li>Compatible avec tool_use : Claude peut reflechir avant <em>chaque</em> tool call dans la boucle agentique</li>
+<li><strong>Interleaved thinking</strong> (beta header <code>interleaved-thinking-2025-05-14</code>) : Claude peut raisonner <em>entre</em> les tool calls dans la boucle agentique</li>
 </ul>
+</div>
+
+<div class="exam-tip">
+<strong>EXAM TIP :</strong> si une question oppose <em>budget_tokens manuel</em> a <em>adaptive thinking</em> sur Opus 4.7, la bonne reponse est toujours <code>adaptive</code> — le manuel n'est plus accepte. Sur les modeles 4.6 et anterieurs, les deux marchent mais adaptive est l'avenir.
 </div>
 
 <h3>Quand utiliser CoT vs ne pas l'utiliser</h3>
@@ -533,6 +553,74 @@ Output: { category: "other", severity: "medium", escalate: true,
 
 <div class="exam-tip">
 <strong>EXAM TIP :</strong> sur les questions de revue de code complexe ou de decision multi-criteres, l'option <strong>"activer extended thinking"</strong> ou <strong>"demander un raisonnement etape par etape"</strong> est typiquement la bonne reponse. Sur des questions d'extraction simple, c'est typiquement un distracteur.
+</div>
+
+<!-- ================================================================== -->
+<div class="subsection"><h3 id="s7e">Citations API — grounder les reponses dans les sources</h3></div>
+
+<p>La <strong>Citations API</strong> est une feature officielle Anthropic qui fait que Claude reference automatiquement les passages exacts (sentences) de tes documents source dans sa reponse. Elle est directement liee aux scenarios <em>Multi-Agent Research</em> (provenance) et <em>Structured Data Extraction</em> (PDFs).</p>
+
+<h3>Activation</h3>
+<pre>{
+  "model": "claude-sonnet-4-6",
+  "max_tokens": 1024,
+  "messages": [
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "document",
+          "source": {
+            "type": "text",
+            "media_type": "text/plain",
+            "data": "Le marche de la musique IA a atteint 3,2 Mds $ en 2024. ..."
+          },
+          "title": "Global AI Music Report 2024",
+          "context": "Annual industry report",
+          "citations": { "enabled": true }   <-- active les citations
+        },
+        { "type": "text", "text": "Quelle est la taille du marche en 2024 ?" }
+      ]
+    }
+  ]
+}</pre>
+
+<h3>Comment ca fonctionne</h3>
+<ul>
+<li>Le doc est <strong>chunked en sentences</strong> automatiquement par l'API</li>
+<li>La reponse contient des blocks <code>citation</code> qui pointent vers les sentences sources</li>
+<li>Le <code>cited_text</code> ne consomme <strong>pas</strong> de tokens output (economie reelle)</li>
+<li>Supporte text et PDFs natifs (vision)</li>
+</ul>
+
+<h3>Format de la reponse avec citations</h3>
+<pre>"content": [
+  {
+    "type": "text",
+    "text": "Le marche atteint 3,2 milliards de dollars en 2024.",
+    "citations": [
+      {
+        "type": "char_location",
+        "cited_text": "Le marche de la musique IA a atteint 3,2 Mds $ en 2024.",
+        "document_index": 0,
+        "document_title": "Global AI Music Report 2024",
+        "start_char_index": 0,
+        "end_char_index": 53
+      }
+    ]
+  }
+]</pre>
+
+<div class="key-concept">
+<strong>Pourquoi c'est puissant :</strong> tu obtiens nativement ce que la <em>provenance</em> de D5 §6 te demande de construire a la main avec des <em>claim-source mappings</em>. Pour les workflows ou la tracabilite est critique (Customer Support legal, Multi-Agent Research, extraction documentaire), Citations API est la primitive officielle.
+</div>
+
+<div class="anti-pattern">
+<strong>Limitation a connaitre :</strong> Citations API <strong>n'est pas compatible</strong> avec les Structured Outputs (<code>output_config.format</code>). Si tu actives les deux ensemble, l'API retourne 400. Choisis l'un OU l'autre.
+</div>
+
+<div class="exam-tip">
+<strong>EXAM TIP :</strong> sur le scenario <em>Multi-Agent Research</em>, si une question oppose "construire un claim-source mapping JSON manuel" a "activer citations:{enabled:true} sur les documents source", la bonne reponse est <strong>la Citations API</strong> — c'est la primitive officielle, plus fiable et moins couteuse.
 </div>
 
 <!-- ================================================================== -->
