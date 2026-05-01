@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>CCA Revision — D2 — Conception d'outils et integration MCP (18 %)</title>
+<title>CCA Révision — D2 — Conception d'outils et intégration MCP (18 %)</title>
 <link rel="stylesheet" href="styles.css">
 <script src="quiz.js" defer></script>
 </head>
@@ -24,7 +24,7 @@
 </nav>
 
 <div class="header-bar">
-<h1>D2 — Conception d'outils et integration MCP (18 %)</h1>
+<h1>D2 — Conception d'outils et intégration MCP (18 %)</h1>
 <p>5 Task Statements · Sources : guide officiel, chapitres 2 et 4</p>
 </div>
 
@@ -32,7 +32,7 @@
 <strong>Sommaire</strong>
 <ol>
 <li><a href="#s1">Concevoir des interfaces d'outils claires</a></li>
-<li><a href="#s2">Les reponses d'erreur structurees en MCP</a></li>
+<li><a href="#s2">Les réponses d'erreur structurées en MCP</a></li>
 <li><a href="#s3">Distribuer les outils entre agents et configurer <code>tool_choice</code></a></li>
 <li><a href="#s4">Integrer des MCP servers dans Claude Code</a>
   <ul>
@@ -42,7 +42,7 @@
   </ul>
 </li>
 <li><a href="#s5">Les outils integres de Claude Code</a></li>
-<li><a href="#s6">Synthese — les points cles</a></li>
+<li><a href="#s6">Synthese — les points clés</a></li>
 <li><a href="#s7">Questions d'auto-evaluation</a></li>
 </ol>
 </div>
@@ -50,17 +50,17 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s1">1. Concevoir des interfaces d'outils claires (Task 2.1)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
+<h3>Le problème que cela resout</h3>
 <p>Quand Claude dispose de plusieurs outils aux fonctions proches, il choisit lequel appeler en se basant principalement sur la <code>description</code> de chaque outil. Si deux descriptions se ressemblent trop, Claude confond les outils — c'est le <code>misrouting</code>. Par exemple, si <code>analyze_content</code> est decrit comme <em>"analyzes content and extracts key information"</em> et <code>analyze_document</code> comme <em>"analyzes documents and extracts key information"</em>, Claude les confondra dans environ 45 % des cas.</p>
 
 <div class="key-concept">
-<strong>Regle fondamentale :</strong> la <code>description</code> d'un outil est le <strong>mecanisme principal de selection</strong> qu'un LLM utilise pour decider quel outil appeler. Des descriptions vagues ou redondantes entrainent un <code>misrouting</code> systematique.
+<strong>Regle fondamentale :</strong> la <code>description</code> d'un outil est le <strong>mécanisme principal de selection</strong> qu'un LLM utilise pour decider quel outil appeler. Des descriptions vagues ou redondantes entrainent un <code>misrouting</code> systematique.
 </div>
 
 <h3>L'anatomie d'une bonne <code>description</code></h3>
-<p>Une description efficace repond a quatre questions :</p>
+<p>Une description efficace répond a quatre questions :</p>
 <ul>
-<li><strong>Que fait l'outil et que retourne-t-il ?</strong></li>
+<li><strong>Que fait l'outil et que retourné-t-il ?</strong></li>
 <li><strong>Quels formats d'entree accepte-t-il ?</strong> (avec des valeurs d'exemple dans <code>input_schema</code>)</li>
 <li><strong>Quels sont les edge cases et les contraintes ?</strong></li>
 <li><strong>Quand utiliser cet outil plutot qu'un autre similaire ?</strong></li>
@@ -88,21 +88,21 @@
 <tr><th>Probleme</th><th>Solution</th></tr>
 <tr><td>Deux outils aux descriptions similaires (chevauchement semantique)</td><td><strong>Renommer</strong> pour lever l'ambiguite : <code>analyze_content</code> → <code>extract_web_results</code>, et mettre a jour la <code>description</code></td></tr>
 <tr><td>Un outil generique utilise hors de son perimetre</td><td><strong>Remplacer</strong> par un outil contraint : <code>fetch_url</code> → <code>load_document</code> (qui valide le format de l'URL)</td></tr>
-<tr><td>Un outil « fourre-tout » trop large</td><td><strong>Diviser</strong> en outils specialises : <code>analyze_document</code> → <code>extract_data_points</code> + <code>summarize_content</code></td></tr>
+<tr><td>Un outil « fourre-tout » trop large</td><td><strong>Diviser</strong> en outils spécialisés : <code>analyze_document</code> → <code>extract_data_points</code> + <code>summarize_content</code></td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>Piege courant — system prompt et associations involontaires :</strong> le system prompt peut creer des associations non desirees avec les outils. Par exemple, l'instruction <em>"always verify the customer"</em> dans le system prompt pousse Claude a appeler <code>get_customer</code> meme pour des requetes qui ne necessitent pas de verification d'identite. L'examen teste votre capacite a identifier cette cause racine : un wording mal calibre dans le system prompt peut provoquer du <code>misrouting</code> autant que des descriptions vagues.
+<strong>Piege courant — system prompt et associations involontaires :</strong> le system prompt peut creer des associations non desirees avec les outils. Par exemple, l'instruction <em>"always verify the customer"</em> dans le system prompt pousse Claude a appeler <code>get_customer</code> même pour des requêtes qui ne necessitent pas de vérification d'identite. L'examen teste votre capacite a identifier cette cause racine : un wording mal calibre dans le system prompt peut provoquer du <code>misrouting</code> autant que des descriptions vagues.
 </div>
 
 <h4>Outils integres vs outils MCP</h4>
-<p>Les agents ont tendance a preferer les outils integres (<code>Read</code>, <code>Grep</code>) aux outils MCP offrant des fonctionnalites proches. Pour contrer cette tendance, renforcez les descriptions des outils MCP en soulignant les avantages concrets qu'ils offrent par rapport aux outils integres : donnees exclusives, contexte specifique, ou fonctionnalites que les outils integres ne couvrent pas.</p>
+<p>Les agents ont tendance a preferer les outils integres (<code>Read</code>, <code>Grep</code>) aux outils MCP offrant des fonctionnalites proches. Pour contrer cette tendance, renforcez les descriptions des outils MCP en soulignant les avantages concrets qu'ils offrent par rapport aux outils integres : donnees exclusives, contexte spécifique, ou fonctionnalites que les outils integres ne couvrent pas.</p>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s2">2. Les reponses d'erreur structurees en MCP (Task 2.2)</h2></div>
+<div class="section-header"><h2 id="s2">2. Les réponses d'erreur structurées en MCP (Task 2.2)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Quand un outil MCP echoue, l'agent doit prendre une decision de recuperation : faut-il faire un retry ? Modifier la requete ? Escalader vers un humain ? Si l'erreur retournee est un simple <code>"Operation failed"</code>, l'agent ne dispose d'aucune information pour faire ce choix. Il faut donc des <strong>erreurs structurees</strong> qui indiquent le type d'erreur, sa cause probable et les actions possibles.</p>
+<h3>Le problème que cela resout</h3>
+<p>Quand un outil MCP echoue, l'agent doit prendre une décision de recuperation : faut-il faire un retry ? Modifier la requête ? Escalader vers un humain ? Si l'erreur retournée est un simple <code>"Operation failed"</code>, l'agent ne dispose d'aucune information pour faire ce choix. Il faut donc des <strong>erreurs structurées</strong> qui indiquent le type d'erreur, sa cause probable et les actions possibles.</p>
 
 <h3>Ce que doit contenir une bonne erreur</h3>
 <pre>{
@@ -117,63 +117,63 @@
 }</pre>
 
 <div class="anti-pattern">
-<strong>Anti-pattern — erreur generique :</strong> <code>{"isError": true, "content": "Operation failed"}</code>. L'agent ne peut pas decider s'il doit faire un retry, reformuler la requete ou escalader. Ce type d'erreur generique empeche toute recuperation intelligente. C'est le principal anti-pattern teste a l'examen.
+<strong>Anti-pattern — erreur generique :</strong> <code>{"isError": true, "content": "Operation failed"}</code>. L'agent ne peut pas decider s'il doit faire un retry, reformuler la requête ou escalader. Ce type d'erreur generique empeche toute recuperation intelligente. C'est le principal anti-pattern teste a l'examen.
 </div>
 
-<h3>Les quatre categories d'erreurs</h3>
+<h3>Les quatre catégories d'erreurs</h3>
 <table>
 <tr><th><code>errorCategory</code></th><th>Exemples</th><th><code>isRetryable</code></th><th>Action de l'agent</th></tr>
 <tr><td><strong><code>transient</code></strong></td><td>Timeout, erreur 503, panne reseau</td><td><code>true</code></td><td>Retry avec backoff exponentiel</td></tr>
-<tr><td><strong><code>validation</code></strong></td><td>Entree invalide, champ requis manquant</td><td><code>true</code> (apres correction)</td><td>Corriger l'entree et retenter</td></tr>
+<tr><td><strong><code>validation</code></strong></td><td>Entree invalide, champ requis manquant</td><td><code>true</code> (après correction)</td><td>Corriger l'entree et retenter</td></tr>
 <tr><td><strong><code>business</code></strong></td><td>Violation de politique, seuil depasse</td><td><code>false</code></td><td>Expliquer a l'utilisateur, proposer une alternative</td></tr>
 <tr><td><strong><code>permission</code></strong></td><td>Acces refuse, privilege insuffisant</td><td><code>false</code></td><td>Escalader a un humain</td></tr>
 </table>
 
 <div class="key-concept">
-<strong>Distinction fondamentale :</strong> un <strong>echec d'acces</strong> (timeout — le serveur n'a pas repondu) est tres different d'un <strong>resultat vide valide</strong> (la requete a reussi, mais il n'y a aucune correspondance). Le premier necessite une decision de retry ; le second est une information utile en soi. Les deux doivent etre clairement distingues dans la reponse du <code>tool_use</code>.
+<strong>Distinction fondamentale :</strong> un <strong>échec d'accès</strong> (timeout — le serveur n'a pas répondu) est très différent d'un <strong>resultat vide valide</strong> (la requête a reussi, mais il n'y a aucune correspondance). Le premier necessite une décision de retry ; le second est une information utile en soi. Les deux doivent être clairement distingues dans la réponse du <code>tool_use</code>.
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s3">3. Distribuer les outils entre agents et configurer <code>tool_choice</code> (Task 2.3)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Si vous donnez 18 outils a un seul agent, sa capacite a choisir le bon outil chute significativement. Pire : un agent disposant d'outils hors de sa specialisation aura tendance a les utiliser a mauvais escient. Le principe est simple : chaque agent ne recoit que les outils <strong>pertinents pour son role</strong>, idealement <strong>4 a 5 maximum</strong>, plus un ensemble restreint d'utilitaires transversaux si necessaire.</p>
+<h3>Le problème que cela resout</h3>
+<p>Si vous donnez 18 outils a un seul agent, sa capacite a choisir le bon outil chute significativement. Pire : un agent disposant d'outils hors de sa specialisation aura tendance a les utiliser a mauvais escient. Le principe est simple : chaque agent ne reçoit que les outils <strong>pertinents pour son role</strong>, idealement <strong>4 a 5 maximum</strong>, plus un ensemble restreint d'utilitaires transversaux si nécessaire.</p>
 
 <h3>Scoped tool access et principe du moindre privilege</h3>
-<p>Chaque <code>subagent</code> dans une architecture <code>hub-and-spoke</code> doit disposer d'un <strong>acces limite aux outils</strong> (scoped tool access). Cela evite qu'un agent utilise un outil hors de son perimetre. Exemple classique : un document analysis <code>subagent</code> qui dispose d'un outil generique <code>fetch_url</code> finit par telecharger des pages de moteurs de recherche au lieu de documents. La solution : remplacer <code>fetch_url</code> par <code>load_document</code>, un outil contraint qui valide que les URLs pointent vers des formats document.</p>
+<p>Chaque <code>subagent</code> dans une architecture <code>hub-and-spoke</code> doit disposer d'un <strong>accès limite aux outils</strong> (scoped tool access). Cela évite qu'un agent utilise un outil hors de son perimetre. Exemple classique : un document analysis <code>subagent</code> qui dispose d'un outil generique <code>fetch_url</code> finit par telecharger des pages de moteurs de recherche au lieu de documents. La solution : remplacer <code>fetch_url</code> par <code>load_document</code>, un outil contraint qui valide que les URLs pointent vers des formats document.</p>
 
 <div class="key-concept">
-<strong>Principe cle :</strong> plutot que de restreindre le comportement via des instructions dans le prompt, <strong>remplacez les outils generiques par des alternatives contraintes</strong> au niveau de l'interface. Les contraintes au niveau de l'outil sont plus fiables que les instructions textuelles.
+<strong>Principe clé :</strong> plutot que de restreindre le comportement via des instructions dans le prompt, <strong>remplacez les outils generiques par des alternatives contraintes</strong> au niveau de l'interface. Les contraintes au niveau de l'outil sont plus fiables que les instructions textuelles.
 </div>
 
-<h3>Le parametre <code>tool_choice</code></h3>
-<p>Ce parametre controle la maniere dont Claude selectionne les outils :</p>
+<h3>Le paramètre <code>tool_choice</code></h3>
+<p>Ce paramètre contrôle la manière dont Claude selectionne les outils :</p>
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Quand l'utiliser</th></tr>
 <tr><td><code>{"type": "auto"}</code></td><td>Claude decide librement : texte ou appel d'outil</td><td>Mode par defaut, convient a la majorite des cas</td></tr>
-<tr><td><code>{"type": "any"}</code></td><td>Claude <em>doit</em> appeler un outil (mais choisit lequel)</td><td>Pour garantir une sortie structuree quand plusieurs schemas existent</td></tr>
-<tr><td><code>{"type": "tool", "name": "..."}</code></td><td>Claude <em>doit</em> appeler un outil precis (forced selection)</td><td>Pour forcer un ordre d'execution (ex. : <code>extract_metadata</code> avant l'enrichissement)</td></tr>
+<tr><td><code>{"type": "any"}</code></td><td>Claude <em>doit</em> appeler un outil (mais choisit lequel)</td><td>Pour garantir une sortie structurée quand plusieurs schémas existent</td></tr>
+<tr><td><code>{"type": "tool", "name": "..."}</code></td><td>Claude <em>doit</em> appeler un outil precis (forced selection)</td><td>Pour forcer un ordre d'exécution (ex. : <code>extract_metadata</code> avant l'enrichissement)</td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>Pour l'examen :</strong> <code>tool_choice</code> avec <code>{"type": "any"}</code> et plusieurs outils d'extraction garantit une sortie structuree tout en laissant Claude choisir le schema le plus adapte. La forced selection (<code>{"type": "tool", "name": "..."}</code>) garantit une premiere action specifique avant le reste du workflow — utile pour imposer un ordre d'execution.
+<strong>Pour l'examen :</strong> <code>tool_choice</code> avec <code>{"type": "any"}</code> et plusieurs outils d'extraction garantit une sortie structurée tout en laissant Claude choisir le schéma le plus adapte. La forced selection (<code>{"type": "tool", "name": "..."}</code>) garantit une premiere action spécifique avant le reste du workflow — utile pour imposer un ordre d'exécution.
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s4">4. Integrer des MCP servers dans Claude Code (Task 2.4)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>L'approche traditionnelle d'integration d'outils oblige les developpeurs a ecrire manuellement des schemas et des fonctions pour chaque outil. Le <strong>Model Context Protocol (MCP)</strong> resout ce probleme en deplacant la definition et l'execution des outils vers des serveurs dedies. Quelqu'un d'autre cree les outils, les empaquete dans un MCP server, et votre application s'y connecte automatiquement.</p>
+<h3>Le problème que cela resout</h3>
+<p>L'approche traditionnelle d'intégration d'outils oblige les développeurs a écrire manuellement des schémas et des fonctions pour chaque outil. Le <strong>Model Context Protocol (MCP)</strong> resout ce problème en deplacant la definition et l'exécution des outils vers des serveurs dedies. Quelqu'un d'autre cree les outils, les empaquete dans un MCP server, et votre application s'y connecte automatiquement.</p>
 
 <h3>La portee des MCP servers</h3>
 <table>
 <tr><th>Portee</th><th>Fichier de configuration</th><th>Partage</th><th>Usage</th></tr>
-<tr><td><strong>Projet</strong></td><td><code>.mcp.json</code> (a la racine du projet)</td><td>Versionne dans le VCS, partage avec l'equipe</td><td>Integrations standards du projet</td></tr>
+<tr><td><strong>Projet</strong></td><td><code>.mcp.json</code> (a la racine du projet)</td><td>Versionne dans le VCS, partage avec l'équipe</td><td>Integrations standards du projet</td></tr>
 <tr><td><strong>Utilisateur</strong></td><td><code>~/.claude.json</code></td><td>Personnel, non versionne</td><td>Experimentations, serveurs personnels</td></tr>
 </table>
 
 <h3>La gestion des secrets par substitution de variables d'environnement</h3>
-<p>Les tokens d'acces ne doivent jamais etre commites dans le depot. Utilisez la substitution de variables d'environnement dans <code>.mcp.json</code> :</p>
+<p>Les tokens d'accès ne doivent jamais être commites dans le depot. Utilisez la substitution de variables d'environnement dans <code>.mcp.json</code> :</p>
 <pre>{
   "mcpServers": {
     "github": {
@@ -183,19 +183,19 @@
     }
   }
 }</pre>
-<p>La syntaxe <code>${VARIABLE_NAME}</code> est resolue au lancement. Chaque developpeur fournit ses propres credentials via ses variables d'environnement locales, ce qui permet de versionner <code>.mcp.json</code> sans exposer de secrets.</p>
+<p>La syntaxe <code>${VARIABLE_NAME}</code> est resolue au lancement. Chaque développeur fournit ses propres credentials via ses variables d'environnement locales, ce qui permet de versionner <code>.mcp.json</code> sans exposer de secrets.</p>
 
 <h3>Les trois primitives MCP</h3>
-<p>MCP expose trois types de primitives, chacune controlee par un acteur different :</p>
+<p>MCP expose trois types de primitives, chacune contrôlée par un acteur différent :</p>
 <table>
 <tr><th>Primitive</th><th>Controlee par</th><th>Objectif</th><th>Quand l'utiliser</th></tr>
-<tr><td><strong><code>tools</code></strong></td><td>Le modele (Claude)</td><td>Ajouter des capacites d'action</td><td>Claude doit executer une operation (CRUD, appel API)</td></tr>
+<tr><td><strong><code>tools</code></strong></td><td>Le modèle (Claude)</td><td>Ajouter des capacites d'action</td><td>Claude doit executer une opération (CRUD, appel API)</td></tr>
 <tr><td><strong><code>resources</code></strong></td><td>L'application</td><td>Fournir des donnees en lecture</td><td>L'application a besoin de donnees pour l'interface ou le prompt</td></tr>
-<tr><td><strong><code>prompts</code></strong></td><td>L'utilisateur</td><td>Definir des workflows predefinis</td><td>L'utilisateur declenche une action (bouton, commande slash)</td></tr>
+<tr><td><strong><code>prompts</code></strong></td><td>L'utilisateur</td><td>Definir des workflows predefinis</td><td>L'utilisateur déclenche une action (bouton, commande slash)</td></tr>
 </table>
 
 <div class="key-concept">
-<strong><code>resources</code> comme « content catalogs » :</strong> les <code>resources</code> sont particulierement utiles pour exposer des catalogues de contenu (schemas de base de donnees, listes de taches, hierarchies de navigation). Elles reduisent le nombre d'appels de <code>tools</code> exploratoires en fournissant directement les donnees de contexte dont l'application a besoin.
+<strong><code>resources</code> comme « content catalogs » :</strong> les <code>resources</code> sont particulierement utiles pour exposer des catalogues de contenu (schémas de base de donnees, listes de taches, hiérarchies de navigation). Elles reduisent le nombre d'appels de <code>tools</code> exploratoires en fournissant directement les donnees de contexte dont l'application a besoin.
 </div>
 
 <h3>Les transports MCP</h3>
@@ -207,23 +207,23 @@
 </table>
 
 <div class="anti-pattern">
-<strong>Piege de deploiement :</strong> utilisez le <strong>meme transport</strong> en developpement et en production. Developper avec Stdio puis deployer en HTTP cause des echecs lies aux differences de communication bidirectionnelle.
+<strong>Piege de deploiement :</strong> utilisez le <strong>même transport</strong> en developpement et en production. Developper avec Stdio puis deployer en HTTP cause des échecs lies aux differences de communication bidirectionnelle.
 </div>
 
 <h3>Concepts avances</h3>
 <ul>
-<li><strong>Sampling :</strong> permet aux MCP servers de demander au client de generer du texte via son LLM, sans que le serveur ait besoin de cles API ni de supporter les couts de tokens. Utile pour les serveurs publics.</li>
-<li><strong>Roots :</strong> fichiers et dossiers auxquels l'utilisateur accorde l'acces au prealable. Ils offrent deux avantages : le <strong>controle des permissions</strong> (limiter l'acces aux zones autorisees) et la <strong>decouverte autonome</strong> (Claude navigue dans les roots sans que l'utilisateur fournisse le chemin complet).</li>
-<li><strong>Elicitation</strong> (spec MCP 2025-06-18 et 2025-11-25) : permet au serveur de <em>demander une input a l'utilisateur</em> au cours d'un appel — sans devoir prendre cette input en parametre du tool initial.</li>
+<li><strong>Sampling :</strong> permet aux MCP servers de demander au client de generer du texte via son LLM, sans que le serveur ait besoin de clés API ni de supporter les couts de tokens. Utile pour les serveurs publics.</li>
+<li><strong>Roots :</strong> fichiers et dossiers auxquels l'utilisateur accorde l'accès au prealable. Ils offrent deux avantages : le <strong>contrôle des permissions</strong> (limiter l'accès aux zones autorisées) et la <strong>decouverte autonome</strong> (Claude navigue dans les roots sans que l'utilisateur fournisse le chemin complet).</li>
+<li><strong>Elicitation</strong> (spec MCP 2025-06-18 et 2025-11-25) : permet au serveur de <em>demander une input a l'utilisateur</em> au cours d'un appel — sans devoir prendre cette input en paramètre du tool initial.</li>
 </ul>
 
 <h3>MCP elicitation — deux modes</h3>
-<p>L'elicitation est une primitive serveur officielle qui complete sampling et roots. Deux variantes :</p>
+<p>L'elicitation est une primitive serveur officielle qui complète sampling et roots. Deux variantes :</p>
 
 <table>
 <tr><th>Mode</th><th>Spec</th><th>Cas d'usage</th></tr>
-<tr><td><strong>Form mode</strong></td><td>2025-06-18</td><td>Le serveur demande des inputs primitifs (string, number, boolean) avec un schema simple — typiquement un formulaire dans le client</td></tr>
-<tr><td><strong>URL mode</strong></td><td>2025-11-25 (SEP-1036)</td><td>Le serveur fournit une URL ; le client ouvre l'URL dans le navigateur pour les flows sensibles (OAuth, paiement, saisie de cle API)</td></tr>
+<tr><td><strong>Form mode</strong></td><td>2025-06-18</td><td>Le serveur demande des inputs primitifs (string, number, boolean) avec un schéma simple — typiquement un formulaire dans le client</td></tr>
+<tr><td><strong>URL mode</strong></td><td>2025-11-25 (SEP-1036)</td><td>Le serveur fournit une URL ; le client ouvre l'URL dans le navigateur pour les flows sensibles (OAuth, paiement, saisie de clé API)</td></tr>
 </table>
 
 <pre>// Form mode — schema d'inputs primitifs
@@ -257,8 +257,8 @@
 <ul>
 <li>Le client NE DOIT PAS pre-fetch automatiquement l'URL ni ses metadonnees</li>
 <li>Le client NE DOIT PAS ouvrir l'URL sans consentement explicite de l'utilisateur</li>
-<li>Le client DOIT afficher l'URL complete avant le consentement (anti-phishing)</li>
-<li>L'URL DOIT s'ouvrir dans un navigateur securise (browser systeme), <strong>jamais</strong> dans un webview embarque</li>
+<li>Le client DOIT afficher l'URL complète avant le consentement (anti-phishing)</li>
+<li>L'URL DOIT s'ouvrir dans un navigateur securise (browser système), <strong>jamais</strong> dans un webview embarque</li>
 </ul>
 </div>
 
@@ -266,18 +266,18 @@
 <strong>EXAM TIP :</strong> distinction des 3 primitives <em>cote serveur</em> :
 <ul>
 <li><strong>Sampling</strong> : serveur demande au client de <em>generer du texte LLM</em></li>
-<li><strong>Roots</strong> : client declare au serveur les <em>chemins fichier autorises</em></li>
+<li><strong>Roots</strong> : client declare au serveur les <em>chemins fichier autorisés</em></li>
 <li><strong>Elicitation</strong> : serveur demande au client de <em>collecter une input utilisateur</em></li>
 </ul>
 Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilise quand est crucial.
 </div>
 
 <div class="anti-pattern">
-<strong>Point de securite important :</strong> le SDK MCP n'applique <em>pas</em> automatiquement les restrictions de roots. Le developpeur du serveur doit implementer manuellement les verifications d'acces avec une fonction comme <code>is_path_allowed()</code>. Sans cette implementation, les roots sont declaratifs mais pas effectivement appliques. <em>(Source : guide officiel, section Roots.)</em>
+<strong>Point de securite important :</strong> le SDK MCP n'applique <em>pas</em> automatiquement les restrictions de roots. Le développeur du serveur doit implementer manuellement les verifications d'accès avec une fonction comme <code>is_path_allowed()</code>. Sans cette implementation, les roots sont declaratifs mais pas effectivement appliques. <em>(Source : guide officiel, section Roots.)</em>
 </div>
 
 <h3>Choix entre community servers et custom servers</h3>
-<p>Pour les integrations standards (Jira, GitHub, Slack), preferez les <strong>community servers</strong> existants. Ne construisez un custom server que pour les workflows specifiques a votre equipe que personne d'autre n'a implementes. Tous les <code>tools</code> de tous les serveurs connectes sont decouverts a la connexion et disponibles simultanement.</p>
+<p>Pour les intégrations standards (Jira, GitHub, Slack), preferez les <strong>community servers</strong> existants. Ne construisez un custom server que pour les workflows spécifiques a votre équipe que personne d'autre n'a implementes. Tous les <code>tools</code> de tous les serveurs connectes sont decouverts a la connexion et disponibles simultanement.</p>
 
 <h3>Terminologie des transports — point de vocabulaire</h3>
 <table>
@@ -289,20 +289,20 @@ Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilis
 </table>
 
 <div class="exam-tip">
-<strong>EXAM TIP — vocabulaire :</strong> les anciennes references parlent de <strong>"SSE"</strong> ; les materiels recents et la doc Anthropic utilisent <strong>"StreamableHTTP"</strong>. Si une question oppose <em>stdio vs SSE</em>, lire SSE comme "transport HTTP distant avec stream bidirectionnel". La distinction critique a retenir : <strong>stdio = local uniquement</strong>, <strong>HTTP = distant</strong>.
+<strong>EXAM TIP — vocabulaire :</strong> les anciennes références parlent de <strong>"SSE"</strong> ; les materiels recents et la doc Anthropic utilisent <strong>"StreamableHTTP"</strong>. Si une question oppose <em>stdio vs SSE</em>, lire SSE comme "transport HTTP distant avec stream bidirectionnel". La distinction critique a retenir : <strong>stdio = local uniquement</strong>, <strong>HTTP = distant</strong>.
 </div>
 
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s4b">JSON Schema en profondeur (<code>input_schema</code>)</h3></div>
 
-<p>Le <code>input_schema</code> d'un outil utilise la specification <strong>JSON Schema draft-07</strong>. Au-dela de <code>type</code>, <code>properties</code> et <code>required</code> deja vus en D0, plusieurs constructions avancees apparaissent dans les questions d'examen.</p>
+<p>Le <code>input_schema</code> d'un outil utilise la specification <strong>JSON Schema draft-07</strong>. Au-dela de <code>type</code>, <code>properties</code> et <code>required</code> déjà vus en D0, plusieurs constructions avancees apparaissent dans les questions d'examen.</p>
 
 <h3>Types complexes (<code>oneOf</code>, <code>anyOf</code>, <code>allOf</code>)</h3>
 <table>
 <tr><th>Operateur</th><th>Semantique</th><th>Cas d'usage</th></tr>
-<tr><td><code>oneOf</code></td><td>Doit valider <strong>exactement un</strong> sous-schema</td><td>Discriminated union : email OU id_client, jamais les deux</td></tr>
-<tr><td><code>anyOf</code></td><td>Doit valider <strong>au moins un</strong> sous-schema</td><td>Acceptation flexible : string OU array de strings</td></tr>
-<tr><td><code>allOf</code></td><td>Doit valider <strong>tous</strong> les sous-schemas</td><td>Composition de contraintes (extension de schema de base)</td></tr>
+<tr><td><code>oneOf</code></td><td>Doit valider <strong>exactement un</strong> sous-schéma</td><td>Discriminated union : email OU id_client, jamais les deux</td></tr>
+<tr><td><code>anyOf</code></td><td>Doit valider <strong>au moins un</strong> sous-schéma</td><td>Acceptation flexible : string OU array de strings</td></tr>
+<tr><td><code>allOf</code></td><td>Doit valider <strong>tous</strong> les sous-schémas</td><td>Composition de contraintes (extension de schéma de base)</td></tr>
 </table>
 
 <pre>// Exemple oneOf : recherche par email OU par ID, pas les deux
@@ -343,12 +343,12 @@ Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilis
 <tr><th>Type</th><th>Contraintes</th><th>Exemple</th></tr>
 <tr><td><code>string</code></td><td><code>minLength</code>, <code>maxLength</code>, <code>pattern</code> (regex), <code>format</code> (email, uri, date, date-time, uuid)</td><td><code>"format": "email"</code> rejette les strings invalides</td></tr>
 <tr><td><code>number</code> / <code>integer</code></td><td><code>minimum</code>, <code>maximum</code>, <code>exclusiveMinimum</code>, <code>multipleOf</code></td><td><code>"minimum": 0, "maximum": 1000</code></td></tr>
-<tr><td><code>array</code></td><td><code>items</code> (schema des elements), <code>minItems</code>, <code>maxItems</code>, <code>uniqueItems</code></td><td>Liste non vide d'IDs uniques</td></tr>
+<tr><td><code>array</code></td><td><code>items</code> (schéma des éléments), <code>minItems</code>, <code>maxItems</code>, <code>uniqueItems</code></td><td>Liste non vide d'IDs uniques</td></tr>
 <tr><td><code>object</code></td><td><code>required</code>, <code>additionalProperties</code> (false pour rejeter champs inconnus)</td><td><code>"additionalProperties": false</code> = strict</td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> <code>"additionalProperties": false</code> sur un objet rejette tout champ non declare dans <code>properties</code>. C'est utile pour forcer Claude a ne produire que les champs documentes. Sans cette contrainte, le modele peut ajouter des champs hallucines qui passent la validation syntaxique.
+<strong>EXAM TIP :</strong> <code>"additionalProperties": false</code> sur un objet rejette tout champ non declare dans <code>properties</code>. C'est utile pour forcer Claude a ne produire que les champs documentes. Sans cette contrainte, le modèle peut ajouter des champs hallucines qui passent la validation syntaxique.
 </div>
 
 <h3>Champs nullable et enums avec fallback (rappel D0 + extension)</h3>
@@ -374,28 +374,28 @@ Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilis
 <div class="key-concept">
 <strong>3 piliers d'un input_schema robuste :</strong>
 <ol>
-<li><strong>Nullable</strong> sur les champs non garantis (au lieu de required) — evite l'hallucination</li>
-<li><strong>Enum avec "other" + champ detail</strong> — capture les cas inattendus sans perte d'information</li>
-<li><strong>Enum avec "unclear"</strong> — permet au modele d'exprimer son incertitude honnetement</li>
+<li><strong>Nullable</strong> sur les champs non garantis (au lieu de required) — évite l'hallucination</li>
+<li><strong>Enum avec "other" + champ détail</strong> — capture les cas inattendus sans perte d'information</li>
+<li><strong>Enum avec "unclear"</strong> — permet au modèle d'exprimer son incertitude honnetement</li>
 </ol>
-Ces 3 patterns transforment un schema rigide en interface tolerante a l'incertitude.
+Ces 3 patterns transforment un schéma rigide en interface tolerante a l'incertitude.
 </div>
 
-<h3>Validation cote application (apres reception)</h3>
-<p>Le <code>tool_use</code> garantit la validite <strong>syntaxique</strong> du JSON, pas la coherence semantique. Apres reception, valider :</p>
+<h3>Validation cote application (après reception)</h3>
+<p>Le <code>tool_use</code> garantit la validite <strong>syntaxique</strong> du JSON, pas la cohérence semantique. Apres reception, valider :</p>
 <ul>
 <li><strong>Coherence inter-champs :</strong> totaux qui s'additionnent, dates dans l'ordre chronologique</li>
-<li><strong>Existence des references :</strong> les IDs pointent vers des entites reelles</li>
+<li><strong>Existence des références :</strong> les IDs pointent vers des entites reelles</li>
 <li><strong>Plages metier :</strong> un montant negatif est syntaxiquement valide mais business-invalide</li>
 </ul>
-<p>Voir D4 §4.4 pour le pattern <em>retry-with-feedback</em> : en cas d'echec de validation, renvoyer l'erreur a Claude pour qu'il corrige.</p>
+<p>Voir D4 §4.4 pour le pattern <em>retry-with-feedback</em> : en cas d'échec de validation, renvoyer l'erreur a Claude pour qu'il corrigé.</p>
 
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s4c">Patterns d'authentification MCP</h3></div>
 
-<p>Les serveurs MCP exposent souvent des donnees protegees (GitHub, Slack, base de donnees). L'authentification est gerable de plusieurs manieres selon le transport et le contexte.</p>
+<p>Les serveurs MCP exposent souvent des donnees protegees (GitHub, Slack, base de donnees). L'authentification est gerable de plusieurs manières selon le transport et le contexte.</p>
 
-<h3>Pattern 1 — Variables d'environnement (stdio, recommande)</h3>
+<h3>Pattern 1 — Variables d'environnement (stdio, recommandé)</h3>
 <p>Le pattern le plus simple et securise pour les serveurs <strong>stdio</strong> (sous-processus local). Le serveur lit la variable au demarrage.</p>
 <pre>// .mcp.json (versionne)
 {
@@ -414,11 +414,11 @@ Ces 3 patterns transforment un schema rigide en interface tolerante a l'incertit
 export GITHUB_TOKEN=ghp_xxx</pre>
 
 <div class="key-concept">
-<strong>Pourquoi c'est sur :</strong> le token n'apparait jamais dans le repository (la variable n'est resolue qu'au runtime). Pour la rotation, chaque developpeur met a jour son env, sans toucher a Git.
+<strong>Pourquoi c'est sur :</strong> le token n'apparaît jamais dans le repository (la variable n'est resolue qu'au runtime). Pour la rotation, chaque développeur met a jour son env, sans toucher a Git.
 </div>
 
 <h3>Pattern 2 — Headers Authorization (HTTP/StreamableHTTP)</h3>
-<p>Pour les serveurs MCP distants, le client envoie l'authentification dans les headers HTTP a chaque requete.</p>
+<p>Pour les serveurs MCP distants, le client envoie l'authentification dans les headers HTTP a chaque requête.</p>
 <pre>// .mcp.json
 {
   "mcpServers": {
@@ -435,23 +435,23 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 
 <table>
 <tr><th>Schema d'authentification</th><th>Header</th><th>Cas d'usage</th></tr>
-<tr><td><strong>Bearer token</strong></td><td><code>Authorization: Bearer &lt;token&gt;</code></td><td>API tokens longue duree, JWT</td></tr>
+<tr><td><strong>Bearer token</strong></td><td><code>Authorization: Bearer &lt;token&gt;</code></td><td>API tokens longue durée, JWT</td></tr>
 <tr><td><strong>API Key</strong></td><td><code>X-API-Key: &lt;key&gt;</code> ou similaire</td><td>Services SaaS (Stripe, OpenAI, etc.)</td></tr>
 <tr><td><strong>Basic Auth</strong></td><td><code>Authorization: Basic &lt;base64&gt;</code></td><td>Legacy, deconseille en production</td></tr>
 </table>
 
 <h3>Pattern 3 — OAuth 2.0 (delegation utilisateur)</h3>
-<p>Pour les serveurs qui agissent <em>au nom d'un utilisateur</em> (acces a son Google Drive, son Slack personnel), l'authentification ne peut pas etre statique. Le flow OAuth :</p>
+<p>Pour les serveurs qui agissent <em>au nom d'un utilisateur</em> (accès a son Google Drive, son Slack personnel), l'authentification ne peut pas être statique. Le flow OAuth :</p>
 <ol>
 <li>Le serveur MCP redirige l'utilisateur vers le provider (Google, Slack)</li>
 <li>L'utilisateur s'authentifie et accorde les scopes demandes</li>
 <li>Le provider renvoie un <code>authorization_code</code></li>
 <li>Le serveur l'echange contre un <code>access_token</code> (court) + <code>refresh_token</code> (long)</li>
-<li>Les requetes ulterieures utilisent l'<code>access_token</code>, refresh quand necessaire</li>
+<li>Les requêtes ulterieures utilisent l'<code>access_token</code>, refresh quand nécessaire</li>
 </ol>
 
 <div class="key-concept">
-<strong>Specificite MCP :</strong> la specification MCP definit un flow OAuth 2.1 standardise (<code>oauth/authorize</code>, <code>oauth/token</code>, <code>oauth/register</code>). Le client (Claude Desktop, Claude Code) gere automatiquement le flow et stocke les tokens. Le developpeur du serveur MCP n'a qu'a implementer les endpoints conformes a la spec.
+<strong>Specificite MCP :</strong> la specification MCP definit un flow OAuth 2.1 standardise (<code>oauth/authorize</code>, <code>oauth/token</code>, <code>oauth/register</code>). Le client (Claude Desktop, Claude Code) géré automatiquement le flow et stocke les tokens. Le développeur du serveur MCP n'a qu'a implementer les endpoints conformes a la spec.
 </div>
 
 <h3>Pattern 4 — Authentification mTLS / certificats</h3>
@@ -459,10 +459,10 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 
 <h3>Tableau decisionnel</h3>
 <table>
-<tr><th>Situation</th><th>Pattern recommande</th></tr>
+<tr><th>Situation</th><th>Pattern recommandé</th></tr>
 <tr><td>Token API personnel, serveur local</td><td>Variable d'environnement (stdio + <code>${VAR}</code>)</td></tr>
 <tr><td>Service SaaS partage (Stripe, etc.)</td><td>Header Authorization avec <code>${VAR}</code></td></tr>
-<tr><td>Acces a des ressources d'un utilisateur (Google, Slack)</td><td>OAuth 2.1 (geree par le client MCP)</td></tr>
+<tr><td>Acces a des ressources d'un utilisateur (Google, Slack)</td><td>OAuth 2.1 (gérée par le client MCP)</td></tr>
 <tr><td>Environnement enterprise haute securite</td><td>mTLS + audit log</td></tr>
 <tr><td>Multi-tenant SaaS</td><td>OAuth + scope par tenant</td></tr>
 </table>
@@ -472,13 +472,13 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 </div>
 
 <div class="exam-tip">
-<strong>Scenario d'examen :</strong> votre equipe deploie un serveur MCP custom pour un outil interne. Chaque developpeur doit acceder a ses propres dossiers. Quel pattern ? <strong>OAuth 2.1</strong> — l'authentification se fait par utilisateur, pas par token de service. Un token statique partage reviendrait a donner a tout le monde l'acces aux dossiers de tout le monde.
+<strong>Scenario d'examen :</strong> votre équipe deploie un serveur MCP custom pour un outil interne. Chaque développeur doit acceder a ses propres dossiers. Quel pattern ? <strong>OAuth 2.1</strong> — l'authentification se fait par utilisateur, pas par token de service. Un token statique partage reviendrait a donner a tout le monde l'accès aux dossiers de tout le monde.
 </div>
 
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s4d">Cookbook : un serveur MCP custom complet</h3></div>
 
-<p>Cet exemple synthetise tous les concepts MCP de la section dans un serveur Python minimal mais complet : les 3 primitives (<code>tools</code>, <code>resources</code>, <code>prompts</code>), une verification de <code>roots</code>, et un usage de <code>sampling</code>.</p>
+<p>Cet exemple synthetise tous les concepts MCP de la section dans un serveur Python minimal mais complet : les 3 primitives (<code>tools</code>, <code>resources</code>, <code>prompts</code>), une vérification de <code>roots</code>, et un usage de <code>sampling</code>.</p>
 
 <pre>// server.py — un serveur MCP "internal-docs" custom
 from mcp.server.fastmcp import FastMCP
@@ -559,10 +559,10 @@ if __name__ == "__main__":
 <strong>Ce que cet exemple illustre :</strong>
 <ul>
 <li><strong>tools</strong> avec descriptions explicites repondant aux 4 questions (que fait, format input, edge cases, quand utiliser)</li>
-<li><strong>Erreur structuree</strong> (<code>errorCategory: "permission"</code>) avec <code>isRetryable: false</code> conforme a §2</li>
+<li><strong>Erreur structurée</strong> (<code>errorCategory: "permission"</code>) avec <code>isRetryable: false</code> conforme a §2</li>
 <li><strong>Roots check explicite</strong> via <code>is_path_allowed()</code> — le SDK ne le fait pas tout seul</li>
 <li><strong>Resource "catalog"</strong> = content catalog qui reduit les appels exploratoires</li>
-<li><strong>Sampling</strong> : le serveur n'a pas besoin de cle API, il delegue au client</li>
+<li><strong>Sampling</strong> : le serveur n'a pas besoin de clé API, il délégué au client</li>
 <li><strong>Transport configurable</strong> : stdio en local, streamable-http en deploiement distant</li>
 </ul>
 </div>
@@ -583,14 +583,14 @@ async with stdio_client(...) as session:
     result = await session.call_tool("search_docs", {"query": "auth"})</pre>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> sur les questions "comment tester un MCP server avant deploiement", les bonnes reponses tournent autour de l'<strong>MCP Inspector</strong> (officiel) ou d'un test programmatique via le client SDK. Les distracteurs typiques : "deployer directement en prod et observer", "utiliser un debugger Python attache" — pas faux, mais moins canonique.
+<strong>EXAM TIP :</strong> sur les questions "comment tester un MCP server avant deploiement", les bonnes réponses tournent autour de l'<strong>MCP Inspector</strong> (officiel) ou d'un test programmatique via le client SDK. Les distracteurs typiques : "deployer directement en prod et observer", "utiliser un debugger Python attache" — pas faux, mais moins canonique.
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s5">5. Les outils integres de Claude Code (Task 2.5)</h2></div>
 
-<h3>Le probleme que cela resout</h3>
-<p>Claude Code dispose d'outils integres pour interagir avec le systeme de fichiers et le terminal. Bien les connaitre evite de creer des outils MCP redondants et permet une investigation efficace du code.</p>
+<h3>Le problème que cela resout</h3>
+<p>Claude Code dispose d'outils integres pour interagir avec le système de fichiers et le terminal. Bien les connaitre évite de creer des outils MCP redondants et permet une investigation efficace du code.</p>
 
 <h3>Reference de selection</h3>
 <table>
@@ -607,41 +607,41 @@ async with stdio_client(...) as session:
 <strong>Fallback <code>Read</code> + <code>Write</code> :</strong> quand <code>Edit</code> echoue parce que le texte a remplacer n'est pas unique dans le fichier, la solution de repli est <code>Read</code> (charger le fichier complet) → modifier le contenu → <code>Write</code> (reecrire le fichier entier).
 </div>
 
-<h3>La strategie d'investigation incrementale</h3>
+<h3>La stratégie d'investigation incrementale</h3>
 <p>Plutot que de lire tous les fichiers d'un coup, construisez votre comprehension progressivement :</p>
 <ol>
 <li><strong><code>Grep</code></strong> : identifier les points d'entree (definitions de fonctions, exports).</li>
-<li><strong><code>Read</code></strong> : lire les fichiers identifies.</li>
+<li><strong><code>Read</code></strong> : lire les fichiers identifiés.</li>
 <li><strong><code>Grep</code></strong> : trouver les usages (imports, appels).</li>
 <li><strong><code>Read</code></strong> : lire les fichiers consommateurs.</li>
-<li>Repeter jusqu'a avoir une vue complete.</li>
+<li>Repeter jusqu'a avoir une vue complète.</li>
 </ol>
 
 <div class="exam-tip">
-<strong>Pour l'examen :</strong> cette strategie incrementale (<code>Grep</code> → <code>Read</code> → <code>Grep</code> → <code>Read</code>) est la methode recommandee pour explorer un codebase inconnu. Elle evite de surcharger le contexte en ne lisant que les fichiers pertinents.
+<strong>Pour l'examen :</strong> cette stratégie incrementale (<code>Grep</code> → <code>Read</code> → <code>Grep</code> → <code>Read</code>) est la méthode recommandée pour explorer un codebase inconnu. Elle évite de surcharger le contexte en ne lisant que les fichiers pertinents.
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s6">6. Synthese — les points cles</h2></div>
+<div class="section-header page-break"><h2 id="s6">6. Synthese — les points clés</h2></div>
 
 <h3>Conception d'outils</h3>
 <ul>
-<li>La <code>description</code> est le mecanisme n° 1 de selection par le LLM. Des descriptions vagues = <code>misrouting</code>.</li>
+<li>La <code>description</code> est le mécanisme n° 1 de selection par le LLM. Des descriptions vagues = <code>misrouting</code>.</li>
 <li>Renommer, diviser ou remplacer les outils pour eliminer les chevauchements semantiques.</li>
 <li>Attention aux associations involontaires creees par le system prompt.</li>
 <li>Specifier les formats d'entree dans <code>input_schema</code> avec des exemples et documenter les edge cases.</li>
 </ul>
 
-<h3>Erreurs structurees</h3>
+<h3>Erreurs structurées</h3>
 <ul>
 <li>Toujours retourner <code>isError</code>, <code>errorCategory</code> (<code>transient</code> / <code>validation</code> / <code>business</code> / <code>permission</code>) et <code>isRetryable</code>.</li>
-<li>Distinguer un echec d'acces (timeout) d'un resultat vide valide (zero correspondance).</li>
+<li>Distinguer un échec d'accès (timeout) d'un resultat vide valide (zero correspondance).</li>
 <li>Les erreurs generiques (<em>"Operation failed"</em>) empechent toute recuperation intelligente — c'est l'anti-pattern principal.</li>
 </ul>
 
 <h3>Distribution et <code>tool_choice</code></h3>
 <ul>
-<li>4 a 5 outils max par agent, pas 18. Chaque agent ne recoit que les outils pertinents pour son role (scoped tool access).</li>
+<li>4 a 5 outils max par agent, pas 18. Chaque agent ne reçoit que les outils pertinents pour son role (scoped tool access).</li>
 <li>Remplacer les outils generiques par des alternatives contraintes (<code>fetch_url</code> → <code>load_document</code>).</li>
 <li><code>auto</code> (par defaut) / <code>any</code> (garantir un appel d'outil) / forced selection (imposer un outil precis).</li>
 </ul>
@@ -650,20 +650,20 @@ async with stdio_client(...) as session:
 <ul>
 <li><code>.mcp.json</code> pour le projet (versionne dans le VCS), <code>~/.claude.json</code> pour l'utilisateur (personnel).</li>
 <li>Substitution de variables d'environnement (<code>${GITHUB_TOKEN}</code>) pour les secrets.</li>
-<li>Trois primitives : <code>tools</code> (modele), <code>resources</code> (application), <code>prompts</code> (utilisateur).</li>
+<li>Trois primitives : <code>tools</code> (modèle), <code>resources</code> (application), <code>prompts</code> (utilisateur).</li>
 <li><code>resources</code> = « content catalogs » qui reduisent les appels exploratoires.</li>
-<li>Preferer les community servers pour les integrations standards ; custom servers pour les workflows specifiques.</li>
+<li>Preferer les community servers pour les intégrations standards ; custom servers pour les workflows spécifiques.</li>
 <li>Roots : le SDK n'applique pas automatiquement les restrictions — implementer <code>is_path_allowed()</code>.</li>
 <li>Transports : <strong>stdio</strong> (local) / <strong>SSE</strong> = <strong>StreamableHTTP</strong> (distant, bidirectionnel) / <strong>HTTP stateless</strong> (multi-instance).</li>
 </ul>
 
 <h3>JSON Schema (input_schema)</h3>
 <ul>
-<li><code>oneOf</code> (exactement un sous-schema) / <code>anyOf</code> (au moins un) / <code>allOf</code> (tous).</li>
+<li><code>oneOf</code> (exactement un sous-schéma) / <code>anyOf</code> (au moins un) / <code>allOf</code> (tous).</li>
 <li>Validation conditionnelle <code>if</code>/<code>then</code>/<code>else</code> pour les exigences contextuelles.</li>
 <li>Contraintes : <code>format</code> (email, uri, uuid), <code>minLength</code>/<code>maxLength</code>, <code>minimum</code>/<code>maximum</code>, <code>pattern</code> (regex).</li>
 <li><code>"additionalProperties": false</code> pour rejeter les champs hallucines.</li>
-<li>3 piliers anti-hallucination : nullable, enum + "other"/detail, enum + "unclear".</li>
+<li>3 piliers anti-hallucination : nullable, enum + "other"/détail, enum + "unclear".</li>
 <li>Le tool_use garantit la <strong>syntaxe</strong> ; valider la <strong>semantique</strong> cote app (retry-with-feedback, voir D4).</li>
 </ul>
 
@@ -687,37 +687,37 @@ async with stdio_client(...) as session:
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. Questions d'auto-evaluation</h2></div>
 
-<details>
-<summary>Q1 : Les logs montrent que les requetes <em>"analyze the uploaded quarterly report"</em> sont routees vers le web-search agent 45 % du temps au lieu du document analysis agent. Les descriptions des outils sont <code>analyze_content</code> (<em>"analyzes content and extracts key information"</em>) et <code>analyze_document</code> (<em>"analyzes documents and extracts key information"</em>). Comment corriger ?<br>
+<détails>
+<summary>Q1 : Les logs montrent que les requêtes <em>"analyze the uploaded quarterly report"</em> sont routees vers le web-search agent 45 % du temps au lieu du document analysis agent. Les descriptions des outils sont <code>analyze_content</code> (<em>"analyzes content and extracts key information"</em>) et <code>analyze_document</code> (<em>"analyzes documents and extracts key information"</em>). Comment corriger ?<br>
 A) Ajouter un pre-routing classifier.<br>
 B) Renommer le web-search tool en <code>extract_web_results</code> et mettre a jour sa <code>description</code>.<br>
 C) Ajouter des few-shot examples au coordinateur.<br>
 D) Enrichir seulement la <code>description</code> du document analysis tool.</summary>
 <p><strong>Reponse : B</strong></p>
-<p>Le probleme est un chevauchement semantique entre les deux descriptions. Renommer le web-search tool en <code>extract_web_results</code> avec une description differenciee elimine l'ambiguite a la racine. Les options A et C ajoutent de la complexite sans traiter la cause. L'option D n'elimine pas le chevauchement cote web-search.</p>
-</details>
+<p>Le problème est un chevauchement semantique entre les deux descriptions. Renommer le web-search tool en <code>extract_web_results</code> avec une description differenciee elimine l'ambiguite a la racine. Les options A et C ajoutent de la complexite sans traiter la cause. L'option D n'elimine pas le chevauchement cote web-search.</p>
+</détails>
 
-<details>
+<détails>
 <summary>Q2 : Un document analysis <code>subagent</code> a un outil generique <code>fetch_url</code>. Les logs montrent qu'il telecharge des pages de moteurs de recherche au lieu de documents. Quel fix appliquer ?<br>
 A) Remplacer <code>fetch_url</code> par <code>load_document</code> qui valide les URLs vers des formats document.<br>
 B) Retirer <code>fetch_url</code> et router via le coordinateur.<br>
 C) Filtrer les domaines de moteurs de recherche.<br>
 D) Ajouter des instructions dans le prompt.</summary>
 <p><strong>Reponse : A</strong></p>
-<p>C'est le principe du moindre privilege applique au niveau de l'interface : contraindre l'outil lui-meme plutot que de compter sur des instructions textuelles (option D, peu fiable) ou d'ajouter de la complexite architecturale (option B). L'option C est un filtre fragile qui ne couvre pas tous les cas.</p>
-</details>
+<p>C'est le principe du moindre privilege applique au niveau de l'interface : contraindre l'outil lui-même plutot que de compter sur des instructions textuelles (option D, peu fiable) ou d'ajouter de la complexite architecturale (option B). L'option C est un filtre fragile qui ne couvre pas tous les cas.</p>
+</détails>
 
-<details>
+<détails>
 <summary>Q3 : Un outil MCP echoue avec <code>{"isError": true, "content": "Operation failed"}</code>. Pourquoi c'est un anti-pattern ?<br>
-A) L'agent ne peut pas decider s'il faut faire un retry, modifier la requete, ou escalader.<br>
+A) L'agent ne peut pas decider s'il faut faire un retry, modifier la requête, ou escalader.<br>
 B) Le format JSON est incorrect.<br>
-C) <code>isError</code> devrait etre <code>false</code>.<br>
+C) <code>isError</code> devrait être <code>false</code>.<br>
 D) Le message est trop court.</summary>
 <p><strong>Reponse : A</strong></p>
-<p>Une erreur generique ne fournit aucune information pour la prise de decision. Sans <code>errorCategory</code> ni <code>isRetryable</code>, l'agent ne sait pas si l'erreur est <code>transient</code> (retry), <code>validation</code> (corriger l'entree), <code>business</code> (expliquer a l'utilisateur) ou <code>permission</code> (escalader). Le format JSON est valide (B est faux), <code>isError: true</code> est correct (C est faux), et la longueur du message n'est pas le probleme (D est faux).</p>
-</details>
+<p>Une erreur generique ne fournit aucune information pour la prise de décision. Sans <code>errorCategory</code> ni <code>isRetryable</code>, l'agent ne sait pas si l'erreur est <code>transient</code> (retry), <code>validation</code> (corriger l'entree), <code>business</code> (expliquer a l'utilisateur) ou <code>permission</code> (escalader). Le format JSON est valide (B est faux), <code>isError: true</code> est correct (C est faux), et la longueur du message n'est pas le problème (D est faux).</p>
+</détails>
 
-<details>
+<détails>
 <summary>Q4 : Vous voulez que Claude appelle toujours <code>extract_metadata</code> en premier avant tout autre traitement. Quelle valeur de <code>tool_choice</code> utiliser ?<br>
 A) <code>{"type": "auto"}</code><br>
 B) <code>{"type": "any"}</code><br>
@@ -725,34 +725,34 @@ C) <code>{"type": "tool", "name": "extract_metadata"}</code><br>
 D) Ajouter <em>"always call this first"</em> dans la <code>description</code>.</summary>
 <p><strong>Reponse : C</strong></p>
 <p>La forced selection (<code>{"type": "tool", "name": "extract_metadata"}</code>) garantit que Claude appellera exactement cet outil. <code>auto</code> (A) laisse Claude libre de ne pas appeler d'outil. <code>any</code> (B) force un appel mais sans garantir lequel. L'option D repose sur une instruction textuelle dans la <code>description</code>, ce qui est moins fiable qu'une contrainte programmatique.</p>
-</details>
+</détails>
 
-<details>
+<détails>
 <summary>Q5 : Vous concevez un outil <code>create_refund</code>. La logique metier exige que <code>amount</code> et <code>reason</code> soient obligatoires <em>seulement si</em> <code>type == "refund"</code>. Si <code>type == "info_only"</code>, ces champs ne servent a rien. Comment exprimer cela proprement dans le <code>input_schema</code> ?<br>
 A) Mettre tous les champs dans <code>required</code>.<br>
 B) Utiliser <code>if</code>/<code>then</code> : si <code>type == "refund"</code>, alors <code>required: ["amount", "reason"]</code>.<br>
 C) Documenter la regle uniquement dans la <code>description</code>.<br>
 D) Creer deux outils separes.</summary>
-<p><strong>Reponse : B.</strong> JSON Schema draft-07 supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle. C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modele a fournir <code>amount</code> meme pour <code>info_only</code> (et il l'inventera). C deplace la responsabilite sur le modele (peu fiable). D est correct mais ajoute de la complexite et du <code>misrouting</code> potentiel — preferer <code>if</code>/<code>then</code> si la logique est simple.</p>
-</details>
+<p><strong>Reponse : B.</strong> JSON Schema draft-07 supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle. C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modèle a fournir <code>amount</code> même pour <code>info_only</code> (et il l'inventera). C deplace la responsabilite sur le modèle (peu fiable). D est correct mais ajoute de la complexite et du <code>misrouting</code> potentiel — preferer <code>if</code>/<code>then</code> si la logique est simple.</p>
+</détails>
 
-<details>
-<summary>Q6 : Votre extracteur de metadonnees produit un JSON valide mais Claude ajoute parfois des champs inattendus comme <code>"notes": "..."</code> qui ne sont pas dans votre schema. Comment empecher cela cote schema ?<br>
+<détails>
+<summary>Q6 : Votre extracteur de metadonnees produit un JSON valide mais Claude ajoute parfois des champs inattendus comme <code>"notes": "..."</code> qui ne sont pas dans votre schéma. Comment empecher cela cote schéma ?<br>
 A) Ajouter "notes" dans <code>properties</code>.<br>
 B) Mettre <code>"additionalProperties": false</code> au niveau de l'objet.<br>
 C) Lister les champs interdits dans une enum.<br>
 D) Utiliser <code>tool_choice: any</code>.</summary>
-<p><strong>Reponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code>. Le <code>tool_use</code> garantit que la sortie respecte le schema, donc Claude est contraint de ne produire que les champs documentes. A le rendrait acceptable mais ne resout pas la question (le modele continuerait a inventer d'autres champs). C n'a pas de sens semantique. D ne contraint pas la structure du resultat.</p>
-</details>
+<p><strong>Reponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code>. Le <code>tool_use</code> garantit que la sortie respecte le schéma, donc Claude est contraint de ne produire que les champs documentes. A le rendrait acceptable mais ne resout pas la question (le modèle continuerait a inventer d'autres champs). C n'a pas de sens semantique. D ne contraint pas la structure du resultat.</p>
+</détails>
 
-<details>
-<summary>Q7 : Votre equipe construit un serveur MCP qui doit acceder aux dossiers Google Drive de chaque developpeur (chacun ses propres fichiers). Quel pattern d'authentification ?<br>
+<détails>
+<summary>Q7 : Votre équipe construit un serveur MCP qui doit acceder aux dossiers Google Drive de chaque développeur (chacun ses propres fichiers). Quel pattern d'authentification ?<br>
 A) Un service account Google partage, token dans <code>.mcp.json</code>.<br>
-B) Une cle API par developpeur en variable d'environnement.<br>
-C) OAuth 2.1 — chaque utilisateur autorise individuellement, le client MCP gere les tokens.<br>
+B) Une clé API par développeur en variable d'environnement.<br>
+C) OAuth 2.1 — chaque utilisateur autorisé individuellement, le client MCP géré les tokens.<br>
 D) Authentification HTTP Basic.</summary>
-<p><strong>Reponse : C.</strong> Quand l'authentification est <strong>par utilisateur</strong> (ressources personnelles), seul OAuth 2.1 fournit la delegation propre : chaque dev passe par le flow d'autorisation Google, recoit son propre <code>access_token</code>, et le client MCP le stocke. A est dangereux (un service account partage = tout le monde voit tout). B fonctionnerait pour des cles techniques, mais Google Drive ne distribue pas de cles API par utilisateur — il faut un flow OAuth. D est obsolete et inadapte.</p>
-</details>
+<p><strong>Reponse : C.</strong> Quand l'authentification est <strong>par utilisateur</strong> (ressources personnelles), seul OAuth 2.1 fournit la delegation propre : chaque dev passe par le flow d'autorisation Google, reçoit son propre <code>access_token</code>, et le client MCP le stocke. A est dangereux (un service account partage = tout le monde voit tout). B fonctionnerait pour des clés techniques, mais Google Drive ne distribue pas de clés API par utilisateur — il faut un flow OAuth. D est obsolete et inadapte.</p>
+</détails>
 
 <nav class="doc-nav">
   <a class="prev" href="D1_Architecture_Orchestration_27pct.html"><span class="label">Précédent</span><span class="title">D1 — Architecture et orchestration</span></a>
@@ -761,7 +761,7 @@ D) Authentification HTTP Basic.</summary>
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Revision — D2 Conception d'outils et MCP · Sources : guide officiel CCA (chapitres 2, 4) · 2026
+CCA Révision — D2 Conception d'outils et MCP · Sources : guide officiel CCA (chapitres 2, 4) · 2026
 </p>
 
 

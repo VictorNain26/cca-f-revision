@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Les 6 scenarios de l'examen CCA-F</title>
+<title>Les 6 scénarios de l'examen CCA-F</title>
 <link rel="stylesheet" href="styles.css">
 <script src="quiz.js" defer></script>
 </head>
@@ -25,8 +25,8 @@
 </nav>
 
 <div class="header-bar">
-<h1>Les 6 scenarios de l'examen CCA-F</h1>
-<p>L'examen selectionne aleatoirement 4 scenarios sur 6 · Chaque question est situee dans un scenario</p>
+<h1>Les 6 scénarios de l'examen CCA-F</h1>
+<p>L'examen selectionne aleatoirement 4 scénarios sur 6 · Chaque question est situee dans un scénario</p>
 </div>
 
 <!-- TABLE OF CONTENTS -->
@@ -34,7 +34,7 @@
 <strong>Table des matieres</strong>
 <ol>
 <li><a href="#format">Format de l'examen (rappel)</a></li>
-<li><a href="#scenarios">Les 6 scenarios</a>
+<li><a href="#scénarios">Les 6 scénarios</a>
 <ul>
 <li><a href="#s1">Scenario 1 : Customer Support Agent</a></li>
 <li><a href="#s2">Scenario 2 : Code Generation with Claude Code</a></li>
@@ -56,53 +56,53 @@
 
 <table>
 <tr><th>Element</th><th>Detail</th></tr>
-<tr><td>Type de questions</td><td><strong>Multiple choice</strong> : 4 choix, 1 seule reponse correcte</td></tr>
+<tr><td>Type de questions</td><td><strong>Multiple choice</strong> : 4 choix, 1 seule réponse correcte</td></tr>
 <tr><td>Score</td><td>Echelle de <strong>100 a 1000</strong>, passing score = <strong>720</strong></td></tr>
-<tr><td>Penalite</td><td><strong>Aucune penalite</strong> pour reponse fausse</td></tr>
-<tr><td>Scenarios</td><td><strong>4 scenarios selectionnes aleatoirement</strong> sur les 6 possibles</td></tr>
+<tr><td>Penalite</td><td><strong>Aucune penalite</strong> pour réponse fausse</td></tr>
+<tr><td>Scenarios</td><td><strong>4 scénarios selectionnes aleatoirement</strong> sur les 6 possibles</td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>Strategie critique :</strong> Pas de penalite = repondre a TOUTES les questions, meme en cas de doute. Ne jamais laisser une question vide.
+<strong>Strategie critique :</strong> Pas de penalite = répondre a TOUTES les questions, même en cas de doute. Ne jamais laisser une question vide.
 </div>
 
 <div class="key-concept">
-<strong>Implication :</strong> Comme tu ne sais pas quels 4 scenarios tomberont, il faut maitriser les <strong>6 scenarios</strong>. Chaque scenario teste principalement 2-3 domaines, mais tous les domaines sont couverts collectivement.
+<strong>Implication :</strong> Comme tu ne sais pas quels 4 scénarios tomberont, il faut maitriser les <strong>6 scénarios</strong>. Chaque scénario teste principalement 2-3 domaines, mais tous les domaines sont couverts collectivement.
 </div>
 
 <!-- ============================================================ -->
 <!-- SECTION 2 : LES 6 SCENARIOS -->
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="scenarios">2. Les 6 scenarios</h2></div>
+<div class="section-header"><h2 id="scénarios">2. Les 6 scénarios</h2></div>
 
 <!-- SCENARIO 1 -->
 <div class="page-break"></div>
 <h3 id="s1">Scenario 1 : Customer Support Agent</h3>
 
-<p><strong>Description :</strong> Construire un agent qui gere les retours, litiges de facturation et problemes de compte avec le <code>Claude Agent SDK</code>. Utilise les MCP tools (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Objectif : 80%+ first-contact resolution avec escalation appropriee.</p>
+<p><strong>Description :</strong> Construire un agent qui géré les retours, litiges de facturation et problèmes de compte avec le <code>Claude Agent SDK</code>. Utilise les MCP tools (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Objectif : 80%+ first-contact resolution avec escalation appropriee.</p>
 
 <p><strong>Domaines principalement testes :</strong> <strong>D1</strong> (agentic loop, hooks, enforcement), <strong>D2</strong> (tool descriptions, tool_choice), <strong>D5</strong> (escalation patterns, structured handoff)</p>
 
-<h4>Concepts cles a maitriser</h4>
+<h4>Concepts clés a maitriser</h4>
 <ul>
 <li><code>stop_reason</code> pour controller l'agentic loop</li>
-<li><strong>Programmatic enforcement</strong> : bloquer <code>process_refund</code> sans <code>get_customer</code> verifie au prealable</li>
+<li><strong>Programmatic enforcement</strong> : bloquer <code>process_refund</code> sans <code>get_customer</code> vérifié au prealable</li>
 <li><strong>Escalation triggers fiables</strong> : explicit request du client, policy gap</li>
 <li><strong>Escalation triggers NON fiables</strong> : sentiment analysis, self-rated confidence</li>
 <li><strong>Structured handoff protocol</strong> : transmettre le contexte complet a l'humain</li>
-<li><strong>Tool descriptions</strong> precises pour eviter le misrouting entre <code>get_customer</code> et <code>lookup_order</code></li>
+<li><strong>Tool descriptions</strong> precises pour éviter le misrouting entre <code>get_customer</code> et <code>lookup_order</code></li>
 <li><strong>Few-shot examples</strong> pour les multi-issue requests</li>
 </ul>
 
 <h4>Pieges typiques dans les questions</h4>
 <div class="anti-pattern">
-<strong>"Improve the system prompt"</strong> quand le probleme a des consequences financieres → la bonne reponse est <strong>hooks / programmatic enforcement</strong>, pas le prompt.
+<strong>"Improve the system prompt"</strong> quand le problème a des consequences financieres → la bonne réponse est <strong>hooks / programmatic enforcement</strong>, pas le prompt.
 </div>
 <div class="anti-pattern">
-<strong>"Sentiment analysis"</strong> ou <strong>"self-rated confidence (1-10)"</strong> comme triggers d'escalation → ce sont des proxies <strong>unreliable</strong>. Privilegier les criteres explicites.
+<strong>"Sentiment analysis"</strong> ou <strong>"self-rated confidence (1-10)"</strong> comme triggers d'escalation → ce sont des proxies <strong>unreliable</strong>. Privilegier les critères explicites.
 </div>
 <div class="anti-pattern">
-<strong>"Add a routing classifier"</strong> → overengineering quand le vrai probleme est la description des tools.
+<strong>"Add a routing classifier"</strong> → overengineering quand le vrai problème est la description des tools.
 </div>
 
 <!-- SCENARIO 2 -->
@@ -113,13 +113,13 @@
 
 <p><strong>Domaines principalement testes :</strong> <strong>D3</strong> (CLAUDE.md hierarchy, skills, planning mode, CI/CD), <strong>D4</strong> (prompt engineering)</p>
 
-<h4>Concepts cles a maitriser</h4>
+<h4>Concepts clés a maitriser</h4>
 <ul>
 <li><strong>CLAUDE.md hierarchy</strong> : user-level → project-level → directory-level</li>
 <li><code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> pour conditional loading (glob patterns)</li>
 <li><strong>Commands</strong> : <code>.claude/commands/</code> (project, VCS) vs <code>~/.claude/commands/</code> (personal)</li>
 <li><strong>Skills</strong> avec <code>context: fork</code>, <code>allowed-tools</code>, <code>argument-hint</code></li>
-<li><strong>Planning mode</strong> vs direct execution : quand utiliser chacun</li>
+<li><strong>Planning mode</strong> vs direct exécution : quand utiliser chacun</li>
 <li><strong>Explore subagent</strong> pour isoler les outputs verbeux</li>
 </ul>
 
@@ -131,23 +131,23 @@
 <strong>"Claude Code learns per-user preferences"</strong> → FAUX. Il n'y a pas d'apprentissage par utilisateur : tout repose sur la <strong>CLAUDE.md hierarchy</strong>.
 </div>
 <div class="anti-pattern">
-<strong>Confondre user-level et project-level</strong> → un nouveau membre de l'equipe qui n'a pas les bonnes instructions = probablement un probleme de <strong>project-level CLAUDE.md</strong> manquant (il ne voit que son user-level).
+<strong>Confondre user-level et project-level</strong> → un nouveau membre de l'équipe qui n'a pas les bonnes instructions = probablement un problème de <strong>project-level CLAUDE.md</strong> manquant (il ne voit que son user-level).
 </div>
 
 <!-- SCENARIO 3 -->
 <div class="page-break"></div>
 <h3 id="s3">Scenario 3 : Multi-Agent Research System</h3>
 
-<p><strong>Description :</strong> Un coordinateur delegue a des subagents specialises : web research, document analysis, synthesis, report generation. Le systeme doit produire des rapports complets avec citations.</p>
+<p><strong>Description :</strong> Un coordinateur délégué a des subagents spécialisés : web research, document analysis, synthesis, report generation. Le système doit produire des rapports complets avec citations.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D1</strong> (hub-and-spoke, Task tool, decomposition, parallel spawning), <strong>D2</strong> (tool allocation), <strong>D5</strong> (error propagation, provenance, context management)</p>
+<p><strong>Domaines principalement testes :</strong> <strong>D1</strong> (hub-and-spoke, Task tool, décomposition, parallel spawning), <strong>D2</strong> (tool allocation), <strong>D5</strong> (error propagation, provenance, context management)</p>
 
-<h4>Concepts cles a maitriser</h4>
+<h4>Concepts clés a maitriser</h4>
 <ul>
 <li><strong>Hub-and-spoke</strong> : toute communication passe par le coordinateur, jamais directement entre subagents</li>
 <li><strong>Subagent context isolation</strong> : context passing explicite a chaque delegation</li>
-<li><strong>Narrow decomposition risk</strong> : ne couvrir que l'art visuel pour "creative industries" = couverture insuffisante</li>
-<li><strong>Parallel spawning</strong> : multiple <code>Task</code> calls dans une seule reponse</li>
+<li><strong>Narrow décomposition risk</strong> : ne couvrir que l'art visuel pour "creative industries" = couverture insuffisante</li>
+<li><strong>Parallel spawning</strong> : multiple <code>Task</code> calls dans une seule réponse</li>
 <li><strong>Structured error propagation</strong> : <code>failure_type</code>, <code>partial_results</code>, <code>alternatives</code></li>
 <li><strong>Coverage annotations</strong> dans la synthese</li>
 <li><strong>Provenance</strong> : claim-source mappings, conflicting data handling</li>
@@ -172,25 +172,25 @@
 <div class="page-break"></div>
 <h3 id="s4">Scenario 4 : Developer Productivity Tools</h3>
 
-<p><strong>Description :</strong> L'agent aide les developpeurs a explorer des codebases inconnus, generer du boilerplate, et automatiser les taches routinieres. Utilise les built-in tools et MCP servers.</p>
+<p><strong>Description :</strong> L'agent aide les développeurs a explorer des codebases inconnus, generer du boilerplate, et automatiser les taches routinieres. Utilise les built-in tools et MCP servers.</p>
 
 <p><strong>Domaines principalement testes :</strong> <strong>D2</strong> (built-in tools, MCP), <strong>D3</strong> (Claude Code config), <strong>D5</strong> (context management in large codebases)</p>
 
-<h4>Concepts cles a maitriser</h4>
+<h4>Concepts clés a maitriser</h4>
 <ul>
 <li><strong>Built-in tools</strong> : <code>Glob</code> (find files by pattern), <code>Grep</code> (search content), <code>Read</code>/<code>Write</code>, <code>Edit</code>, <code>Bash</code></li>
 <li><strong>Incremental investigation strategy</strong> : Grep entry points → Read → Grep usages → repeat</li>
 <li><strong>Read + Write fallback</strong> quand <code>Edit</code> echoue (non-unique match)</li>
-<li><strong>Scratchpad files</strong> pour preserver les key findings entre les etapes</li>
+<li><strong>Scratchpad files</strong> pour preserver les key findings entre les étapes</li>
 <li><strong>Subagent delegation</strong> pour proteger le context window du main agent</li>
 </ul>
 
 <h4>Pieges typiques dans les questions</h4>
 <div class="anti-pattern">
-<strong>Confondre <code>Glob</code> et <code>Grep</code></strong> : Glob = trouver des fichiers par nom/pattern. Grep = chercher du contenu dans les fichiers. Ce sont des usages differents.
+<strong>Confondre <code>Glob</code> et <code>Grep</code></strong> : Glob = trouver des fichiers par nom/pattern. Grep = chercher du contenu dans les fichiers. Ce sont des usages différents.
 </div>
 <div class="anti-pattern">
-<strong>"Read all files at once"</strong> → saturation du context window. Utiliser une strategie d'<strong>incremental investigation</strong>.
+<strong>"Read all files at once"</strong> → saturation du context window. Utiliser une stratégie d'<strong>incremental investigation</strong>.
 </div>
 
 <!-- SCENARIO 5 -->
@@ -201,17 +201,17 @@
 
 <p><strong>Domaines principalement testes :</strong> <strong>D3</strong> (CI/CD config), <strong>D4</strong> (explicit criteria, few-shot, Batch API, multi-pass review)</p>
 
-<h4>Concepts cles a maitriser</h4>
+<h4>Concepts clés a maitriser</h4>
 <ul>
 <li><code>-p</code> flag pour <strong>non-interactive mode</strong> (SEUL moyen correct en CI)</li>
 <li><code>--output-format json</code> + <code>--json-schema</code> pour structured output</li>
-<li><strong>Session context isolation</strong> : instance independante pour review (pas la meme qui a genere le code)</li>
-<li><strong>Prior review results</strong> pour eviter les duplicate comments</li>
+<li><strong>Session context isolation</strong> : instance independante pour review (pas la même qui a généré le code)</li>
+<li><strong>Prior review results</strong> pour éviter les duplicate comments</li>
 <li><strong>Explicit criteria</strong> vs vague instructions pour code review</li>
 <li>Impact des <strong>false positives</strong> sur la developer trust</li>
 <li><strong>Message Batches API</strong> : 50% savings, up to 24h, <strong>pas de multi-turn tool calling</strong></li>
 <li><strong>Synchronous</strong> pour blocking checks, <strong>batch</strong> pour overnight reports</li>
-<li><strong>Multi-pass review</strong> : per-file pass + integration pass</li>
+<li><strong>Multi-pass review</strong> : per-file pass + intégration pass</li>
 </ul>
 
 <h4>Pieges typiques dans les questions</h4>
@@ -225,18 +225,18 @@
 <strong>"Batch API supports multi-turn tool calling"</strong> → FAUX. Le Batch API ne supporte pas le multi-turn tool calling.
 </div>
 <div class="anti-pattern">
-<strong>"Larger context window fixes attention quality"</strong> → FAUX. Plus de contexte ne resout pas les problemes d'attention. Utiliser multi-pass review a la place.
+<strong>"Larger context window fixes attention quality"</strong> → FAUX. Plus de contexte ne resout pas les problèmes d'attention. Utiliser multi-pass review a la place.
 </div>
 
 <!-- SCENARIO 6 -->
 <div class="page-break"></div>
 <h3 id="s6">Scenario 6 : Structured Data Extraction</h3>
 
-<p><strong>Description :</strong> Extraire de l'information de documents non structures, valider avec JSON schemas, maintenir une haute precision. Gerer les edge cases correctement.</p>
+<p><strong>Description :</strong> Extraire de l'information de documents non structures, valider avec JSON schémas, maintenir une haute precision. Gerer les edge cases correctement.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D4</strong> (JSON schemas, validation, retry, few-shot, self-correction), <strong>D5</strong> (confidence calibration)</p>
+<p><strong>Domaines principalement testes :</strong> <strong>D4</strong> (JSON schémas, validation, retry, few-shot, self-correction), <strong>D5</strong> (confidence calibration)</p>
 
-<h4>Concepts cles a maitriser</h4>
+<h4>Concepts clés a maitriser</h4>
 <ul>
 <li><code>tool_use</code> + <strong>JSON Schema</strong> : garantit la <strong>syntactic validity</strong>, PAS la <strong>semantic correctness</strong></li>
 <li><strong>Schema design</strong> : <code>required</code> vs <code>optional</code>, <code>nullable</code> fields, <code>enum</code> + <code>"other"</code>, <code>enum</code> + <code>"unclear"</code></li>
@@ -244,20 +244,20 @@
 <li><strong>Self-correction</strong> : <code>stated_total</code> vs <code>calculated_total</code> → <code>conflict_detected</code></li>
 <li><strong>Format normalization rules</strong> : dates en ISO 8601, currency = amount + code</li>
 <li><strong>Pydantic</strong> pour validation structurelle ET semantique</li>
-<li><strong>Stratified random sampling</strong> : 97% global peut masquer 40% d'erreurs sur certaines categories</li>
+<li><strong>Stratified random sampling</strong> : 97% global peut masquer 40% d'erreurs sur certaines catégories</li>
 <li><strong>Field-level confidence scores</strong></li>
 <li><strong>Few-shot</strong> pour informal measurements et formats varies</li>
 </ul>
 
 <h4>Pieges typiques dans les questions</h4>
 <div class="anti-pattern">
-<strong>"Required field for info that may be absent"</strong> → le modele va fabriquer une valeur. Utiliser <code>nullable</code> a la place.
+<strong>"Required field for info that may be absent"</strong> → le modèle va fabriquer une valeur. Utiliser <code>nullable</code> a la place.
 </div>
 <div class="anti-pattern">
 <strong>"Retry when info is absent from source"</strong> → le retry ne peut pas creer de l'information qui n'existe pas dans le document source. C'est inutile.
 </div>
 <div class="anti-pattern">
-<strong>"97% accuracy means the system works"</strong> → verifier par document type ET par field. Le score global peut masquer des faiblesses graves (stratified sampling).
+<strong>"97% accuracy means the system works"</strong> → vérifier par document type ET par field. Le score global peut masquer des faiblesses graves (stratified sampling).
 </div>
 
 <!-- ============================================================ -->
@@ -266,7 +266,7 @@
 <div class="page-break"></div>
 <div class="section-header"><h2 id="croise">3. Tableau croise Scenario x Domaine</h2></div>
 
-<p>Ce tableau montre quels domaines sont principalement testes par chaque scenario. Utile pour cibler ta revision si tu veux renforcer un domaine specifique.</p>
+<p>Ce tableau montre quels domaines sont principalement testes par chaque scénario. Utile pour cibler ta révision si tu veux renforcer un domaine spécifique.</p>
 
 <table>
 <tr>
@@ -329,7 +329,7 @@
 <td></td>
 <td></td>
 <td></td>
-<td>&#10003; JSON schemas, retry, few-shot, self-correction</td>
+<td>&#10003; JSON schémas, retry, few-shot, self-correction</td>
 <td>&#10003; confidence calibration, sampling</td>
 </tr>
 </table>
@@ -346,7 +346,7 @@
 </div>
 
 <div class="exam-tip">
-<strong>Strategie de revision :</strong> Si tu es faible sur un domaine, concentre-toi sur les scenarios correspondants. Par exemple, pour renforcer D1 (Agentic), travaille en priorite S1 et S3.
+<strong>Strategie de révision :</strong> Si tu es faible sur un domaine, concentre-toi sur les scénarios correspondants. Par exemple, pour renforcer D1 (Agentic), travaille en priorite S1 et S3.
 </div>
 
 <!-- ============================================================ -->
@@ -355,7 +355,7 @@
 <div class="page-break"></div>
 <div class="section-header"><h2 id="distracteurs">4. Les patterns de distracteurs recurrents</h2></div>
 
-<p>A travers les 6 scenarios, certains types de mauvaises reponses reviennent systematiquement. Reconnaitre ces patterns permet d'eliminer rapidement les distracteurs.</p>
+<p>A travers les 6 scénarios, certains types de mauvaises réponses reviennent systematiquement. Reconnaitre ces patterns permet d'eliminer rapidement les distracteurs.</p>
 
 <table>
 <tr>
@@ -380,12 +380,12 @@
 <td>3</td>
 <td><em>"Sentiment analysis"</em> / <em>"self-rated confidence (1-10)"</em></td>
 <td>Proxy unreliable. Le sentiment ne predit pas le besoin d'escalation. La self-confidence n'est pas calibree.</td>
-<td><strong>Explicit triggers</strong> : client demande un humain, policy gap identifie</td>
+<td><strong>Explicit triggers</strong> : client demande un humain, policy gap identifié</td>
 </tr>
 <tr>
 <td>4</td>
 <td><em>"Abort the whole workflow"</em></td>
-<td>Disproportionne. Un echec partiel ne justifie pas d'abandonner tout le travail.</td>
+<td>Disproportionne. Un échec partiel ne justifie pas d'abandonner tout le travail.</td>
 <td>Continuer avec <strong>partial results</strong> + signaler le gap avec <strong>structured error</strong></td>
 </tr>
 <tr>
@@ -397,7 +397,7 @@
 <tr>
 <td>6</td>
 <td><em>"Larger context window"</em></td>
-<td>Plus de contexte ne resout pas les problemes d'attention (lost-in-the-middle effect).</td>
+<td>Plus de contexte ne resout pas les problèmes d'attention (lost-in-the-middle effect).</td>
 <td><strong>Multi-pass review</strong>, <strong>subagent delegation</strong>, <strong>scratchpad files</strong></td>
 </tr>
 <tr>
@@ -409,11 +409,11 @@
 </table>
 
 <div class="exam-tip">
-<strong>Regle d'or :</strong> Quand une option de reponse propose d'ajouter de la complexite (classifier, agent, couche supplementaire), demande-toi d'abord si un correctif simple (meilleure description, critere explicite, hook) ne suffirait pas. L'examen privilegie la solution la plus directe et la plus fiable.
+<strong>Regle d'or :</strong> Quand une option de réponse propose d'ajouter de la complexite (classifier, agent, couche supplémentaire), demande-toi d'abord si un correctif simple (meilleure description, critère explicite, hook) ne suffirait pas. L'examen privilegie la solution la plus directe et la plus fiable.
 </div>
 
 <div class="key-concept">
-<strong>Methode d'elimination :</strong> Sur chaque question, commence par eliminer les distracteurs connus (cette liste couvre la majorite). Il reste generalement 2 options credibles. Relis alors l'enonce pour identifier le vrai probleme (financier ? attention ? routing ?) et choisis en consequence.
+<strong>Methode d'elimination :</strong> Sur chaque question, commence par eliminer les distracteurs connus (cette liste couvre la majorite). Il reste generalement 2 options credibles. Relis alors l'enonce pour identifier le vrai problème (financier ? attention ? routing ?) et choisis en consequence.
 </div>
 
 <nav class="doc-nav">
@@ -423,7 +423,7 @@
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Revision — Scenarios de l'examen · Sources : guide officiel CCA · 2026
+CCA Révision — Scenarios de l'examen · Sources : guide officiel CCA · 2026
 </p>
 
 

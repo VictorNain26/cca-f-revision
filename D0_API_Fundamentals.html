@@ -97,13 +97,13 @@
 <!-- ===== SECTION 2 ===== -->
 <div class="section-header"><h2 id="s2">2. Message Roles</h2></div>
 
-<p>Chaque message dans le tableau <code>messages</code> possede un <code>role</code> qui determine son origine :</p>
+<p>Chaque message dans le tableau <code>messages</code> possede un <code>role</code> qui détermine son origine :</p>
 
 <table>
 <tr><th>Role</th><th>Description</th><th>Quand l'utiliser</th></tr>
 <tr><td><code>user</code></td><td>Messages de l'utilisateur</td><td>Chaque nouvelle requête ou question</td></tr>
 <tr><td><code>assistant</code></td><td>Reponses du modèle</td><td>Inclus lors du renvoi de l'historique pour maintenir le contexte</td></tr>
-<tr><td><code>user</code> (avec <code>tool_result</code>)</td><td>Resultats d'un appel tool</td><td>Apres execution d'un tool — renvoye comme content block <code>tool_result</code> dans un message <code>user</code></td></tr>
+<tr><td><code>user</code> (avec <code>tool_result</code>)</td><td>Resultats d'un appel tool</td><td>Apres exécution d'un tool — renvoye comme content block <code>tool_result</code> dans un message <code>user</code></td></tr>
 </table>
 
 <div class="exam-tip">
@@ -127,29 +127,29 @@
 ]</code></pre>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> Envoyer uniquement le dernier message sans l'historique. Le modèle perd tout contexte et ne peut pas repondre correctement a des questions de suivi.
+<strong>Anti-pattern :</strong> Envoyer uniquement le dernier message sans l'historique. Le modèle perd tout contexte et ne peut pas répondre correctement a des questions de suivi.
 </div>
 
 <!-- ===== SECTION 3 ===== -->
 <div class="section-header"><h2 id="s3">3. Le champ <code>stop_reason</code></h2></div>
 
-<p>Chaque réponse de l'API contient un champ <code>stop_reason</code> qui indique pourquoi le modèle a arrete de generer. Ce champ est essentiel pour controler le flux de votre application.</p>
+<p>Chaque réponse de l'API contient un champ <code>stop_reason</code> qui indique pourquoi le modèle a arrete de generer. Ce champ est essentiel pour contrôler le flux de votre application.</p>
 
 <table>
 <tr><th>Valeur</th><th>Signification</th><th>Action typique</th></tr>
 <tr><td><code>"end_turn"</code></td><td>Le modèle a termine naturellement sa réponse</td><td>Afficher la réponse a l'utilisateur</td></tr>
-<tr><td><code>"tool_use"</code></td><td>Le modèle demande l'execution d'un tool</td><td>Executer le tool, renvoyer le resultat</td></tr>
+<tr><td><code>"tool_use"</code></td><td>Le modèle demande l'exécution d'un tool</td><td>Executer le tool, renvoyer le resultat</td></tr>
 <tr><td><code>"max_tokens"</code></td><td>La limite <code>max_tokens</code> a ete atteinte — réponse tronquee</td><td>Augmenter <code>max_tokens</code> ou demander de continuer</td></tr>
 <tr><td><code>"stop_sequence"</code></td><td>Une sequence d'arret personnalisee a ete detectee</td><td>Traitement spécifique selon la sequence</td></tr>
 </table>
 
 <div class="key-concept">
-<strong>Pour les systemes agentiques :</strong> Les deux valeurs les plus importantes sont <code>"tool_use"</code> et <code>"end_turn"</code>. Elles controlent la boucle agentique :
+<strong>Pour les systèmes agentiques :</strong> Les deux valeurs les plus importantes sont <code>"tool_use"</code> et <code>"end_turn"</code>. Elles controlent la boucle agentique :
 <ul>
 <li><code>"tool_use"</code> → executer le tool, renvoyer le resultat, re-appeler l'API</li>
 <li><code>"end_turn"</code> → le modèle a fini, sortir de la boucle</li>
 </ul>
-Voir <strong>D1</strong> pour les details sur la boucle agentique.
+Voir <strong>D1</strong> pour les détails sur la boucle agentique.
 </div>
 
 <!-- ===== SECTION 4 ===== -->
@@ -159,13 +159,13 @@ Voir <strong>D1</strong> pour les details sur la boucle agentique.
 
 <h3>Caracteristiques clés</h3>
 <ul>
-<li><strong>Priorite superieure</strong> aux messages <code>user</code> — le modèle suit le system prompt en priorite</li>
+<li><strong>Priorite supérieure</strong> aux messages <code>user</code> — le modèle suit le system prompt en priorite</li>
 <li><strong>Charge une seule fois</strong>, s'applique a toute la conversation</li>
 <li>Consomme des tokens dans le context window à chaque appel</li>
 </ul>
 
 <div class="exam-tip">
-<strong>EXAM TRAP :</strong> La formulation du system prompt peut creer des <strong>associations non intentionnelles avec les tools</strong>. Exemple classique : un system prompt qui dit <em>"always verify the customer's identity"</em> peut provoquer un appel systematique a <code>get_customer</code>, même quand ce n'est pas nécessaire. Le modèle interprete l'instruction comme un déclencheur pour utiliser le tool le plus semantiquement proche.
+<strong>EXAM TRAP :</strong> La formulation du system prompt peut creer des <strong>associations non intentionnelles avec les tools</strong>. Exemple classique : un system prompt qui dit <em>"always verify the customer's identity"</em> peut provoquer un appel systematique a <code>get_customer</code>, même quand ce n'est pas nécessaire. Le modèle interprété l'instruction comme un déclencheur pour utiliser le tool le plus semantiquement proche.
 </div>
 
 <div class="anti-pattern">
@@ -175,37 +175,37 @@ Voir <strong>D1</strong> pour les details sur la boucle agentique.
 <!-- ===== SECTION 5 ===== -->
 <div class="section-header"><h2 id="s5" class="page-break">5. Context Window</h2></div>
 
-<p>Le context window represente la quantite totale de tokens que le modèle peut traiter en une seule requête. Il inclut <strong>tout</strong> :</p>
+<p>Le context window représente la quantite totale de tokens que le modèle peut traiter en une seule requête. Il inclut <strong>tout</strong> :</p>
 
 <ul>
 <li>Le <strong>system prompt</strong></li>
 <li>L'historique complet des <strong>messages</strong></li>
-<li>Les <strong>tool definitions</strong> (schemas des tools)</li>
-<li>Les <strong>tool results</strong> (retours d'execution)</li>
+<li>Les <strong>tool definitions</strong> (schémas des tools)</li>
+<li>Les <strong>tool results</strong> (retours d'exécution)</li>
 </ul>
 
-<h3>3 problemes majeurs</h3>
+<h3>3 problèmes majeurs</h3>
 
 <h4>1. L'effet lost-in-the-middle</h4>
 <div class="key-concept">
-Le modèle traite de maniere fiable les informations en <strong>debut</strong> et en <strong>fin</strong> du context window, mais a tendance a manquer les details situes au <strong>milieu</strong>. Plus le contexte est long, plus cet effet est prononce.
+Le modèle traite de manière fiable les informations en <strong>debut</strong> et en <strong>fin</strong> du context window, mais a tendance a manquer les détails situes au <strong>milieu</strong>. Plus le contexte est long, plus cet effet est prononce.
 </div>
 
 <h4>2. Accumulation des tool results</h4>
 <p>Un tool peut retourner un objet avec 40+ champs alors que seuls 5 sont pertinents. Chaque appel ajoute ces resultats volumineux au contexte, le saturant rapidement avec des informations inutiles.</p>
 
 <h4>3. Progressive summarization</h4>
-<p>Quand on demande au modèle de resumer l'historique pour liberer du contexte, les <strong>valeurs numeriques</strong>, les <strong>dates</strong> et les <strong>details spécifiques</strong> sont progressivement perdus au profit de reformulations vagues.</p>
+<p>Quand on demande au modèle de resumer l'historique pour liberer du contexte, les <strong>valeurs numeriques</strong>, les <strong>dates</strong> et les <strong>détails spécifiques</strong> sont progressivement perdus au profit de reformulations vagues.</p>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> Les solutions de gestion du context window sont detaillees dans <strong>D5</strong>. Retenez ici les 3 problemes — ils reviennent souvent dans les questions d'examen.
+<strong>EXAM TIP :</strong> Les solutions de gestion du context window sont detaillees dans <strong>D5</strong>. Retenez ici les 3 problèmes — ils reviennent souvent dans les questions d'examen.
 </div>
 
 <!-- ===== SECTION 6 ===== -->
 <div class="section-header"><h2 id="s6">6. <code>tool_use</code> — le mécanisme</h2></div>
 
 <div class="key-concept">
-<strong>Point fondamental :</strong> Claude n'execute PAS de code. Il genere une <strong>requête structuree d'appel tool</strong> (nom + paramètres). C'est <strong>votre code</strong> qui execute le tool et renvoie le resultat.
+<strong>Point fondamental :</strong> Claude n'execute PAS de code. Il généré une <strong>requête structurée d'appel tool</strong> (nom + paramètres). C'est <strong>votre code</strong> qui execute le tool et renvoie le resultat.
 </div>
 
 <h3>Anatomie d'une tool definition</h3>
@@ -219,10 +219,10 @@ Le modèle traite de maniere fiable les informations en <strong>debut</strong> e
 
 <h3>Ecrire une bonne description</h3>
 
-<p>La <code>description</code> est le <strong>mécanisme principal de selection</strong>. Un LLM choisit ses tools en se basant sur leurs descriptions. Une bonne description repond a <strong>4 questions</strong> :</p>
+<p>La <code>description</code> est le <strong>mécanisme principal de selection</strong>. Un LLM choisit ses tools en se basant sur leurs descriptions. Une bonne description répond a <strong>4 questions</strong> :</p>
 
 <ol>
-<li><strong>Que fait le tool et que retourne-t-il ?</strong></li>
+<li><strong>Que fait le tool et que retourné-t-il ?</strong></li>
 <li><strong>Quels sont les formats des inputs ?</strong> (avec exemples)</li>
 <li><strong>Quels sont les edge cases et les contraintes ?</strong></li>
 <li><strong>Quand l'utiliser par rapport aux alternatives similaires ?</strong></li>
@@ -234,33 +234,33 @@ Le modèle traite de maniere fiable les informations en <strong>debut</strong> e
 
 <h3>Built-in tools vs MCP tools</h3>
 
-<p>Dans un systeme agentique, le modèle peut avoir accès a des <strong>built-in tools</strong> (definis directement dans la requête) et des <strong>MCP tools</strong> (provenant de serveurs externes). Les agents ont tendance a <strong>preferer les built-in tools</strong>. Pour compenser, il faut <strong>renforcer les descriptions des MCP tools</strong> afin qu'elles soient plus précises et distinctives.</p>
+<p>Dans un système agentique, le modèle peut avoir accès a des <strong>built-in tools</strong> (definis directement dans la requête) et des <strong>MCP tools</strong> (provenant de serveurs externes). Les agents ont tendance a <strong>preferer les built-in tools</strong>. Pour compenser, il faut <strong>renforcer les descriptions des MCP tools</strong> afin qu'elles soient plus précises et distinctives.</p>
 
 <p>Voir <strong>D2</strong> pour une etude approfondie du tool design.</p>
 
 <!-- ===== SECTION 7 ===== -->
 <div class="section-header"><h2 id="s7">7. Le paramètre <code>tool_choice</code></h2></div>
 
-<p>Le paramètre <code>tool_choice</code> controle comment le modèle decide d'utiliser (ou non) un tool :</p>
+<p>Le paramètre <code>tool_choice</code> contrôle comment le modèle decide d'utiliser (ou non) un tool :</p>
 
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Cas d'usage</th></tr>
 <tr><td><code>{"type": "auto"}</code></td><td>Le modèle decide librement s'il appelle un tool ou non (valeur par <strong>defaut</strong>)</td><td>Conversations generales avec tools optionnels</td></tr>
 <tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel) — <strong>structured output garanti</strong></td><td>Quand vous voulez forcer un output structure sans imposer un tool spécifique</td></tr>
-<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>execution garantie</strong></td><td>Forcer un ordre d'execution precis dans un pipeline</td></tr>
+<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution precis dans un pipeline</td></tr>
 </table>
 
 <div class="key-concept">
-<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent, mais l'output structure est <strong>garanti</strong>. C'est la methode recommandee pour obtenir du structured output quand plusieurs schemas sont possibles.
+<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent, mais l'output structure est <strong>garanti</strong>. C'est la méthode recommandée pour obtenir du structured output quand plusieurs schémas sont possibles.
 </div>
 
-<p>Voir <strong>D2 section 3</strong> pour les strategies avancees de <code>tool_choice</code>.</p>
+<p>Voir <strong>D2 section 3</strong> pour les stratégies avancees de <code>tool_choice</code>.</p>
 
 <!-- ===== SECTION 8 ===== -->
 <div class="section-header"><h2 id="s8" class="page-break">8. JSON Schemas pour structured output</h2></div>
 
 <div class="key-concept">
-<strong>Point essentiel :</strong> Utiliser <code>tool_use</code> avec des JSON schemas est la methode <strong>la plus fiable</strong> pour obtenir du structured output de Claude. Le mécanisme <strong>garantit un JSON syntaxiquement valide</strong>.
+<strong>Point essentiel :</strong> Utiliser <code>tool_use</code> avec des JSON schémas est la méthode <strong>la plus fiable</strong> pour obtenir du structured output de Claude. Le mécanisme <strong>garantit un JSON syntaxiquement valide</strong>.
 </div>
 
 <h3>Ce qui est garanti vs ce qui ne l'est pas</h3>
@@ -268,11 +268,11 @@ Le modèle traite de maniere fiable les informations en <strong>debut</strong> e
 <table>
 <tr><th>Garanti</th><th>NON garanti</th></tr>
 <tr><td>JSON syntaxiquement valide</td><td>Exactitude semantique des valeurs</td></tr>
-<tr><td>Respect de la structure du schema</td><td>Coherence entre les champs (ex: totaux qui s'additionnent)</td></tr>
+<tr><td>Respect de la structure du schéma</td><td>Coherence entre les champs (ex: totaux qui s'additionnent)</td></tr>
 <tr><td>Types de données corrects</td><td>Absence de valeurs fabriquees (hallucinations)</td></tr>
 </table>
 
-<h3>Regles de conception des schemas</h3>
+<h3>Regles de conception des schémas</h3>
 
 <h4>1. Champs <code>required</code> — avec prudence</h4>
 <p>Ne marquer un champ comme <code>required</code> que si l'information est <strong>toujours disponible</strong>. Sinon, le modèle <strong>fabrique une valeur</strong> plutot que de laisser le champ vide.</p>
@@ -282,9 +282,9 @@ Le modèle traite de maniere fiable les informations en <strong>debut</strong> e
   "type": ["string", "null"],
   "description": "Company name if mentioned, null otherwise"
 }</code></pre>
-<p>Permet au modèle de retourner <code>null</code> au lieu d'halluciner une valeur quand l'information n'est pas presente dans le texte source.</p>
+<p>Permet au modèle de retourner <code>null</code> au lieu d'halluciner une valeur quand l'information n'est pas présente dans le texte source.</p>
 
-<h4>3. Enums avec <code>"other"</code> + champ detail</h4>
+<h4>3. Enums avec <code>"other"</code> + champ détail</h4>
 <pre><code>"category": {
   "type": "string",
   "enum": ["billing", "technical", "account", "other"]
@@ -293,7 +293,7 @@ Le modèle traite de maniere fiable les informations en <strong>debut</strong> e
   "type": ["string", "null"],
   "description": "Free-text detail when category is 'other'"
 }</code></pre>
-<p>Evite de perdre des données qui ne rentrent pas dans les categories predefinies.</p>
+<p>Evite de perdre des données qui ne rentrent pas dans les catégories predefinies.</p>
 
 <h4>4. Enum avec <code>"unclear"</code></h4>
 <pre><code>"sentiment": {
@@ -315,29 +315,29 @@ Le modèle traite de maniere fiable les informations en <strong>debut</strong> e
 <!-- ===== SECTION 9 ===== -->
 <div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-évaluation</h2></div>
 
-<details>
+<détails>
 <summary>Q1 : Votre pipeline CI appelle l'API Claude. Entre deux requêtes, un tool result de l'appel precedent est perdu. Quelle est la cause la plus probable ?</summary>
 <p><strong>Reponse :</strong> Le développeur n'a pas inclus l'historique complet de la conversation dans la requête suivante.</p>
-<p>L'API Claude est <strong>stateless</strong> : elle ne conserve aucun état entre les requêtes. A chaque appel, le tableau <code>messages</code> doit contenir l'integralite de l'historique, y compris les <code>tool_result</code> precedents. Si un <code>tool_result</code> est omis, le modèle ne sait pas que le tool a ete execute et peut re-appeler le même tool ou produire une réponse incoherente.</p>
-</details>
+<p>L'API Claude est <strong>stateless</strong> : elle ne conserve aucun état entre les requêtes. A chaque appel, le tableau <code>messages</code> doit contenir l'integralite de l'historique, y compris les <code>tool_result</code> precedents. Si un <code>tool_result</code> est omis, le modèle ne sait pas que le tool a ete execute et peut re-appeler le même tool ou produire une réponse incohérente.</p>
+</détails>
 
-<details>
+<détails>
 <summary>Q2 : Le system prompt dit "always verify the customer's identity". Vous constatez que <code>get_customer</code> est appele même quand ce n'est pas nécessaire. Quelle est la cause racine ?</summary>
 <p><strong>Reponse :</strong> La formulation du system prompt cree une <strong>association non intentionnelle avec le tool</strong>.</p>
-<p>Le modèle interprete "always verify the customer" comme une instruction déclenchant systematiquement le tool le plus semantiquement proche — ici <code>get_customer</code>. La solution est de reformuler le system prompt de maniere plus précise, en specifiant <em>quand</em> la verification est nécessaire plutot que de dire "always".</p>
-</details>
+<p>Le modèle interprété "always verify the customer" comme une instruction déclenchant systematiquement le tool le plus semantiquement proche — ici <code>get_customer</code>. La solution est de reformuler le system prompt de manière plus précise, en specifiant <em>quand</em> la vérification est nécessaire plutot que de dire "always".</p>
+</détails>
 
-<details>
+<détails>
 <summary>Q3 : Vous avez besoin d'un structured output garanti de Claude. Quelle valeur de <code>tool_choice</code> assure qu'un tool est toujours appele ?</summary>
 <p><strong>Reponse : <code>{"type": "any"}</code></strong></p>
-<p>Avec <code>tool_choice: {"type": "any"}</code>, le modèle est <strong>force</strong> d'appeler au moins un tool, garantissant ainsi un output structure. Avec <code>"auto"</code> (defaut), le modèle peut choisir de repondre en texte libre. Avec <code>{"type": "tool", "name": "..."}</code>, un tool spécifique est force — c'est plus restrictif que <code>"any"</code>.</p>
-</details>
+<p>Avec <code>tool_choice: {"type": "any"}</code>, le modèle est <strong>force</strong> d'appeler au moins un tool, garantissant ainsi un output structure. Avec <code>"auto"</code> (defaut), le modèle peut choisir de répondre en texte libre. Avec <code>{"type": "tool", "name": "..."}</code>, un tool spécifique est force — c'est plus restrictif que <code>"any"</code>.</p>
+</détails>
 
-<details>
+<détails>
 <summary>Q4 : Un tool d'extraction a un champ <code>required</code> "company_name", mais certains documents ne mentionnent aucune entreprise. Que se passe-t-il ?</summary>
 <p><strong>Reponse :</strong> Le modèle <strong>fabrique une valeur</strong> (hallucination) pour satisfaire la contrainte <code>required</code>.</p>
-<p>Correction : rendre le champ <strong>nullable</strong> avec <code>"type": ["string", "null"]</code> et le retirer de <code>required</code>. Ainsi, le modèle retourne <code>null</code> quand l'information est absente au lieu d'inventer un nom d'entreprise.</p>
-</details>
+<p>Correction : rendre le champ <strong>nullable</strong> avec <code>"type": ["string", "null"]</code> et le retirer de <code>required</code>. Ainsi, le modèle retourné <code>null</code> quand l'information est absente au lieu d'inventer un nom d'entreprise.</p>
+</détails>
 
 <nav class="doc-nav">
   <a class="prev" href="index.html"><span class="label">Précédent</span><span class="title">Accueil</span></a>
@@ -346,7 +346,7 @@ Le modèle traite de maniere fiable les informations en <strong>debut</strong> e
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Revision — D0 API Fundamentals · Sources : guide officiel CCA (chapitres 1, 2) · 2026
+CCA Révision — D0 API Fundamentals · Sources : guide officiel CCA (chapitres 1, 2) · 2026
 </p>
 
 

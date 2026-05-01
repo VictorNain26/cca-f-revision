@@ -26,7 +26,7 @@
 
 <div class="header-bar">
 <h1>CCA-F — Strategie jour J et cheat sheet</h1>
-<p>Document de synthese final · 60 QCM · 120 min · Score 720/1000 · 4 scenarios sur 6 tires au sort</p>
+<p>Document de synthese final · 60 QCM · 120 min · Score 720/1000 · 4 scénarios sur 6 tirés au sort</p>
 </div>
 
 <div class="toc">
@@ -35,8 +35,8 @@
 <li><a href="#planning">Planning des 2-3 dernieres semaines</a></li>
 <li><a href="#methodo">Methodologie QCM (jour J)</a></li>
 <li><a href="#distractors">Les 7 patterns de distracteurs a eliminer en 5 secondes</a></li>
-<li><a href="#traps">Top pieges par domaine (verites a connaitre par coeur)</a></li>
-<li><a href="#decision">Arbres de decision pour les questions ambigues</a></li>
+<li><a href="#traps">Top pièges par domaine (verites a connaitre par coeur)</a></li>
+<li><a href="#décision">Arbres de décision pour les questions ambigues</a></li>
 <li><a href="#cheat">Cheat sheet : 1 page par domaine</a></li>
 <li><a href="#crossdomain">Connexions inter-domaines (les ponts qui tombent souvent)</a></li>
 <li><a href="#dayJ">Checklist du jour J</a></li>
@@ -54,15 +54,15 @@
 <table>
 <tr><th>Semaine</th><th>Focus</th><th>Activites quotidiennes (1-2 h)</th></tr>
 <tr><td><strong>S-3</strong> (consolidation)</td><td>Lecture profonde des 5 docs domaine + D0</td><td>Lire 1 domaine/jour ; surligner les exam-tips et anti-patterns ; faire les questions auto-eval du chapitre</td></tr>
-<tr><td><strong>S-2</strong> (active recall)</td><td>Practice questions par scenario</td><td>1 scenario complet/jour (12-15 Q) ; expliquer chaque distracteur ; revoir le doc Scenarios_Exam.html</td></tr>
+<tr><td><strong>S-2</strong> (active recall)</td><td>Practice questions par scénario</td><td>1 scénario complet/jour (12-15 Q) ; expliquer chaque distracteur ; revoir le doc Scenarios_Exam.html</td></tr>
 <tr><td><strong>S-1</strong> (simulation)</td><td>Examens blancs en conditions</td><td>40 Q en 80 min, score, debrief ; revoir les domaines faibles ; relire le cheat sheet (ce doc)</td></tr>
 <tr><td><strong>J-1</strong></td><td>Repos et confiance</td><td>Survol rapide des cheat sheets, pas de bourrage ; coucher tot</td></tr>
 </table>
 
 <h3>Indicateurs de readiness</h3>
 <ul>
-<li>Tu peux expliquer en 30 secondes la difference entre <code>tool_use</code>, <code>tool_choice: "any"</code>, et <code>tool_choice: "tool"</code></li>
-<li>Tu peux nommer les 4 categories d'erreur MCP de tete</li>
+<li>Tu peux expliquer en 30 secondes la différence entre <code>tool_use</code>, <code>tool_choice: "any"</code>, et <code>tool_choice: "tool"</code></li>
+<li>Tu peux nommer les 4 catégories d'erreur MCP de tete</li>
 <li>Tu peux citer les 7 evenements de hooks Claude Code</li>
 <li>Tu peux distinguer hooks Agent SDK (D1) vs hooks Claude Code (D3)</li>
 <li>Tu sais quand <strong>refuser</strong> le Batch API (pre-merge, multi-turn tool calling)</li>
@@ -73,16 +73,16 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="methodo">2. Methodologie QCM (jour J)</h2></div>
 
-<h3>La methode en 4 etapes pour chaque question</h3>
+<h3>La méthode en 4 étapes pour chaque question</h3>
 <ol>
 <li><strong>Lire la situation D'ABORD, sans regarder les choix.</strong> Identifier le concept teste.</li>
-<li><strong>Formuler mentalement la bonne reponse</strong> avant de lire les options. Si une option correspond, c'est probablement elle.</li>
+<li><strong>Formuler mentalement la bonne réponse</strong> avant de lire les options. Si une option correspond, c'est probablement elle.</li>
 <li><strong>Eliminer 2 distracteurs</strong> via les 7 patterns ci-dessous.</li>
 <li><strong>Choisir entre les 2 restants</strong> en relisant la situation : quel mot exact change la donne ?</li>
 </ol>
 
 <div class="key-concept">
-<strong>Regle d'or :</strong> dans 80 % des cas, l'examen oppose une solution <em>deterministe</em> (hook, schema, contrainte) a une solution <em>probabiliste</em> (instruction prompt, few-shot supplementaire). Pour toute consequence financiere, securite, conformite → la reponse est <strong>deterministe</strong>.
+<strong>Regle d'or :</strong> dans 80 % des cas, l'examen oppose une solution <em>deterministe</em> (hook, schéma, contrainte) a une solution <em>probabiliste</em> (instruction prompt, few-shot supplémentaire). Pour toute consequence financiere, securite, conformite → la réponse est <strong>deterministe</strong>.
 </div>
 
 <h3>Gestion du temps</h3>
@@ -90,25 +90,25 @@
 <tr><th>Phase</th><th>Duree</th><th>Cible</th></tr>
 <tr><td>Phase 1 : passage rapide</td><td>~80 min (≈ 1 min 20 / Q)</td><td>Repondre les Q evidentes, marquer les difficiles</td></tr>
 <tr><td>Phase 2 : Q marquees</td><td>~30 min</td><td>Reflechir profondement aux ambiguites</td></tr>
-<tr><td>Phase 3 : verification</td><td>~10 min</td><td>Survoler ; ne changer une reponse QUE si une certitude apparait</td></tr>
+<tr><td>Phase 3 : vérification</td><td>~10 min</td><td>Survoler ; ne changer une réponse QUE si une certitude apparaît</td></tr>
 </table>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> changer une reponse au dernier moment "par doute". Statistiquement, la premiere intuition sur une lecture attentive est plus souvent correcte qu'un changement panique. Ne change que si tu identifies une raison concrete (mot mal lu, distracteur eliminable).
+<strong>Anti-pattern :</strong> changer une réponse au dernier moment "par doute". Statistiquement, la premiere intuition sur une lecture attentive est plus souvent correcte qu'un changement panique. Ne change que si tu identifiés une raison concrete (mot mal lu, distracteur eliminable).
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="distractors">3. Les 7 patterns de distracteurs a eliminer en 5 secondes</h2></div>
 
-<p>Ces formulations apparaissent presque dans chaque question. Memorise-les : leur seule presence dans une option doit declencher une suspicion immediate.</p>
+<p>Ces formulations apparaissent presque dans chaque question. Memorise-les : leur seule presence dans une option doit déclencher une suspicion immediate.</p>
 
 <table>
 <tr><th>#</th><th>Pattern</th><th>Pourquoi c'est presque toujours faux</th><th>Quand c'est correct (rare)</th></tr>
 <tr><td>1</td><td>"Improve / strengthen the system prompt"</td><td>Probabiliste, insuffisant pour les consequences financieres/legales</td><td>Quand la question concerne explicitement la <em>guidance souple</em></td></tr>
-<tr><td>2</td><td>"Add a routing classifier" / "Train a classifier"</td><td>Overengineering ; necessite des donnees d'entrainement souvent indisponibles</td><td>Quand la question parle de classification a tres grande echelle deja en place</td></tr>
-<tr><td>3</td><td>"Use sentiment analysis to detect frustration"</td><td>Le sentiment ne correle pas avec la complexite ; pas un declencheur fiable</td><td>Jamais, en pratique</td></tr>
-<tr><td>4</td><td>"Self-rated confidence (1-10)"</td><td>Le modele peut etre confident a tort — confidence calibration insuffisante</td><td>En complement d'autres signaux, jamais comme seul critere</td></tr>
-<tr><td>5</td><td>"Abort the whole workflow on partial failure"</td><td>Disproportionne ; on veut graceful degradation + coverage annotations</td><td>Quand l'echec rend les donnees fondamentalement non fiables</td></tr>
+<tr><td>2</td><td>"Add a routing classifier" / "Train a classifier"</td><td>Overengineering ; necessite des donnees d'entrainement souvent indisponibles</td><td>Quand la question parle de classification a très grande échelle déjà en place</td></tr>
+<tr><td>3</td><td>"Use sentiment analysis to detect frustration"</td><td>Le sentiment ne correle pas avec la complexite ; pas un déclencheur fiable</td><td>Jamais, en pratique</td></tr>
+<tr><td>4</td><td>"Self-rated confidence (1-10)"</td><td>Le modèle peut être confident a tort — confidence calibration insuffisante</td><td>En complement d'autres signaux, jamais comme seul critère</td></tr>
+<tr><td>5</td><td>"Abort the whole workflow on partial failure"</td><td>Disproportionne ; on veut graceful degradation + coverage annotations</td><td>Quand l'échec rend les donnees fondamentalement non fiables</td></tr>
 <tr><td>6</td><td>"Move blocking checks to Batch API for cost savings"</td><td>Batch API a une latence pouvant atteindre 24 h — incompatible avec un check pre-merge</td><td>Pour des audits overnight non bloquants</td></tr>
 <tr><td>7</td><td>"Use a larger context window to fix attention"</td><td>Faux. Un context plus grand n'ameliore pas l'attention sur le milieu (lost-in-the-middle reste)</td><td>Jamais comme solution principale</td></tr>
 </table>
@@ -116,8 +116,8 @@
 <div class="exam-tip">
 <strong>Bonus distracteurs (moins frequents mais a connaitre) :</strong>
 <ul>
-<li>"Lower temperature to 0" comme solution a un probleme structurel (pas un probleme de creativite)</li>
-<li>"Add more few-shot examples" quand le probleme est un schema force-required (le modele halluciner pour respecter la contrainte)</li>
+<li>"Lower temperature to 0" comme solution a un problème structurel (pas un problème de creativite)</li>
+<li>"Add more few-shot examples" quand le problème est un schéma force-required (le modèle halluciner pour respecter la contrainte)</li>
 <li>"Parser le texte de l'assistant pour 'task done'" — toujours utiliser <code>stop_reason</code></li>
 <li>"Increase max_iterations" comme condition d'arret principale — toujours <code>stop_reason</code></li>
 <li>"Use the same session for code generation AND review" — biais de confirmation, toujours instance independante</li>
@@ -125,7 +125,7 @@
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="traps">4. Top pieges par domaine</h2></div>
+<div class="section-header"><h2 id="traps">4. Top pièges par domaine</h2></div>
 
 <h3>D1 — Architecture et orchestration (27 %)</h3>
 <div class="high-priority">
@@ -133,8 +133,8 @@
 <li><strong>Seul signal d'arret fiable :</strong> <code>stop_reason</code>. Jamais le texte, jamais une limite arbitraire d'iterations.</li>
 <li><strong>Hooks vs prompt :</strong> consequences financieres/legales/securite → hook (deterministe). Preferences → prompt.</li>
 <li><strong>Subagent vs thread principal :</strong> "le travail intermediaire m'interesse-t-il ?" Non → subagent. Oui → thread principal.</li>
-<li><strong>Multiple Task() dans une SEULE response = parallel execution.</strong> Plusieurs responses = sequential.</li>
-<li><strong>Decomposition trop etroite</strong> = couverture incomplete (piege classique du Multi-Agent Research).</li>
+<li><strong>Multiple Task() dans une SEULE response = parallel exécution.</strong> Plusieurs responses = sequential.</li>
+<li><strong>Decomposition trop etroite</strong> = couverture incomplete (piège classique du Multi-Agent Research).</li>
 <li><strong>Idempotency keys</strong> obligatoires pour tout retry sur action a effet de bord.</li>
 <li><strong>Cycle OTAR</strong> (observe-think-act-respond) — vocabulaire a connaitre.</li>
 </ul>
@@ -143,12 +143,12 @@
 <h3>D2 — Tool design et MCP (18 %)</h3>
 <div class="high-priority">
 <ul>
-<li><strong>Description = mecanisme #1 de selection.</strong> Misrouting = chevauchement semantique → renommer/diviser.</li>
-<li><strong>Erreurs structurees MCP :</strong> <code>errorCategory</code> (transient/validation/business/permission) + <code>isRetryable</code>.</li>
-<li><strong>Timeout ≠ 0 results.</strong> Timeout = access failure (retry decision). 0 results = valid empty (annoter).</li>
+<li><strong>Description = mécanisme #1 de selection.</strong> Misrouting = chevauchement semantique → renommer/diviser.</li>
+<li><strong>Erreurs structurées MCP :</strong> <code>errorCategory</code> (transient/validation/business/permission) + <code>isRetryable</code>.</li>
+<li><strong>Timeout ≠ 0 results.</strong> Timeout = access failure (retry décision). 0 results = valid empty (annoter).</li>
 <li><strong>Roots :</strong> le SDK n'applique PAS automatiquement les restrictions — implementer <code>is_path_allowed()</code>.</li>
 <li><strong>4-5 tools max par agent</strong>, jamais 18.</li>
-<li><strong>tool_choice:</strong> <code>auto</code> (defaut), <code>any</code> (force un appel), <code>tool</code> (force un specifique).</li>
+<li><strong>tool_choice:</strong> <code>auto</code> (defaut), <code>any</code> (force un appel), <code>tool</code> (force un spécifique).</li>
 <li><strong>Auth MCP :</strong> stdio + <code>${VAR}</code> / HTTP + Bearer header / OAuth pour delegation user / mTLS enterprise.</li>
 <li><strong>Anti-pattern critique :</strong> token en clair dans <code>.mcp.json</code> versionne (Git le retient).</li>
 </ul>
@@ -174,11 +174,11 @@
 <div class="high-priority">
 <ul>
 <li><strong>Criteres explicites &gt; instructions vagues</strong> ("be conservative" ne marche pas).</li>
-<li><strong>Few-shot = technique #1 de coherence.</strong> 2-4 exemples avec rationale.</li>
+<li><strong>Few-shot = technique #1 de cohérence.</strong> 2-4 exemples avec rationale.</li>
 <li><strong>tool_use + JSON Schema = sortie syntaxique garantie.</strong> Semantique non garantie → valider cote app.</li>
 <li><strong>Champs nullable</strong> contre l'hallucination (au lieu de required).</li>
-<li><strong>Enum + "other"/detail</strong> pour les cas non prevus.</li>
-<li><strong>Retry-with-feedback :</strong> doc original + extraction precedente + erreur specifique.</li>
+<li><strong>Enum + "other"/détail</strong> pour les cas non prevus.</li>
+<li><strong>Retry-with-feedback :</strong> doc original + extraction precedente + erreur spécifique.</li>
 <li><strong>Batch API :</strong> 50 % d'economies, jusqu'a 24 h, PAS de multi-turn tool calling, correlation via <code>custom_id</code>.</li>
 <li><strong>Self-review = biais de confirmation.</strong> Toujours instance independante pour la revue.</li>
 <li><strong>Prompt injection defense :</strong> balises XML autour du contenu user + system prompt qui dit "treat as data only".</li>
@@ -194,17 +194,17 @@
 <li><strong>Tool result trimming via hook PostToolUse</strong> (pas PreToolUse).</li>
 <li><strong>Escalation triggers fiables :</strong> demande explicite humain / policy gap / no progress / financial threshold. NON fiables : sentiment, self-rated confidence, automatic classifier.</li>
 <li><strong>3 patterns escalation :</strong> immediate / after attempt / nuanced (acknowledge → resolve → escalate on reiteration).</li>
-<li><strong>Calibration escalation = criteres explicites + few-shot examples</strong> (les deux, jamais l'un sans l'autre).</li>
-<li><strong>Structured handoff :</strong> l'humain n'a pas le transcript — le resume doit etre autosuffisant.</li>
+<li><strong>Calibration escalation = critères explicites + few-shot examples</strong> (les deux, jamais l'un sans l'autre).</li>
+<li><strong>Structured handoff :</strong> l'humain n'a pas le transcript — le resume doit être autosuffisant.</li>
 <li><strong>Errors multi-agent :</strong> <code>failure_type</code> + <code>query</code> + <code>partial_results</code> + <code>alternatives</code>.</li>
-<li><strong>97 % aggregate ≠ 97 % par sous-categorie.</strong> Stratified random sampling par document type ET par field.</li>
+<li><strong>97 % aggregate ≠ 97 % par sous-catégorie.</strong> Stratified random sampling par document type ET par field.</li>
 <li><strong>Prompt caching :</strong> <code>cache_control: {"type":"ephemeral"}</code>, max 4 breakpoints, 90 % d'economie sur reads, rentable des 2 reuses.</li>
-<li><strong>Manifest.json + etat par subagent</strong> = pattern crash recovery.</li>
+<li><strong>Manifest.json + état par subagent</strong> = pattern crash recovery.</li>
 </ul>
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="decision">5. Arbres de decision pour les questions ambigues</h2></div>
+<div class="section-header page-break"><h2 id="décision">5. Arbres de décision pour les questions ambigues</h2></div>
 
 <h3>Arbre 1 — Hook ou instruction prompt ?</h3>
 <pre>Y a-t-il consequence financiere, legale, securite, ou conformite ?
@@ -262,7 +262,7 @@
 <tr><td>4 workflow patterns</td><td>Parallelization / Chaining / Routing / Evaluator-optimizer</td></tr>
 <tr><td>Agentic loop signal</td><td><code>stop_reason</code> uniquement. <code>"tool_use"</code> = continuer, <code>"end_turn"</code> = stop</td></tr>
 <tr><td>Cycle OTAR</td><td>Observe-Think-Act-Respond (vocabulaire)</td></tr>
-<tr><td>Hub-and-spoke</td><td>Coordinateur central, subagents specialises avec contexte isole</td></tr>
+<tr><td>Hub-and-spoke</td><td>Coordinateur central, subagents spécialisés avec contexte isole</td></tr>
 <tr><td>Task tool parallel</td><td>Plusieurs Task() dans UNE response = parallel ; plusieurs responses = sequential</td></tr>
 <tr><td>Hook events SDK</td><td>PreToolUse / PostToolUse</td></tr>
 <tr><td>Failure recovery</td><td>Retry+backoff / Circuit breaker / Partial results / Saga / Idempotency</td></tr>
@@ -275,12 +275,12 @@
 <tr><th>Concept</th><th>A retenir</th></tr>
 <tr><td>Description anatomy</td><td>4 questions : que fait / format input / edge cases / quand l'utiliser</td></tr>
 <tr><td>Misrouting fix</td><td>Renommer (ambiguite), diviser (fourre-tout), remplacer (generique → contraint)</td></tr>
-<tr><td>4 categories d'erreur</td><td>transient (retry) / validation (corriger) / business (alternative) / permission (escalate)</td></tr>
-<tr><td>tool_choice</td><td>auto (defaut) / any (force un tool) / tool (force ce tool specifique)</td></tr>
-<tr><td>3 primitives MCP</td><td>tools (modele) / resources (app, content catalogs) / prompts (user)</td></tr>
+<tr><td>4 catégories d'erreur</td><td>transient (retry) / validation (corriger) / business (alternative) / permission (escalate)</td></tr>
+<tr><td>tool_choice</td><td>auto (defaut) / any (force un tool) / tool (force ce tool spécifique)</td></tr>
+<tr><td>3 primitives MCP</td><td>tools (modèle) / resources (app, content catalogs) / prompts (user)</td></tr>
 <tr><td>Transports</td><td>stdio (local) / SSE = StreamableHTTP (distant bidirectionnel) / Stateless HTTP (multi-instance)</td></tr>
 <tr><td>Roots</td><td>SDK n'applique PAS automatiquement → <code>is_path_allowed()</code> manuel</td></tr>
-<tr><td>Sampling</td><td>Le serveur demande au client de generer (pas de cle API cote serveur)</td></tr>
+<tr><td>Sampling</td><td>Le serveur demande au client de generer (pas de clé API cote serveur)</td></tr>
 <tr><td>JSON Schema avance</td><td>oneOf / anyOf / allOf / if-then-else / additionalProperties:false</td></tr>
 <tr><td>Auth patterns</td><td>stdio + ${VAR} / HTTP Bearer / OAuth 2.1 / mTLS</td></tr>
 <tr><td>Builtin tools</td><td>Glob / Grep / Read / Write / Edit / Bash. Investigation : Grep → Read → Grep → Read</td></tr>
@@ -289,7 +289,7 @@
 <h3>D3 — Claude Code (20 %)</h3>
 <table>
 <tr><th>Concept</th><th>A retenir</th></tr>
-<tr><td>CLAUDE.md hierarchy</td><td>user / project / directory. Erreur classique : mettre en user ce qui doit etre en project</td></tr>
+<tr><td>CLAUDE.md hierarchy</td><td>user / project / directory. Erreur classique : mettre en user ce qui doit être en project</td></tr>
 <tr><td>@path imports</td><td>Profondeur max 5 niveaux</td></tr>
 <tr><td>.claude/rules/ + glob</td><td>Conventions cross-directory (tests co-localises) ; chargement conditionnel</td></tr>
 <tr><td>settings.json levels</td><td>user / project (versionne) / local (.gitignore). Precedence : local &gt; project &gt; user</td></tr>
@@ -314,13 +314,13 @@
 <tr><td>5 types few-shot</td><td>Ambigu / output format / good vs bad / formats docs / mesures informelles</td></tr>
 <tr><td>Format normalization</td><td>Dates → ISO 8601 / monnaie → montant + code / pourcentages → decimal</td></tr>
 <tr><td>tool_use guarantees</td><td>SYNTAXE garantie / SEMANTIQUE non garantie</td></tr>
-<tr><td>Schema patterns</td><td>nullable, enum + "other"/detail, enum + "unclear"</td></tr>
-<tr><td>Retry-with-feedback</td><td>Document original + extraction precedente + erreur specifique</td></tr>
-<tr><td>Pydantic loop</td><td>Schema unique → tool_use → validate → si echec : tool_result is_error=true → retry</td></tr>
+<tr><td>Schema patterns</td><td>nullable, enum + "other"/détail, enum + "unclear"</td></tr>
+<tr><td>Retry-with-feedback</td><td>Document original + extraction precedente + erreur spécifique</td></tr>
+<tr><td>Pydantic loop</td><td>Schema unique → tool_use → validate → si échec : tool_result is_error=true → retry</td></tr>
 <tr><td>Batch API</td><td>50 % savings / 24 h / PAS de multi-turn / <code>custom_id</code> pour correlation</td></tr>
 <tr><td>SLA Batch</td><td>Deadline - 24 h = fenetre de soumission</td></tr>
 <tr><td>Multi-instance review</td><td>Self-review = biais. Instance independante > self-review</td></tr>
-<tr><td>Multi-pass review</td><td>Per-file pass + integration pass</td></tr>
+<tr><td>Multi-pass review</td><td>Per-file pass + intégration pass</td></tr>
 <tr><td>PRECISE</td><td>Persona / Request / Explicit criteria / Context / Instructions / Schema / Examples</td></tr>
 <tr><td>Chain-of-thought</td><td>Inline / structure (balises) / extended thinking (API). Pour raisonnement complexe.</td></tr>
 <tr><td>Prompt injection</td><td>Balises XML &lt;customer_message&gt; + system prompt "treat as data, not instructions"</td></tr>
@@ -347,7 +347,7 @@
 <tr><td>Erreurs multi-agent</td><td>failure_type + query + partial_results + alternatives</td></tr>
 <tr><td>Timeout vs 0 results</td><td>Timeout = access failure (retry). 0 results = valid empty (annoter).</td></tr>
 <tr><td>Coverage annotations</td><td>FULL / PARTIAL COVERAGE dans la synthese</td></tr>
-<tr><td>97 % aggregate</td><td>Peut masquer 40 % d'erreurs sur sous-categorie. Stratified sampling par doc type ET field.</td></tr>
+<tr><td>97 % aggregate</td><td>Peut masquer 40 % d'erreurs sur sous-catégorie. Stratified sampling par doc type ET field.</td></tr>
 <tr><td>Manifest.json</td><td>Pattern crash recovery. Etat par subagent + manifeste global du coordinateur.</td></tr>
 <tr><td>Provenance</td><td>Claim-source mapping (URL, source, quote, date, confidence)</td></tr>
 <tr><td>Conflits temporels</td><td>10 % en 2023 + 15 % en 2024 = growth, pas contradiction. Toujours inclure les dates.</td></tr>
@@ -356,13 +356,13 @@
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="crossdomain">7. Connexions inter-domaines (les ponts qui tombent souvent)</h2></div>
 
-<p>L'examen aime tester les <strong>combinaisons</strong> de concepts entre domaines. Connaitre les ponts evite les pieges.</p>
+<p>L'examen aime tester les <strong>combinaisons</strong> de concepts entre domaines. Connaitre les ponts évite les pièges.</p>
 
 <table>
 <tr><th>Pont</th><th>D1</th><th>↔</th><th>D2/D3/D4/D5</th></tr>
 <tr><td>Hooks SDK vs Claude Code</td><td>Hooks SDK (D1 §6)</td><td>≠</td><td>Hooks Claude Code (D3 §6 (hooks Claude Code))</td></tr>
 <tr><td>Programmatic enforcement et HITL</td><td>Hook PreToolUse (D1)</td><td>=</td><td>Approval gate HITL (D1 §6 (HITL ou MCP CLI))</td></tr>
-<tr><td>Erreurs structurees</td><td>Erreur subagent (D1, D5 §3)</td><td>=</td><td>4 categories MCP (D2 §2)</td></tr>
+<tr><td>Erreurs structurées</td><td>Erreur subagent (D1, D5 §3)</td><td>=</td><td>4 catégories MCP (D2 §2)</td></tr>
 <tr><td>Tool result trimming</td><td>Context preservation (D5 §1)</td><td>via</td><td>Hook PostToolUse (D3 §6 (hooks Claude Code))</td></tr>
 <tr><td>Structured output</td><td>tool_use + JSON Schema (D0, D4 §3)</td><td>+</td><td>Pydantic validation (D4 §4)</td></tr>
 <tr><td>Forced tool_use</td><td>tool_choice (D2 §3)</td><td>+</td><td>Schema strict + retry-with-feedback (D4 §4)</td></tr>
@@ -375,7 +375,7 @@
 </table>
 
 <div class="exam-tip">
-<strong>Pattern d'examen typique :</strong> "Quel est LE meilleur changement ?" — la bonne reponse combine souvent 2 leviers (un structurel + un programmatique). Si une option propose une vraie combinaison (ex: hook + few-shot), c'est souvent elle. Les distracteurs sont des solutions <em>uniques</em> insuffisantes.
+<strong>Pattern d'examen typique :</strong> "Quel est LE meilleur changement ?" — la bonne réponse combine souvent 2 leviers (un structurel + un programmatique). Si une option propose une vraie combinaison (ex: hook + few-shot), c'est souvent elle. Les distracteurs sont des solutions <em>uniques</em> insuffisantes.
 </div>
 
 <!-- ================================================================== -->
@@ -402,15 +402,15 @@
 <h3>Pendant l'examen (120 min, 60 Q)</h3>
 <ol>
 <li><strong>Phase 1 (0-80 min) :</strong> passer en revue toutes les Q. Repondre les evidentes, marquer les difficiles. <strong>Ne jamais bloquer plus de 90 sec sur une Q en phase 1.</strong></li>
-<li><strong>Phase 2 (80-110 min) :</strong> reprendre les Q marquees. Appliquer la methode des 7 distracteurs. Eliminer 2, decider entre les 2 restants.</li>
-<li><strong>Phase 3 (110-120 min) :</strong> verification. Survoler. <strong>Ne changer une reponse que si une certitude apparait.</strong></li>
+<li><strong>Phase 2 (80-110 min) :</strong> reprendre les Q marquees. Appliquer la méthode des 7 distracteurs. Eliminer 2, decider entre les 2 restants.</li>
+<li><strong>Phase 3 (110-120 min) :</strong> vérification. Survoler. <strong>Ne changer une réponse que si une certitude apparaît.</strong></li>
 </ol>
 
 <h3>Mantra pendant l'examen</h3>
 <div class="tldr">
 <ul>
-<li><strong>Consequences financieres/legales/securite</strong> → reponse <strong>deterministe</strong> (hook, schema, contrainte).</li>
-<li><strong>Sentiment, self-rated confidence, classifier</strong> → c'est presque toujours un piege.</li>
+<li><strong>Consequences financieres/legales/securite</strong> → réponse <strong>deterministe</strong> (hook, schéma, contrainte).</li>
+<li><strong>Sentiment, self-rated confidence, classifier</strong> → c'est presque toujours un piège.</li>
 <li><strong>Batch API en pre-merge</strong> → toujours faux.</li>
 <li><strong>Plus de context window contre lost-in-the-middle</strong> → toujours faux.</li>
 <li><strong>Self-review</strong> → toujours instance independante.</li>
@@ -420,9 +420,9 @@
 
 <h3>Apres l'examen</h3>
 <ul>
-<li>Resultats sous 2 jours ouvrables avec breakdown detaille par domaine</li>
+<li>Resultats sous 2 jours ouvrables avec breakdown détaillé par domaine</li>
 <li>Si reussi (&gt;= 720) : profiter</li>
-<li>Si echec : analyser le breakdown, identifier les domaines faibles, retenter (99 $ par tentative)</li>
+<li>Si échec : analyser le breakdown, identifier les domaines faibles, retenter (99 $ par tentative)</li>
 </ul>
 
 <nav class="doc-nav">
@@ -432,7 +432,7 @@
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Revision — Strategie jour J et cheat sheet · Document de synthese · 2026
+CCA Révision — Strategie jour J et cheat sheet · Document de synthese · 2026
 </p>
 
 
