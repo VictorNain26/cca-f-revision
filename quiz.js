@@ -223,7 +223,8 @@
         detailsEl.appendChild(wrap);
       }
     } else {
-      // Format Practice : choix déjà dans body en <p>A) ...</p>
+      // Format Practice : choix déjà dans body en <p>A) ...</p>, <p>B) ...</p>...
+      // OU format D5 : choix dans UN seul <p> séparés par <br>
       var body2 = detailsEl.querySelector(':scope > div');
       if (body2) {
         var ps = Array.from(body2.querySelectorAll(':scope > p'));
@@ -243,6 +244,32 @@
           });
           choicesPs[0].parentNode.replaceChild(ul2, choicesPs[0]);
           for (var k = 1; k < choicesPs.length; k++) choicesPs[k].remove();
+        } else {
+          // Cas 2 : un seul <p> avec "A) ... <br> B) ... <br> ..."
+          var brP = ps.find(function (p) {
+            var t = p.textContent || '';
+            return /\bA\)\s/.test(t) && /\bB\)\s/.test(t);
+          });
+          if (brP) {
+            var fakeSummary = { innerHTML: brP.innerHTML };
+            var split2 = splitChoicesInSummary(fakeSummary);
+            if (split2 && split2.choices.length >= 2) {
+              var ul3 = document.createElement('ul');
+              ul3.className = 'choices';
+              split2.choices.forEach(function (c) {
+                var li = document.createElement('li');
+                li.setAttribute('data-letter', c.letter);
+                li.innerHTML = c.html.replace(/^(<br\s*\/?>)+/i, '').trim();
+                ul3.appendChild(li);
+              });
+              if (split2.questionHtml && split2.questionHtml.replace(/<[^>]+>/g, '').trim()) {
+                brP.innerHTML = split2.questionHtml;
+                brP.parentNode.insertBefore(ul3, brP.nextSibling);
+              } else {
+                brP.parentNode.replaceChild(ul3, brP);
+              }
+            }
+          }
         }
       }
     }
