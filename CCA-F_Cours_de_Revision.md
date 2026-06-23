@@ -124,6 +124,20 @@ et al. 2019.)*
 **Réflexe transverse** : la bonne réponse vise presque toujours **la cause racine** et la solution
 **proportionnée** (le bon *premier pas*), pas la plus sophistiquée.
 
+## 0.6 Exercices hands-on officiels (recommandés par le guide)
+
+Le guide recommande 4 exercices pratiques — les construire ancre le jugement bien mieux que la lecture (transfert) :
+1. **Agent multi-outils + escalation** (D1/D2/D5) : boucle agentique avec `stop_reason`, erreurs structurées, hook
+   de blocage, décomposition multi-préoccupations.
+2. **Config Claude Code d'équipe** (D3/D2) : CLAUDE.md hiérarchique, `.claude/rules/` glob, skill `context: fork`
+   + `allowed-tools`, MCP `.mcp.json` + `~/.claude.json`, plan mode vs direct.
+3. **Pipeline d'extraction structurée** (D4/D5) : JSON Schema (nullable, enum « other »), validation-retry,
+   few-shot multi-formats, Batch API + `custom_id`, routing human-review par confidence.
+4. **Pipeline multi-agent research** (D1/D2/D5) : coordinateur + subagents, parallélisme, sortie structurée
+   claim-source, propagation d'erreur, conflits de sources annotés.
+
+Avec <2 semaines, si tu n'en fais **qu'un**, prends l'**exercice 1** (couvre D1+D2+D5, le bloc le plus lourd).
+
 ---
 
 # PARTIE 1 — Les 6 scénarios (le cadre des questions)
@@ -157,8 +171,9 @@ métier critique ⇒ **hook/prérequis** (pas prompt) ; escalation ⇒ **critèr
 
 **À maîtriser :**
 - **Requête** : `model`, `max_tokens`, `messages` (rôles `user`/`assistant` qui **alternent**), `system`
-  (champ **top-level**, ce n'est *pas* un rôle), `temperature` (0-1 ; **bas = factuel/extraction**, haut =
-  créatif). ➕ `temperature` et le caractère **stateless** sont souvent testés en fondation.
+  (champ **top-level**, ce n'est *pas* un rôle), `temperature` (**0-1** sur les modèles classiques de l'examen ;
+  **bas = factuel/extraction**, haut = créatif — supprimé sur les modèles les plus récents type Opus 4.7+). ➕
+  `temperature` et le caractère **stateless** sont souvent testés en fondation.
 - **`stop_reason`** : `end_turn` (fini), `tool_use` (Claude veut un outil), `max_tokens`, `stop_sequence`.
   C'est le pivot de la boucle agentique (D1).
 - **Définition d'outil** : `name`, **`description`** (le levier n°1 de sélection — cf. D2), `input_schema`
@@ -194,10 +209,14 @@ décision pré-câblé. En multi-agent : **hub-and-spoke**, le coordinateur est 
   **Le contexte doit être passé explicitement dans le prompt** du subagent. `AgentDefinition` = description +
   system prompt + restrictions d'outils par type. **Parallélisme** : émettre **plusieurs `Task` dans une
   seule réponse**. Prompts coordinateur = **objectifs + critères de qualité**, pas une procédure pas-à-pas.
+  Passer aux subagents des **données structurées séparant contenu et métadonnées** (URL, nom de doc, n° de page)
+  pour **préserver l'attribution** en aval.
 - **Enforcement & handoff (1.4)** : **enforcement programmatique** (hooks, prerequisite gates) vs **guidance
   par prompt**. Quand la conformité doit être **déterministe** (vérifier l'identité avant un remboursement),
   le prompt seul a un **taux d'échec non nul** → bloquer programmatiquement. Handoff structuré (customer ID,
-  cause racine, montant, action recommandée) car l'humain **n'a pas le transcript**.
+  cause racine, montant, action recommandée) car l'humain **n'a pas le transcript**. Une **requête
+  multi-préoccupations** se **décompose en items distincts**, investigués **en parallèle** (contexte partagé),
+  puis **synthèse unifiée** (cf. scénario 1 + exercice 1).
 - **Hooks Agent SDK (1.5)** : `PostToolUse` pour **normaliser** des résultats hétérogènes (timestamps Unix /
   ISO 8601 / codes numériques) *avant* que le modèle les traite ; **interception d'appel** pour **bloquer**
   une action qui viole une règle (refund > 500 $) et **rediriger** vers l'escalation. **Hook = garantie ;
@@ -206,8 +225,9 @@ décision pré-câblé. En multi-agent : **hub-and-spoke**, le coordinateur est 
   prévisibles ; **décomposition dynamique** pour l'investigation ouverte. Grosse revue → **per-file** +
   **cross-file integration pass** (évite la dilution d'attention).
 - **Sessions (1.7)** : `--resume <session-name>` ; `fork_session` pour explorer des branches divergentes
-  depuis une baseline partagée ; informer la session reprise des **fichiers modifiés** ; **repartir d'un
-  résumé structuré** > reprendre avec des tool results périmés.
+  depuis une baseline partagée ; informer la session reprise des **fichiers modifiés**. **Arbre de décision** :
+  contexte antérieur **encore valide** → `--resume` ; **tool results périmés** → **nouvelle session + résumé
+  structuré injecté** (plus fiable que reprendre du périmé).
 
 **Distracteurs du domaine** : cap d'itérations / parsing de texte (loop) ; **blâmer l'agent aval** alors que
 la cause est le coordinateur ; donner trop d'outils à un subagent ; **prompt au lieu de hook** pour une règle
@@ -236,7 +256,8 @@ agent **peu d'outils, bien décrits, dans son périmètre**.
   Attention aux instructions **keyword-sensitive** du system prompt qui écrasent une bonne description.
 - **Erreurs structurées MCP (2.2)** : flag **`isError`**. 4 catégories : **transient** (timeout/indispo),
   **validation** (input invalide), **business** (violation policy), **permission**. Retourner
-  **`errorCategory` + `isRetryable` (bool) + description lisible**. `retriable:false` + explication
+  **`errorCategory` + `isRetryable` (bool) + description lisible** *(seul `isError` est un champ **protocolaire**
+  MCP ; `errorCategory`/`isRetryable` sont une **convention** applicative recommandée, pas des champs de la spec)*. `retriable:false` + explication
   *customer-friendly* pour les violations métier. **Récupération locale** dans le subagent pour le transient ;
   ne propager au coordinateur que l'irrécupérable **avec résultats partiels + ce qui a été tenté**.
   Distinguer **échec d'accès** (décision de retry) vs **résultat vide valide** (succès, 0 match).
@@ -254,7 +275,8 @@ agent **peu d'outils, bien décrits, dans son périmètre**.
 - **Built-in tools (2.5)** : **Grep** (contenu : fonctions, messages d'erreur, imports) ; **Glob** (chemins :
   `**/*.test.tsx`) ; **Read/Write** (fichier entier) ; **Edit** (modif ciblée par texte **unique**) — si Edit
   échoue (texte non unique) → **Read + Write** en fallback. Comprendre un codebase **incrémentalement**
-  (Grep les entry points → Read suit les imports), pas tout lire d'emblée.
+  (Grep les entry points → Read suit les imports), pas tout lire d'emblée. **Tracer l'usage d'une fonction à
+  travers des wrappers** : lister d'abord **tous les noms exportés**, puis `Grep` chaque nom dans le codebase.
 - **3 primitives MCP** : **tools** (contrôlés par le **modèle**) ; **resources** (contrôlés par
   l'**application**, URIs — catalogues) ; **prompts** (contrôlés par l'**utilisateur**, façon slash commands).
 
@@ -353,7 +375,8 @@ une **règle** ; pour les workflows à la demande, une **skill**.
   Machine » (périmé). Pour l'examen, la taxonomie du guide est **user / projet / répertoire**.
 - Commands & skills sont **découvertes dynamiquement** (le « redémarrer Claude après création » du cours est
   obsolète).
-- Plan Mode s'active via **Shift+Tab** (×2) ; le « Thinking mode » (profondeur, mots-clés type *think*) est distinct.
+- Plan Mode s'active via **Shift+Tab** (×2, raccourci selon version) ; le « Thinking mode » (profondeur, mots-clés
+  type *think*) est distinct.
 
 **Distracteurs du domaine** : **CLAUDE.md de sous-dossier** pour une convention transversale (préférer
 `.claude/rules/` + glob) ; **tout entasser dans un CLAUDE.md racine** en comptant sur l'inférence ; une **skill**
@@ -366,6 +389,9 @@ pour appliquer *automatiquement* une convention (skill = on-demand, pas auto) ; 
 2. *Conventions de test pour des fichiers `*.test.tsx` dispersés, appliquées automatiquement. Quoi ?* →
    **`.claude/rules/` avec glob `**/*.test.tsx`** (pas un CLAUDE.md de sous-dossier, pas une skill « auto »).
 3. *Le job CI `claude "…"` hang. Fix ?* → **`-p` / `--print`** (pas `CLAUDE_HEADLESS`, pas `--batch`).
+4. *Plusieurs corrections à demander : bugs qui **interagissent** vs **indépendants** ?* → qui interagissent →
+   **un seul message** détaillé ; indépendants → **itération séquentielle**. *(Et l'**interview pattern** : faire
+   poser des questions à Claude pour faire émerger les angles non anticipés.)*
 
 ## D4 — Prompt Engineering & Structured Output (20 %)
 
@@ -439,18 +465,22 @@ milieu se perd (« lost in the middle »), les tool results gonflent. On **extra
   (bien supporté vs gaps par source indisponible).
 - **Grand codebase (5.4)** : **dégradation en session longue** (réponses incohérentes, références à des « patterns
   typiques » au lieu des classes vues). **Scratchpad files** pour persister les findings. **Délégation subagent**
-  pour isoler le verbeux. **Crash recovery** par **manifest** d'état structuré. **`/compact`** pour réduire le
-  contexte quand il se remplit de découverte verbeuse.
+  pour isoler le verbeux. **Crash recovery par manifest** : chaque agent **exporte son état** vers un emplacement
+  connu ; au resume, le coordinateur **charge le manifest** et le **réinjecte** dans les prompts. **`/compact`**
+  pour réduire le contexte quand il se remplit de découverte verbeuse.
 - **Human review & calibration (5.5)** : les **métriques agrégées (97 %)** masquent de mauvaises perfs **par type
   de doc / par champ**. **Stratified random sampling**. **Confidence field-level** calibrée sur un **validation
   set** labellisé. **Valider par type de doc et par champ** avant d'automatiser.
 - **Provenance (5.6)** : l'**attribution se perd** au résumé. Imposer des **claim-source mappings** préservés et
   fusionnés à la synthèse. Stats **conflictuelles** → **annoter avec attribution** (ne pas choisir arbitrairement).
   Exiger les **dates** de publication/collecte (pour ne pas confondre écart **temporel** et contradiction).
+  **Rendre chaque type de contenu dans son format** (données financières = tables, actualités = prose, findings
+  techniques = listes) plutôt que tout uniformiser.
 
 **⚠️ à jour 2026 :** prompt caching = **2 TTL — 5 min (défaut) + 1 h (option `ttl:"1h"`)** ; le cours « 1 h max »
-est **faux** (*vérifié en doc*). Seuil min cacheable ≈ **1024 tokens** (Sonnet/Opus), **2048** (Haiku). *Mais* les
-**détails internes du caching sont hors-scope** (cf. Partie 3) : connaître son existence suffit.
+est **faux** (*vérifié en doc*). Seuil min cacheable **variable selon le modèle** (≥ 1024 ; plus élevé sur les
+modèles récents). Les **détails internes du caching sont hors-scope** (cf. §3.1) : connaître son **existence**
++ les **2 TTL** suffit.
 
 **Distracteurs du domaine** : **sentiment / confidence** pour escalader ou router ; **choisir une valeur** entre
 deux stats conflictuelles ; **summarization agressive** qui perd les chiffres ; statut d'erreur **générique**.
@@ -484,8 +514,9 @@ Claude API*) couvrent **beaucoup** de ces sujets — ne perds pas ton temps dess
 - **Détails internes du prompt caching** (au-delà de *savoir que ça existe*).
 - Benchmarking / comparaison de modèles.
 
-**Conséquence** : dans tes PDF de cours, **saute** les modules RAG, computer use, vision, streaming, code
-execution/Files API, Bedrock/Vertex. Ils ne rapportent aucun point.
+**Conséquence** : dans tes PDF de cours, **saute** les modules RAG, computer use, vision, streaming et Bedrock/Vertex
+(hors-scope explicite), ainsi que code execution / Files API (*non listés explicitement par le guide, mais hors du
+périmètre testé*). Ils ne rapportent aucun point.
 
 ## 3.2 Récap des pièges « cours daté → réalité » (niveau de certitude)
 
@@ -496,7 +527,7 @@ execution/Files API, Bedrock/Vertex. Ils ne rapportent aucun point.
 | Types de hooks | 2 (pre/post) | bien plus (`Stop`, `SessionStart`, `UserPromptSubmit`…) | ✅ doc |
 | Exit codes hook | 0/2 | **0** OK, **2** bloque (stderr→Claude), autre = non bloquant | ✅ doc |
 | Auto-approve MCP | `MCP__[server]` | **`mcp__<server>__<tool>`** (minuscule, par outil) | ✅ doc |
-| Prompt caching TTL | « 1 h max » | **5 min (défaut) + 1 h (option)** ; min ≈1024 (Sonnet/Opus), 2048 (Haiku) | ✅ doc |
+| Prompt caching TTL | « 1 h max » | **5 min (défaut) + 1 h (option)** ; min cacheable variable selon le modèle | ✅ doc |
 | Args slash command | `$arguments`, `$1`=1er arg | **`$ARGUMENTS`** ; positionnels **0-based** (`$0`=1er) ; args nommés | ✅ doc |
 | Hiérarchie mémoire | Project / Local / Machine | **managed → user → projet → local** (concaténés) | ✅ doc |
 | SDK | « Claude Code SDK », `allowTools` | **Claude Agent SDK** (`@anthropic-ai/claude-agent-sdk`) ; `allowedTools` | ✅ doc |
@@ -539,6 +570,69 @@ officielle — voir le tableau §3.2. Ne restent que les 4 infos « portail » c
   Cepeda et al. 2006/2008 (spacing) ; Rohrer & Taylor 2007 (interleaving) ; Butler & Roediger 2008 (feedback) ;
   Metcalfe 2017 (hypercorrection) ; Kruger et al. 2005 (changement de réponse) ; Deslauriers et al. 2019 (illusion
   d'apprentissage en cours actif).
+
+# PARTIE 4 — Les 12 questions officielles décortiquées
+
+> **Le matériel le plus rentable.** Ce sont les **seules** questions dont on connaît la réponse *et* le
+> raisonnement officiel ; elles sont tirées de la Practice Exam et **strictement au format du vrai examen**.
+> Travaille-les en **retrieval** : cache la réponse, choisis, puis vérifie *pourquoi chaque distracteur est faux*.
+> Le pattern de raisonnement est réutilisable sur toutes les questions inédites.
+
+**Scénario — Customer Support**
+- **Q1.** L'agent saute `get_customer` (12 % des cas) et identifie mal le client → remboursements erronés. Fix ?
+  **✅ A) Prérequis programmatique** bloquant `lookup_order`/`process_refund` tant que `get_customer` n'a pas
+  renvoyé un ID vérifié. — *B/C (prompt « obligatoire », few-shot) = conformité **probabiliste**, insuffisante
+  quand l'argent est en jeu. D (routing classifier) traite la **disponibilité** d'outil, pas l'**ordre** : mauvais
+  problème.* **Leçon : règle critique ⇒ enforcement déterministe, pas prompt.**
+- **Q2.** L'agent confond `get_customer`/`lookup_order` ; descriptions minimales similaires. Premier pas ?
+  **✅ B) Étendre les descriptions** (formats, exemples, edge cases, frontières). — *A (few-shot) = tokens en plus
+  sans traiter la cause. C (routing layer) over-engineered, bypass le NLU. D (fusionner en `lookup_entity`) = choix
+  archi lourd, pas un « premier pas ».* **Leçon : la description est le levier n°1 de sélection.**
+- **Q3.** 55 % de résolution (cible 80 %) : escalade le simple, tente le complexe. Calibrer l'escalation ?
+  **✅ A) Critères d'escalation explicites + few-shot.** — *B (self-confidence 1-10) mal calibrée (l'agent est déjà
+  faussement confiant sur le dur). C (classifier entraîné) over-engineered avant d'avoir tenté le prompt. D
+  (sentiment) ≠ complexité.* **Leçon : réponse proportionnée d'abord ; confidence/sentiment = faux proxys.**
+
+**Scénario — Code Generation avec Claude Code**
+- **Q4.** Commande `/review` dispo pour tous au clone du repo. Où ?
+  **✅ A) `.claude/commands/`** (versionné, partagé). — *B `~/.claude/commands/` = perso. C CLAUDE.md = contexte,
+  pas des commandes. D `.claude/config.json` = mécanisme inexistant.*
+- **Q5.** Monolithe → microservices, dizaines de fichiers, frontières à décider. Approche ?
+  **✅ A) Plan mode** (explorer/concevoir avant de changer). — *B/C/D (direct execution) : risque de rework, supposent
+  la structure connue, ou ignorent que la complexité est **déjà** énoncée (pas émergente).*
+- **Q6.** Conventions par type de fichier, tests dispersés, application **automatique**. Plus maintenable ?
+  **✅ A) `.claude/rules/` + glob** (`**/*.test.tsx`). — *B (CLAUDE.md racine) = inférence peu fiable. C (skills) =
+  invocation manuelle, pas « auto ». D (CLAUDE.md par sous-dossier) = directory-bound, gère mal les fichiers dispersés.*
+
+**Scénario — Multi-Agent Research**
+- **Q7.** Rapport « creative industries » ne couvre que les arts visuels ; logs : coordinateur a décomposé en
+  digital art/graphic design/photography. Cause racine ?
+  **✅ B) Décomposition trop étroite du coordinateur.** — *A/C/D blâment des agents aval qui exécutent **correctement**
+  ce qu'on leur a assigné.* **Leçon : cherche la cause en amont (coordinateur), pas chez l'agent qui marche.**
+- **Q8.** Le subagent web search timeout. Meilleure propagation d'erreur ?
+  **✅ A) Contexte d'erreur structuré** (type, requête tentée, résultats partiels, alternatives). — *B (statut générique
+  « unavailable ») cache le contexte. C (vide marqué succès) masque l'erreur. D (tuer le workflow) = disproportionné.*
+- **Q9.** Synthesis vérifie souvent (85 % simple, 15 % complexe), +40 % de latence via le coordinateur. Quoi ?
+  **✅ A) Outil scoped `verify_fact`** pour le simple, coordinateur pour le complexe. — *B (batcher) crée des
+  dépendances bloquantes. C (tous les web tools) over-provision. D (cache spéculatif) imprévisible.* **Leçon :
+  moindre privilège.**
+
+**Scénario — Claude Code en CI/CD**
+- **Q10.** `claude "…"` hang (attend un input). Bonne approche ?
+  **✅ A) `-p` / `--print`** (mode non-interactif). — *B `CLAUDE_HEADLESS` et D `--batch` = inexistants. C
+  (rediriger stdin) = workaround qui ne traite pas la syntaxe.*
+- **Q11.** Réduire les coûts : (1) check pre-merge **bloquant**, (2) rapport dette **overnight**. Tout passer en Batch ?
+  **✅ A) Batch pour le rapport overnight seulement** ; real-time pour le pre-merge. — *Batch = 50 % moins cher mais
+  **jusqu'à 24 h sans SLA** → inadapté au bloquant. B (« souvent plus rapide ») inacceptable pour du bloquant. C
+  ignore l'économie facile. D = complexité inutile (les résultats sont corrélables par `custom_id`).*
+- **Q12.** Revue de 14 fichiers en un seul passage : incohérente, bugs ratés, feedback contradictoire. Restructurer ?
+  **✅ A) Découper : per-file local + integration pass cross-file.** — *B reporte la charge sur les devs. C (plus gros
+  contexte) ne règle pas la **qualité d'attention**. D (consensus 2/3 runs) **supprime** les vrais bugs détectés une
+  seule fois.* **Leçon : contre la dilution d'attention, on découpe.**
+
+**Méta-leçon des 12** : la bonne réponse vise la **cause racine** et reste **proportionnée** (le bon *premier pas*) ;
+les distracteurs sont presque toujours l'**over-engineering**, le **prompt là où il faut du déterministe**, le
+**blâme de l'agent aval**, ou le **« plus gros modèle »**.
 
 ---
 *Cours établi à partir du guide d'examen officiel + FAQ + **doc officielle (tous les points techniques recoupés
