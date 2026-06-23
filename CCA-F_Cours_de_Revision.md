@@ -81,10 +81,12 @@ et al. 2019.)*
   retrieval d'un domaine déjà vu.
 - **J-4 — Mock complet n°1** en conditions (4 scénarios, chrono). Idéalement la **Practice Exam officielle**.
   Débrief complet.
-- **J-3 — Réparation ciblée** : re-teste *uniquement* tes erreurs ; drille les **arbres de décision** (§0.5).
+- **J-3 — Réparation ciblée** : re-teste *uniquement* tes erreurs ; drille les **7 patterns de distracteurs**
+  (§0.5) et les **mental models** de chaque domaine (§D0-D5) jusqu'à les appliquer en réflexe.
 - **J-2 — Mock complet n°2** en conditions. Décide ton **Go/No-go**.
-- **J-1 — Taper** : relis **seulement** journal d'erreurs + cheat sheets + 7 distracteurs. **Aucun nouveau
-  contenu. Dors** (le sommeil consolide).
+- **J-1 — Taper** : relis **seulement** ton journal d'erreurs + les **mental models** de chaque domaine + les
+  **7 patterns de distracteurs** (§0.5) + la **méta-leçon des 12 questions** (Partie 4). **Aucun nouveau contenu.
+  Dors** (le sommeil consolide).
 - **J-0** : échauffement léger (survol du journal), puis stratégie de passage (§0.5).
 
 **Go / No-go (à J-2) :**
