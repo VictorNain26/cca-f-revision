@@ -8,11 +8,13 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 
 | Paramètre | Valeur |
 |---|---|
-| Questions | 60 QCM scénarisés |
-| Durée | 120 minutes |
-| Score de passage | 720 / 1000 |
+| Questions | ~60 QCM scénarisés *(estimation non confirmée — à vérifier sur le portail)* |
+| Durée | ~120 minutes *(estimation non confirmée)* |
+| Score de passage | **720 / 1000** *(confirmé)* |
 | Scénarios | 4 tirés au sort sur les 6 du pool |
-| Plateforme | ProctorFree |
+| Plateforme | Proctored via **ProctorFree** *(confirmé)* |
+| Tentatives | **Une seule** *(confirmé)* |
+| Practice Exam | Officielle dans Skilljar — **viser > 900/1000** = meilleur prédicteur de réussite |
 
 ## Couverture du corpus — 100 % du référentiel officiel
 
@@ -56,13 +58,15 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 Hébergé sur GitHub Pages depuis ce repo (branche `main`, racine).
 
 ```bash
-# Mise à jour après modifications locales :
-git add .
+# Mise à jour après modifications locales (stager les fichiers explicitement) :
+git add <fichiers-modifiés>
 git commit -m "Description des changements"
 git push
 
 # GitHub Pages se rebuild automatiquement en 1-2 min.
 ```
+
+> ⚠️ Le dépôt est **privé** : l'URL publique GitHub Pages ne sert le site que si Pages est activé pour un dépôt privé (plan GitHub compatible). Pour partager, inviter des collaborateurs sur le dépôt privé.
 
 ## Sources
 
@@ -70,4 +74,4 @@ Ce corpus est basé sur le guide officiel CCA-F d'Anthropic et complété par le
 
 ---
 
-*Corpus complet pour préparation CCA-F en 2-3 semaines · Mis à jour mai 2026.*
+*Corpus complet pour préparation CCA-F en 2-3 semaines · Mis à jour juin 2026.*

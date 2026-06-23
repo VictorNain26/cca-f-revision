@@ -45,6 +45,7 @@
 </ul>
 </li>
 <li><a href="#croise">Tableau croise Scenario x Domaine</a></li>
+<li><a href="#hors-scope">Hors-scope — ne revise pas ca</a></li>
 <li><a href="#distracteurs">Les patterns de distracteurs recurrents</a></li>
 </ol>
 </div>
@@ -60,7 +61,17 @@
 <tr><td>Score</td><td>Echelle de <strong>100 a 1000</strong>, passing score = <strong>720</strong></td></tr>
 <tr><td>Penalite</td><td><strong>Aucune penalite</strong> pour réponse fausse</td></tr>
 <tr><td>Scenarios</td><td><strong>4 scénarios selectionnes aleatoirement</strong> sur les 6 possibles</td></tr>
+<tr><td>Proctoring</td><td><strong>Proctored</strong> via <strong>ProctorFree</strong></td></tr>
+<tr><td>Tentatives</td><td><strong>Une seule tentative autorisee</strong> a l'examen officiel</td></tr>
 </table>
+
+<div class="exam-tip">
+<strong>Pratique avant le jour J :</strong> Anthropic fournit une <strong>Practice Exam officielle</strong> dans Skilljar. Viser <strong>&gt;900/1000</strong> est le meilleur prédicteur de réussite a l'examen réel. Utilise-la pour te familiariser avec le format et les pièges avant ta tentative unique.
+</div>
+
+<div class="key-concept">
+<strong>Parametres a confirmer sur le portail :</strong> Le nombre exact de questions (~60) et la durée (~120 min) ne sont <strong>pas confirmés officiellement</strong> dans ce document. Verifie ces details sur ton portail Skilljar ou auprès du support Anthropic avant l'examen.
+</div>
 
 <div class="exam-tip">
 <strong>Strategie critique :</strong> Pas de penalite = répondre a TOUTES les questions, même en cas de doute. Ne jamais laisser une question vide.
@@ -147,7 +158,7 @@
 <li><strong>Hub-and-spoke</strong> : toute communication passe par le coordinateur, jamais directement entre subagents</li>
 <li><strong>Subagent context isolation</strong> : context passing explicite a chaque delegation</li>
 <li><strong>Narrow décomposition risk</strong> : ne couvrir que l'art visuel pour "creative industries" = couverture insuffisante</li>
-<li><strong>Parallel spawning</strong> : multiple <code>Task</code> calls dans une seule réponse</li>
+<li><strong>Parallel spawning</strong> : multiple <code>Task</code> calls dans une seule réponse <span style="background-color:#fff3cd;padding:0.2em 0.4em;border-radius:2px;font-size:0.9em;"><code>Task</code> est le nom donné par le guide d'examen (réponse attendue) ; la doc Agent SDK actuelle parle de l'outil <code>Agent</code>. Même concept.</span></li>
 <li><strong>Structured error propagation</strong> : <code>failure_type</code>, <code>partial_results</code>, <code>alternatives</code></li>
 <li><strong>Coverage annotations</strong> dans la synthese</li>
 <li><strong>Provenance</strong> : claim-source mappings, conflicting data handling</li>
@@ -350,10 +361,36 @@
 </div>
 
 <!-- ============================================================ -->
-<!-- SECTION 4 : PATTERNS DE DISTRACTEURS -->
+<!-- SECTION 4 : HORS-SCOPE -->
 <!-- ============================================================ -->
 <div class="page-break"></div>
-<div class="section-header"><h2 id="distracteurs">4. Les patterns de distracteurs recurrents</h2></div>
+<div class="section-header"><h2 id="hors-scope">4. Hors-scope — ne revise pas ca</h2></div>
+
+<p><strong>Ce qui N'EST PAS teste par l'examen CCA-F :</strong> Les topics suivants n'apparaissent pas (ou tres marginalement) dans les 6 scénarios. Les ignorer permet de concentrer ta révision sur ce qui compte vraiment.</p>
+
+<ul>
+<li><strong>Fine-tuning / entraînement de modèles</strong> : l'examen se concentre sur l'utilisation d'API et d'agents, pas sur comment entraîner Claude.</li>
+<li><strong>Embeddings &amp; vector databases (RAG détaillé)</strong> : le contexte et la retrieval sont couverts, mais pas l'architecture vectorielle profonde ni les stores spécialisés.</li>
+<li><strong>Computer use</strong> : interactions browser ou contrôle de desktop ne sont pas des sujets d'examen.</li>
+<li><strong>Vision / image processing</strong> : pas de vision multimodale dans les domaines évalués.</li>
+<li><strong>Streaming API</strong> : les appels API standard et Batch API oui, mais pas le streaming détaillé.</li>
+<li><strong>Hébergement de serveurs MCP / AWS Bedrock / GCP Vertex</strong> : les MCP tools locaux et Claude API sont couverts, mais pas le déploiement d'infrastructures ou de services cloud concurrents.</li>
+<li><strong>Auth, billing, gestion de compte</strong> : les aspects opérationnels API (clés, authentification basique) sont hors périmètre.</li>
+<li><strong>Rate limiting, quotas, calcul de pricing</strong> : la facturation détaillée et les limitations d'usage ne sont pas testees.</li>
+<li><strong>Tokenization &amp; token counting (détails internes)</strong> : savoir que les tokens existent oui, mais pas les algos de tokenization ou les outils de counting avancés.</li>
+<li><strong>Détails internes du prompt caching (au-delà de savoir qu'il existe)</strong> : le context reuse est covert, mais pas les mécanismes internes ou l'optimisation fine-grained.</li>
+<li><strong>Benchmarking / comparaison de modèles</strong> : focus sur Claude, pas sur comparatifs avec d'autres LLM.</li>
+</ul>
+
+<div class="exam-tip">
+<strong>Principe :</strong> Si tu te trouves a réviser un de ces sujets et que tu n'es pas sûr qu'il soit couvert, relis les 6 scénarios. S'il n'apparaît pas, c'est probablement hors périmètre de l'examen.
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 5 : PATTERNS DE DISTRACTEURS -->
+<!-- ============================================================ -->
+<div class="page-break"></div>
+<div class="section-header"><h2 id="distracteurs">5. Les patterns de distracteurs recurrents</h2></div>
 
 <p>A travers les 6 scénarios, certains types de mauvaises réponses reviennent systematiquement. Reconnaitre ces patterns permet d'eliminer rapidement les distracteurs.</p>
 

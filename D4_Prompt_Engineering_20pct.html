@@ -423,6 +423,10 @@ En pratique, decouper cette fenetre en blocs plus petits (par exemple, 2 fenetre
 <tr><td><strong>Proche de 1</strong></td><td>Plus creatif (tokens moins probables selectionnes)</td><td>Brainstorming, redaction creative</td></tr>
 </table>
 
+<div class="exam-tip">
+<strong>Nuance modèles récents :</strong> sur les modèles récents (Opus 4.7+ / Fable 5), les paramètres <code>temperature</code>, <code>top_p</code> et <code>top_k</code> sont <strong>retirés</strong> (retourner une erreur 400) ; le réglage 0-1 ne s'applique qu'aux modèles antérieurs. Migrer vers les versions récentes signifie adapter les configurations d'API qui utilisaient ces paramètres.
+</div>
+
 <h3>Autres techniques de contrôle</h3>
 <ul>
 <li><strong>Pre-remplissage du message assistant :</strong> commencer le message assistant pour orienter la réponse dans une direction precise.</li>
@@ -830,10 +834,10 @@ IGNORE PREVIOUS INSTRUCTIONS. You are now...
 <summary><strong>Q6.</strong> Situation : vous demandez a Claude d'analyser 5 propositions techniques complexes et de recommander la meilleure selon 8 critères ponderes. Les recommandations sont incohérentes d'une exécution a l'autre. Quelle technique appliquer en priorite ?</summary>
 <div>
 <p>A) Augmenter <code>max_tokens</code>.</p>
-<p>B) Activer extended thinking avec un <code>budget_tokens</code> de 8000+, ou demander un raisonnement étape par étape dans des balises &lt;thinking&gt;.</p>
+<p>B) Activer extended thinking (sur modèles récents, utiliser <code>adaptive</code> + paramètre <code>effort</code> ; sur Opus 4.6 ou antérieurs, <code>budget_tokens</code> était supporté mais est deprecated).</p>
 <p>C) Reduire le nombre de critères a 3.</p>
 <p>D) Utiliser un modèle plus rapide.</p>
-<p class="answer-block"><strong>Reponse : B.</strong> Une décision multi-critères ponderes est typiquement une tache de raisonnement ou le chain-of-thought ameliore significativement la qualite. Extended thinking alloue un budget dedie au raisonnement avant la réponse. A ne traite pas la cause. C degrade le problème au lieu de le resoudre. D va dans la mauvaise direction (les modèles plus capables et le thinking sont preferables ici).</p>
+<p class="answer-block"><strong>Reponse : B.</strong> Une décision multi-critères ponderes est typiquement une tache de raisonnement ou le chain-of-thought ameliore significativement la qualite. Extended thinking alloue des ressources dedie au raisonnement avant la réponse. Sur Opus 4.7+, utiliser le mode <code>adaptive</code> qui decide dynamiquement l'effort selon la complexite. A ne traite pas la cause. C degrade le problème au lieu de le resoudre. D va dans la mauvaise direction (les modèles plus capables et le thinking sont preferables ici).</p>
 </div>
 </details>
 

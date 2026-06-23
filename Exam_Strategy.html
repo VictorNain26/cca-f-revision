@@ -26,7 +26,7 @@
 
 <div class="header-bar">
 <h1>CCA-F — Strategie jour J et cheat sheet</h1>
-<p>Document de synthese final · 60 QCM · 120 min · Score 720/1000 · 4 scénarios sur 6 tirés au sort</p>
+<p>Document de synthese final · ~60 QCM · ~120 min (estimation non confirmée — vérifier sur le portail) · Score 720/1000 · 4 scénarios sur 6 tirés au sort</p>
 </div>
 
 <div class="toc">
@@ -46,6 +46,17 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="planning">1. Planning des 2-3 dernieres semaines</h2></div>
 
+<div class="key-concept">
+<strong>Faits confirmés par la FAQ officielle :</strong>
+<ul>
+<li>Score de passage : <strong>720/1000</strong></li>
+<li>Format d'examen : <strong>proctored via ProctorFree</strong></li>
+<li>Nombre de tentatives : <strong>une seule</strong></li>
+<li>Meilleur prédicteur de réussite : <strong>Practice Exam officielle — viser &gt;900/1000</strong></li>
+<li>Structure : <strong>4 scénarios tirés sur 6</strong></li>
+</ul>
+</div>
+
 <div class="tldr">
 <strong>TL;DR :</strong> Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire les QCM, expliquer a voix haute pourquoi chaque distracteur est faux.
 </div>
@@ -55,7 +66,7 @@
 <tr><th>Semaine</th><th>Focus</th><th>Activites quotidiennes (1-2 h)</th></tr>
 <tr><td><strong>S-3</strong> (consolidation)</td><td>Lecture profonde des 5 docs domaine + D0</td><td>Lire 1 domaine/jour ; surligner les exam-tips et anti-patterns ; faire les questions auto-eval du chapitre</td></tr>
 <tr><td><strong>S-2</strong> (active recall)</td><td>Practice questions par scénario</td><td>1 scénario complet/jour (12-15 Q) ; expliquer chaque distracteur ; revoir le doc Scenarios_Exam.html</td></tr>
-<tr><td><strong>S-1</strong> (simulation)</td><td>Examens blancs en conditions</td><td>40 Q en 80 min, score, debrief ; revoir les domaines faibles ; relire le cheat sheet (ce doc)</td></tr>
+<tr><td><strong>S-1</strong> (simulation)</td><td>Examens blancs en conditions</td><td>~40 Q en ~80 min (estimation non confirmée), score, debrief ; revoir les domaines faibles ; relire le cheat sheet (ce doc)</td></tr>
 <tr><td><strong>J-1</strong></td><td>Repos et confiance</td><td>Survol rapide des cheat sheets, pas de bourrage ; coucher tot</td></tr>
 </table>
 
@@ -63,12 +74,39 @@
 <ul>
 <li>Tu peux expliquer en 30 secondes la différence entre <code>tool_use</code>, <code>tool_choice: "any"</code>, et <code>tool_choice: "tool"</code></li>
 <li>Tu peux nommer les 4 catégories d'erreur MCP de tete</li>
-<li>Tu peux citer les 7 evenements de hooks Claude Code</li>
+<li>Tu peux citer les principaux événements de hooks Claude Code (UserPromptSubmit, PreToolUse, PostToolUse, etc.)</li>
 <li>Tu peux distinguer hooks Agent SDK (D1) vs hooks Claude Code (D3)</li>
 <li>Tu sais quand <strong>refuser</strong> le Batch API (pre-merge, multi-turn tool calling)</li>
 <li>Tu reconnais les declencheurs d'<code>escalation</code> fiables vs non fiables</li>
 <li>Sur les 78 questions de Practice_Questions, tu obtiens &gt; 85 % au 2e passage</li>
 </ul>
+
+<h3>Méthode evidence-based — les 5 règles qui font la différence</h3>
+<div class="key-concept">
+<strong>Ce que la recherche sur l'apprentissage établit (et qui change ton rendement) :</strong>
+<ol>
+<li><strong>Se tester, pas relire.</strong> Le <em>retrieval practice</em> est la technique à plus haut rendement ; relire/surligner crée une illusion de maîtrise. → Tes sessions commencent par des questions <strong>fiches fermées</strong>. <em>(Dunlosky 2013 ; Roediger &amp; Karpicke 2006)</em></li>
+<li><strong>Débriefer chaque distracteur</strong> : savoir pourquoi les 3 mauvaises options sont fausses vaut autant que la bonne réponse. <em>(Little et al. 2012)</em></li>
+<li><strong>Feedback + hypercorrection</strong> : les erreurs commises avec assurance (confiance 4-5) sont les plus rentables à corriger. <em>(Metcalfe 2017)</em></li>
+<li><strong>Espacer et entrelacer</strong> : revois chaque domaine tous les 2-3 jours et mélange-les (entraîne à discriminer les scénarios). <em>(Cepeda 2008 ; Rohrer &amp; Taylor 2007)</em></li>
+<li><strong>Allouer au poids × ta faiblesse</strong> : D1 (27 %) d'office ; ne néglige jamais D5 (15 %), points faciles.</li>
+</ol>
+</div>
+
+<div class="exam-tip">
+<strong>Journal d'erreurs (ta vraie révision) :</strong> pour chaque question ratée ou devinée, note une ligne — <em>Domaine · Ma réponse · Bonne réponse · Pourquoi mon choix est faux · Pourquoi chaque autre distracteur est faux · Règle à retenir · Confiance 1-5</em>. À J-1 tu ne relis que ce journal + les cheat sheets.
+</div>
+
+<h3>Plan compressé si tu as &lt; 2 semaines</h3>
+<table>
+<tr><th>Phase</th><th>Activité</th></tr>
+<tr><td><strong>J-12</strong></td><td>Diagnostic : ~25-30 Q tous scénarios confondus, chrono, fiches fermées → score par domaine, priorités</td></tr>
+<tr><td><strong>J-11 → J-5</strong></td><td>1 domaine/jour (ordre poids × faiblesse), boucle test → débrief → journal ; échauffement = retrieval d'un domaine déjà vu</td></tr>
+<tr><td><strong>J-4</strong></td><td>Mock complet n°1 en conditions (idéalement la Practice Exam officielle), débrief complet</td></tr>
+<tr><td><strong>J-3</strong></td><td>Réparation ciblée : re-teste uniquement tes erreurs ; drille les 7 distracteurs et les arbres de décision</td></tr>
+<tr><td><strong>J-2</strong></td><td>Mock complet n°2 → décision Go/No-go (cible &gt; 900/1000 à la Practice, sinon ≥ 85 % et aucun domaine &lt; 75 %)</td></tr>
+<tr><td><strong>J-1</strong></td><td>Taper : relis seulement journal + cheat sheets + 7 distracteurs. Aucun nouveau contenu. Dors.</td></tr>
+</table>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="methodo">2. Methodologie QCM (jour J)</h2></div>
@@ -86,6 +124,7 @@
 </div>
 
 <h3>Gestion du temps</h3>
+<p><em>Estimation basée sur ~60 Q en ~120 min — format non confirmé officiellement. Adapter selon le vrai format.</em></p>
 <table>
 <tr><th>Phase</th><th>Duree</th><th>Cible</th></tr>
 <tr><td>Phase 1 : passage rapide</td><td>~80 min (≈ 1 min 20 / Q)</td><td>Repondre les Q evidentes, marquer les difficiles</td></tr>
@@ -133,7 +172,7 @@
 <li><strong>Seul signal d'arret fiable :</strong> <code>stop_reason</code>. Jamais le texte, jamais une limite arbitraire d'iterations.</li>
 <li><strong>Hooks vs prompt :</strong> consequences financieres/legales/securite → hook (deterministe). Preferences → prompt.</li>
 <li><strong>Subagent vs thread principal :</strong> "le travail intermediaire m'interesse-t-il ?" Non → subagent. Oui → thread principal.</li>
-<li><strong>Multiple Task() dans une SEULE response = parallel exécution.</strong> Plusieurs responses = sequential.</li>
+<li><strong>Multiple Task() dans une SEULE response = parallel exécution.</strong> Plusieurs responses = sequential. <em>Note : « Task » est le nom du guide d'examen ; la doc Agent SDK actuelle parle de l'outil « Agent ».</em></li>
 <li><strong>Decomposition trop etroite</strong> = couverture incomplete (piège classique du Multi-Agent Research).</li>
 <li><strong>Idempotency keys</strong> obligatoires pour tout retry sur action a effet de bord.</li>
 <li><strong>Cycle OTAR</strong> (observe-think-act-respond) — vocabulaire a connaitre.</li>
@@ -163,7 +202,7 @@
 <li><strong>Priorite skills :</strong> Enterprise &gt; Personnel &gt; Projet &gt; Plugins.</li>
 <li><strong>Bash allowlist :</strong> <code>Bash(npm test)</code> = exact ; <code>Bash(npm test:*)</code> = avec args. <strong>:* est CRUCIAL en CI.</strong></li>
 <li><strong>Hooks Claude Code (config) ≠ hooks Agent SDK (D1).</strong> Les premiers sont dans <code>"hooks"</code> de settings.json ; les seconds en code Python/TS.</li>
-<li><strong>Hooks events :</strong> UserPromptSubmit, PreToolUse, PostToolUse, Stop, SessionStart, Notification, PreCompact.</li>
+<li><strong>Hooks events (principaux) :</strong> UserPromptSubmit, PreToolUse, PostToolUse, Stop, SessionStart, Notification, PreCompact, <em>et autres</em>.</li>
 <li><strong>Hook return code 2 = blocking</strong> (Claude voit l'erreur et reagit). Code 0 = OK. Autre = non-blocking log.</li>
 <li><strong>CI/CD :</strong> <code>-p</code> = headless mode obligatoire ; <code>--max-turns N</code> = garde-fou ; <code>fetch-depth: 0</code> dans GitHub Actions.</li>
 <li><strong>Glob patterns vs directory CLAUDE.md :</strong> glob pour conventions cross-directory (tests co-localises) ; directory CLAUDE.md pour zones bien delimitees.</li>
@@ -263,7 +302,7 @@
 <tr><td>Agentic loop signal</td><td><code>stop_reason</code> uniquement. <code>"tool_use"</code> = continuer, <code>"end_turn"</code> = stop</td></tr>
 <tr><td>Cycle OTAR</td><td>Observe-Think-Act-Respond (vocabulaire)</td></tr>
 <tr><td>Hub-and-spoke</td><td>Coordinateur central, subagents spécialisés avec contexte isole</td></tr>
-<tr><td>Task tool parallel</td><td>Plusieurs Task() dans UNE response = parallel ; plusieurs responses = sequential</td></tr>
+<tr><td>Task tool parallel</td><td>Plusieurs Task() dans UNE response = parallel ; plusieurs responses = sequential. Note : « Task » du guide = outil « Agent » en SDK actuel</td></tr>
 <tr><td>Hook events SDK</td><td>PreToolUse / PostToolUse</td></tr>
 <tr><td>Failure recovery</td><td>Retry+backoff / Circuit breaker / Partial results / Saga / Idempotency</td></tr>
 <tr><td>HITL patterns</td><td>Approval gate / Disambiguation / Quality review / Escalation handoff</td></tr>
@@ -298,7 +337,7 @@
 <tr><td>deny &gt; allow</td><td>Defense en profondeur — un deny l'emporte sur un allow plus large</td></tr>
 <tr><td>Skills frontmatter</td><td>name / description (matching semantique) / context: fork / allowed-tools</td></tr>
 <tr><td>Priorite skills</td><td>Enterprise &gt; Personnel &gt; Projet &gt; Plugins</td></tr>
-<tr><td>Hooks events config</td><td>UserPromptSubmit, PreToolUse, PostToolUse, Stop, SessionStart, Notification, PreCompact</td></tr>
+<tr><td>Hooks events config (principaux)</td><td>UserPromptSubmit, PreToolUse, PostToolUse, Stop, SessionStart, Notification, PreCompact, <em>et autres</em></td></tr>
 <tr><td>Hook return codes</td><td>0 = OK / 2 = blocking (Claude reagit) / autre = non-blocking log</td></tr>
 <tr><td>Hook variables</td><td><code>$CLAUDE_FILE_PATHS</code>, <code>$CLAUDE_TOOL_NAME</code>, <code>$CLAUDE_TOOL_INPUT</code></td></tr>
 <tr><td>CI flags</td><td><code>-p</code> (headless), <code>--output-format json</code>, <code>--json-schema</code>, <code>--max-turns N</code></td></tr>
@@ -399,9 +438,9 @@
 <li>S'installer 10 min avant le creneau</li>
 </ul>
 
-<h3>Pendant l'examen (120 min, 60 Q)</h3>
+<h3>Pendant l'examen (~120 min, ~60 Q — estimation non confirmée)</h3>
 <ol>
-<li><strong>Phase 1 (0-80 min) :</strong> passer en revue toutes les Q. Repondre les evidentes, marquer les difficiles. <strong>Ne jamais bloquer plus de 90 sec sur une Q en phase 1.</strong></li>
+<li><strong>Phase 1 (0-80 min approx.) :</strong> passer en revue toutes les Q. Repondre les evidentes, marquer les difficiles. <strong>Ne jamais bloquer plus de 90 sec sur une Q en phase 1.</strong></li>
 <li><strong>Phase 2 (80-110 min) :</strong> reprendre les Q marquees. Appliquer la méthode des 7 distracteurs. Eliminer 2, decider entre les 2 restants.</li>
 <li><strong>Phase 3 (110-120 min) :</strong> vérification. Survoler. <strong>Ne changer une réponse que si une certitude apparaît.</strong></li>
 </ol>

@@ -217,8 +217,8 @@ Quand tu rediges une description de PR :
 <h3>Les paramètres du frontmatter</h3>
 <table>
 <tr><th>Parametre</th><th>Obligatoire</th><th>Role</th></tr>
-<tr><td><code>name</code></td><td>Oui</td><td>Identifie le skill.</td></tr>
-<tr><td><code>description</code></td><td>Oui</td><td>Determine <em>quand</em> Claude active le skill (matching semantique) et influence <em>comment</em> il redige le prompt.</td></tr>
+<tr><td><code>name</code></td><td>Optionnel — défaut = nom du dossier du skill</td><td>Display name (identifiant optionnel). Par défaut, le nom du dossier du skill sert de nom de commande (ex. <code>/review</code> pour <code>.claude/skills/review/SKILL.md</code>).</td></tr>
+<tr><td><code>description</code></td><td>Oui</td><td>Determine <em>quand</em> Claude active le skill (matching semantique) — tronquée à ~1536 caractères dans le listing — et influence <em>comment</em> il redige le prompt. C'est le champ le plus determinant pour le declenchement.</td></tr>
 <tr><td><code>context: fork</code></td><td>Non</td><td>Execute le skill dans un contexte isole de subagent. La sortie verbeuse ne pollue pas la session principale.</td></tr>
 <tr><td><code>allowed-tools</code></td><td>Non</td><td>Restreint les outils disponibles (ex. : lecture seule = ni <code>Edit</code> ni <code>Write</code>).</td></tr>
 <tr><td><code>argument-hint</code></td><td>Non</td><td>Demande un paramètre quand le skill est invoque sans argument.</td></tr>
@@ -236,9 +236,9 @@ Quand tu rediges une description de PR :
 </table>
 
 <div class="key-concept">
-<strong>Priorite en cas de conflit de nom :</strong> un skill projet l'emporte sur un skill personnel de même nom. Les skills personnels dans <code>~/.claude/skills/</code> doivent donc utiliser des <strong>noms différents</strong> de ceux du projet pour ne pas être masques. Par exemple, utilisez <code>/my-commit</code> au lieu de <code>/commit</code> si le projet definit déjà un skill <code>/commit</code>.
+<strong>Priorite en cas de conflit de nom :</strong> un skill personnel l'emporte sur un skill projet de même nom. Par exemple, si vous avez un skill <code>/review</code> dans <code>~/.claude/skills/review/SKILL.md</code> et que le projet definit aussi un <code>/review</code> dans <code>.claude/skills/review/SKILL.md</code>, votre skill personnel sera utilise.
 <br><br>
-Hierarchie complète : <strong>Enterprise</strong> (la plus haute) &gt; <strong>Personnel</strong> &gt; <strong>Projet</strong> &gt; <strong>Plugins</strong> (la plus basse).
+Hierarchie complète : <strong>Enterprise</strong> (la plus haute) &gt; <strong>Personnel</strong> &gt; <strong>Projet</strong> &gt; <strong>Plugins</strong> (la plus basse). <strong>Note :</strong> les skills issus de plugins sont namespacés (<code>plugin:skill-name</code>) et n'entrent donc jamais en conflit direct de nom avec des skills non namespacés.
 </div>
 
 <h3>Skills et subagents</h3>
