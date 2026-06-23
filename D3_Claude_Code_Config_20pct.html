@@ -100,7 +100,7 @@ Chaque endpoint doit retourner un wrapper de reponse standard.</pre>
 <h3>Les commandes <code>/memory</code> et <code>/compact</code></h3>
 <p><em>(Source : guide officiel, sections 5.7 et 5.8.)</em></p>
 <ul>
-<li><strong><code>/memory</code></strong> ouvre le fichier <code>CLAUDE.md</code> pour edition. Les notes et preferences que vous y enregistrez persistent entre les sessions et sont chargees automatiquement au demarrage. C'est l'alternative a reexpliquer les mêmes instructions a chaque conversation.</li>
+<li><strong><code>/memory</code></strong> affiche quels fichiers mémoire sont actuellement chargés et vous permet de les editer pour y ajouter des notes et preferences. Les fichiers chargés (ex. <code>~/.claude/projects/&lt;id&gt;/memory/*.md</code>) persistent entre les sessions et sont appliques automatiquement au demarrage. C'est aussi la commande de diagnostic quand vous soupçonnez qu'une instruction n'a pas ete chargee correctement — verifiez que le fichier de mémoire attendu apparaît dans la liste des fichiers chargés.</li>
 <li><strong><code>/compact</code></strong> compresse le contexte en resumant l'historique. Utile dans les longues sessions d'investigation, mais avec un risque : les valeurs numeriques exactes, les dates et les détails precis peuvent être perdus lors de la compression.</li>
 </ul>
 
@@ -458,11 +458,11 @@ Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de dé
 <p>Deux stratégies pour fournir du feedback a Claude :</p>
 <table>
 <tr><th>Strategie</th><th>Quand l'utiliser</th><th>Exemple</th></tr>
-<tr><td><strong>Batch feedback</strong></td><td>Quand vous avez plusieurs remarques independantes a transmettre d'un coup</td><td>"Renomme la variable, ajoute le type de retour, et corrigé l'indentation"</td></tr>
-<tr><td><strong>Sequential feedback</strong></td><td>Quand chaque correction depend de la precedente, ou quand vous voulez valider étape par étape</td><td>"D'abord corrigé l'architecture du module, puis on verra les tests"</td></tr>
+<tr><td><strong>Batch feedback</strong></td><td>Quand les problèmes sont <strong>interdépendants ou interactifs</strong> : tout dans un seul message détaillé pour que le modèle voie les interactions et les réconcilie</td><td>"Le module manque de gestion d'erreurs, ce qui affecte aussi la validation d'input : proposer une architecture unifiee"</td></tr>
+<tr><td><strong>Sequential feedback</strong></td><td>Quand les problèmes sont <strong>indépendants</strong> : un par un, sans que chaque correction dépende de la précédente</td><td>"1. Renomme la variable X. 2. Après validation, on passera au type de retour."</td></tr>
 </table>
 <div class="key-concept">
-Le batch feedback est plus efficace en tokens (un seul echange), mais le sequential feedback permet de vérifier chaque étape avant de continuer. Pour les changements a haut risque ou les domaines complexes, privilegiez le sequential feedback.
+<strong>La clé : l'interdépendance.</strong> Si les problèmes s'influencent mutuellement (ex. erreur de gestion d'erreur + validation d'input), utilisez <strong>batch</strong> pour que le modèle voit les interactions et reconcilie. Si chaque problème est indépendant, utilisez <strong>sequential</strong> pour valider étape par étape. Le batch est plus efficace en tokens, le sequential offre plus de contrôle et de validation.
 </div>
 
 <!-- ================================================================== -->
@@ -776,7 +776,7 @@ claude mcp remove github</pre>
 <li>Combinaison : planning mode puis direct exécution après approbation.</li>
 <li>Le Explore subagent isole la sortie verbeuse de la decouverte.</li>
 <li>Le interview pattern fait émerger les considerations non anticipees avant implementation.</li>
-<li>Batch feedback pour les remarques independantes ; sequential feedback pour les étapes dependantes.</li>
+<li>Batch feedback (un seul message) pour les problèmes interdépendants ; sequential feedback pour les problèmes indépendants.</li>
 </ul>
 
 <h3>CI/CD</h3>

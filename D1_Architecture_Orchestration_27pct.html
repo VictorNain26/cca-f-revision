@@ -270,7 +270,7 @@
 <strong>Bon :</strong> <code>Task: "Analyse le document suivant. Document : [texte complet]. Resultats de recherche prealables : [donnees]. Format de sortie attendu : [schema]."</code> — le subagent dispose de tout ce qu'il faut pour travailler de manière autonome.
 </div>
 
-<p>Lors du context passing, utilisez des <strong>formats structures qui separent clairement les donnees des metadonnees</strong> (source, date, type). Cela évite toute confusion et facilite l'agrégation par le coordinateur. <em>(Source : guide officiel, Task 1.3.)</em></p>
+<p>Lors du context passing, utilisez des <strong>formats structures qui separent clairement les donnees des metadonnees</strong> (source, date, type). Cela évite toute confusion et facilite l'agrégation par le coordinateur. En particulier, inclure explicitement dans le contexte transmis au subagent : <strong>l'URL source ou le nom du document, le type de contenu (web, local, API), et le numéro de page</strong> (s'applicable). Ces metadonnees explicites <strong>preservent l'attribution</strong> des claims jusqu'au rapport final — essentielles pour la traçabilite, surtout en domaines reglementaires. <em>(Source : guide officiel, Task 1.3, Skills.)</em></p>
 
 <h3>Le parallel spawning</h3>
 <p>Le coordinateur peut emettre <strong>plusieurs appels Task dans une seule réponse</strong>. Les subagents s'executent alors en parallele, ce qui accelere considerablement le traitement :</p>

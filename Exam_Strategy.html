@@ -26,7 +26,7 @@
 
 <div class="header-bar">
 <h1>CCA-F — Strategie jour J et cheat sheet</h1>
-<p>Document de synthese final · ~60 QCM · ~120 min (estimation non confirmée — vérifier sur le portail) · Score 720/1000 · 4 scénarios sur 6 tirés au sort</p>
+<p>Document de synthese final · 60 QCM (4 scénarios × 15) · 90 min · Score 720/1000</p>
 </div>
 
 <div class="toc">
@@ -66,7 +66,7 @@
 <tr><th>Semaine</th><th>Focus</th><th>Activites quotidiennes (1-2 h)</th></tr>
 <tr><td><strong>S-3</strong> (consolidation)</td><td>Lecture profonde des 5 docs domaine + D0</td><td>Lire 1 domaine/jour ; surligner les exam-tips et anti-patterns ; faire les questions auto-eval du chapitre</td></tr>
 <tr><td><strong>S-2</strong> (active recall)</td><td>Practice questions par scénario</td><td>1 scénario complet/jour (12-15 Q) ; expliquer chaque distracteur ; revoir le doc Scenarios_Exam.html</td></tr>
-<tr><td><strong>S-1</strong> (simulation)</td><td>Examens blancs en conditions</td><td>~40 Q en ~80 min (estimation non confirmée), score, debrief ; revoir les domaines faibles ; relire le cheat sheet (ce doc)</td></tr>
+<tr><td><strong>S-1</strong> (simulation)</td><td>Examens blancs en conditions</td><td>40 Q en 60 min (1,5 min/Q), score, debrief ; revoir les domaines faibles ; relire le cheat sheet (ce doc)</td></tr>
 <tr><td><strong>J-1</strong></td><td>Repos et confiance</td><td>Survol rapide des cheat sheets, pas de bourrage ; coucher tot</td></tr>
 </table>
 
@@ -97,11 +97,26 @@
 <strong>Journal d'erreurs (ta vraie révision) :</strong> pour chaque question ratée ou devinée, note une ligne — <em>Domaine · Ma réponse · Bonne réponse · Pourquoi mon choix est faux · Pourquoi chaque autre distracteur est faux · Règle à retenir · Confiance 1-5</em>. À J-1 tu ne relis que ce journal + les cheat sheets.
 </div>
 
+<h3>Exercices hands-on officiels (guide)</h3>
+
+<p>Le guide officiel CCA-F propose 4 exercices pratiques pour consolider les domaines. Chacun teste plusieurs domaines :</p>
+
+<ul>
+<li><strong>1. Build a Multi-Tool Agent with Escalation Logic</strong> — D1 (agentic loop, HITL), D2 (tool descriptions, tool_choice), D5 (escalation patterns, structured handoff)</li>
+<li><strong>2. Configure Claude Code for a Team Development Workflow</strong> — D3 (CLAUDE.md hierarchy, permissions, skills), D2 (MCP configuration)</li>
+<li><strong>3. Build a Structured Data Extraction Pipeline</strong> — D4 (JSON Schema, retry-with-feedback, few-shot), D5 (validation, confidence calibration)</li>
+<li><strong>4. Design and Debug a Multi-Agent Research Pipeline</strong> — D1 (hub-and-spoke, parallel spawning, error propagation), D2 (tool allocation), D5 (context management, provenance)</li>
+</ul>
+
+<div class="exam-tip">
+<strong>Recommandation temps court (&lt; 2 semaines) :</strong> Si tu n'as que 10-15 h, privilégier l'exercice 1 (couvre 3 domaines clés : D1, D2, D5). Les autres exercices renforcent mais sont moins critiques pour le score.
+</div>
+
 <h3>Plan compressé si tu as &lt; 2 semaines</h3>
 <table>
 <tr><th>Phase</th><th>Activité</th></tr>
 <tr><td><strong>J-12</strong></td><td>Diagnostic : ~25-30 Q tous scénarios confondus, chrono, fiches fermées → score par domaine, priorités</td></tr>
-<tr><td><strong>J-11 → J-5</strong></td><td>1 domaine/jour (ordre poids × faiblesse), boucle test → débrief → journal ; échauffement = retrieval d'un domaine déjà vu</td></tr>
+<tr><td><strong>J-11 → J-5</strong></td><td>1 domaine/jour (ordre poids × faiblesse), boucle test → débrief → journal ; échauffement = retrieval d'un domaine déjà vu. <strong>Hands-on (optionnel) :</strong> prioriser l'exercice 1 si &lt; 10 h disponible.</td></tr>
 <tr><td><strong>J-4</strong></td><td>Mock complet n°1 en conditions (idéalement la Practice Exam officielle), débrief complet</td></tr>
 <tr><td><strong>J-3</strong></td><td>Réparation ciblée : re-teste uniquement tes erreurs ; drille les 7 distracteurs et les arbres de décision</td></tr>
 <tr><td><strong>J-2</strong></td><td>Mock complet n°2 → décision Go/No-go (cible &gt; 900/1000 à la Practice, sinon ≥ 85 % et aucun domaine &lt; 75 %)</td></tr>
@@ -124,11 +139,11 @@
 </div>
 
 <h3>Gestion du temps</h3>
-<p><em>Estimation basée sur ~60 Q en ~120 min — format non confirmé officiellement. Adapter selon le vrai format.</em></p>
+<p>60 questions en 90 minutes = 1,5 min/question en moyenne. Allocation suggérée :</p>
 <table>
 <tr><th>Phase</th><th>Duree</th><th>Cible</th></tr>
-<tr><td>Phase 1 : passage rapide</td><td>~80 min (≈ 1 min 20 / Q)</td><td>Repondre les Q evidentes, marquer les difficiles</td></tr>
-<tr><td>Phase 2 : Q marquees</td><td>~30 min</td><td>Reflechir profondement aux ambiguites</td></tr>
+<tr><td>Phase 1 : passage rapide</td><td>~60 min (1 min/Q)</td><td>Repondre les Q evidentes, marquer les difficiles</td></tr>
+<tr><td>Phase 2 : Q marquees</td><td>~20 min (≈ 1,3 min/Q)</td><td>Reflechir profondement aux ambiguites</td></tr>
 <tr><td>Phase 3 : vérification</td><td>~10 min</td><td>Survoler ; ne changer une réponse QUE si une certitude apparaît</td></tr>
 </table>
 
@@ -438,11 +453,11 @@
 <li>S'installer 10 min avant le creneau</li>
 </ul>
 
-<h3>Pendant l'examen (~120 min, ~60 Q — estimation non confirmée)</h3>
+<h3>Pendant l'examen (90 min, 60 QCM)</h3>
 <ol>
-<li><strong>Phase 1 (0-80 min approx.) :</strong> passer en revue toutes les Q. Repondre les evidentes, marquer les difficiles. <strong>Ne jamais bloquer plus de 90 sec sur une Q en phase 1.</strong></li>
-<li><strong>Phase 2 (80-110 min) :</strong> reprendre les Q marquees. Appliquer la méthode des 7 distracteurs. Eliminer 2, decider entre les 2 restants.</li>
-<li><strong>Phase 3 (110-120 min) :</strong> vérification. Survoler. <strong>Ne changer une réponse que si une certitude apparaît.</strong></li>
+<li><strong>Phase 1 (0-60 min) :</strong> passer en revue toutes les Q. Repondre les evidentes, marquer les difficiles. <strong>Ne jamais bloquer plus de 90 sec sur une Q en phase 1.</strong></li>
+<li><strong>Phase 2 (60-80 min) :</strong> reprendre les Q marquees. Appliquer la méthode des 7 distracteurs. Eliminer 2, decider entre les 2 restants.</li>
+<li><strong>Phase 3 (80-90 min) :</strong> vérification. Survoler. <strong>Ne changer une réponse que si une certitude apparaît.</strong></li>
 </ol>
 
 <h3>Mantra pendant l'examen</h3>

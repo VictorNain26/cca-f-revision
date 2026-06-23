@@ -607,6 +607,18 @@ async with stdio_client(...) as session:
 <strong>Fallback <code>Read</code> + <code>Write</code> :</strong> quand <code>Edit</code> echoue parce que le texte a remplacer n'est pas unique dans le fichier, la solution de repli est <code>Read</code> (charger le fichier complet) → modifier le contenu → <code>Write</code> (reecrire le fichier entier).
 </div>
 
+<h3>Tracer les ré-exports : la bonne approche Grep</h3>
+<p>Quand vous cherchez tous les appelants d'une fonction qui est ré-exportee a travers plusieurs wrappers (alias), un seul <code>Grep</code> du nom d'origine rate les appels indirects. Methode correcte : d'abord <code>Grep</code> tous les noms <strong>exportes</strong> de la fonction (les aliases et re-exports) dans le codebase, puis <code>Grep</code> chacun de ces noms pour retrouver les appelants. <em>(Source : guide officiel, Task 2.5, Skills.)</em></p>
+<pre>// Mauvais : un seul Grep du nom original
+Grep "analyzeDocument"  // rate les appels via l'alias importé
+
+// Bon : 2 passes
+1. Grep "export.*analyzeDocument"      // trouve tous les noms exportes
+   → "export { analyzeDocument }"      → "export { analyzeDocument as analyze }"
+   → "export { analyzeDocument as doc }"
+2. Grep chaque alias : "analyzeDocument | analyze | doc"  // capture tous les appelants
+</pre>
+
 <h3>La stratégie d'investigation incrementale</h3>
 <p>Plutot que de lire tous les fichiers d'un coup, construisez votre comprehension progressivement :</p>
 <ol>

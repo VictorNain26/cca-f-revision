@@ -8,8 +8,8 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 
 | Paramètre | Valeur |
 |---|---|
-| Questions | ~60 QCM scénarisés *(estimation non confirmée — à vérifier sur le portail)* |
-| Durée | ~120 minutes *(estimation non confirmée)* |
+| Questions | 60 QCM scénarisés (4 scénarios × 15) |
+| Durée | 90 minutes |
 | Score de passage | **720 / 1000** *(confirmé)* |
 | Scénarios | 4 tirés au sort sur les 6 du pool |
 | Plateforme | Proctored via **ProctorFree** *(confirmé)* |
