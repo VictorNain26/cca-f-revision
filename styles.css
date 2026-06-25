@@ -1362,3 +1362,66 @@ footer,
   }
   table tbody td:empty { display: none; }
 }
+
+/* =============================================================
+   DARK MODE — bascule de tokens. Screen-only : l'impression PDF reste claire.
+   Le thème est posé avant le rendu (script inline en <head>) → zéro flash.
+   ============================================================= */
+.theme-toggle {
+  margin-left: auto;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-family: inherit;
+  font-size: 9.2pt;
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.theme-toggle:hover { background: var(--bg-soft); color: var(--primary); border-color: var(--primary); }
+.theme-toggle:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+.theme-toggle-icon { font-size: 11pt; line-height: 1; }
+
+@media screen {
+  [data-theme="dark"] {
+    --primary:#e8775c; --primary-soft:#f0997f; --primary-dark:#f0997f;
+    --ink:#e7e3da; --ink-soft:#b9b4a9; --ink-mute:#8b9097; --ink-faint:#6b7178;
+    --bg:#15181c; --bg-card:#1d2126; --bg-soft:#24292f; --bg-code:#1a1e23;
+    --navy:#223142; --navy-soft:#2b3d52; --border:#353b42; --border-soft:#2a3036;
+    --tip-bg:#2c2410; --tip-border:#e8a317; --tip-ink:#f0d58f;
+    --concept-bg:#142434; --concept-border:#4a93d6; --concept-ink:#bcd9f5;
+    --anti-bg:#2f1714; --anti-border:#d9614f; --anti-ink:#f3bdb4;
+    --high-bg:#371712; --high-border:#d9614f; --high-ink:#f3bdb4;
+    --tldr-bg:#1b2735; --tldr-ink:#f4f1ec; --tldr-accent:#f5c542;
+    --shadow-sm:0 1px 2px rgba(0,0,0,0.4);
+    --shadow:0 2px 8px rgba(0,0,0,0.45);
+    --shadow-lg:0 10px 30px rgba(0,0,0,0.55);
+    color-scheme: dark;
+  }
+  /* couleurs en dur (non variabilisées) — overrides ciblés */
+  [data-theme="dark"] .navbar { background: rgba(20,23,26,0.92); }
+  [data-theme="dark"] tbody tr:hover { background: rgba(255,255,255,0.05); }
+  [data-theme="dark"] .choices li.is-correct,
+  [data-theme="dark"] .choices li.is-correct-pick { border-color:#3fae7a; background:#15241c; }
+  [data-theme="dark"] .choices li.is-correct::before,
+  [data-theme="dark"] .choices li.is-correct-pick::before { background:#3fae7a; }
+  [data-theme="dark"] .choices li.is-correct::after,
+  [data-theme="dark"] .choices li.is-correct-pick::after { color:#5fd29a; }
+  [data-theme="dark"] details details.answer-reveal > div .answer-correct { background: rgba(63,174,122,0.12); border-left-color:#3fae7a; }
+  [data-theme="dark"] details details.answer-reveal > div .answer-correct strong:first-child { color:#5fd29a; }
+  [data-theme="dark"] details details.answer-reveal > div .answer-correct::before { background:#3fae7a; }
+  /* transition douce à la bascule */
+  body, .navbar, .card, table, .header-bar, .section-header, details, pre, .exam-tip, .key-concept, .anti-pattern, .high-priority, .tldr {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  body, .navbar, .card, table, .header-bar, .section-header, details, pre, .exam-tip, .key-concept, .anti-pattern, .high-priority, .tldr { transition: none; }
+}
+@media print { .theme-toggle { display: none !important; } }
