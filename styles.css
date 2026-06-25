@@ -1391,9 +1391,11 @@ footer,
 @media screen {
   [data-theme="dark"] {
     --primary:#e8775c; --primary-soft:#f0997f; --primary-dark:#f0997f;
-    --ink:#e7e3da; --ink-soft:#b9b4a9; --ink-mute:#8b9097; --ink-faint:#6b7178;
+    --ink:#e7e3da; --ink-soft:#b9b4a9; --ink-mute:#8b9097; --ink-faint:#868d95;
     --bg:#15181c; --bg-card:#1d2126; --bg-soft:#24292f; --bg-code:#1a1e23;
-    --navy:#223142; --navy-soft:#2b3d52; --border:#353b42; --border-soft:#2a3036;
+    /* --navy sert AUSSI de couleur de texte (titres de cartes…) → clair en dark ;
+       les fonds qui l'utilisaient sont réaffirmés en sombre ci-dessous */
+    --navy:#cdd9e6; --navy-soft:#b3c2d4; --border:#353b42; --border-soft:#2a3036;
     --tip-bg:#2c2410; --tip-border:#e8a317; --tip-ink:#f0d58f;
     --concept-bg:#142434; --concept-border:#4a93d6; --concept-ink:#bcd9f5;
     --anti-bg:#2f1714; --anti-border:#d9614f; --anti-ink:#f3bdb4;
@@ -1407,6 +1409,11 @@ footer,
   /* couleurs en dur (non variabilisées) — overrides ciblés */
   [data-theme="dark"] .navbar { background: rgba(20,23,26,0.92); }
   [data-theme="dark"] tbody tr:hover { background: rgba(255,255,255,0.05); }
+  /* fonds qui s'appuyaient sur --navy (devenu clair) : dégradés sombres explicites */
+  [data-theme="dark"] .section-header { background: linear-gradient(90deg, #26384d 0%, #2f4257 100%); }
+  /* header & lien actif : fond assez sombre pour garder le texte blanc lisible (AA) */
+  [data-theme="dark"] .header-bar { background: linear-gradient(135deg, #7d3322 0%, #9a3d2a 100%); }
+  [data-theme="dark"] .navbar a.current { background: #9a3d2a; color: #fff; }
   [data-theme="dark"] .choices li.is-correct,
   [data-theme="dark"] .choices li.is-correct-pick { border-color:#3fae7a; background:#15241c; }
   [data-theme="dark"] .choices li.is-correct::before,
