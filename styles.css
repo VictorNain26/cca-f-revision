@@ -1440,7 +1440,8 @@ footer,
 .toc-rail-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 8pt; color: var(--ink-mute); margin: 0 0 8px 10px; }
 .toc-rail a { display: block; padding: 3px 10px; margin: 1px 0; font-size: 9.5pt; line-height: 1.35; color: var(--ink-soft); text-decoration: none; border-left: 2px solid transparent; border-radius: 0 5px 5px 0; transition: color 0.12s, background 0.12s, border-color 0.12s; }
 .toc-rail a:hover { color: var(--primary); background: var(--bg-soft); }
-.toc-rail a.active { color: var(--primary); font-weight: 600; border-left-color: var(--primary); background: var(--bg-soft); }
+/* actif : couleur + barre + fond (PAS de bold → évite le reflow/2 lignes) */
+.toc-rail a.active { color: var(--primary); border-left-color: var(--primary); background: var(--bg-soft); }
 
 @media (min-width: 1320px) {
   .toc-rail {
