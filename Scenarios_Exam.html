@@ -28,27 +28,27 @@
 
 <div class="header-bar">
 <h1>Les 6 scénarios de l'examen CCA-F</h1>
-<p>60 questions au total : 4 scénarios tirés au sort × 15 questions/scénario · Chaque question est situee dans un scénario</p>
+<p>60 questions au total : 4 scénarios tirés au sort × 15 questions/scénario · Chaque question est située dans un scénario</p>
 </div>
 
 <!-- TABLE OF CONTENTS -->
 <div class="toc">
-<strong>Table des matieres</strong>
+<strong>Table des matières</strong>
 <ol>
 <li><a href="#format">Format de l'examen (rappel)</a></li>
 <li><a href="#scénarios">Les 6 scénarios</a>
 <ul>
-<li><a href="#s1">Scenario 1 : Customer Support Agent</a></li>
-<li><a href="#s2">Scenario 2 : Code Generation with Claude Code</a></li>
-<li><a href="#s3">Scenario 3 : Multi-Agent Research System</a></li>
-<li><a href="#s4">Scenario 4 : Developer Productivity Tools</a></li>
-<li><a href="#s5">Scenario 5 : Claude Code for Continuous Integration</a></li>
-<li><a href="#s6">Scenario 6 : Structured Data Extraction</a></li>
+<li><a href="#s1">Scénario 1 : Customer Support Agent</a></li>
+<li><a href="#s2">Scénario 2 : Code Generation with Claude Code</a></li>
+<li><a href="#s3">Scénario 3 : Multi-Agent Research System</a></li>
+<li><a href="#s4">Scénario 4 : Developer Productivity Tools</a></li>
+<li><a href="#s5">Scénario 5 : Claude Code for Continuous Integration</a></li>
+<li><a href="#s6">Scénario 6 : Structured Data Extraction</a></li>
 </ul>
 </li>
-<li><a href="#croise">Tableau croise Scenario x Domaine</a></li>
-<li><a href="#hors-scope">Hors-scope — ne revise pas ca</a></li>
-<li><a href="#distracteurs">Les patterns de distracteurs recurrents</a></li>
+<li><a href="#croise">Tableau croisé Scénario × Domaine</a></li>
+<li><a href="#hors-scope">Hors-scope — ne révise pas ça</a></li>
+<li><a href="#distracteurs">Les 7 patterns de distracteurs récurrents</a></li>
 </ol>
 </div>
 
@@ -63,23 +63,23 @@
 <tr><td>Durée</td><td><strong>90 minutes</strong> (≈ 1,5 min/question)</td></tr>
 <tr><td>Type de questions</td><td><strong>Multiple choice</strong> : 4 choix, 1 seule réponse correcte</td></tr>
 <tr><td>Score</td><td>Echelle de <strong>100 a 1000</strong>, passing score = <strong>720</strong></td></tr>
-<tr><td>Penalite</td><td><strong>Aucune penalite</strong> pour réponse fausse</td></tr>
-<tr><td>Scenarios</td><td><strong>4 scénarios selectionnes aleatoirement</strong> sur les 6 possibles</td></tr>
+<tr><td>Pénalité</td><td><strong>Aucune pénalité</strong> pour réponse fausse</td></tr>
+<tr><td>Scénarios</td><td><strong>4 scénarios sélectionnés aléatoirement</strong> sur les 6 possibles</td></tr>
 <tr><td>Proctoring</td><td><strong>Proctored</strong> via <strong>ProctorFree</strong></td></tr>
-<tr><td>Tentatives</td><td><strong>Une seule tentative autorisee</strong> a l'examen officiel</td></tr>
+<tr><td>Tentatives</td><td><strong>Une seule tentative autorisée</strong> à l'examen officiel</td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>Pratique avant le jour J :</strong> Anthropic fournit une <strong>Practice Exam officielle</strong> dans Skilljar. Viser <strong>&gt;900/1000</strong> est le meilleur prédicteur de réussite a l'examen réel. Utilise-la pour te familiariser avec le format et les pièges avant ta tentative unique.
+<strong>Pratique avant le jour J :</strong> Anthropic fournit une <strong>Practice Exam officielle</strong> dans Skilljar. Viser <strong>&gt;900/1000</strong> est le meilleur prédicteur de réussite à l'examen réel. Utilise-la pour te familiariser avec le format et les pièges avant ta tentative unique.
 </div>
 
 
 <div class="exam-tip">
-<strong>Strategie critique :</strong> Pas de penalite = répondre a TOUTES les questions, même en cas de doute. Ne jamais laisser une question vide.
+<strong>Stratégie critique :</strong> Pas de pénalité = répondre à TOUTES les questions, même en cas de doute. Ne jamais laisser une question vide.
 </div>
 
 <div class="key-concept">
-<strong>Implication :</strong> Comme tu ne sais pas quels 4 scénarios tomberont, il faut maitriser les <strong>6 scénarios</strong>. Chaque scénario teste principalement 2-3 domaines, mais tous les domaines sont couverts collectivement.
+<strong>Implication :</strong> Comme tu ne sais pas quels 4 scénarios tomberont, il faut maîtriser les <strong>6 scénarios</strong>. Chaque scénario teste principalement 2-3 domaines, mais tous les domaines sont couverts collectivement.
 </div>
 
 <!-- ============================================================ -->
@@ -89,13 +89,13 @@
 
 <!-- SCENARIO 1 -->
 <div class="page-break"></div>
-<h3 id="s1">Scenario 1 : Customer Support Agent</h3>
+<h3 id="s1">Scénario 1 : Customer Support Agent</h3>
 
-<p><strong>Description :</strong> Construire un agent qui géré les retours, litiges de facturation et problèmes de compte avec le <code>Claude Agent SDK</code>. Utilise les MCP tools (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Objectif : 80%+ first-contact resolution avec escalation appropriee.</p>
+<p><strong>Description :</strong> Construire un agent qui gère les retours, litiges de facturation et problèmes de compte avec le <code>Claude Agent SDK</code>. Utilise les MCP tools (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Objectif : 80%+ first-contact resolution avec escalation appropriée.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D1</strong> (agentic loop, hooks, enforcement), <strong>D2</strong> (tool descriptions, tool_choice), <strong>D5</strong> (escalation patterns, structured handoff)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D1</strong> (agentic loop, hooks, enforcement), <strong>D2</strong> (tool descriptions, tool_choice), <strong>D5</strong> (escalation patterns, structured handoff)</p>
 
-<h4>Concepts clés a maitriser</h4>
+<h4>Concepts clés à maîtriser</h4>
 <ul>
 <li><code>stop_reason</code> pour controller l'agentic loop</li>
 <li><strong>Programmatic enforcement</strong> : bloquer <code>process_refund</code> sans <code>get_customer</code> vérifié au prealable</li>
@@ -119,13 +119,13 @@
 
 <!-- SCENARIO 2 -->
 <div class="page-break"></div>
-<h3 id="s2">Scenario 2 : Code Generation with Claude Code</h3>
+<h3 id="s2">Scénario 2 : Code Generation with Claude Code</h3>
 
-<p><strong>Description :</strong> Utiliser Claude Code pour accelerer le developpement : generation, refactoring, debugging, documentation. Integration avec custom slash commands et <code>CLAUDE.md</code>.</p>
+<p><strong>Description :</strong> Utiliser Claude Code pour accélérer le développement : generation, refactoring, debugging, documentation. Integration avec custom slash commands et <code>CLAUDE.md</code>.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D3</strong> (CLAUDE.md hierarchy, skills, planning mode, CI/CD), <strong>D4</strong> (prompt engineering)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D3</strong> (CLAUDE.md hierarchy, skills, planning mode, CI/CD), <strong>D4</strong> (prompt engineering)</p>
 
-<h4>Concepts clés a maitriser</h4>
+<h4>Concepts clés à maîtriser</h4>
 <ul>
 <li><strong>CLAUDE.md hierarchy</strong> : user-level → project-level → directory-level</li>
 <li><code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> pour conditional loading (glob patterns)</li>
@@ -148,13 +148,13 @@
 
 <!-- SCENARIO 3 -->
 <div class="page-break"></div>
-<h3 id="s3">Scenario 3 : Multi-Agent Research System</h3>
+<h3 id="s3">Scénario 3 : Multi-Agent Research System</h3>
 
 <p><strong>Description :</strong> Un coordinateur délégué a des subagents spécialisés : web research, document analysis, synthesis, report generation. Le système doit produire des rapports complets avec citations.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D1</strong> (hub-and-spoke, Task tool, décomposition, parallel spawning), <strong>D2</strong> (tool allocation), <strong>D5</strong> (error propagation, provenance, context management)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D1</strong> (hub-and-spoke, Task tool, décomposition, parallel spawning), <strong>D2</strong> (tool allocation), <strong>D5</strong> (error propagation, provenance, context management)</p>
 
-<h4>Concepts clés a maitriser</h4>
+<h4>Concepts clés à maîtriser</h4>
 <ul>
 <li><strong>Hub-and-spoke</strong> : toute communication passe par le coordinateur, jamais directement entre subagents</li>
 <li><strong>Subagent context isolation</strong> : context passing explicite a chaque delegation</li>
@@ -182,13 +182,13 @@
 
 <!-- SCENARIO 4 -->
 <div class="page-break"></div>
-<h3 id="s4">Scenario 4 : Developer Productivity Tools</h3>
+<h3 id="s4">Scénario 4 : Developer Productivity Tools</h3>
 
 <p><strong>Description :</strong> L'agent aide les développeurs a explorer des codebases inconnus, generer du boilerplate, et automatiser les taches routinieres. Utilise les built-in tools et MCP servers.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D2</strong> (built-in tools, MCP), <strong>D3</strong> (Claude Code config), <strong>D5</strong> (context management in large codebases)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D2</strong> (built-in tools, MCP), <strong>D3</strong> (Claude Code config), <strong>D5</strong> (context management in large codebases)</p>
 
-<h4>Concepts clés a maitriser</h4>
+<h4>Concepts clés à maîtriser</h4>
 <ul>
 <li><strong>Built-in tools</strong> : <code>Glob</code> (find files by pattern), <code>Grep</code> (search content), <code>Read</code>/<code>Write</code>, <code>Edit</code>, <code>Bash</code></li>
 <li><strong>Incremental investigation strategy</strong> : Grep entry points → Read → Grep usages → repeat</li>
@@ -207,13 +207,13 @@
 
 <!-- SCENARIO 5 -->
 <div class="page-break"></div>
-<h3 id="s5">Scenario 5 : Claude Code for Continuous Integration</h3>
+<h3 id="s5">Scénario 5 : Claude Code for Continuous Integration</h3>
 
 <p><strong>Description :</strong> Integrer Claude Code dans un pipeline CI/CD pour automated code reviews, test generation, et PR feedback. Minimiser les false positives.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D3</strong> (CI/CD config), <strong>D4</strong> (explicit criteria, few-shot, Batch API, multi-pass review)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D3</strong> (CI/CD config), <strong>D4</strong> (explicit criteria, few-shot, Batch API, multi-pass review)</p>
 
-<h4>Concepts clés a maitriser</h4>
+<h4>Concepts clés à maîtriser</h4>
 <ul>
 <li><code>-p</code> flag pour <strong>non-interactive mode</strong> (SEUL moyen correct en CI)</li>
 <li><code>--output-format json</code> + <code>--json-schema</code> pour structured output</li>
@@ -237,18 +237,18 @@
 <strong>"Batch API supports multi-turn tool calling"</strong> → FAUX. Le Batch API ne supporte pas le multi-turn tool calling.
 </div>
 <div class="anti-pattern">
-<strong>"Larger context window fixes attention quality"</strong> → FAUX. Plus de contexte ne resout pas les problèmes d'attention. Utiliser multi-pass review a la place.
+<strong>"Larger context window fixes attention quality"</strong> → FAUX. Plus de contexte ne résout pas les problèmes d'attention. Utiliser multi-pass review a la place.
 </div>
 
 <!-- SCENARIO 6 -->
 <div class="page-break"></div>
-<h3 id="s6">Scenario 6 : Structured Data Extraction</h3>
+<h3 id="s6">Scénario 6 : Structured Data Extraction</h3>
 
 <p><strong>Description :</strong> Extraire de l'information de documents non structures, valider avec JSON schémas, maintenir une haute precision. Gerer les edge cases correctement.</p>
 
-<p><strong>Domaines principalement testes :</strong> <strong>D4</strong> (JSON schémas, validation, retry, few-shot, self-correction), <strong>D5</strong> (confidence calibration)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D4</strong> (JSON schémas, validation, retry, few-shot, self-correction), <strong>D5</strong> (confidence calibration)</p>
 
-<h4>Concepts clés a maitriser</h4>
+<h4>Concepts clés à maîtriser</h4>
 <ul>
 <li><code>tool_use</code> + <strong>JSON Schema</strong> : garantit la <strong>syntactic validity</strong>, PAS la <strong>semantic correctness</strong></li>
 <li><strong>Schema design</strong> : <code>required</code> vs <code>optional</code>, <code>nullable</code> fields, <code>enum</code> + <code>"other"</code>, <code>enum</code> + <code>"unclear"</code></li>
@@ -276,19 +276,19 @@
 <!-- SECTION 3 : TABLEAU CROISE -->
 <!-- ============================================================ -->
 <div class="page-break"></div>
-<div class="section-header"><h2 id="croise">3. Tableau croise Scenario x Domaine</h2></div>
+<div class="section-header"><h2 id="croise">3. Tableau croisé Scenario x Domaine</h2></div>
 
 <p>Ce tableau montre quels domaines sont principalement testes par chaque scénario. Utile pour cibler ta révision si tu veux renforcer un domaine spécifique.</p>
 
 <table>
 <tr>
-<th>Scenario</th>
+<th>Scénario</th>
 <th>D0 API Basics</th>
 <th>D1 Agentic</th>
 <th>D2 Tools</th>
 <th>D3 Claude Code</th>
 <th>D4 Prompt Eng.</th>
-<th>D5 Quality</th>
+<th>D5 Context & Reliability</th>
 </tr>
 <tr>
 <td><strong>S1</strong> Customer Support</td>
@@ -304,7 +304,7 @@
 <td></td>
 <td></td>
 <td></td>
-<td>&#10003; CLAUDE.md hierarchy, skills, commands</td>
+<td>&#10003; hiérarchie CLAUDE.md, skills, commands</td>
 <td>&#10003; prompt engineering</td>
 <td></td>
 </tr>
@@ -365,7 +365,7 @@
 <!-- SECTION 4 : HORS-SCOPE -->
 <!-- ============================================================ -->
 <div class="page-break"></div>
-<div class="section-header"><h2 id="hors-scope">4. Hors-scope — ne revise pas ca</h2></div>
+<div class="section-header"><h2 id="hors-scope">4. Hors-scope — ne révise pas ça</h2></div>
 
 <p><strong>Ce qui N'EST PAS teste par l'examen CCA-F :</strong> Les topics suivants n'apparaissent pas (ou tres marginalement) dans les 6 scénarios. Les ignorer permet de concentrer ta révision sur ce qui compte vraiment.</p>
 
@@ -391,9 +391,9 @@
 <!-- SECTION 5 : PATTERNS DE DISTRACTEURS -->
 <!-- ============================================================ -->
 <div class="page-break"></div>
-<div class="section-header"><h2 id="distracteurs">5. Les patterns de distracteurs recurrents</h2></div>
+<div class="section-header"><h2 id="distracteurs">5. Les patterns de distracteurs récurrents</h2></div>
 
-<p>A travers les 6 scénarios, certains types de mauvaises réponses reviennent systematiquement. Reconnaitre ces patterns permet d'eliminer rapidement les distracteurs.</p>
+<p>A travers les 6 scénarios, certains types de mauvaises réponses reviennent systématiquement. Reconnaître ces patterns permet d'éliminer rapidement les distracteurs.</p>
 
 <table>
 <tr>
@@ -405,19 +405,19 @@
 <tr>
 <td>1</td>
 <td><em>"Improve / strengthen the system prompt"</em></td>
-<td>Insuffisant quand les consequences sont financieres, legales ou de securite. Le prompt n'est pas une barriere fiable.</td>
+<td>Insuffisant quand les conséquences sont financières, légales ou de sécurité. Le prompt n'est pas une barrière fiable.</td>
 <td><strong>Hooks</strong> et <strong>programmatic enforcement</strong></td>
 </tr>
 <tr>
 <td>2</td>
 <td><em>"Add a routing classifier"</em> / <em>"trained classifier"</em></td>
 <td>Overengineering. Ajouter un composant complexe quand un correctif simple suffit.</td>
-<td>Ameliorer les <strong>tool descriptions</strong> ou les <strong>explicit criteria</strong></td>
+<td>Améliorer les <strong>tool descriptions</strong> ou les <strong>explicit criteria</strong></td>
 </tr>
 <tr>
 <td>3</td>
 <td><em>"Sentiment analysis"</em> / <em>"self-rated confidence (1-10)"</em></td>
-<td>Proxy unreliable. Le sentiment ne predit pas le besoin d'escalation. La self-confidence n'est pas calibree.</td>
+<td>Proxy peu fiable. Le sentiment ne prédit pas le besoin d'escalation. La self-confidence n'est pas calibrée.</td>
 <td><strong>Explicit triggers</strong> : client demande un humain, policy gap identifié</td>
 </tr>
 <tr>
@@ -429,13 +429,13 @@
 <tr>
 <td>5</td>
 <td><em>"Move everything to Batch API"</em></td>
-<td>Le Batch API a une latence jusqu'a 24h et ne supporte pas le multi-turn tool calling.</td>
+<td>Le Batch API a une latence jusqu'à 24h et ne supporte pas le multi-turn tool calling.</td>
 <td><strong>Synchronous</strong> pour blocking checks, <strong>Batch</strong> uniquement pour non-blocking (overnight)</td>
 </tr>
 <tr>
 <td>6</td>
 <td><em>"Larger context window"</em></td>
-<td>Plus de contexte ne resout pas les problèmes d'attention (lost-in-the-middle effect).</td>
+<td>Plus de contexte ne résout pas les problèmes d'attention (lost-in-the-middle effect).</td>
 <td><strong>Multi-pass review</strong>, <strong>subagent delegation</strong>, <strong>scratchpad files</strong></td>
 </tr>
 <tr>
@@ -451,7 +451,7 @@
 </div>
 
 <div class="key-concept">
-<strong>Methode d'elimination :</strong> Sur chaque question, commence par eliminer les distracteurs connus (cette liste couvre la majorite). Il reste generalement 2 options credibles. Relis alors l'enonce pour identifier le vrai problème (financier ? attention ? routing ?) et choisis en consequence.
+<strong>Méthode d'élimination :</strong> Sur chaque question, commence par éliminer les distracteurs connus (cette liste couvre la majorité). Il reste généralement 2 options crédibles. Relis alors l'énoncé pour identifier le vrai problème (financier ? attention ? routing ?) et choisis en conséquence.
 </div>
 
 <nav class="doc-nav">

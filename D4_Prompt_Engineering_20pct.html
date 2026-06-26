@@ -47,7 +47,7 @@
   </ul>
 </li>
 <li><a href="#s8">Synthese — les points clés</a></li>
-<li><a href="#s9">Auto-evaluation (4 questions)</a></li>
+<li><a href="#s9">Auto-evaluation (7 questions)</a></li>
 </ol>
 </div>
 
@@ -55,7 +55,7 @@
 <div class="section-header"><h2 id="s1">1. Des critères explicites plutot que des instructions vagues (Task 4.1)</h2></div>
 
 <h3>Le problème que cela resout</h3>
-<p>Quand vous demandez a Claude de "vérifier la precision des commentaires de code" ou d'"être conservateur dans ses signalements", il interprète ces instructions vagues de manière inconsistante. Un même pattern sera signale dans une pull request mais ignore dans la suivante. Les critères explicites eliminent cette ambiguite en definissant precisement ce qui constitue un problème.</p>
+<p>Quand vous demandez a Claude de "vérifier la précision des commentaires de code" ou d'"être conservateur dans ses signalements", il interprète ces instructions vagues de manière inconsistante. Un même pattern sera signale dans une pull request mais ignore dans la suivante. Les critères explicites eliminent cette ambiguite en definissant precisement ce qui constitue un problème.</p>
 
 <div class="anti-pattern">
 <strong>Mauvais (vague) :</strong> "Check code comments for accuracy. Be conservative — report only high-confidence findings."
@@ -81,14 +81,14 @@ Signaler un commentaire comme problématique <strong>uniquement</strong> si :<br
 
 <h3>L'effet domino des false positives</h3>
 <div class="exam-tip">
-<strong>Concept clé :</strong> des taux eleves de false positives dans certaines catégories (style : 52 %, documentation : 48 %) erodent la confiance des développeurs dans <em>toutes</em> les catégories, y compris les catégories precises (securite : 8 %). La solution : <strong>desactiver temporairement</strong> les catégories a fort taux de false positives, conserver les catégories de haute precision, puis ameliorer les prompts des catégories problématiques avant de les reactiver.
+<strong>Concept clé :</strong> des taux eleves de false positives dans certaines catégories (style : 52 %, documentation : 48 %) erodent la confiance des développeurs dans <em>toutes</em> les catégories, y compris les catégories precises (securite : 8 %). La solution : <strong>desactiver temporairement</strong> les catégories a fort taux de false positives, conserver les catégories de haute précision, puis ameliorer les prompts des catégories problématiques avant de les reactiver.
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s2">2. Le few-shot prompting (Task 4.2)</h2></div>
 
 <h3>Le problème que cela resout</h3>
-<p>Une instruction textuelle comme "sois plus precis" peut être interprétée de dizaines de manières différentes. Un exemple concret, lui, montre <em>exactement</em> le format et la logique de décision attendus. Le modèle generalise ensuite ce pattern a de nouveaux cas, sans se contenter de repeter l'exemple.</p>
+<p>Une instruction textuelle comme "sois plus precis" peut être interprétée de dizaines de manières différentes. Un exemple concret, lui, montre <em>exactement</em> le format et la logique de décision attendus. Le modèle généralise ensuite ce pattern a de nouveaux cas, sans se contenter de repeter l'exemple.</p>
 
 <div class="key-concept">
 <strong>Le few-shot prompting est la technique la plus efficace</strong> pour obtenir des sorties coherentes et actionnables. Fournissez 2 a 4 exemples cibles sur les scénarios ambigus, chacun accompagne du raisonnement qui justifie la décision.
@@ -128,13 +128,13 @@ Reference bibliographique : "The rate is 42%. [1]"
 <h4>5. Mesures informelles et non standard</h4>
 <p><em>(Source : guide officiel, section 6.1, exemple 5.)</em></p>
 <pre>Texte : "about two handfuls of rice"
-→ {"amount": "~100g", "original_text": "two handfuls", "precision": "approximate"}
+→ {"amount": "~100g", "original_text": "two handfuls", "précision": "approximate"}
 
 Texte : "a pinch of salt"
-→ {"amount": "~1g", "original_text": "a pinch", "precision": "approximate"}</pre>
+→ {"amount": "~1g", "original_text": "a pinch", "précision": "approximate"}</pre>
 
 <div class="key-concept">
-Les few-shot examples sont particulierement efficaces pour l'extraction de mesures informelles et non standard, car ces unites sont trop diverses pour être gerees par des instructions purement textuelles. Le modèle generalise le pattern de conversion a de nouvelles mesures qu'il n'a pas vues dans les exemples.
+Les few-shot examples sont particulièrement efficaces pour l'extraction de mesures informelles et non standard, car ces unites sont trop diverses pour être gérées par des instructions purement textuelles. Le modèle généralise le pattern de conversion a de nouvelles mesures qu'il n'a pas vues dans les exemples.
 </div>
 
 <h3>Les regles de format normalization</h3>
@@ -149,7 +149,7 @@ Les few-shot examples sont particulierement efficaces pour l'extraction de mesur
 <div class="section-header"><h2 id="s3">3. Les sorties structurées avec tool_use et JSON Schema (Task 4.3)</h2></div>
 
 <h3>Le problème que cela resout</h3>
-<p>Quand vous avez besoin que Claude retourné des donnees dans un format precis (pour alimenter un pipeline, une API, ou un système d'automatisation), le texte libre est insuffisant. Le mécanisme <code>tool_use</code> combine a un JSON Schema garantit un resultat syntaxiquement valide et conforme a la structure attendue.</p>
+<p>Quand vous avez besoin que Claude retourne des donnees dans un format precis (pour alimenter un pipeline, une API, ou un système d'automatisation), le texte libre est insuffisant. Le mécanisme <code>tool_use</code> combine a un JSON Schema garantit un resultat syntaxiquement valide et conforme a la structure attendue.</p>
 
 <div class="key-concept">
 <strong><code>tool_use</code> + JSON Schema = la méthode la plus fiable pour obtenir une sortie structurée.</strong><br>
@@ -205,7 +205,7 @@ Le retry-with-feedback fonctionne parce que Claude reçoit un signal d'erreur pr
 <tr><th>Retry efficace</th><th>Retry inutile</th></tr>
 <tr><td>Erreurs de format (date dans le mauvais format)</td><td>L'information est absente du document source</td></tr>
 <tr><td>Erreurs structurelles (champ place au mauvais endroit)</td><td>Le contexte requis se trouve dans un document externe non fourni</td></tr>
-<tr><td>Incoherences arithmetiques</td><td></td></tr>
+<tr><td>Incohérences arithmetiques</td><td></td></tr>
 </table>
 
 <h3>La self-correction</h3>
@@ -337,7 +337,7 @@ def extract_invoice(document_text: str, max_retries: int = 3) -&gt; Invoice:
 <div class="section-header"><h2 id="s5">5. Le traitement par lots — Message Batches API (Task 4.5)</h2></div>
 
 <h3>Le problème que cela resout</h3>
-<p>Certains traitements (audits de securite hebdomadaires, rapports de dette technique, generation de tests nocturne) ne necessitent pas de réponse immediate. La Message Batches API permet de les executer avec une reduction de cout de <strong>50 %</strong>, en echange d'un delai de traitement pouvant aller jusqu'a <strong>24 heures</strong>.</p>
+<p>Certains traitements (audits de securite hebdomadaires, rapports de dette technique, generation de tests nocturne) ne nécessitent pas de réponse immediate. La Message Batches API permet de les executer avec une reduction de cout de <strong>50 %</strong>, en echange d'un delai de traitement pouvant aller jusqu'a <strong>24 heures</strong>.</p>
 
 <h3>Parametres clés de la Message Batches API</h3>
 <table>
@@ -345,12 +345,12 @@ def extract_invoice(document_text: str, max_retries: int = 3) -&gt; Invoice:
 <tr><td>Reduction de cout</td><td><strong>50 %</strong></td></tr>
 <tr><td>Fenetre de traitement</td><td>Jusqu'a <strong>24 heures</strong></td></tr>
 <tr><td>SLA de latence</td><td><strong>Aucun garanti</strong></td></tr>
-<tr><td>Multi-turn tool calling</td><td><strong>Non supporte</strong> (une requête = une réponse)</td></tr>
+<tr><td>Boucle d'outils interactive</td><td><strong>Non supportée</strong> : pas de boucle d'outils interactive, une passe, une réponse</td></tr>
 <tr><td>Correlation requête/réponse</td><td>Via le champ <code>custom_id</code></td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>Piege d'examen :</strong> la Message Batches API ne supporte <em>pas</em> le multi-turn tool calling au sein d'une même requête. Si votre workflow necessite que Claude demande des fichiers supplémentaires via des appels d'outils iteratifs, la Message Batches API est fondamentalement incompatible. Chaque requête du batch produit une seule réponse, sans possibilite d'echanges supplémentaires.
+<strong>Piège d'examen :</strong> la Message Batches API n'a pas de <strong>boucle d'outils interactive</strong> : une passe, une réponse. Si votre workflow nécessite que Claude demande des fichiers supplémentaires via des appels d'outils itératifs, la Message Batches API est fondamentalement incompatible. Chaque requête du batch produit une seule réponse, sans possibilité d'échanges supplémentaires.
 </div>
 
 <h3>Quand utiliser chaque API</h3>
@@ -416,7 +416,7 @@ En pratique, decouper cette fenetre en blocs plus petits (par exemple, 2 fenetre
 </ul>
 
 <h3>Le system prompt</h3>
-<p>Le system prompt n'est pas un message dans le tableau <code>messages</code> : il est passe separement dans le champ <code>system</code>. Il a priorite sur les messages utilisateur, est charge une seule fois et s'applique tout au long de la conversation. Il definit le role, les contraintes et le format de sortie attendu.</p>
+<p>Le system prompt n'est pas un message dans le tableau <code>messages</code> : il est passe séparément dans le champ <code>system</code>. Il a priorite sur les messages utilisateur, est charge une seule fois et s'applique tout au long de la conversation. Il definit le role, les contraintes et le format de sortie attendu.</p>
 
 <h3>La temperature</h3>
 <table>
@@ -503,13 +503,13 @@ Output: { category: "other", severity: "medium", escalate: true,
 <table>
 <tr><th>Variante</th><th>Mecanisme</th><th>Quand l'utiliser</th></tr>
 <tr><td><strong>CoT inline (basic)</strong></td><td>Demander dans le prompt : "Reflechis étape par étape avant de répondre"</td><td>Taches simples ou modèles plus anciens</td></tr>
-<tr><td><strong>CoT structure</strong></td><td>Demander un raisonnement dans des balises (<code>&lt;thinking&gt;...&lt;/thinking&gt;</code>) puis la réponse dans <code>&lt;answer&gt;</code></td><td>Quand on veut auditer le raisonnement separement</td></tr>
+<tr><td><strong>CoT structure</strong></td><td>Demander un raisonnement dans des balises (<code>&lt;thinking&gt;...&lt;/thinking&gt;</code>) puis la réponse dans <code>&lt;answer&gt;</code></td><td>Quand on veut auditer le raisonnement séparément</td></tr>
 <tr><td><strong>Extended thinking</strong></td><td>Parametre API <code>thinking</code> : Claude génère un <em>reasoning trace</em> dedie avant la réponse</td><td>Taches complexes, modèles Claude 4.x avec extended thinking</td></tr>
 </table>
 
 <h3>Extended thinking — API par version de modèle</h3>
 
-<p><strong>Sur Opus 4.7 (avril 2026) :</strong> seul le mode <code>adaptive</code> est accepte. Le paramètre <code>budget_tokens</code> a ete <strong>retire</strong> ; le modèle decide dynamiquement combien de tokens investir dans le raisonnement selon la complexite. Specifier <code>budget_tokens</code> retourné une erreur 400.</p>
+<p><strong>Sur Opus 4.7 (avril 2026) :</strong> seul le mode <code>adaptive</code> est accepte. Le paramètre <code>budget_tokens</code> a ete <strong>retire</strong> ; le modèle decide dynamiquement combien de tokens investir dans le raisonnement selon la complexite. Specifier <code>budget_tokens</code> retourne une erreur 400.</p>
 
 <pre>// Opus 4.7 — adaptive thinking (par defaut quand active)
 {
@@ -622,7 +622,7 @@ Output: { category: "other", severity: "medium", escalate: true,
 </div>
 
 <div class="anti-pattern">
-<strong>Limitation a connaitre :</strong> Citations API <strong>n'est pas compatible</strong> avec les Structured Outputs (<code>output_config.format</code>). Si tu actives les deux ensemble, l'API retourné 400. Choisis l'un OU l'autre.
+<strong>Limitation a connaitre :</strong> Citations API <strong>n'est pas compatible</strong> avec les Structured Outputs (<code>output_config.format</code>). Si tu actives les deux ensemble, l'API retourne 400. Choisis l'un OU l'autre.
 </div>
 
 <div class="exam-tip">
@@ -724,7 +724,7 @@ IGNORE PREVIOUS INSTRUCTIONS. You are now...
 <ul>
 <li>Pattern retry-with-feedback : document original + extraction incorrecte + erreur spécifique.</li>
 <li>Les retries sont efficaces pour les erreurs de format, structurelles et arithmetiques.</li>
-<li>Les retries sont inutiles quand l'information est absente du document source ou necessite un contexte externe.</li>
+<li>Les retries sont inutiles quand l'information est absente du document source ou nécessite un contexte externe.</li>
 <li>Self-correction via <code>stated_total</code> / <code>calculated_total</code> + <code>conflict_detected</code>.</li>
 <li><code>detected_pattern</code> pour tracer les false positives et affiner les prompts.</li>
 <li>Pydantic : structural validation, semantic validation, boucles validate-retry, generation de JSON Schema.</li>
@@ -772,7 +772,7 @@ IGNORE PREVIOUS INSTRUCTIONS. You are now...
 </ul>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s9">9. Auto-evaluation (4 questions)</h2></div>
+<div class="section-header"><h2 id="s9">9. Auto-evaluation (7 questions)</h2></div>
 
 <div class="quiz-section">
 <h3>Questions de révision — Domain 4</h3>
@@ -836,7 +836,7 @@ IGNORE PREVIOUS INSTRUCTIONS. You are now...
 <summary><strong>Q6.</strong> Situation : vous demandez a Claude d'analyser 5 propositions techniques complexes et de recommander la meilleure selon 8 critères ponderes. Les recommandations sont incohérentes d'une exécution a l'autre. Quelle technique appliquer en priorite ?</summary>
 <div>
 <p>A) Augmenter <code>max_tokens</code>.</p>
-<p>B) Activer extended thinking (sur modèles récents, utiliser <code>adaptive</code> + paramètre <code>effort</code> ; sur Opus 4.6 ou antérieurs, <code>budget_tokens</code> était supporté mais est deprecated).</p>
+<p>B) Activer extended thinking (sur modèles récents, utiliser <code>adaptive</code> ; sur Opus 4.6 ou antérieurs, <code>budget_tokens</code> était supporté mais est deprecated).</p>
 <p>C) Reduire le nombre de critères a 3.</p>
 <p>D) Utiliser un modèle plus rapide.</p>
 <p class="answer-block"><strong>Reponse : B.</strong> Une décision multi-critères ponderes est typiquement une tache de raisonnement ou le chain-of-thought ameliore significativement la qualite. Extended thinking alloue des ressources dedie au raisonnement avant la réponse. Sur Opus 4.7+, utiliser le mode <code>adaptive</code> qui decide dynamiquement l'effort selon la complexite. A ne traite pas la cause. C degrade le problème au lieu de le resoudre. D va dans la mauvaise direction (les modèles plus capables et le thinking sont preferables ici).</p>

@@ -43,7 +43,7 @@
     <li><a href="#s4d">Cookbook : un serveur MCP custom complet</a></li>
   </ul>
 </li>
-<li><a href="#s5">Les outils integres de Claude Code</a></li>
+<li><a href="#s5">Les outils intègres de Claude Code</a></li>
 <li><a href="#s6">Synthese — les points clés</a></li>
 <li><a href="#s7">Questions d'auto-evaluation</a></li>
 </ol>
@@ -52,7 +52,7 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s1">1. Concevoir des interfaces d'outils claires (Task 2.1)</h2></div>
 
-<h3>Le problème que cela resout</h3>
+<h3>Le problème que cela résout</h3>
 <p>Quand Claude dispose de plusieurs outils aux fonctions proches, il choisit lequel appeler en se basant principalement sur la <code>description</code> de chaque outil. Si deux descriptions se ressemblent trop, Claude confond les outils — c'est le <code>misrouting</code>. Par exemple, si <code>analyze_content</code> est decrit comme <em>"analyzes content and extracts key information"</em> et <code>analyze_document</code> comme <em>"analyzes documents and extracts key information"</em>, Claude les confondra dans environ 45 % des cas.</p>
 
 <div class="key-concept">
@@ -97,13 +97,13 @@
 <strong>Piege courant — system prompt et associations involontaires :</strong> le system prompt peut creer des associations non desirees avec les outils. Par exemple, l'instruction <em>"always verify the customer"</em> dans le system prompt pousse Claude a appeler <code>get_customer</code> même pour des requêtes qui ne necessitent pas de vérification d'identite. L'examen teste votre capacite a identifier cette cause racine : un wording mal calibre dans le system prompt peut provoquer du <code>misrouting</code> autant que des descriptions vagues.
 </div>
 
-<h4>Outils integres vs outils MCP</h4>
-<p>Les agents ont tendance a preferer les outils integres (<code>Read</code>, <code>Grep</code>) aux outils MCP offrant des fonctionnalites proches. Pour contrer cette tendance, renforcez les descriptions des outils MCP en soulignant les avantages concrets qu'ils offrent par rapport aux outils integres : donnees exclusives, contexte spécifique, ou fonctionnalites que les outils integres ne couvrent pas.</p>
+<h4>Outils intègres vs outils MCP</h4>
+<p>Les agents ont tendance a preferer les outils intègres (<code>Read</code>, <code>Grep</code>) aux outils MCP offrant des fonctionnalites proches. Pour contrer cette tendance, renforcez les descriptions des outils MCP en soulignant les avantages concrets qu'ils offrent par rapport aux outils intègres : donnees exclusives, contexte spécifique, ou fonctionnalites que les outils intègres ne couvrent pas.</p>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s2">2. Les réponses d'erreur structurées en MCP (Task 2.2)</h2></div>
 
-<h3>Le problème que cela resout</h3>
+<h3>Le problème que cela résout</h3>
 <p>Quand un outil MCP echoue, l'agent doit prendre une décision de recuperation : faut-il faire un retry ? Modifier la requête ? Escalader vers un humain ? Si l'erreur retournée est un simple <code>"Operation failed"</code>, l'agent ne dispose d'aucune information pour faire ce choix. Il faut donc des <strong>erreurs structurées</strong> qui indiquent le type d'erreur, sa cause probable et les actions possibles.</p>
 
 <h3>Ce que doit contenir une bonne erreur</h3>
@@ -138,7 +138,7 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s3">3. Distribuer les outils entre agents et configurer <code>tool_choice</code> (Task 2.3)</h2></div>
 
-<h3>Le problème que cela resout</h3>
+<h3>Le problème que cela résout</h3>
 <p>Si vous donnez 18 outils a un seul agent, sa capacite a choisir le bon outil chute significativement. Pire : un agent disposant d'outils hors de sa specialisation aura tendance a les utiliser a mauvais escient. Le principe est simple : chaque agent ne reçoit que les outils <strong>pertinents pour son role</strong>, idealement <strong>4 a 5 maximum</strong>, plus un ensemble restreint d'utilitaires transversaux si nécessaire.</p>
 
 <h3>Scoped tool access et principe du moindre privilege</h3>
@@ -164,8 +164,8 @@
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s4">4. Integrer des MCP servers dans Claude Code (Task 2.4)</h2></div>
 
-<h3>Le problème que cela resout</h3>
-<p>L'approche traditionnelle d'intégration d'outils oblige les développeurs a écrire manuellement des schémas et des fonctions pour chaque outil. Le <strong>Model Context Protocol (MCP)</strong> resout ce problème en deplacant la definition et l'exécution des outils vers des serveurs dedies. Quelqu'un d'autre cree les outils, les empaquete dans un MCP server, et votre application s'y connecte automatiquement.</p>
+<h3>Le problème que cela résout</h3>
+<p>L'approche traditionnelle d'intégration d'outils oblige les développeurs a écrire manuellement des schémas et des fonctions pour chaque outil. Le <strong>Model Context Protocol (MCP)</strong> résout ce problème en deplacant la définition et l'exécution des outils vers des serveurs dedies. Quelqu'un d'autre cree les outils, les empaquete dans un MCP server, et votre application s'y connecte automatiquement.</p>
 
 <h3>La portee des MCP servers</h3>
 <table>
@@ -191,7 +191,7 @@
 <p>MCP expose trois types de primitives, chacune contrôlée par un acteur différent :</p>
 <table>
 <tr><th>Primitive</th><th>Controlee par</th><th>Objectif</th><th>Quand l'utiliser</th></tr>
-<tr><td><strong><code>tools</code></strong></td><td>Le modèle (Claude)</td><td>Ajouter des capacites d'action</td><td>Claude doit executer une opération (CRUD, appel API)</td></tr>
+<tr><td><strong><code>tools</code></strong></td><td>Le modèle (Claude)</td><td>Ajouter des capacites d'action</td><td>Claude doit exécuter une opération (CRUD, appel API)</td></tr>
 <tr><td><strong><code>resources</code></strong></td><td>L'application</td><td>Fournir des donnees en lecture</td><td>L'application a besoin de donnees pour l'interface ou le prompt</td></tr>
 <tr><td><strong><code>prompts</code></strong></td><td>L'utilisateur</td><td>Definir des workflows predefinis</td><td>L'utilisateur déclenche une action (bouton, commande slash)</td></tr>
 </table>
@@ -203,9 +203,9 @@
 <h3>Les transports MCP</h3>
 <table>
 <tr><th>Transport</th><th>Localisation</th><th>Bidirectionnel</th><th>Sampling et notifications</th></tr>
-<tr><td><strong>Stdio</strong></td><td>Meme machine uniquement</td><td>Oui, complet</td><td>Support total</td></tr>
-<tr><td><strong>StreamableHTTP</strong></td><td>Distant (via URL)</td><td>Via SSE (contournement)</td><td>Selon les flags de configuration</td></tr>
-<tr><td><strong>Stateless HTTP</strong></td><td>Distant, multi-instance</td><td>Non</td><td>Desactives (pas de session)</td></tr>
+<tr><td><strong>Stdio</strong></td><td>Même machine uniquement</td><td>Oui, complet</td><td>Support total</td></tr>
+<tr><td><strong>Streamable HTTP</strong></td><td>Distant (via URL)</td><td>Via SSE (contournement)</td><td>Selon les flags de configuration</td></tr>
+<tr><td><strong>Streamable HTTP en mode stateless</strong></td><td>Distant, multi-instance</td><td>Non</td><td>Désactivés (pas de session)</td></tr>
 </table>
 
 <div class="anti-pattern">
@@ -214,8 +214,8 @@
 
 <h3>Concepts avances</h3>
 <ul>
-<li><strong>Sampling :</strong> permet aux MCP servers de demander au client de generer du texte via son LLM, sans que le serveur ait besoin de clés API ni de supporter les couts de tokens. Utile pour les serveurs publics.</li>
-<li><strong>Roots :</strong> fichiers et dossiers auxquels l'utilisateur accorde l'accès au prealable. Ils offrent deux avantages : le <strong>contrôle des permissions</strong> (limiter l'accès aux zones autorisées) et la <strong>decouverte autonome</strong> (Claude navigue dans les roots sans que l'utilisateur fournisse le chemin complet).</li>
+<li><strong>Sampling :</strong> permet aux MCP servers de demander au client de générer du texte via son LLM, sans que le serveur ait besoin de clés API ni de supporter les couts de tokens. Utile pour les serveurs publics.</li>
+<li><strong>Roots :</strong> fichiers et dossiers auxquels l'utilisateur accorde l'accès au prealable. Ils offrent deux avantages : le <strong>contrôle des permissions</strong> (limiter l'accès aux zones autorisées) et la <strong>découverte autonome</strong> (Claude navigue dans les roots sans que l'utilisateur fournisse le chemin complet).</li>
 <li><strong>Elicitation</strong> (spec MCP 2025-06-18 et 2025-11-25) : permet au serveur de <em>demander une input a l'utilisateur</em> au cours d'un appel — sans devoir prendre cette input en paramètre du tool initial.</li>
 </ul>
 
@@ -267,7 +267,7 @@
 <div class="exam-tip">
 <strong>EXAM TIP :</strong> distinction des 3 primitives <em>cote serveur</em> :
 <ul>
-<li><strong>Sampling</strong> : serveur demande au client de <em>generer du texte LLM</em></li>
+<li><strong>Sampling</strong> : serveur demande au client de <em>générer du texte LLM</em></li>
 <li><strong>Roots</strong> : client declare au serveur les <em>chemins fichier autorisés</em></li>
 <li><strong>Elicitation</strong> : serveur demande au client de <em>collecter une input utilisateur</em></li>
 </ul>
@@ -275,7 +275,7 @@ Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilis
 </div>
 
 <div class="anti-pattern">
-<strong>Point de securite important :</strong> le SDK MCP n'applique <em>pas</em> automatiquement les restrictions de roots. Le développeur du serveur doit implementer manuellement les verifications d'accès avec une fonction comme <code>is_path_allowed()</code>. Sans cette implementation, les roots sont declaratifs mais pas effectivement appliques. <em>(Source : guide officiel, section Roots.)</em>
+<strong>Point de sécurité important :</strong> le SDK MCP n'applique <em>pas</em> automatiquement les restrictions de roots. Le développeur du serveur doit implementer manuellement les verifications d'accès avec une fonction comme <code>is_path_allowed()</code>. Sans cette implementation, les roots sont declaratifs mais pas effectivement appliques. <em>(Source : guide officiel, section Roots.)</em>
 </div>
 
 <h3>Choix entre community servers et custom servers</h3>
@@ -453,7 +453,7 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 </ol>
 
 <div class="key-concept">
-<strong>Specificite MCP :</strong> la specification MCP definit un flow OAuth 2.1 standardise (<code>oauth/authorize</code>, <code>oauth/token</code>, <code>oauth/register</code>). Le client (Claude Desktop, Claude Code) géré automatiquement le flow et stocke les tokens. Le développeur du serveur MCP n'a qu'a implementer les endpoints conformes a la spec.
+<strong>Specificite MCP :</strong> la specification MCP définit un flow OAuth 2.1 standardise (<code>oauth/authorize</code>, <code>oauth/token</code>, <code>oauth/register</code>). Le client (Claude Desktop, Claude Code) géré automatiquement le flow et stocke les tokens. Le développeur du serveur MCP n'a qu'a implementer les endpoints conformes a la spec.
 </div>
 
 <h3>Pattern 4 — Authentification mTLS / certificats</h3>
@@ -465,12 +465,12 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 <tr><td>Token API personnel, serveur local</td><td>Variable d'environnement (stdio + <code>${VAR}</code>)</td></tr>
 <tr><td>Service SaaS partage (Stripe, etc.)</td><td>Header Authorization avec <code>${VAR}</code></td></tr>
 <tr><td>Acces a des ressources d'un utilisateur (Google, Slack)</td><td>OAuth 2.1 (gérée par le client MCP)</td></tr>
-<tr><td>Environnement enterprise haute securite</td><td>mTLS + audit log</td></tr>
+<tr><td>Environnement enterprise haute sécurité</td><td>mTLS + audit log</td></tr>
 <tr><td>Multi-tenant SaaS</td><td>OAuth + scope par tenant</td></tr>
 </table>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> stocker un token en clair dans <code>.mcp.json</code> versionne. Meme si vous le supprimez plus tard, l'historique Git le conserve indefiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code> non versionne.
+<strong>Anti-pattern :</strong> stocker un token en clair dans <code>.mcp.json</code> versionne. Même si vous le supprimez plus tard, l'historique Git le conserve indefiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code> non versionne.
 </div>
 
 <div class="exam-tip">
@@ -525,7 +525,7 @@ async def read_doc(path: str) -> dict:
         }
     return {"content": p.read_text()}
 
-# ---- RESOURCES : controlees par l'application ---------
+# ---- RESOURCES : contrôlées par l'application ---------
 @mcp.resource("docs://catalog")
 async def catalog() -> str:
     """Liste hierarchique des docs disponibles — content catalog
@@ -541,7 +541,7 @@ async def summarize_doc(doc_path: str) -> list:
         {"role": "user", "content": f"Summarize {doc_path} in 5 bullets."}
     ]
 
-# ---- SAMPLING : le serveur demande au CLIENT de generer
+# ---- SAMPLING : le serveur demande au CLIENT de générer
 @mcp.tool()
 async def classify_query(query: str) -> dict:
     """Classify a query as 'technical' or 'business'.
@@ -589,10 +589,10 @@ async with stdio_client(...) as session:
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s5">5. Les outils integres de Claude Code (Task 2.5)</h2></div>
+<div class="section-header"><h2 id="s5">5. Les outils intègres de Claude Code (Task 2.5)</h2></div>
 
-<h3>Le problème que cela resout</h3>
-<p>Claude Code dispose d'outils integres pour interagir avec le système de fichiers et le terminal. Bien les connaitre évite de creer des outils MCP redondants et permet une investigation efficace du code.</p>
+<h3>Le problème que cela résout</h3>
+<p>Claude Code dispose d'outils intègres pour interagir avec le système de fichiers et le terminal. Bien les connaitre évite de creer des outils MCP redondants et permet une investigation efficace du code.</p>
 
 <h3>Reference de selection</h3>
 <table>
@@ -624,7 +624,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <h3>La stratégie d'investigation incrementale</h3>
 <p>Plutot que de lire tous les fichiers d'un coup, construisez votre comprehension progressivement :</p>
 <ol>
-<li><strong><code>Grep</code></strong> : identifier les points d'entree (definitions de fonctions, exports).</li>
+<li><strong><code>Grep</code></strong> : identifier les points d'entree (définitions de fonctions, exports).</li>
 <li><strong><code>Read</code></strong> : lire les fichiers identifiés.</li>
 <li><strong><code>Grep</code></strong> : trouver les usages (imports, appels).</li>
 <li><strong><code>Read</code></strong> : lire les fichiers consommateurs.</li>
@@ -668,7 +668,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li><code>resources</code> = « content catalogs » qui reduisent les appels exploratoires.</li>
 <li>Preferer les community servers pour les intégrations standards ; custom servers pour les workflows spécifiques.</li>
 <li>Roots : le SDK n'applique pas automatiquement les restrictions — implementer <code>is_path_allowed()</code>.</li>
-<li>Transports : <strong>stdio</strong> (local) / <strong>SSE</strong> = <strong>StreamableHTTP</strong> (distant, bidirectionnel) / <strong>HTTP stateless</strong> (multi-instance).</li>
+<li>Transports : <strong>stdio</strong> (local) / <strong>Streamable HTTP</strong> (distant, bidirectionnel ; SSE = ancien transport HTTP, <strong>déprécié</strong>, remplacé par Streamable HTTP) / <strong>HTTP stateless</strong> = mode de Streamable HTTP sans session (multi-instance).</li>
 </ul>
 
 <h3>JSON Schema (input_schema)</h3>
@@ -686,12 +686,12 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li><strong>stdio</strong> : variables d'env (<code>${TOKEN}</code> dans <code>env</code>) — pattern le plus simple.</li>
 <li><strong>HTTP</strong> : headers <code>Authorization: Bearer</code>, <code>X-API-Key</code>.</li>
 <li><strong>OAuth 2.1</strong> : delegation par utilisateur — endpoints standardises par la spec MCP.</li>
-<li><strong>mTLS</strong> : enterprise haute securite.</li>
+<li><strong>mTLS</strong> : enterprise haute sécurité.</li>
 <li>Multi-tenant : OAuth + scopes ; token de service partage = anti-pattern.</li>
 <li>Anti-pattern absolu : token en clair dans <code>.mcp.json</code> versionne (l'historique Git le retient).</li>
 </ul>
 
-<h3>Outils integres</h3>
+<h3>Outils intègres</h3>
 <ul>
 <li><code>Glob</code> (fichiers par pattern), <code>Grep</code> (contenu), <code>Read</code>/<code>Write</code> (fichier entier), <code>Edit</code> (modification ciblee), <code>Bash</code> (commandes).</li>
 <li><code>Edit</code> echoue → fallback <code>Read</code> + <code>Write</code>.</li>
@@ -702,12 +702,12 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <div class="section-header"><h2 id="s7">7. Questions d'auto-evaluation</h2></div>
 
 <details>
-<summary>Q1 : Les logs montrent que les requêtes <em>"analyze the uploaded quarterly report"</em> sont routees vers le web-search agent 45 % du temps au lieu du document analysis agent. Les descriptions des outils sont <code>analyze_content</code> (<em>"analyzes content and extracts key information"</em>) et <code>analyze_document</code> (<em>"analyzes documents and extracts key information"</em>). Comment corriger ?<br>
+<summary>Q1 : Les logs montrent que les requêtes <em>"analyze the uploaded quarterly report"</em> sont routées vers le web-search agent 45 % du temps au lieu du document analysis agent. Les outils disponibles sont <code>analyze_content</code> (agent web-search) et <code>analyze_document</code> (agent document analysis). Leurs descriptions sont <em>"analyzes content and extracts key information"</em> et <em>"analyzes documents and extracts key information"</em>. Comment corriger ?<br>
 A) Ajouter un pre-routing classifier.<br>
-B) Renommer le web-search tool en <code>extract_web_results</code> et mettre a jour sa <code>description</code>.<br>
+B) Renommer le web-search tool en <code>extract_web_results</code> et mettre à jour sa <code>description</code>.<br>
 C) Ajouter des few-shot examples au coordinateur.<br>
 D) Enrichir seulement la <code>description</code> du document analysis tool.</summary>
-<p><strong>Reponse : B</strong></p>
+<p><strong>Réponse : B</strong></p>
 <p>Le problème est un chevauchement semantique entre les deux descriptions. Renommer le web-search tool en <code>extract_web_results</code> avec une description differenciee elimine l'ambiguite a la racine. Les options A et C ajoutent de la complexite sans traiter la cause. L'option D n'elimine pas le chevauchement cote web-search.</p>
 </details>
 
@@ -717,7 +717,7 @@ A) Remplacer <code>fetch_url</code> par <code>load_document</code> qui valide le
 B) Retirer <code>fetch_url</code> et router via le coordinateur.<br>
 C) Filtrer les domaines de moteurs de recherche.<br>
 D) Ajouter des instructions dans le prompt.</summary>
-<p><strong>Reponse : A</strong></p>
+<p><strong>Réponse : A</strong></p>
 <p>C'est le principe du moindre privilege applique au niveau de l'interface : contraindre l'outil lui-même plutot que de compter sur des instructions textuelles (option D, peu fiable) ou d'ajouter de la complexite architecturale (option B). L'option C est un filtre fragile qui ne couvre pas tous les cas.</p>
 </details>
 
@@ -727,7 +727,7 @@ A) L'agent ne peut pas decider s'il faut faire un retry, modifier la requête, o
 B) Le format JSON est incorrect.<br>
 C) <code>isError</code> devrait être <code>false</code>.<br>
 D) Le message est trop court.</summary>
-<p><strong>Reponse : A</strong></p>
+<p><strong>Réponse : A</strong></p>
 <p>Une erreur generique ne fournit aucune information pour la prise de décision. Sans <code>errorCategory</code> ni <code>isRetryable</code>, l'agent ne sait pas si l'erreur est <code>transient</code> (retry), <code>validation</code> (corriger l'entree), <code>business</code> (expliquer a l'utilisateur) ou <code>permission</code> (escalader). Le format JSON est valide (B est faux), <code>isError: true</code> est correct (C est faux), et la longueur du message n'est pas le problème (D est faux).</p>
 </details>
 
@@ -737,7 +737,7 @@ A) <code>{"type": "auto"}</code><br>
 B) <code>{"type": "any"}</code><br>
 C) <code>{"type": "tool", "name": "extract_metadata"}</code><br>
 D) Ajouter <em>"always call this first"</em> dans la <code>description</code>.</summary>
-<p><strong>Reponse : C</strong></p>
+<p><strong>Réponse : C</strong></p>
 <p>La forced selection (<code>{"type": "tool", "name": "extract_metadata"}</code>) garantit que Claude appellera exactement cet outil. <code>auto</code> (A) laisse Claude libre de ne pas appeler d'outil. <code>any</code> (B) force un appel mais sans garantir lequel. L'option D repose sur une instruction textuelle dans la <code>description</code>, ce qui est moins fiable qu'une contrainte programmatique.</p>
 </details>
 
@@ -746,8 +746,8 @@ D) Ajouter <em>"always call this first"</em> dans la <code>description</code>.</
 A) Mettre tous les champs dans <code>required</code>.<br>
 B) Utiliser <code>if</code>/<code>then</code> : si <code>type == "refund"</code>, alors <code>required: ["amount", "reason"]</code>.<br>
 C) Documenter la regle uniquement dans la <code>description</code>.<br>
-D) Creer deux outils separes.</summary>
-<p><strong>Reponse : B.</strong> JSON Schema draft-07 supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle. C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modèle a fournir <code>amount</code> même pour <code>info_only</code> (et il l'inventera). C deplace la responsabilite sur le modèle (peu fiable). D est correct mais ajoute de la complexite et du <code>misrouting</code> potentiel — preferer <code>if</code>/<code>then</code> si la logique est simple.</p>
+D) Creer deux outils séparés.</summary>
+<p><strong>Réponse : B.</strong> JSON Schema draft-07 supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle. C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modèle a fournir <code>amount</code> même pour <code>info_only</code> (et il l'inventera). C deplace la responsabilite sur le modèle (peu fiable). D est correct mais ajoute de la complexite et du <code>misrouting</code> potentiel — preferer <code>if</code>/<code>then</code> si la logique est simple.</p>
 </details>
 
 <details>
@@ -756,7 +756,7 @@ A) Ajouter "notes" dans <code>properties</code>.<br>
 B) Mettre <code>"additionalProperties": false</code> au niveau de l'objet.<br>
 C) Lister les champs interdits dans une enum.<br>
 D) Utiliser <code>tool_choice: any</code>.</summary>
-<p><strong>Reponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code>. Le <code>tool_use</code> garantit que la sortie respecte le schéma, donc Claude est contraint de ne produire que les champs documentes. A le rendrait acceptable mais ne resout pas la question (le modèle continuerait a inventer d'autres champs). C n'a pas de sens semantique. D ne contraint pas la structure du resultat.</p>
+<p><strong>Réponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code>. Le <code>tool_use</code> garantit que la sortie respecte le schéma, donc Claude est contraint de ne produire que les champs documentes. A le rendrait acceptable mais ne résout pas la question (le modèle continuerait a inventer d'autres champs). C n'a pas de sens semantique. D ne contraint pas la structure du resultat.</p>
 </details>
 
 <details>
@@ -765,7 +765,7 @@ A) Un service account Google partage, token dans <code>.mcp.json</code>.<br>
 B) Une clé API par développeur en variable d'environnement.<br>
 C) OAuth 2.1 — chaque utilisateur autorisé individuellement, le client MCP géré les tokens.<br>
 D) Authentification HTTP Basic.</summary>
-<p><strong>Reponse : C.</strong> Quand l'authentification est <strong>par utilisateur</strong> (ressources personnelles), seul OAuth 2.1 fournit la delegation propre : chaque dev passe par le flow d'autorisation Google, reçoit son propre <code>access_token</code>, et le client MCP le stocke. A est dangereux (un service account partage = tout le monde voit tout). B fonctionnerait pour des clés techniques, mais Google Drive ne distribue pas de clés API par utilisateur — il faut un flow OAuth. D est obsolete et inadapte.</p>
+<p><strong>Réponse : C.</strong> Quand l'authentification est <strong>par utilisateur</strong> (ressources personnelles), seul OAuth 2.1 fournit la delegation propre : chaque dev passe par le flow d'autorisation Google, reçoit son propre <code>access_token</code>, et le client MCP le stocke. A est dangereux (un service account partage = tout le monde voit tout). B fonctionnerait pour des clés techniques, mais Google Drive ne distribue pas de clés API par utilisateur — il faut un flow OAuth. D est obsolete et inadapte.</p>
 </details>
 
 <nav class="doc-nav">

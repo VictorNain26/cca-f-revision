@@ -200,7 +200,7 @@ Chaque endpoint doit retourner un wrapper de reponse standard.</pre>
 <tr><td><strong>Projet</strong></td><td><code>.claude/commands/</code></td><td>Versionne via VCS, disponible après clonage</td></tr>
 <tr><td><strong>Personnel</strong></td><td><code>~/.claude/commands/</code></td><td>Personnel, non partage</td></tr>
 </table>
-<p>Le nom du fichier détermine le nom de la commande : <code>review.md</code> devient <code>/review</code>. Le placeholder <code>$ARGUMENTS</code> accepte des paramètres.</p>
+<p>Le nom du fichier détermine le nom de la commande : <code>review.md</code> devient <code>/review</code>. Le placeholder <code>$ARGUMENTS</code> accepte des paramètres positionnels 0-based : <code>$0</code> = 1er argument, <code>$1</code> = 2e, etc.</p>
 
 <h3>Les skills (format actuel)</h3>
 <p>Les skills sont le format actuel et recommandé, plus puissant que les slash commands. Chaque skill vit dans un repertoire contenant un fichier <code>SKILL.md</code> avec un YAML frontmatter :</p>
@@ -220,7 +220,7 @@ Quand tu rediges une description de PR :
 <table>
 <tr><th>Parametre</th><th>Obligatoire</th><th>Role</th></tr>
 <tr><td><code>name</code></td><td>Optionnel — défaut = nom du dossier du skill</td><td>Display name (identifiant optionnel). Par défaut, le nom du dossier du skill sert de nom de commande (ex. <code>/review</code> pour <code>.claude/skills/review/SKILL.md</code>).</td></tr>
-<tr><td><code>description</code></td><td>Oui</td><td>Determine <em>quand</em> Claude active le skill (matching semantique) — tronquée à ~1536 caractères dans le listing — et influence <em>comment</em> il redige le prompt. C'est le champ le plus determinant pour le declenchement.</td></tr>
+<tr><td><code>description</code></td><td>Oui</td><td>Determine <em>quand</em> Claude active le skill (matching semantique) — <code>description</code> + <code>when_to_use</code> tronqués à ~1536 caractères dans le listing — et influence <em>comment</em> il redige le prompt. C'est le champ le plus determinant pour le declenchement.</td></tr>
 <tr><td><code>context: fork</code></td><td>Non</td><td>Execute le skill dans un contexte isole de subagent. La sortie verbeuse ne pollue pas la session principale.</td></tr>
 <tr><td><code>allowed-tools</code></td><td>Non</td><td>Restreint les outils disponibles (ex. : lecture seule = ni <code>Edit</code> ni <code>Write</code>).</td></tr>
 <tr><td><code>argument-hint</code></td><td>Non</td><td>Demande un paramètre quand le skill est invoque sans argument.</td></tr>
@@ -255,8 +255,8 @@ name: security-reviewer
 description: Reviews code changes for security issues — SQL injection,
   XSS, auth bypass, secrets in code. Use when reviewing PRs that touch
   authentication, data input handling, or external integrations.
-allowed-tools: Read, Grep, Glob, Bash(git diff:*)
-allowed-skills: ["sql-pattern-check", "secrets-scan"]
+tools: Read, Grep, Glob, Bash(git diff:*)
+skills: ["sql-pattern-check", "secrets-scan"]
 model: claude-opus-4-7
 ---
 You are a security-focused code reviewer. For each file in the diff:
@@ -271,8 +271,8 @@ Output JSON: { issues: [{severity, file, line, message}] }</pre>
 <tr><th>Champ</th><th>Role</th></tr>
 <tr><td><code>name</code></td><td>Identifiant pour invocation (<code>/agents security-reviewer</code> ou via Task tool)</td></tr>
 <tr><td><code>description</code></td><td>Determine quand l'agent est invoque automatiquement (matching semantique)</td></tr>
-<tr><td><code>allowed-tools</code></td><td>Restreint les outils — typique : lecture seule pour un reviewer</td></tr>
-<tr><td><code>allowed-skills</code></td><td>Liste les skills accessibles a cet agent (sinon il n'en voit aucun)</td></tr>
+<tr><td><code>tools</code></td><td>Restreint les outils — typique : lecture seule pour un reviewer</td></tr>
+<tr><td><code>skills</code></td><td>Liste les skills accessibles a cet agent (sinon il n'en voit aucun)</td></tr>
 <tr><td><code>model</code></td><td>Override du modèle : opus pour les analyses complexes, haiku pour les taches mecaniques</td></tr>
 </table>
 
@@ -499,7 +499,7 @@ La même session Claude qui a généré le code est moins efficace pour le revie
 <li>Sortie sur stdout, code de retour exploitable (<code>$?</code>)</li>
 <li>Combinable avec <code>--output-format json</code> pour parsing programmatique</li>
 <li>Combinable avec <code>--max-turns N</code> pour limiter les iterations agentiques</li>
-<li>Nessite des permissions explicites (sinon les demandes bloquent silencieusement)</li>
+<li>Nécessite des permissions explicites (sinon les demandes bloquent silencieusement)</li>
 </ul>
 
 <h3>Workflow GitHub Actions concret</h3>
@@ -616,7 +616,7 @@ jobs:
         "hooks": [
           {
             "type": "command",
-            "command": "npm run lint -- --fix \"$CLAUDE_FILE_PATHS\"",
+            "command": "jq -r '.tool_input.file_path' | xargs npm run lint -- --fix",
             "timeout": 30000
           }
         ]
@@ -652,7 +652,7 @@ jobs:
 <tr><th>Champ</th><th>Role</th></tr>
 <tr><td><code>matcher</code></td><td>Filtre regex sur le nom de l'outil (PreToolUse / PostToolUse) ou <code>"*"</code> pour tous</td></tr>
 <tr><td><code>type</code></td><td>Toujours <code>"command"</code> dans la config (les hooks programmatiques sont via le SDK)</td></tr>
-<tr><td><code>command</code></td><td>Commande shell executee. Variables disponibles : <code>$CLAUDE_FILE_PATHS</code>, <code>$CLAUDE_TOOL_NAME</code>, <code>$CLAUDE_TOOL_INPUT</code></td></tr>
+<tr><td><code>command</code></td><td>Commande shell executee. Les hooks reçoivent les données en JSON sur stdin avec <code>tool_name</code> et <code>tool_input</code>. Variable d'env disponible : <code>CLAUDE_PROJECT_DIR</code></td></tr>
 <tr><td><code>timeout</code></td><td>Millisecondes avant kill (defaut : 60000). Important pour éviter de bloquer la session</td></tr>
 </table>
 
@@ -766,7 +766,7 @@ claude mcp remove github</pre>
 <ul>
 <li>Slash commands dans <code>.claude/commands/</code> : format legacy, partage via VCS.</li>
 <li>Skills dans <code>.claude/skills/</code> : format actuel, <code>SKILL.md</code> avec YAML frontmatter.</li>
-<li>Skills personnels dans <code>~/.claude/skills/</code> : doivent utiliser des <strong>noms différents</strong> des skills projet (le projet prend priorite pour un même nom).</li>
+<li>Skills personnels dans <code>~/.claude/skills/</code> : doivent utiliser des <strong>noms différents</strong> des skills projet (le skill <strong>personnel</strong> prend la priorité pour un même nom).</li>
 <li><code>context: fork</code> pour l'isolation dans un subagent, <code>allowed-tools</code> pour restreindre les outils.</li>
 <li>Priorite : Enterprise &gt; Personnel &gt; Projet &gt; Plugins.</li>
 </ul>

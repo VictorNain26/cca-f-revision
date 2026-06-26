@@ -41,7 +41,7 @@
 <li><a href="#s5">Le contrôle humain et la confidence calibration</a></li>
 <li><a href="#s6">La provenance et la synthèse multi-sources</a></li>
 <li><a href="#s7">Synthèse — les points clés</a></li>
-<li><a href="#s8">Auto-évaluation</a></li>
+<li><a href="#s8">Auto-évaluation (6 questions)</a></li>
 </ol>
 </div>
 
@@ -84,7 +84,7 @@ Trois vulnérabilités critiques identifiées...
 Priorité : corriger auth.ts avant le merge.</pre>
 
 <h4>3. L'accumulation des <code>tool results</code></h4>
-<p>Si <code>lookup_order</code> retourné 40 champs mais que seuls 5 sont pertinents pour la tâche en cours, le contexte se remplit d'informations inutiles. La solution : un hook <code>PostToolUse</code> qui ne conserve que les champs nécessaires avant que le modèle ne traite le résultat.</p>
+<p>Si <code>lookup_order</code> retourne 40 champs mais que seuls 5 sont pertinents pour la tâche en cours, le contexte se remplit d'informations inutiles. La solution : un hook <code>PostToolUse</code> qui ne conserve que les champs nécessaires avant que le modèle ne traite le résultat.</p>
 
 <pre>@hook("PostToolUse", tool="lookup_order")
 def trim_order_fields(result):
@@ -151,7 +151,7 @@ Les deux sont complémentaires : le hook réduit la taille initiale, l'API gère
 <ul>
 <li><strong><code>/compact</code> :</strong> compresse le contexte en résumant l'historique. Utile dans les longues sessions, mais avec le risque de perdre des détails exacts — d'où l'importance du <code>case facts</code> block.</li>
 <li><strong>Fichiers <code>scratchpad</code> :</strong> l'agent écrit ses découvertes clés dans un fichier (<code>investigation-scratchpad.md</code>) et le consulte quand le contexte se dégrade.</li>
-<li><strong>Délégation aux <code>subagent</code>s :</strong> isoler les phases de découverte verbeuses dans un <code>subagent</code> qui ne retourné qu'un résumé concis au thread principal.</li>
+<li><strong>Délégation aux <code>subagent</code>s :</strong> isoler les phases de découverte verbeuses dans un <code>subagent</code> qui ne retourne qu'un résumé concis au thread principal.</li>
 <li><strong>Budgets de contexte contraints :</strong> envoyer un contexte minimal aux <code>subagent</code>s, exiger des résultats structurés (pas de dumps bruts), et limiter les outils disponibles pour réduire les distractions.</li>
 <li><strong>Métadonnées obligatoires dans les sorties des <code>subagent</code>s :</strong> les <code>subagent</code>s doivent inclure les dates, sources et <code>attribution</code>s dans leurs résultats structurés, faute de quoi la synthèse en aval perd la <code>provenance</code>.</li>
 </ul>
@@ -336,7 +336,7 @@ Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaiso
 </div>
 
 <h3>Token budgeting : un calcul chiffré pas-à-pas</h3>
-<p>Mettons en pratique le concept de §1 (settings.json) sur un cas concret : <strong>agent juridique multi-turn, modèle Claude Sonnet 4.6 (200k tokens), session de 15 turns sur un dossier de 50k tokens</strong>.</p>
+<p>Mettons en pratique le concept de §1 sur un cas concret : <strong>agent juridique multi-turn, modèle Claude Sonnet 4.6 (200k tokens), session de 15 turns sur un dossier de 50k tokens</strong>.</p>
 
 <table>
 <tr><th>Composante</th><th>Tokens alloués</th><th>Stratégie</th></tr>
@@ -466,7 +466,7 @@ Rationale: Frustration ≠ human request. Escalate only on reiteration.</pre>
 <p>Dans un système multi-agents, un <code>subagent</code> peut échouer (timeout, document corrompu, API indisponible). Le coordinateur a besoin d'informations structurées pour décider intelligemment de la suite : retry ? Modifier la requête ? Continuer avec des résultats partiels ? Abandonner cette branche et annoter le manque ?</p>
 
 <h3>Le contexte d'erreur structuré d'un <code>subagent</code></h3>
-<p>Chaque erreur retournée au coordinateur doit inclure quatre éléments : <code>failure_type</code>, la requête tentée (<code>query</code>), les résultats partiels (<code>partial_results</code>), et les alternatives (<code>alternatives</code>).</p>
+<p>Chaque erreur retournee au coordinateur doit inclure quatre éléments : <code>failure_type</code>, la requête tentée (<code>query</code>), les résultats partiels (<code>partial_results</code>), et les alternatives (<code>alternatives</code>).</p>
 <pre>{
   "status": "partial_failure",
   "failure_type": "timeout",
@@ -489,7 +489,7 @@ Rationale: Frustration ≠ human request. Escalate only on reiteration.</pre>
 <table>
 <tr><th>Situation</th><th>Type</th><th>Action du coordinateur</th></tr>
 <tr><td>Connection timeout</td><td>Access failure</td><td>Retry décision (1-2 tentatives), puis propager si l'échec persiste</td></tr>
-<tr><td>0 results retournés</td><td>Valid empty result</td><td>Accepter comme résultat légitime, annoter dans la synthèse</td></tr>
+<tr><td>0 results retournes</td><td>Valid empty result</td><td>Accepter comme résultat légitime, annoter dans la synthèse</td></tr>
 </table>
 
 <h3>Les 4 anti-patterns de gestion d'erreur</h3>
@@ -533,7 +533,7 @@ Note : la couverture de cette section est limitée.
 
 <h4>2. Délégation aux <code>subagent</code>s</h4>
 <p>L'agent principal demande à un <code>subagent</code> <code>Explore</code> d'investiguer les dépendances d'un module. Le <code>subagent</code> lit 15 fichiers dans son propre contexte et retourne un résumé concis au thread principal. Le contexte principal garde une ligne au lieu de 15 fichiers :</p>
-<pre>// Résultat du subagent Explore → résumé retourné au coordinateur
+<pre>// Résultat du subagent Explore → résumé retourne au coordinateur
 "Le module Payments dépend de AuthService, OrderModel
  et de l'API externe PaymentGateway."</pre>
 
@@ -715,7 +715,7 @@ Note : la couverture de cette section est limitée.
 </ul>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s8">8. Auto-évaluation</h2></div>
+<div class="section-header"><h2 id="s8">8. Auto-évaluation (6 questions)</h2></div>
 
 <div class="quiz-section">
 <h3>4 questions pour tester votre compréhension</h3>

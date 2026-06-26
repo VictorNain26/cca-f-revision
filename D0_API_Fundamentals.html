@@ -57,7 +57,7 @@
 <tr><th>Champ</th><th>Role</th><th>Obligatoire</th></tr>
 <tr><td><code>model</code></td><td>Selection du modèle (<code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code>)</td><td>Oui</td></tr>
 <tr><td><code>max_tokens</code></td><td>Nombre maximum de tokens dans la réponse</td><td>Oui</td></tr>
-<tr><td><code>system</code></td><td>Le system prompt — definit le comportement du modèle. <strong>Passe separement, PAS dans <code>messages</code></strong></td><td>Non</td></tr>
+<tr><td><code>system</code></td><td>Le system prompt — définit le comportement du modèle. <strong>Passe séparément, PAS dans <code>messages</code></strong></td><td>Non</td></tr>
 <tr><td><code>messages</code></td><td>Historique de la conversation (DOIT contenir l'historique complet — API stateless)</td><td>Oui</td></tr>
 <tr><td><code>tools</code></td><td>Definitions des tools disponibles</td><td>Non</td></tr>
 <tr><td><code>tool_choice</code></td><td>Strategie de selection des tools</td><td>Non</td></tr>
@@ -148,7 +148,7 @@
 <div class="key-concept">
 <strong>Pour les systèmes agentiques :</strong> Les deux valeurs les plus importantes sont <code>"tool_use"</code> et <code>"end_turn"</code>. Elles controlent la boucle agentique :
 <ul>
-<li><code>"tool_use"</code> → executer le tool, renvoyer le resultat, re-appeler l'API</li>
+<li><code>"tool_use"</code> → exécuter le tool, renvoyer le resultat, re-appeler l'API</li>
 <li><code>"end_turn"</code> → le modèle a fini, sortir de la boucle</li>
 </ul>
 Voir <strong>D1</strong> pour les détails sur la boucle agentique.
@@ -157,7 +157,7 @@ Voir <strong>D1</strong> pour les détails sur la boucle agentique.
 <!-- ===== SECTION 4 ===== -->
 <div class="section-header"><h2 id="s4">4. System Prompt</h2></div>
 
-<p>Le system prompt est passe via le champ <code>system</code>, <strong>separe du tableau <code>messages</code></strong>. Il definit le comportement global du modèle pour toute la conversation.</p>
+<p>Le system prompt est passe via le champ <code>system</code>, <strong>séparé du tableau <code>messages</code></strong>. Il définit le comportement global du modèle pour toute la conversation.</p>
 
 <h3>Caracteristiques clés</h3>
 <ul>
@@ -182,7 +182,7 @@ Voir <strong>D1</strong> pour les détails sur la boucle agentique.
 <ul>
 <li>Le <strong>system prompt</strong></li>
 <li>L'historique complet des <strong>messages</strong></li>
-<li>Les <strong>tool definitions</strong> (schémas des tools)</li>
+<li>Les <strong>tool définitions</strong> (schémas des tools)</li>
 <li>Les <strong>tool results</strong> (retours d'exécution)</li>
 </ul>
 
@@ -210,7 +210,7 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 <strong>Point fondamental :</strong> Claude n'execute PAS de code. Il généré une <strong>requête structurée d'appel tool</strong> (nom + paramètres). C'est <strong>votre code</strong> qui execute le tool et renvoie le resultat.
 </div>
 
-<h3>Anatomie d'une tool definition</h3>
+<h3>Anatomie d'une tool définition</h3>
 
 <table>
 <tr><th>Champ</th><th>Role</th></tr>
@@ -324,7 +324,7 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 <p>B) Le <code>tool_result</code> expire côté serveur Anthropic après quelques secondes.</p>
 <p>C) Le <code>max_tokens</code> est trop bas pour conserver le <code>tool_result</code>.</p>
 <p>D) Il manque un paramètre <code>session_id</code> pour persister l'état entre requêtes.</p>
-<p class="answer-block"><strong>Reponse : A.</strong> L'API Claude est <strong>stateless</strong> : elle ne conserve aucun état entre les requêtes. À chaque appel, le tableau <code>messages</code> doit contenir l'intégralité de l'historique, y compris les <code>tool_result</code> précédents. B/C/D sont faux : rien n'expire côté serveur (l'API ne stocke rien), <code>max_tokens</code> borne la sortie pas l'historique, et il n'existe pas de <code>session_id</code> — c'est au client de renvoyer l'historique.</p>
+<p class="answer-block"><strong>Réponse : A.</strong> L'API Claude est <strong>stateless</strong> : elle ne conserve aucun état entre les requêtes. À chaque appel, le tableau <code>messages</code> doit contenir l'intégralité de l'historique, y compris les <code>tool_result</code> précédents. B/C/D sont faux : rien n'expire côté serveur (l'API ne stocke rien), <code>max_tokens</code> borne la sortie pas l'historique, et il n'existe pas de <code>session_id</code> — c'est au client de renvoyer l'historique.</p>
 </div>
 </details>
 
@@ -335,7 +335,7 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 <p>B) La formulation du system prompt ("always verify") crée une association non intentionnelle avec le tool <code>get_customer</code>.</p>
 <p>C) <code>tool_choice</code> est réglé sur <code>"any"</code>, forçant un appel d'outil.</p>
 <p>D) Le modèle appelle <code>get_customer</code> par défaut au premier tour.</p>
-<p class="answer-block"><strong>Reponse : B.</strong> Le modèle interprète "always verify the customer" comme une instruction déclenchant systématiquement le tool le plus sémantiquement proche — ici <code>get_customer</code> : c'est une instruction <em>keyword-sensitive</em>. La solution : reformuler le system prompt en spécifiant <em>quand</em> la vérification est nécessaire plutôt que "always". (C est faux : aucun <code>tool_choice</code> n'est forcé ici.)</p>
+<p class="answer-block"><strong>Réponse : B.</strong> Le modèle interprète "always verify the customer" comme une instruction déclenchant systématiquement le tool le plus sémantiquement proche — ici <code>get_customer</code> : c'est une instruction <em>keyword-sensitive</em>. La solution : reformuler le system prompt en spécifiant <em>quand</em> la vérification est nécessaire plutôt que "always". (A est un symptôme, pas la cause racine : rien n'indique une description trop large ; le déclencheur est le mot <em>always</em> du system prompt. C est faux : aucun <code>tool_choice</code> n'est forcé ici.)</p>
 </div>
 </details>
 
@@ -346,7 +346,7 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 <p>B) <code>{"type": "any"}</code></p>
 <p>C) Omettre <code>tool_choice</code></p>
 <p>D) <code>temperature: 0</code></p>
-<p class="answer-block"><strong>Reponse : B.</strong> <code>{"type": "any"}</code> force le modèle à appeler au moins un tool, mais le laisse choisir lequel → output structuré garanti. <code>"auto"</code> (A, et le défaut quand on omet le champ — C) laisse le modèle répondre en texte libre. <code>temperature</code> (D) n'a aucun rapport. Pour forcer un tool <em>spécifique</em> : <code>{"type": "tool", "name": "..."}</code> (plus restrictif que <code>"any"</code>).</p>
+<p class="answer-block"><strong>Réponse : B.</strong> <code>{"type": "any"}</code> force le modèle à appeler au moins un tool, mais le laisse choisir lequel → output structuré garanti. <code>"auto"</code> (A, et le défaut quand on omet le champ — C) laisse le modèle répondre en texte libre. <code>temperature</code> (D) n'a aucun rapport. Pour forcer un tool <em>spécifique</em> : <code>{"type": "tool", "name": "..."}</code> (plus restrictif que <code>"any"</code>).</p>
 </div>
 </details>
 
@@ -357,7 +357,7 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 <p>B) Le champ est automatiquement renvoyé à <code>null</code>.</p>
 <p>C) Le modèle fabrique une valeur (hallucination) pour satisfaire la contrainte <code>required</code>.</p>
 <p>D) Le tool n'est pas appelé du tout.</p>
-<p class="answer-block"><strong>Reponse : C.</strong> Un champ <code>required</code> pousse le modèle à <strong>inventer une valeur</strong> plutôt que de violer le schéma (l'API ne valide pas la véracité, donc pas d'erreur 400). Correction : rendre le champ <strong>nullable</strong> avec <code>"type": ["string", "null"]</code> et le retirer de <code>required</code> → le modèle renvoie <code>null</code> quand l'information est absente au lieu d'inventer un nom.</p>
+<p class="answer-block"><strong>Réponse : C.</strong> Un champ <code>required</code> pousse le modèle à <strong>inventer une valeur</strong> plutôt que de violer le schéma (l'API ne valide pas la véracité, donc pas d'erreur 400). Correction : rendre le champ <strong>nullable</strong> avec <code>"type": ["string", "null"]</code> et le retirer de <code>required</code> → le modèle renvoie <code>null</code> quand l'information est absente au lieu d'inventer un nom.</p>
 </div>
 </details>
 
