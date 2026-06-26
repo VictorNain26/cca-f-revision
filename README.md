@@ -42,14 +42,12 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | `Exam_Strategy.html` | Cheat sheet jour J, méthodologie QCM, 6 arbres de décision |
 | `styles.css` | Design system unifié partagé par tous les documents |
 
-## Méthode d'utilisation — planning 3 semaines
+## Méthode d'utilisation
 
-| Phase | Activité quotidienne (~1-2 h) |
-|---|---|
-| **S-3 — Consolidation** | Lire D0 puis 1 domaine/jour ; surligner exam-tips et anti-patterns ; faire les questions auto-éval |
-| **S-2 — Active recall** | 1 scénario/jour dans Practice Questions ; expliquer chaque distracteur à voix haute |
-| **S-1 — Simulation** | Examens blancs 40 Q en 80 min ; relire le Cheat Sheet (Exam_Strategy) |
-| **J-1** | Survol rapide du Cheat Sheet ; pas de bourrage ; coucher tôt |
+1. **Diagnostic** — QCM tous scénarios confondus, fiches fermées → repère tes domaines faibles.
+2. **Par domaine** (ordre poids × faiblesse) — teste-toi d'abord, puis lis pour combler, explique chaque distracteur.
+3. **Simulation** — examens blancs en conditions + la Practice Exam officielle (vise > 900/1000).
+4. **Dernière ligne droite** — relis seulement ton journal d'erreurs + le Cheat Sheet.
 
 > **Principe** : active recall > relecture passive. Faire les QCM, expliquer pourquoi chaque distracteur est faux. La compréhension émerge de la formulation, pas de la lecture.
 
@@ -74,4 +72,4 @@ Ce corpus est basé sur le guide officiel CCA-F d'Anthropic et complété par le
 
 ---
 
-*Corpus complet pour préparation CCA-F en 2-3 semaines · Mis à jour juin 2026.*
+*Corpus complet de préparation CCA-F · Mis à jour juin 2026.*
