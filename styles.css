@@ -1461,6 +1461,14 @@ footer,
 /* actif : couleur + barre + fond (PAS de bold → évite le reflow/2 lignes) */
 .toc-rail a.active { color: var(--primary); border-left-color: var(--primary); background: var(--bg-soft); }
 
+/* En-tête de sheet et backdrop : inertes hors du bottom-sheet mobile */
+.toc-sheet-head, .toc-grip, .toc-close { display: none; }
+.toc-backdrop {
+  display: none; position: fixed; inset: 0; z-index: 58;
+  background: rgba(0, 0, 0, 0.45); opacity: 0; transition: opacity 0.2s ease;
+}
+@keyframes toc-sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
 @media (min-width: 1320px) {
   .toc-rail {
     display: block; position: fixed; top: 82px;
@@ -1480,12 +1488,55 @@ footer,
     box-shadow: var(--shadow-lg); cursor: pointer;
   }
   .toc-fab:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  /* Backdrop modal du bottom-sheet */
+  .toc-backdrop { display: block; pointer-events: none; }
+  body.toc-open .toc-backdrop { opacity: 1; pointer-events: auto; }
+  /* Le sheet a son propre bouton de fermeture → le FAB redondant s'efface */
+  body.toc-open .toc-fab { display: none; }
+
+  /* Bottom-sheet : panneau ancré en bas, pleine largeur, en-tête collant + liens tactiles */
   .toc-rail.is-open {
-    display: block; position: fixed; z-index: 59; left: 0; bottom: 0; top: auto;
-    width: min(310px, 88vw); max-height: 72vh; overflow-y: auto;
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: 0 14px 0 0;
-    box-shadow: var(--shadow-lg); padding: 14px 8px 60px;
+    display: flex; flex-direction: column;
+    position: fixed; z-index: 60; left: 0; right: 0; bottom: 0; top: auto;
+    width: 100%; max-height: 78vh; overflow-y: auto;
+    background: var(--bg-card); border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0; box-shadow: var(--shadow-lg);
+    padding: 0 8px calc(16px + env(safe-area-inset-bottom, 0px));
+    animation: toc-sheet-up 0.22s ease-out;
   }
+  .toc-rail.is-open .toc-rail-title { display: none; }
+  .toc-rail.is-open .toc-sheet-head {
+    display: flex; align-items: center; gap: 8px;
+    position: sticky; top: 0; z-index: 1;
+    margin: 0 -8px 4px; padding: 14px 8px 10px 16px;
+    background: var(--bg-card); border-bottom: 1px solid var(--border-soft);
+  }
+  .toc-rail.is-open .toc-grip {
+    display: block; position: absolute; top: 7px; left: 50%; transform: translateX(-50%);
+    width: 36px; height: 4px; border-radius: 999px; background: var(--border);
+  }
+  .toc-rail.is-open .toc-sheet-title {
+    font-weight: 700; font-size: 11pt; color: var(--navy); letter-spacing: -0.01em;
+  }
+  .toc-rail.is-open .toc-close {
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: auto; width: 40px; height: 40px; padding: 0;
+    border: none; background: transparent; color: var(--ink-mute);
+    font-size: 13pt; line-height: 1; cursor: pointer; border-radius: var(--radius-sm);
+  }
+  .toc-rail.is-open .toc-close:hover { background: var(--bg-soft); color: var(--ink); }
+  .toc-rail.is-open .toc-close:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .toc-rail.is-open a {
+    display: flex; align-items: center; min-height: 44px;
+    padding: 8px 14px; margin: 1px 0; font-size: 10.5pt;
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toc-rail.is-open { animation: none; }
+  .toc-backdrop { transition: none; }
 }
 @media print { .toc-rail, .toc-fab { display: none !important; } }
 
