@@ -297,8 +297,10 @@
     const totalQ = document.querySelectorAll('details[data-quiz-processed="1"]').length;
     if (totalQ === 0) {
       widget?.remove();
+      document.body.classList.remove('has-progress');
       return;
     }
+    document.body.classList.add('has-progress');
     const pageQ = loadState()[pageKey()] || {};
     const answered = Object.keys(pageQ).length;
     const correct = Object.values(pageQ).filter((q) => q.correct).length;
