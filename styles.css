@@ -1343,7 +1343,8 @@ footer,
     box-shadow: none;
     font-size: 9.8pt;
   }
-  table thead { display: none; }
+  table thead,
+  table tr.table-header-row { display: none; }
   table tbody tr {
     display: block;
     background: var(--bg-card);
@@ -1494,6 +1495,10 @@ footer,
   body.toc-open .toc-backdrop { opacity: 1; pointer-events: auto; }
   /* Le sheet a son propre bouton de fermeture → le FAB redondant s'efface */
   body.toc-open .toc-fab { display: none; }
+  /* back-to-top et le widget de score ont un z-index > au sheet (60) : sans ça,
+     ils flottent au-dessus du panneau sommaire ouvert et le chevauchent. */
+  body.toc-open .back-to-top,
+  body.toc-open .cca-progress-widget { display: none; }
 
   /* Bottom-sheet : panneau ancré en bas, pleine largeur, en-tête collant + liens tactiles */
   .toc-rail.is-open {
@@ -1558,9 +1563,12 @@ footer,
    Le widget de score (.cca-progress-widget) est full-width en bas sur mobile :
    quand il est présent (body.has-progress, posé par quiz.js), on remonte
    back-to-top et toc-fab au-dessus de sa bande pour éviter le chevauchement.
+   --progress-h est mesurée en JS (quiz.js) : le widget passe sur 3-4 lignes
+   selon la largeur d'écran, une valeur fixe ne suit pas ce changement de hauteur.
    ============================================================= */
+:root { --progress-h: 0px; }
 @media (max-width: 720px) {
   .back-to-top { bottom: 20px; right: 16px; }
-  body.has-progress .back-to-top { bottom: 80px; }
-  body.has-progress .toc-fab { bottom: 132px; }
+  body.has-progress .back-to-top { bottom: calc(var(--progress-h) + 16px); }
+  body.has-progress .toc-fab { bottom: calc(var(--progress-h) + 24px); }
 }

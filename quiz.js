@@ -332,6 +332,18 @@
       saveState(st);
       location.reload();
     });
+
+    // Le widget passe sur 3-4 lignes selon la largeur d'écran : on mesure sa
+    // hauteur réelle plutôt que de supposer une valeur fixe (voir --progress-h,
+    // utilisée par back-to-top / toc-fab pour ne pas chevaucher le widget).
+    const updateProgressHeight = () => {
+      document.documentElement.style.setProperty('--progress-h', `${widget.offsetHeight}px`);
+    };
+    updateProgressHeight();
+    if (!widget._roAttached) {
+      new ResizeObserver(updateProgressHeight).observe(widget);
+      widget._roAttached = true;
+    }
   };
 
   // ---------- Tables responsive : injecter data-label sur td ----------
@@ -345,7 +357,12 @@
       if (headers.length === 0) continue;
       const labels = headers.map((h) => (h.textContent || '').trim());
       for (const tr of table.querySelectorAll('tbody tr, tr')) {
-        if (tr.querySelector('th') && !tr.querySelector('td')) continue;
+        // Pas de <thead> dans ce corpus : la ligne d'en-tête est un <tr><th> ordinaire.
+        // On la marque pour que le CSS mobile la masque (déjà dupliquée via data-label).
+        if (tr.querySelector('th') && !tr.querySelector('td')) {
+          tr.classList.add('table-header-row');
+          continue;
+        }
         [...tr.querySelectorAll('td')].forEach((td, i) => {
           if (!td.hasAttribute('data-label') && labels[i]) td.setAttribute('data-label', labels[i]);
         });
