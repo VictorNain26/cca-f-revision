@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CCA-F — Strategie jour J et cheat sheet</title>
+<title>CCA-F — Stratégie jour J et cheat sheet</title>
 <link rel="stylesheet" href="styles.css">
 <script src="nav.js" defer></script>
 <script src="quiz.js" defer></script>
@@ -30,17 +30,17 @@
 
 <div class="header-bar">
 <h1>CCA-F — Stratégie jour J et cheat sheet</h1>
-<p>Document de synthese final · 60 QCM (4 scénarios × 15) · 90 min · Score 720/1000</p>
+<p>Document de synthèse final · 60 QCM (4 scénarios × 15) · 90 min · Score 720/1000</p>
 </div>
 
 <div class="toc">
 <strong>Sommaire</strong>
 <ol>
 <li><a href="#planning">Méthode de révision</a></li>
-<li><a href="#methodo">Methodologie QCM (jour J)</a></li>
-<li><a href="#distractors">Les 7 patterns de distracteurs a eliminer en 5 secondes</a></li>
-<li><a href="#traps">Top pièges par domaine (verites a connaitre par coeur)</a></li>
-<li><a href="#décision">Arbres de décision pour les questions ambigues</a></li>
+<li><a href="#methodo">Méthodologie QCM (jour J)</a></li>
+<li><a href="#distractors">Les 7 patterns de distracteurs à éliminer en 5 secondes</a></li>
+<li><a href="#traps">Top pièges par domaine (vérités à connaître par cœur)</a></li>
+<li><a href="#décision">Arbres de décision pour les questions ambiguës</a></li>
 <li><a href="#cheat">Cheat sheet : 1 page par domaine</a></li>
 <li><a href="#crossdomain">Connexions inter-domaines (les ponts qui tombent souvent)</a></li>
 <li><a href="#dayJ">Checklist du jour J</a></li>
@@ -68,11 +68,11 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <h3>Indicateurs de readiness</h3>
 <ul>
 <li>Tu peux expliquer en 30 secondes la différence entre <code>tool_use</code>, <code>tool_choice: "any"</code>, et <code>tool_choice: "tool"</code></li>
-<li>Tu peux nommer les 4 catégories d'erreur MCP de tete</li>
+<li>Tu peux nommer les 4 catégories d'erreur MCP de tête</li>
 <li>Tu peux citer les principaux événements de hooks Claude Code (UserPromptSubmit, PreToolUse, PostToolUse, etc.)</li>
 <li>Tu peux distinguer hooks Agent SDK (D1) vs hooks Claude Code (D3)</li>
 <li>Tu sais quand <strong>refuser</strong> le Batch API (pre-merge, multi-turn tool calling)</li>
-<li>Tu reconnais les declencheurs d'<code>escalation</code> fiables vs non fiables</li>
+<li>Tu reconnais les déclencheurs d'<code>escalation</code> fiables vs non fiables</li>
 <li>Sur les 78 questions de Practice_Questions, tu obtiens &gt; 85 % au 2e passage</li>
 <li><strong>Go / No-go</strong> : vise &gt; 900/1000 à la Practice Exam officielle (ou ≥ 85 % sur un mock complet, aucun domaine &lt; 75 %)</li>
 </ul>
@@ -113,33 +113,33 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 
 <h3>La méthode en 4 étapes pour chaque question</h3>
 <ol>
-<li><strong>Lire la situation D'ABORD, sans regarder les choix.</strong> Identifier le concept teste.</li>
+<li><strong>Lire la situation D'ABORD, sans regarder les choix.</strong> Identifier le concept testé.</li>
 <li><strong>Formuler mentalement la bonne réponse</strong> avant de lire les options. Si une option correspond, c'est probablement elle.</li>
-<li><strong>Eliminer 2 distracteurs</strong> via les 7 patterns ci-dessous.</li>
+<li><strong>Éliminer 2 distracteurs</strong> via les 7 patterns ci-dessous.</li>
 <li><strong>Choisir entre les 2 restants</strong> en relisant la situation : quel mot exact change la donne ?</li>
 </ol>
 
 <div class="key-concept">
-<strong>Regle d'or :</strong> dans 80 % des cas, l'examen oppose une solution <em>deterministe</em> (hook, schéma, contrainte) a une solution <em>probabiliste</em> (instruction prompt, few-shot supplémentaire). Pour toute consequence financiere, securite, conformite → la réponse est <strong>deterministe</strong>.
+<strong>Règle d'or :</strong> dans 80 % des cas, l'examen oppose une solution <em>déterministe</em> (hook, schéma, contrainte) à une solution <em>probabiliste</em> (instruction prompt, few-shot supplémentaire). Pour toute conséquence financière, sécurité, conformité → la réponse est <strong>déterministe</strong>.
 </div>
 
 <h3>Gestion du temps</h3>
 <p>60 questions en 90 minutes = 1,5 min/question en moyenne. Allocation suggérée :</p>
 <table>
-<tr><th>Phase</th><th>Duree</th><th>Cible</th></tr>
+<tr><th>Phase</th><th>Durée</th><th>Cible</th></tr>
 <tr><td>Phase 1 : passage rapide</td><td>~60 min (1 min/Q)</td><td>Répondre les Q évidentes, marquer les difficiles</td></tr>
-<tr><td>Phase 2 : Q marquees</td><td>~20 min (≈ 1,3 min/Q)</td><td>Réfléchir profondément aux ambiguïtés</td></tr>
+<tr><td>Phase 2 : Q marquées</td><td>~20 min (≈ 1,3 min/Q)</td><td>Réfléchir profondément aux ambiguïtés</td></tr>
 <tr><td>Phase 3 : vérification</td><td>~10 min</td><td>Survoler ; ne changer une réponse QUE si une certitude apparaît</td></tr>
 </table>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> changer une réponse au dernier moment "par doute". Statistiquement, la premiere intuition sur une lecture attentive est plus souvent correcte qu'un changement panique. Ne change que si tu identifiés une raison concrete (mot mal lu, distracteur eliminable).
+<strong>Anti-pattern :</strong> changer une réponse au dernier moment "par doute". Statistiquement, la première intuition sur une lecture attentive est plus souvent correcte qu'un changement panique. Ne change que si tu identifies une raison concrète (mot mal lu, distracteur éliminable).
 </div>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="distractors">3. Les 7 patterns de distracteurs à éliminer en 5 secondes</h2></div>
 
-<p>Ces formulations apparaissent presque dans chaque question. Memorise-les : leur seule presence dans une option doit déclencher une suspicion immediate.</p>
+<p>Ces formulations apparaissent presque dans chaque question. Mémorise-les : leur seule présence dans une option doit déclencher une suspicion immédiate.</p>
 
 <table>
 <tr><th>#</th><th>Pattern</th><th>Pourquoi c'est presque toujours faux</th><th>Quand c'est correct (rare)</th></tr>
@@ -153,13 +153,13 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 </table>
 
 <div class="exam-tip">
-<strong>Bonus distracteurs (moins frequents mais a connaitre) :</strong>
+<strong>Bonus distracteurs (moins fréquents mais à connaître) :</strong>
 <ul>
-<li>"Lower temperature to 0" comme solution a un problème structurel (pas un problème de creativite)</li>
+<li>"Lower temperature to 0" comme solution à un problème structurel (pas un problème de créativité)</li>
 <li>"Add more few-shot examples" quand le problème est un schéma force-required (le modèle hallucine pour respecter la contrainte)</li>
 <li>"Parser le texte de l'assistant pour 'task done'" — toujours utiliser <code>stop_reason</code></li>
 <li>"Increase max_iterations" comme condition d'arrêt principale — toujours <code>stop_reason</code></li>
-<li>"Use the same session for code generation AND review" — biais de confirmation, toujours instance independante</li>
+<li>"Use the same session for code generation AND review" — biais de confirmation, toujours instance indépendante</li>
 </ul>
 </div>
 
@@ -169,27 +169,27 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <h3>D1 — Architecture et orchestration (27 %)</h3>
 <div class="high-priority">
 <ul>
-<li><strong>Seul signal d'arret fiable :</strong> <code>stop_reason</code>. Jamais le texte, jamais une limite arbitraire d'iterations.</li>
-<li><strong>Hooks vs prompt :</strong> consequences financieres/legales/securite → hook (deterministe). Preferences → prompt.</li>
-<li><strong>Subagent vs thread principal :</strong> "le travail intermediaire m'interesse-t-il ?" Non → subagent. Oui → thread principal.</li>
+<li><strong>Seul signal d'arrêt fiable :</strong> <code>stop_reason</code>. Jamais le texte, jamais une limite arbitraire d'itérations.</li>
+<li><strong>Hooks vs prompt :</strong> conséquences financières/légales/sécurité → hook (déterministe). Préférences → prompt.</li>
+<li><strong>Subagent vs thread principal :</strong> "le travail intermédiaire m'intéresse-t-il ?" Non → subagent. Oui → thread principal.</li>
 <li><strong>Multiple Task() dans une SEULE response = parallel exécution.</strong> Plusieurs responses = sequential. <em>Note : « Task » est le nom du guide d'examen ; la doc Agent SDK actuelle parle de l'outil « Agent ».</em></li>
-<li><strong>Decomposition trop etroite</strong> = couverture incomplete (piège classique du Multi-Agent Research).</li>
-<li><strong>Idempotency keys</strong> obligatoires pour tout retry sur action a effet de bord.</li>
-<li><strong>Cycle OTAR</strong> (observe-think-act-respond) — vocabulaire a connaitre.</li>
+<li><strong>Décomposition trop étroite</strong> = couverture incomplète (piège classique du Multi-Agent Research).</li>
+<li><strong>Idempotency keys</strong> obligatoires pour tout retry sur action à effet de bord.</li>
+<li><strong>Cycle OTAR</strong> (observe-think-act-respond) — vocabulaire à connaître.</li>
 </ul>
 </div>
 
 <h3>D2 — Tool design et MCP (18 %)</h3>
 <div class="high-priority">
 <ul>
-<li><strong>Description = mécanisme #1 de selection.</strong> Misrouting = chevauchement semantique → renommer/diviser.</li>
+<li><strong>Description = mécanisme #1 de sélection.</strong> Misrouting = chevauchement sémantique → renommer/diviser.</li>
 <li><strong>Erreurs structurées MCP :</strong> <code>errorCategory</code> (transient/validation/business/permission) + <code>isRetryable</code>.</li>
 <li><strong>Timeout ≠ 0 results.</strong> Timeout = access failure (retry décision). 0 results = valid empty (annoter).</li>
-<li><strong>Roots :</strong> le SDK n'applique PAS automatiquement les restrictions — implementer <code>is_path_allowed()</code>.</li>
+<li><strong>Roots :</strong> le SDK n'applique PAS automatiquement les restrictions — implémenter <code>is_path_allowed()</code>.</li>
 <li><strong>4-5 tools max par agent</strong>, jamais 18.</li>
-<li><strong>tool_choice:</strong> <code>auto</code> (defaut), <code>any</code> (force un appel), <code>tool</code> (force un spécifique).</li>
-<li><strong>Auth MCP :</strong> stdio + <code>${VAR}</code> / HTTP + Bearer header / OAuth pour delegation user / mTLS enterprise.</li>
-<li><strong>Anti-pattern critique :</strong> token en clair dans <code>.mcp.json</code> versionne (Git le retient).</li>
+<li><strong>tool_choice:</strong> <code>auto</code> (défaut), <code>any</code> (force un appel), <code>tool</code> (force un spécifique).</li>
+<li><strong>Auth MCP :</strong> stdio + <code>${VAR}</code> / HTTP + Bearer header / OAuth pour délégation user / mTLS enterprise.</li>
+<li><strong>Anti-pattern critique :</strong> token en clair dans <code>.mcp.json</code> versionné (Git le retient).</li>
 </ul>
 </div>
 
@@ -199,27 +199,27 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>3 niveaux CLAUDE.md :</strong> user (perso, hors VCS) / project (.claude/, partage) / directory (sous-dossier).</li>
 <li><strong>3 niveaux settings.json :</strong> ~/.claude/ (user) / .claude/settings.json (projet) / .claude/settings.local.json (local, dans .gitignore).</li>
 <li><strong>Skills > slash commands</strong> (legacy). Frontmatter : <code>description</code>, <code>context: fork</code>, <code>allowed-tools</code>.</li>
-<li><strong>Priorite skills :</strong> Enterprise &gt; Personnel &gt; Projet &gt; Plugins.</li>
+<li><strong>Priorité skills :</strong> Enterprise &gt; Personnel &gt; Projet &gt; Plugins.</li>
 <li><strong>Bash allowlist :</strong> <code>Bash(npm test)</code> = exact ; <code>Bash(npm test:*)</code> = avec args. <strong>:* est CRUCIAL en CI.</strong></li>
 <li><strong>Hooks Claude Code (config) ≠ hooks Agent SDK (D1).</strong> Les premiers sont dans <code>"hooks"</code> de settings.json ; les seconds en code Python/TS.</li>
 <li><strong>Hooks events (principaux) :</strong> UserPromptSubmit, PreToolUse, PostToolUse, Stop, SessionStart, Notification, PreCompact, <em>et autres</em>.</li>
-<li><strong>Hook return code 2 = blocking</strong> (Claude voit l'erreur et reagit). Code 0 = OK. Autre = non-blocking log.</li>
+<li><strong>Hook return code 2 = blocking</strong> (Claude voit l'erreur et réagit). Code 0 = OK. Autre = non-blocking log.</li>
 <li><strong>CI/CD :</strong> <code>-p</code> = headless mode obligatoire ; <code>--max-turns N</code> = garde-fou ; <code>fetch-depth: 0</code> dans GitHub Actions.</li>
-<li><strong>Glob patterns vs directory CLAUDE.md :</strong> glob pour conventions cross-directory (tests co-localises) ; directory CLAUDE.md pour zones bien delimitees.</li>
+<li><strong>Glob patterns vs directory CLAUDE.md :</strong> glob pour conventions cross-directory (tests co-localisés) ; directory CLAUDE.md pour zones bien délimitées.</li>
 </ul>
 </div>
 
 <h3>D4 — Prompt engineering et structured output (20 %)</h3>
 <div class="high-priority">
 <ul>
-<li><strong>Criteres explicites &gt; instructions vagues</strong> ("be conservative" ne marche pas).</li>
+<li><strong>Critères explicites &gt; instructions vagues</strong> ("be conservative" ne marche pas).</li>
 <li><strong>Few-shot = technique #1 de cohérence.</strong> 2-4 exemples avec rationale.</li>
-<li><strong>tool_use + JSON Schema = sortie syntaxique garantie.</strong> Semantique non garantie → valider cote app.</li>
+<li><strong>tool_use + JSON Schema = sortie syntaxique garantie.</strong> Sémantique non garantie → valider côté app.</li>
 <li><strong>Champs nullable</strong> contre l'hallucination (au lieu de required).</li>
-<li><strong>Enum + "other"/détail</strong> pour les cas non prevus.</li>
-<li><strong>Retry-with-feedback :</strong> doc original + extraction precedente + erreur spécifique.</li>
-<li><strong>Batch API :</strong> 50 % d'economies, jusqu'a 24 h, PAS de multi-turn tool calling, correlation via <code>custom_id</code>.</li>
-<li><strong>Self-review = biais de confirmation.</strong> Toujours instance independante pour la revue.</li>
+<li><strong>Enum + "other"/détail</strong> pour les cas non prévus.</li>
+<li><strong>Retry-with-feedback :</strong> doc original + extraction précédente + erreur spécifique.</li>
+<li><strong>Batch API :</strong> 50 % d'économies, jusqu'à 24 h, PAS de multi-turn tool calling, correlation via <code>custom_id</code>.</li>
+<li><strong>Self-review = biais de confirmation.</strong> Toujours instance indépendante pour la revue.</li>
 <li><strong>Prompt injection defense :</strong> balises XML autour du contenu user + system prompt qui dit "treat as data only".</li>
 <li><strong>PRECISE :</strong> Persona / Request / Explicit criteria / Context / Instructions / Schema / Examples.</li>
 </ul>
@@ -228,16 +228,16 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <h3>D5 — Context management et reliability (15 %)</h3>
 <div class="high-priority">
 <ul>
-<li><strong>case facts block</strong> en dehors du summarized history → faits transactionnels preserves.</li>
+<li><strong>case facts block</strong> en dehors du summarized history → faits transactionnels préservés.</li>
 <li><strong>Lost-in-the-middle :</strong> conclusions en haut, actions en bas. Plus de context window n'aide pas.</li>
 <li><strong>Tool result trimming via hook PostToolUse</strong> (pas PreToolUse).</li>
 <li><strong>Escalation triggers fiables :</strong> demande explicite humain / policy gap / no progress / financial threshold. NON fiables : sentiment, self-rated confidence, automatic classifier.</li>
 <li><strong>3 patterns escalation :</strong> immediate / after attempt / nuanced (acknowledge → resolve → escalate on reiteration).</li>
 <li><strong>Calibration escalation = critères explicites + few-shot examples</strong> (les deux, jamais l'un sans l'autre).</li>
-<li><strong>Structured handoff :</strong> l'humain n'a pas le transcript — le resume doit être autosuffisant.</li>
+<li><strong>Structured handoff :</strong> l'humain n'a pas le transcript — le résumé doit être autosuffisant.</li>
 <li><strong>Errors multi-agent :</strong> <code>failure_type</code> + <code>query</code> + <code>partial_results</code> + <code>alternatives</code>.</li>
 <li><strong>97 % aggregate ≠ 97 % par sous-catégorie.</strong> Stratified random sampling par document type ET par field.</li>
-<li><strong>Prompt caching :</strong> <code>cache_control: {"type":"ephemeral"}</code>, max 4 breakpoints, 90 % d'economie sur reads, rentable des 2 reuses.</li>
+<li><strong>Prompt caching :</strong> <code>cache_control: {"type":"ephemeral"}</code>, max 4 breakpoints, 90 % d'économie sur reads, rentable dès 2 reuses.</li>
 <li><strong>Manifest.json + état par subagent</strong> = pattern crash recovery.</li>
 </ul>
 </div>
@@ -248,40 +248,40 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <h3>Arbre 1 — Hook ou instruction prompt ?</h3>
 <pre>Y a-t-il conséquence financière, légale, sécurité, ou conformité ?
 ├─ OUI  → HOOK (PreToolUse pour bloquer, PostToolUse pour normaliser)
-└─ NON  → Y a-t-il besoin d'une garantie 100 % deterministe ?
+└─ NON  → Y a-t-il besoin d'une garantie 100 % déterministe ?
          ├─ OUI  → HOOK
          └─ NON  → Instruction dans CLAUDE.md ou system prompt</pre>
 
 <h3>Arbre 2 — Workflow ou agent ?</h3>
 <pre>Les étapes sont-elles connues à l'avance ?
 ├─ OUI  → WORKFLOW (chaînage, routage, parallélisation, evaluator-optimizer)
-└─ NON  → Le contexte change-t-il a chaque execution ?
+└─ NON  → Le contexte change-t-il à chaque exécution ?
          ├─ OUI  → AGENT (boucle agentique avec stop_reason)
          └─ NON  → Probablement un workflow plus malin (routing en haut)</pre>
 
 <h3>Arbre 3 — Subagent ou thread principal ?</h3>
 <pre>Le travail intermédiaire (chemin pris, fichiers lus) m'intéresse-t-il ?
-├─ OUI  → THREAD PRINCIPAL (executer dans le contexte courant)
+├─ OUI  → THREAD PRINCIPAL (exécuter dans le contexte courant)
 └─ NON  → Le travail produit-il beaucoup de tokens verbeux ?
          ├─ OUI  → SUBAGENT (Explore, custom agent avec context: fork)
          └─ NON  → Thread principal (overhead du subagent inutile)</pre>
 
 <h3>Arbre 4 — Synchrone ou Batch API ?</h3>
-<pre>Y a-t-il un humain qui attend la reponse ?
+<pre>Y a-t-il un humain qui attend la réponse ?
 ├─ OUI  → SYNCHRONE (jamais de batch pour du bloquant)
 └─ NON  → Y a-t-il du multi-turn tool calling ?
          ├─ OUI  → SYNCHRONE (batch ne le supporte pas)
-         └─ NON  → Le delai 24h est-il acceptable ?
-                  ├─ OUI  → BATCH (50 % d'economies)
+         └─ NON  → Le délai 24h est-il acceptable ?
+                  ├─ OUI  → BATCH (50 % d'économies)
                   └─ NON  → Synchrone</pre>
 
 <h3>Arbre 5 — settings.json vs settings.local.json vs CLAUDE.md ?</h3>
 <pre>Quel type d'information ?
 ├─ Permissions, hooks, env vars, MCP servers
-│  ├─ A partager avec l'equipe → .claude/settings.json (versionne)
+│  ├─ À partager avec l'équipe → .claude/settings.json (versionné)
 │  └─ Personnel/local (chemins absolus, secrets) → .claude/settings.local.json
 └─ Instructions textuelles, conventions, standards
-   ├─ A partager avec l'equipe → .claude/CLAUDE.md
+   ├─ À partager avec l'équipe → .claude/CLAUDE.md
    └─ Personnel → ~/.claude/CLAUDE.md</pre>
 
 <h3>Arbre 6 — Erreur MCP : retry, escalate ou continuer ?</h3>
@@ -292,7 +292,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 └─ permission (auth refusé)     → ESCALATE à un humain</pre>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="cheat">6. Cheat sheet : 1 page par domaine (a relire avant l'examen)</h2></div>
+<div class="section-header"><h2 id="cheat">6. Cheat sheet : 1 page par domaine (à relire avant l'examen)</h2></div>
 
 <h3>D1 — Architecture (27 %)</h3>
 <table>
@@ -301,7 +301,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>4 workflow patterns</td><td>Parallélisation / Chaînage / Routage / Evaluator-optimizer</td></tr>
 <tr><td>Agentic loop signal</td><td><code>stop_reason</code> uniquement. <code>"tool_use"</code> = continuer, <code>"end_turn"</code> = stop</td></tr>
 <tr><td>Cycle OTAR</td><td>Observe-Think-Act-Respond (vocabulaire à connaître)</td></tr>
-<tr><td>Hub-and-spoke</td><td>Coordinateur central, subagents spécialisés avec contexte isole</td></tr>
+<tr><td>Hub-and-spoke</td><td>Coordinateur central, subagents spécialisés avec contexte isolé</td></tr>
 <tr><td>Task tool parallel</td><td>Plusieurs Task() dans UNE response = parallel ; plusieurs responses = sequential. Note : « Task » du guide = outil « Agent » en SDK actuel</td></tr>
 <tr><td>Hook events SDK</td><td>PreToolUse / PostToolUse</td></tr>
 <tr><td>Failure recovery</td><td>Retry+backoff / Circuit breaker / Partial results / Saga / Idempotence</td></tr>
@@ -319,8 +319,8 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>3 primitives MCP</td><td>tools (modèle) / resources (app, content catalogs) / prompts (user)</td></tr>
 <tr><td>Transports</td><td>stdio (local) / SSE = StreamableHTTP (distant bidirectionnel) / Stateless HTTP (multi-instance)</td></tr>
 <tr><td>Roots</td><td>SDK n'applique PAS automatiquement → <code>is_path_allowed()</code> manuel</td></tr>
-<tr><td>Sampling</td><td>Le serveur demande au client de generer (pas de clé API cote serveur)</td></tr>
-<tr><td>JSON Schema avance</td><td>oneOf / anyOf / allOf / if-then-else / additionalProperties:false</td></tr>
+<tr><td>Sampling</td><td>Le serveur demande au client de générer (pas de clé API côté serveur)</td></tr>
+<tr><td>JSON Schema avancé</td><td>oneOf / anyOf / allOf / if-then-else / additionalProperties:false</td></tr>
 <tr><td>Auth patterns</td><td>stdio + ${VAR} / HTTP Bearer / OAuth 2.1 / mTLS</td></tr>
 <tr><td>Outils intégrés</td><td>Glob / Grep / Read / Write / Edit / Bash. Investigation : Grep → Read → Grep → Read</td></tr>
 </table>
@@ -334,31 +334,31 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>settings.json levels</td><td>user / project (versionné) / local (.gitignore). Précédence : local > project > user</td></tr>
 <tr><td>Permissions Bash</td><td><code>Bash(cmd)</code> exact / <code>Bash(cmd:*)</code> avec args. CI = toujours :*</td></tr>
 <tr><td>defaultMode</td><td>default / acceptEdits / plan / bypassPermissions (dangereux)</td></tr>
-<tr><td>deny &gt; allow</td><td>Defense en profondeur — un deny l'emporte sur un allow plus large</td></tr>
+<tr><td>deny &gt; allow</td><td>Défense en profondeur — un deny l'emporte sur un allow plus large</td></tr>
 <tr><td>Skills frontmatter</td><td>name / description (matching sémantique) / context: fork / allowed-tools</td></tr>
 <tr><td>Priorité skills</td><td>Enterprise > Personnel > Projet > Plugins</td></tr>
 <tr><td>Hooks events config (principaux)</td><td>UserPromptSubmit, PreToolUse, PostToolUse, Stop, SessionStart, Notification, PreCompact, <em>et autres</em></td></tr>
 <tr><td>Hook return codes</td><td>0 = OK / 2 = blocking (Claude réagit) / autre = non-blocking log</td></tr>
 <tr><td>Hook variables</td><td><code>$CLAUDE_FILE_PATHS</code>, <code>$CLAUDE_TOOL_NAME</code>, <code>$CLAUDE_TOOL_INPUT</code></td></tr>
 <tr><td>CI flags</td><td><code>-p</code> (headless), <code>--output-format json</code>, <code>--json-schema</code>, <code>--max-turns N</code></td></tr>
-<tr><td>MCP config</td><td><code>.mcp.json</code> (projet, versionne) ou <code>~/.claude.json</code> (user, via <code>claude mcp add</code>)</td></tr>
+<tr><td>MCP config</td><td><code>.mcp.json</code> (projet, versionné) ou <code>~/.claude.json</code> (user, via <code>claude mcp add</code>)</td></tr>
 <tr><td>Custom agents</td><td><code>.claude/agents/</code> avec frontmatter name/description/allowed-tools/allowed-skills/model</td></tr>
 </table>
 
 <h3>D4 — Prompt engineering (20 %)</h3>
 <table>
 <tr><th>Concept</th><th>A retenir</th></tr>
-<tr><td>Criteres explicites</td><td>Remplacer "be conservative" par 3 regles precises de signalement</td></tr>
+<tr><td>Critères explicites</td><td>Remplacer "be conservative" par 3 règles précises de signalement</td></tr>
 <tr><td>Severity tiers</td><td>CRITICAL / HIGH / MEDIUM / LOW (définitions distinctes)</td></tr>
 <tr><td>5 types few-shot</td><td>Ambigu / output format / good vs bad / formats docs / mesures informelles</td></tr>
-<tr><td>Format normalization</td><td>Dates → ISO 8601 / monnaie → montant + code / pourcentages → decimal</td></tr>
+<tr><td>Format normalization</td><td>Dates → ISO 8601 / monnaie → montant + code / pourcentages → décimal</td></tr>
 <tr><td>tool_use guarantees</td><td>SYNTAXE garantie / SÉMANTIQUE non garantie</td></tr>
 <tr><td>Schema patterns</td><td>nullable, enum + "other"/détail, enum + "unclear"</td></tr>
 <tr><td>Retry-with-feedback</td><td>Document original + extraction précédente + erreur spécifique</td></tr>
 <tr><td>Pydantic loop</td><td>Schema unique → tool_use → validate → si échec : tool_result is_error=true → retry</td></tr>
 <tr><td>Batch API</td><td>50 % savings / 24 h / PAS de multi-turn / <code>custom_id</code> pour correlation</td></tr>
-<tr><td>SLA Batch</td><td>Deadline - 24 h = fenetre de soumission</td></tr>
-<tr><td>Multi-instance review</td><td>Self-review = biais. Instance independante > self-review</td></tr>
+<tr><td>SLA Batch</td><td>Deadline - 24 h = fenêtre de soumission</td></tr>
+<tr><td>Multi-instance review</td><td>Self-review = biais. Instance indépendante > self-review</td></tr>
 <tr><td>Multi-pass review</td><td>Per-file pass + intégration pass</td></tr>
 <tr><td>PRECISE</td><td>Persona / Request / Explicit criteria / Context / Instructions / Schema / Examples</td></tr>
 <tr><td>Chain-of-thought</td><td>Inline / structure (balises) / extended thinking (API). Pour raisonnement complexe.</td></tr>
@@ -377,7 +377,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Token budgeting</td><td>Limite - max_tokens - stables - tool results. Anticiper, ne pas attendre l'erreur 400.</td></tr>
 <tr><td>Progressive summarization</td><td>3 niveaux : naturel (/compact) / structure (subagent) / hiérarchique (résumé des résumés)</td></tr>
 <tr><td>CALM (concept)</td><td>Compression / Allocation / Loss prevention / Monitoring</td></tr>
-<tr><td>Memory tool</td><td>Primitive API pour persister entre sessions (≠ <code>/memory</code> de Claude Code qui edite CLAUDE.md)</td></tr>
+<tr><td>Memory tool</td><td>Primitive API pour persister entre sessions (≠ <code>/memory</code> de Claude Code qui édite CLAUDE.md)</td></tr>
 <tr><td>Escalation fiables</td><td>Demande explicite humain / policy gap / no progress / threshold financier</td></tr>
 <tr><td>Escalation NON fiables</td><td>Sentiment / self-rated confidence / automatic classifier</td></tr>
 <tr><td>3 patterns escalation</td><td>Immediate / after attempt / nuanced (acknowledge → resolve → escalate on reiteration)</td></tr>
@@ -385,9 +385,9 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Structured handoff</td><td>Complet et autosuffisant. L'humain n'a PAS le transcript.</td></tr>
 <tr><td>Erreurs multi-agent</td><td>failure_type + query + partial_results + alternatives</td></tr>
 <tr><td>Timeout vs 0 results</td><td>Timeout = access failure (retry). 0 results = valid empty (annoter).</td></tr>
-<tr><td>Coverage annotations</td><td>FULL / PARTIAL COVERAGE dans la synthese</td></tr>
+<tr><td>Coverage annotations</td><td>FULL / PARTIAL COVERAGE dans la synthèse</td></tr>
 <tr><td>97 % aggregate</td><td>Peut masquer 40 % d'erreurs sur sous-catégorie. Stratified sampling par doc type ET field.</td></tr>
-<tr><td>Manifest.json</td><td>Pattern crash recovery. Etat par subagent + manifeste global du coordinateur.</td></tr>
+<tr><td>Manifest.json</td><td>Pattern crash recovery. État par subagent + manifeste global du coordinateur.</td></tr>
 <tr><td>Provenance</td><td>Claim-source mapping (URL, source, quote, date, confidence)</td></tr>
 <tr><td>Conflits temporels</td><td>10 % en 2023 + 15 % en 2024 = growth, pas contradiction. Toujours inclure les dates.</td></tr>
 </table>
@@ -395,7 +395,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="crossdomain">7. Connexions inter-domaines (les ponts qui tombent souvent)</h2></div>
 
-<p>L'examen aime tester les <strong>combinaisons</strong> de concepts entre domaines. Connaitre les ponts évite les pièges.</p>
+<p>L'examen aime tester les <strong>combinaisons</strong> de concepts entre domaines. Connaître les ponts évite les pièges.</p>
 
 <table>
 <tr><th>Pont</th><th>D1</th><th>↔</th><th>D2/D3/D4/D5</th></tr>
@@ -405,7 +405,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Tool result trimming</td><td>Context preservation (D5 §1)</td><td>via</td><td>Hook PostToolUse (D3 §6)</td></tr>
 <tr><td>Structured output</td><td>tool_use + JSON Schema (D0, D4 §3)</td><td>+</td><td>Pydantic validation (D4 §4)</td></tr>
 <tr><td>Forced tool_use</td><td>tool_choice (D2 §3)</td><td>+</td><td>Schema strict + retry-with-feedback (D4 §4)</td></tr>
-<tr><td>Subagent context</td><td>Subagent isole (D1)</td><td>+</td><td>context: fork dans skills (D3 §2)</td></tr>
+<tr><td>Subagent context</td><td>Subagent isolé (D1)</td><td>+</td><td>context: fork dans skills (D3 §2)</td></tr>
 <tr><td>Escalation</td><td>Pattern HITL (D1 §6)</td><td>+</td><td>Patterns + calibration (D5 §2)</td></tr>
 <tr><td>Confidence calibration</td><td>—</td><td>+</td><td>Stratified sampling (D5 §5) + retry-with-feedback (D4 §4)</td></tr>
 <tr><td>Cache strategy</td><td>Boucle agentique multi-turn (D1 §2)</td><td>=</td><td>cache_control breakpoints (D5 §1)</td></tr>
@@ -425,13 +425,13 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li>Survol rapide de ce cheat sheet (sections 4 et 6 surtout)</li>
 <li>Pas de bourrage — privilégier le sommeil</li>
 <li>Vérifier la connexion ProctorFree, webcam, micro, environnement de l'examen</li>
-<li>Préparer un espace de travail dégagé (l'examen est proctore — pas de notes physiques)</li>
-<li>Coucher tot</li>
+<li>Préparer un espace de travail dégagé (l'examen est proctoré — pas de notes physiques)</li>
+<li>Coucher tôt</li>
 </ul>
 
 <h3>Le matin de l'examen</h3>
 <ul>
-<li>Petit déjeuner normal (pas trop sucre)</li>
+<li>Petit déjeuner normal (pas trop sucré)</li>
 <li>Hydratation</li>
 <li>15 min de relecture du cheat sheet 1-page-par-domaine</li>
 <li>Pause de 30 min avant de lancer l'examen</li>
@@ -440,8 +440,8 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 
 <h3>Pendant l'examen (90 min, 60 QCM)</h3>
 <ol>
-<li><strong>Phase 1 (0-60 min) :</strong> passer en revue toutes les Q. Repondre les évidentes, marquer les difficiles. <strong>Ne jamais bloquer plus de 90 sec sur une Q en phase 1.</strong></li>
-<li><strong>Phase 2 (60-80 min) :</strong> reprendre les Q marquees. Appliquer la méthode des 7 distracteurs. Eliminer 2, decider entre les 2 restants.</li>
+<li><strong>Phase 1 (0-60 min) :</strong> passer en revue toutes les Q. Répondre les évidentes, marquer les difficiles. <strong>Ne jamais bloquer plus de 90 sec sur une Q en phase 1.</strong></li>
+<li><strong>Phase 2 (60-80 min) :</strong> reprendre les Q marquées. Appliquer la méthode des 7 distracteurs. Éliminer 2, décider entre les 2 restants.</li>
 <li><strong>Phase 3 (80-90 min) :</strong> vérification. Survoler. <strong>Ne changer une réponse que si une certitude apparaît.</strong></li>
 </ol>
 
@@ -457,7 +457,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 </ul>
 </div>
 
-<h3>Apres l'examen</h3>
+<h3>Après l'examen</h3>
 <ul>
 <li>Résultats sous 2 jours ouvrables avec breakdown détaillé par domaine</li>
 <li>Si réussi (>= 720) : profiter</li>
@@ -471,7 +471,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — Strategie jour J et cheat sheet · Document de synthese · 2026
+CCA Révision — Stratégie jour J et cheat sheet · Document de synthèse · 2026
 </p>
 
 

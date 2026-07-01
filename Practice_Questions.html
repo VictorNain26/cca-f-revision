@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Questions d'entrainement CCA-F</title>
+<title>Questions d'entraînement CCA-F</title>
 <link rel="stylesheet" href="styles.css">
 <script src="nav.js" defer></script>
 <script src="quiz.js" defer></script>
@@ -29,14 +29,14 @@
 </nav>
 
 <div class="header-bar">
-<h1>Questions d'entrainement CCA-F</h1>
+<h1>Questions d'entraînement CCA-F</h1>
 <p>12 questions expliquées + 66 questions du practice test sur les 6 scénarios · Active recall = technique #1 pour la certification</p>
 </div>
 
 <div class="toc">
-<strong>Table des matieres</strong>
+<strong>Table des matières</strong>
 <ol>
-<li><a href="#stratégies">Strategies d'examen</a></li>
+<li><a href="#stratégies">Stratégies d'examen</a></li>
 <li><a href="#explained">Questions expliquées (Q1-Q12)</a></li>
 <li><a href="#scénario-research">Practice Test — Multi-Agent Research System (Q13-Q27)</a></li>
 <li><a href="#scénario-ci">Practice Test — Claude Code for CI (Q28-Q40)</a></li>
@@ -48,24 +48,24 @@
 </div>
 
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="stratégies">1. Strategies d'examen</h2></div>
+<div class="section-header"><h2 id="stratégies">1. Stratégies d'examen</h2></div>
 <!-- ============================================================ -->
 
 <div class="key-concept">
-<h3>Format et regles</h3>
+<h3>Format et règles</h3>
 <ul>
-<li><strong>Format :</strong> QCM, 4 choix, 1 seule réponse correcte. Score de 100 a 1000, seuil de réussite : <strong>720</strong>.</li>
-<li><strong>Pas de penalite</strong> → répondre a TOUTES les questions, ne jamais laisser de blanc.</li>
-<li><strong>Methode de lecture :</strong> lire la <em>situation</em> d'abord, identifier le concept teste, PUIS regarder les choix.</li>
+<li><strong>Format :</strong> QCM, 4 choix, 1 seule réponse correcte. Score de 100 à 1000, seuil de réussite : <strong>720</strong>.</li>
+<li><strong>Pas de pénalité</strong> → répondre à TOUTES les questions, ne jamais laisser de blanc.</li>
+<li><strong>Méthode de lecture :</strong> lire la <em>situation</em> d'abord, identifier le concept testé, PUIS regarder les choix.</li>
 </ul>
 
-<h3>Distracteurs recurrents à éliminer</h3>
+<h3>Distracteurs récurrents à éliminer</h3>
 <ul>
-<li><strong>"Improve/strengthen the system prompt"</strong> → insuffisant quand il y à des consequences financieres ou legales (il faut du <em>programmatic enforcement</em>).</li>
-<li><strong>"Add a routing classifier" / "trained classifier"</strong> → overengineering par rapport à lasolution demandee.</li>
+<li><strong>"Improve/strengthen the system prompt"</strong> → insuffisant quand il y a des conséquences financières ou légales (il faut du <em>programmatic enforcement</em>).</li>
+<li><strong>"Add a routing classifier" / "trained classifier"</strong> → overengineering par rapport à la solution demandée.</li>
 <li><strong>"Sentiment analysis" / "self-rated confidence"</strong> → unreliable proxy (le modèle peut être confident à tort).</li>
-<li><strong>"Abort the whole workflow"</strong> → disproportionne, on veut de la <em>graceful degradation</em>.</li>
-<li><strong>"Move blocking checks to Batch API"</strong> → latence inacceptable (jusqu'a 24h).</li>
+<li><strong>"Abort the whole workflow"</strong> → disproportionné, on veut de la <em>graceful degradation</em>.</li>
+<li><strong>"Move blocking checks to Batch API"</strong> → latence inacceptable (jusqu'à 24h).</li>
 <li><strong>"Larger context window fixes attention"</strong> → faux, un context window plus grand n'améliore pas l'attention sur les sections centrales.</li>
 </ul>
 </div>
@@ -77,7 +77,7 @@
 <details>
 <summary>Q1 (Customer Support Agent) — Programmatic enforcement</summary>
 <div>
-<p><strong>Situation :</strong> Les donnees montrent que dans 12% des cas, l'agent saute l'appel a <code>get_customer</code> et appelle <code>lookup_order</code> en utilisant uniquement le nom du client, ce qui provoque des remboursements incorrects.</p>
+<p><strong>Situation :</strong> Les données montrent que dans 12% des cas, l'agent saute l'appel à <code>get_customer</code> et appelle <code>lookup_order</code> en utilisant uniquement le nom du client, ce qui provoque des remboursements incorrects.</p>
 <p><strong>Question :</strong> Quelle approche résout le mieux ce problème ?</p>
 <p>A) Ajouter une précondition programmatique bloquant <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourné un vérifiéed ID</p>
 <p>B) Ameliorer le system prompt pour insister sur l'importance de vérifier le client</p>
@@ -85,7 +85,7 @@
 <p>D) Implementer un routing classifier pour diriger les requêtes</p>
 <hr>
 <p class="correct">Réponse : A) Ajouter une précondition programmatique bloquant lookup_order et process_refund tant que get_customer n'a pas retourné un vérifiéed ID</p>
-<p><strong>Explication :</strong> Quand il y à des consequences financieres (remboursements incorrects), une solution <em>deterministic</em> est requise. Un contrôle programmatique garantit à 100% que l'ordre est respecte.</p>
+<p><strong>Explication :</strong> Quand il y a des conséquences financières (remboursements incorrects), une solution <em>deterministic</em> est requise. Un contrôle programmatique garantit à 100% que l'ordre est respecté.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Le system prompt est probabiliste — le modèle peut toujours l'ignorer dans 12% des cas.</li>
@@ -123,15 +123,15 @@
 <p><strong>Question :</strong> Comment corriger la calibration de l'escalation ?</p>
 <p>A) Ajouter des critères d'escalation explicites avec des few-shot examples</p>
 <p>B) Utiliser un self-rated confidence score (1-10) avec escalation automatique sous un seuil</p>
-<p>C) Entrainer un classifier séparé sur les donnees historiques</p>
+<p>C) Entrainer un classifier séparé sur les données historiques</p>
 <p>D) Utiliser le sentiment analysis pour détecter la frustration</p>
 <hr>
 <p class="correct">Réponse : A) Ajouter des critères d'escalation explicites avec des few-shot examples</p>
-<p><strong>Explication :</strong> Le problème est que les frontières de décision sont floues. Des critères explicites + des exemples montrant quand escalader et quand resoudre corrigent directement ce problème.</p>
+<p><strong>Explication :</strong> Le problème est que les frontières de décision sont floues. Des critères explicites + des exemples montrant quand escalader et quand résoudre corrigent directement ce problème.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Le self-rated confidence est un unreliable proxy — le modèle peut être confidemment faux.</li>
-<li>C) Un classifier entraine est du overengineering pour ce problème.</li>
+<li>C) Un classifier entraîné est du overengineering pour ce problème.</li>
 <li>D) Le sentiment analysis résout un problème différent (detection de frustration, pas calibration d'escalation).</li>
 </ul>
 </div>
@@ -140,20 +140,20 @@
 <details>
 <summary>Q4 (Claude Code) — Custom commands</summary>
 <div>
-<p><strong>Situation :</strong> L'équipe a besoin d'une commande personnalisee <code>/review</code> pour effectuer une revue de code standard, disponible pour toute l'équipe.</p>
-<p><strong>Question :</strong> Ou placer cette commande ?</p>
+<p><strong>Situation :</strong> L'équipe a besoin d'une commande personnalisée <code>/review</code> pour effectuer une revue de code standard, disponible pour toute l'équipe.</p>
+<p><strong>Question :</strong> Où placer cette commande ?</p>
 <p>A) <code>.claude/commands/</code> dans le repository du projet</p>
 <p>B) <code>~/.claude/commands/</code></p>
-<p>C) Dans le fichier <code>CLAUDE.md</code> à laracine</p>
+<p>C) Dans le fichier <code>CLAUDE.md</code> à la racine</p>
 <p>D) Dans <code>.claude/config.json</code></p>
 <hr>
 <p class="correct">Réponse : A) .claude/commands/ dans le repository du projet</p>
-<p><strong>Explication :</strong> Les project commands dans <code>.claude/commands/</code> sont versionnees dans le VCS et automatiquement disponibles pour toute l'équipe. C'est l'emplacement prévu pour les commandes partagees.</p>
+<p><strong>Explication :</strong> Les project commands dans <code>.claude/commands/</code> sont versionnées dans le VCS et automatiquement disponibles pour toute l'équipe. C'est l'emplacement prévu pour les commandes partagées.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) <code>~/.claude/commands/</code> est pour les commandes personnelles, pas partagees avec l'équipe.</li>
-<li>C) Le <code>CLAUDE.md</code> racine sert aux instructions, pas à definir des commandes.</li>
-<li>D) <code>.claude/config.json</code> n'est pas le mécanisme pour definir des commandes.</li>
+<li>B) <code>~/.claude/commands/</code> est pour les commandes personnelles, pas partagées avec l'équipe.</li>
+<li>C) Le <code>CLAUDE.md</code> racine sert aux instructions, pas à définir des commandes.</li>
+<li>D) <code>.claude/config.json</code> n'est pas le mécanisme pour définir des commandes.</li>
 </ul>
 </div>
 </details>
@@ -162,19 +162,19 @@
 <summary>Q5 (Claude Code) — Planning mode</summary>
 <div>
 <p><strong>Situation :</strong> Il faut restructurer un monolithe en microservices (dizaines de fichiers, décisions sur les frontières de services).</p>
-<p><strong>Question :</strong> Quelle approche est la plus appropriee ?</p>
-<p>A) Planning mode : explorer le codebase, comprendre les dependances, concevoir l'approche</p>
-<p>B) Execution directe, incrementalement</p>
+<p><strong>Question :</strong> Quelle approche est la plus appropriée ?</p>
+<p>A) Planning mode : explorer le codebase, comprendre les dépendances, concevoir l'approche</p>
+<p>B) Execution directe, incrémentalement</p>
 <p>C) Execution directe avec des instructions détaillées en amont</p>
-<p>D) Execution directe et basculer en planning mode quand ca devient difficile</p>
+<p>D) Execution directe et basculer en planning mode quand ça devient difficile</p>
 <hr>
-<p class="correct">Réponse : A) Planning mode : explorer le codebase, comprendre les dependances, concevoir l'approche</p>
-<p><strong>Explication :</strong> Les changements a grande échelle + multiples approches possibles + décisions architecturales = planning mode. Il faut comprendre avant d'agir.</p>
+<p class="correct">Réponse : A) Planning mode : explorer le codebase, comprendre les dépendances, concevoir l'approche</p>
+<p><strong>Explication :</strong> Les changements à grande échelle + multiples approches possibles + décisions architecturales = planning mode. Il faut comprendre avant d'agir.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) L'exécution directe incrementale risque du rework massif sans vision d'ensemble.</li>
-<li>C) Presuppose que la structure est connue à l'avance — ce n'est pas le cas.</li>
-<li>D) Approche reactive : on decouvre les problèmes trop tard.</li>
+<li>B) L'exécution directe incrémentale risque du rework massif sans vision d'ensemble.</li>
+<li>C) Présuppose que la structure est connue à l'avance — ce n'est pas le cas.</li>
+<li>D) Approche réactive : on découvre les problèmes trop tard.</li>
 </ul>
 </div>
 </details>
@@ -182,20 +182,20 @@
 <details>
 <summary>Q6 (Claude Code) — Path-specific rules</summary>
 <div>
-<p><strong>Situation :</strong> Le codebase à des conventions différentes (React, API, database). Les tests sont co-localises avec le code.</p>
-<p><strong>Question :</strong> Comment appliquer des regles différentes selon le contexte ?</p>
+<p><strong>Situation :</strong> Le codebase a des conventions différentes (React, API, database). Les tests sont co-localisés avec le code.</p>
+<p><strong>Question :</strong> Comment appliquer des règles différentes selon le contexte ?</p>
 <p>A) Des fichiers dans <code>.claude/rules/</code> avec YAML frontmatter et glob patterns</p>
 <p>B) Tout mettre dans le <code>CLAUDE.md</code> racine</p>
 <p>C) Utiliser des skills dans <code>.claude/skills/</code></p>
-<p>D) Un <code>CLAUDE.md</code> dans chaque repertoire</p>
+<p>D) Un <code>CLAUDE.md</code> dans chaque répertoire</p>
 <hr>
 <p class="correct">Réponse : A) Des fichiers dans .claude/rules/ avec YAML frontmatter et glob patterns</p>
-<p><strong>Explication :</strong> Les glob patterns dans le YAML frontmatter permettent un chargement conditionnel automatique selon les fichiers touches. C'est le mécanisme conçu pour des regles cross-directory.</p>
+<p><strong>Explication :</strong> Les glob patterns dans le YAML frontmatter permettent un chargement conditionnel automatique selon les fichiers touchés. C'est le mécanisme conçu pour des règles cross-directory.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Mettre tout dans le CLAUDE.md racine force le modèle à inférer quel contexte s'applique.</li>
 <li>C) Les skills sont manuelles / on-demand, pas automatiques.</li>
-<li>D) Un CLAUDE.md par repertoire ne fonctionne pas pour les fichiers disperses (ex: tests co-localises).</li>
+<li>D) Un CLAUDE.md par répertoire ne fonctionne pas pour les fichiers dispersés (ex: tests co-localisés).</li>
 </ul>
 </div>
 </details>
@@ -205,17 +205,17 @@
 <div>
 <p><strong>Situation :</strong> Recherche sur "AI impact on creative industries" ne couvre que l'art visuel. Le coordinator à décompose en : digital art, graphic design, photography.</p>
 <p><strong>Question :</strong> Quelle est la cause principale du problème de couverture ?</p>
-<p>A) L'agent de synthese ne détecte pas les lacunes</p>
-<p>B) Le coordinator à décompose le sujet de manière trop étroite</p>
+<p>A) L'agent de synthèse ne détecte pas les lacunes</p>
+<p>B) Le coordinator a décomposé le sujet de manière trop étroite</p>
 <p>C) L'agent de web search est insuffisant</p>
 <p>D) L'analyse de documents filtre le contenu non-visuel</p>
 <hr>
-<p class="correct">Réponse : B) Le coordinator à décompose le sujet de manière trop étroite</p>
-<p><strong>Explication :</strong> Le coordinator a manque la musique, la littérature et le cinéma. Les subagents ont correctement exécute leurs taches — le problème est en amont, dans la décomposition.</p>
+<p class="correct">Réponse : B) Le coordinator a décomposé le sujet de manière trop étroite</p>
+<p><strong>Explication :</strong> Le coordinator a manqué la musique, la littérature et le cinéma. Les subagents ont correctement exécuté leurs tâches — le problème est en amont, dans la décomposition.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) La synthese travaille sur ce qu'elle reçoit — elle ne peut pas inventer des domaines non recherches.</li>
-<li>C) Le web search a trouve du contenu pour les sous-taches assignees.</li>
+<li>A) La synthèse travaille sur ce qu'elle reçoit — elle ne peut pas inventer des domaines non recherchés.</li>
+<li>C) Le web search a trouvé du contenu pour les sous-tâches assignées.</li>
 <li>D) Il n'y a pas d'indication d'un filtrage excessif par le document analysis.</li>
 </ul>
 </div>
@@ -226,18 +226,18 @@
 <div>
 <p><strong>Situation :</strong> Le subagent de web search fait un timeout. Il faut concevoir la propagation d'erreur vers le coordinator.</p>
 <p><strong>Question :</strong> Quelle stratégie de gestion d'erreur est optimale ?</p>
-<p>A) Retourner un contexte d'erreur structure : type de failure, query, resultats partiels, alternatives</p>
-<p>B) Retries automatiques avec exponential backoff puis message generique "search unavailable"</p>
-<p>C) Intercepter le timeout et retourner un ensemble de resultats vide marque comme succes</p>
+<p>A) Retourner un contexte d'erreur structuré : type de failure, query, résultats partiels, alternatives</p>
+<p>B) Retries automatiques avec exponential backoff puis message générique "search unavailable"</p>
+<p>C) Intercepter le timeout et retourner un ensemble de résultats vide marqué comme succès</p>
 <p>D) Propager l'exception au handler de niveau supérieur, terminant tout le workflow</p>
 <hr>
-<p class="correct">Réponse : A) Retourner un contexte d'erreur structure : type de failure, query, resultats partiels, alternatives</p>
+<p class="correct">Réponse : A) Retourner un contexte d'erreur structuré : type de failure, query, résultats partiels, alternatives</p>
 <p><strong>Explication :</strong> Un structured error context donne au coordinator toute l'information nécessaire pour une intelligent recovery (retry partiel, source alternative, etc.).</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Les retries masquent le contexte — le coordinator ne sait pas pourquoi ca a echoue.</li>
-<li>C) Masquer l'échec en succes est dangereux — la synthese travaillera avec des donnees incompletes sans le savoir.</li>
-<li>D) Terminer tout le workflow est disproportionne pour un timeout partiel.</li>
+<li>B) Les retries masquent le contexte — le coordinator ne sait pas pourquoi ça a échoué.</li>
+<li>C) Masquer l'échec en succès est dangereux — la synthèse travaillera avec des données incomplètes sans le savoir.</li>
+<li>D) Terminer tout le workflow est disproportionné pour un timeout partiel.</li>
 </ul>
 </div>
 </details>
@@ -245,20 +245,20 @@
 <details>
 <summary>Q9 (Multi-Agent Research) — Synthesis vérification overhead</summary>
 <div>
-<p><strong>Situation :</strong> L'agent de synthese doit souvent vérifier des affirmations. Le circuit actuel passe par coordinator → web-search → re-synthese = 2-3 allers-retours supplémentaires, +40% de latence. 85% sont de simples fact checks, 15% nécessitent une investigation approfondie.</p>
-<p><strong>Question :</strong> Comment reduire cette latence ?</p>
-<p>A) Donner à l'agent de synthese un outil limite <code>verify_fact</code> pour les checks simples, router les complexes via le coordinator</p>
-<p>B) Grouper toutes les verifications à lafin</p>
-<p>C) Donner à lasynthese un accès complet au web search</p>
+<p><strong>Situation :</strong> L'agent de synthèse doit souvent vérifier des affirmations. Le circuit actuel passe par coordinator → web-search → re-synthèse = 2-3 allers-retours supplémentaires, +40% de latence. 85% sont de simples fact checks, 15% nécessitent une investigation approfondie.</p>
+<p><strong>Question :</strong> Comment réduire cette latence ?</p>
+<p>A) Donner à l'agent de synthèse un outil limité <code>verify_fact</code> pour les checks simples, router les complexes via le coordinator</p>
+<p>B) Grouper toutes les vérifications à la fin</p>
+<p>C) Donner à la synthèse un accès complet au web search</p>
 <p>D) Mettre en cache proactivement du contexte supplémentaire</p>
 <hr>
-<p class="correct">Réponse : A) Donner à l'agent de synthese un outil limite verify_fact pour les checks simples, router les complexes via le coordinator</p>
-<p><strong>Explication :</strong> Principe de least privilege : 85% des cas sont simples → un outil direct et limite suffit. Les 15% complexes passent par le coordinator pour maintenir le contrôle.</p>
+<p class="correct">Réponse : A) Donner à l'agent de synthèse un outil limité verify_fact pour les checks simples, router les complexes via le coordinator</p>
+<p><strong>Explication :</strong> Principe de least privilege : 85% des cas sont simples → un outil direct et limité suffit. Les 15% complexes passent par le coordinator pour maintenir le contrôle.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Grouper à lafin retarde la detection d'erreurs et peut nécessiter de refaire la synthese.</li>
+<li>B) Grouper à la fin retarde la détection d'erreurs et peut nécessiter de refaire la synthèse.</li>
 <li>C) Un accès complet au web search viole le principe de least privilege.</li>
-<li>D) Le caching proactif est imprecis — on ne sait pas à l'avance quelles verifications seront nécessaires.</li>
+<li>D) Le caching proactif est imprécis — on ne sait pas à l'avance quelles vérifications seront nécessaires.</li>
 </ul>
 </div>
 </details>
@@ -266,7 +266,7 @@
 <details>
 <summary>Q10 (Claude Code for CI) — Non-interactive mode</summary>
 <div>
-<p><strong>Situation :</strong> Le pipeline CI exécute <code>claude "Analyze PR for security"</code> mais reste bloque en attente d'une saisie utilisateur.</p>
+<p><strong>Situation :</strong> Le pipeline CI exécute <code>claude "Analyze PR for security"</code> mais reste bloqué en attente d'une saisie utilisateur.</p>
 <p><strong>Question :</strong> Quel flag utiliser pour le mode non-interactif ?</p>
 <p>A) Le flag <code>-p</code></p>
 <p>B) <code>CLAUDE_HEADLESS=true</code></p>
@@ -274,10 +274,10 @@
 <p>D) Le flag <code>--batch</code></p>
 <hr>
 <p class="correct">Réponse : A) Le flag -p</p>
-<p><strong>Explication :</strong> Le flag <code>-p</code> (alias <code>--print</code>) est la méthode documentee pour exécuter Claude Code en mode non-interactif dans les pipelines CI/CD.</p>
+<p><strong>Explication :</strong> Le flag <code>-p</code> (alias <code>--print</code>) est la méthode documentée pour exécuter Claude Code en mode non-interactif dans les pipelines CI/CD.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) <code>CLAUDE_HEADLESS=true</code> n'est pas une variable d'environnement documentee.</li>
+<li>B) <code>CLAUDE_HEADLESS=true</code> n'est pas une variable d'environnement documentée.</li>
 <li>C) Rediriger stdin ne résout pas le problème du mode interactif.</li>
 <li>D) Le flag <code>--batch</code> n'existe pas dans Claude Code CLI.</li>
 </ul>
@@ -287,7 +287,7 @@
 <details>
 <summary>Q11 (Claude Code for CI) — Batch API cost optimization</summary>
 <div>
-<p><strong>Situation :</strong> Deux workflows : un pre-merge check bloquant + un rapport de tech-debt nocturne. Le manager propose de mettre les deux sur la Batch API pour economiser 50%.</p>
+<p><strong>Situation :</strong> Deux workflows : un pre-merge check bloquant + un rapport de tech-debt nocturne. Le manager propose de mettre les deux sur la Batch API pour économiser 50%.</p>
 <p><strong>Question :</strong> Quelle est la bonne stratégie ?</p>
 <p>A) Batch uniquement pour le tech-debt ; garder le pre-merge en synchrone</p>
 <p>B) Les deux en batch avec polling</p>
@@ -295,11 +295,11 @@
 <p>D) Les deux en batch avec fallback synchrone</p>
 <hr>
 <p class="correct">Réponse : A) Batch uniquement pour le tech-debt ; garder le pre-merge en synchrone</p>
-<p><strong>Explication :</strong> La Batch API peut prendre jusqu'a 24h — c'est inacceptable pour un pre-merge check bloquant. Le rapport nocturne, lui, tolere cette latence.</p>
+<p><strong>Explication :</strong> La Batch API peut prendre jusqu'à 24h — c'est inacceptable pour un pre-merge check bloquant. Le rapport nocturne, lui, tolère cette latence.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Le pre-merge bloquant ne peut pas attendre jusqu'a 24h.</li>
-<li>C) Garder les deux en synchrone gaspille 50% d'economies sur le tech-debt.</li>
+<li>B) Le pre-merge bloquant ne peut pas attendre jusqu'à 24h.</li>
+<li>C) Garder les deux en synchrone gaspille 50% d'économies sur le tech-debt.</li>
 <li>D) Le fallback ne résout pas le problème de latence pour le pre-merge.</li>
 </ul>
 </div>
@@ -310,16 +310,16 @@
 <div>
 <p><strong>Situation :</strong> Une PR modifie 14 fichiers. La review en single-pass est inconsistante : détaillée pour certains fichiers, superficielle pour d'autres, avec des commentaires contradictoires.</p>
 <p><strong>Question :</strong> Comment obtenir une review consistante ?</p>
-<p>A) Separer en passes par fichier pour les problèmes locaux, puis une passe d'intégration pour les enjeux cross-file</p>
-<p>B) Demander aux développeurs de decouper les PRs en 3-4 fichiers</p>
-<p>C) Passer a un modèle avec un context window plus grand</p>
-<p>D) Trois passes independantes sur toute la PR, reporter le consensus</p>
+<p>A) Séparer en passes par fichier pour les problèmes locaux, puis une passe d'intégration pour les enjeux cross-file</p>
+<p>B) Demander aux développeurs de découper les PRs en 3-4 fichiers</p>
+<p>C) Passer à un modèle avec un context window plus grand</p>
+<p>D) Trois passes indépendantes sur toute la PR, reporter le consensus</p>
 <hr>
-<p class="correct">Réponse : A) Separer en passes par fichier pour les problèmes locaux, puis une passe d'intégration pour les enjeux cross-file</p>
+<p class="correct">Réponse : A) Séparer en passes par fichier pour les problèmes locaux, puis une passe d'intégration pour les enjeux cross-file</p>
 <p><strong>Explication :</strong> Le multi-pass corrige la cause racine : l'attention dilution. Chaque passe se concentre sur un scope limité, puis la passe d'intégration couvre les interactions.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Transfere la charge aux développeurs — ne résout pas le problème technique.</li>
+<li>B) Transfère la charge aux développeurs — ne résout pas le problème technique.</li>
 <li>C) Un context window plus grand n'améliore pas l'attention — c'est une misconception.</li>
 <li>D) Trois passes identiques sur 14 fichiers vont reproduire les mêmes biais et supprimer les vrais bugs par vote majoritaire.</li>
 </ul>
@@ -333,41 +333,41 @@
 <details>
 <summary>Q13 (Multi-Agent Research) — Statistiques contradictoires</summary>
 <div>
-<p><strong>Situation :</strong> Deux sources credibles rapportent des statistiques contradictoires (40% vs 12%) sur le même phénomène.</p>
-<p><strong>Question :</strong> Comment l'agent de synthese doit-il traiter cette contradiction ?</p>
+<p><strong>Situation :</strong> Deux sources crédibles rapportent des statistiques contradictoires (40% vs 12%) sur le même phénomène.</p>
+<p><strong>Question :</strong> Comment l'agent de synthèse doit-il traiter cette contradiction ?</p>
 <p>A) Choisir la valeur la plus probable et ajouter une footnote</p>
-<p>B) Presenter les deux sans signaler le conflit</p>
-<p>C) S'arreter et escalader au coordinator</p>
-<p>D) Presenter les deux avec une conflict annotation et laisser le coordinator decider</p>
+<p>B) Présenter les deux sans signaler le conflit</p>
+<p>C) S'arrêter et escalader au coordinator</p>
+<p>D) Présenter les deux avec une conflict annotation et laisser le coordinator décider</p>
 <hr>
-<p class="correct">Réponse : D) Presenter les deux avec une conflict annotation et laisser le coordinator decider</p>
-<p><strong>Explication :</strong> L'agent de synthese ne doit pas prendre de décision editoriale sur les donnees. Annoter le conflit et remonter au coordinator permet une décision informee.</p>
+<p class="correct">Réponse : D) Présenter les deux avec une conflict annotation et laisser le coordinator décider</p>
+<p><strong>Explication :</strong> L'agent de synthèse ne doit pas prendre de décision éditoriale sur les données. Annoter le conflit et remonter au coordinator permet une décision informée.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Choisir une valeur est une décision editoriale qui dépasse le role de la synthese.</li>
-<li>B) Presenter sans signaler le conflit produit un rapport incohérent.</li>
-<li>C) S'arreter completement est disproportionne — le travail peut continuer avec l'annotation.</li>
+<li>A) Choisir une valeur est une décision éditoriale qui dépasse le rôle de la synthèse.</li>
+<li>B) Présenter sans signaler le conflit produit un rapport incohérent.</li>
+<li>C) S'arrêter complètement est disproportionné — le travail peut continuer avec l'annotation.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q14 (Multi-Agent Research) — Etape suivante après collecte</summary>
+<summary>Q14 (Multi-Agent Research) — Étape suivante après collecte</summary>
 <div>
-<p><strong>Situation :</strong> Les agents de web search et de doc analysis ont termine leur travail. Quelle est l'étape suivante ?</p>
-<p><strong>Question :</strong> Comment les resultats doivent-ils être traites ?</p>
+<p><strong>Situation :</strong> Les agents de web search et de doc analysis ont terminé leur travail. Quelle est l'étape suivante ?</p>
+<p><strong>Question :</strong> Comment les résultats doivent-ils être traités ?</p>
 <p>A) Les agents envoient directement au report-writing</p>
-<p>B) Le doc analysis fusionne les resultats en interne</p>
-<p>C) Le coordinator transmet les deux ensembles de resultats à lasynthese</p>
+<p>B) Le doc analysis fusionne les résultats en interne</p>
+<p>C) Le coordinator transmet les deux ensembles de résultats à la synthèse</p>
 <p>D) Concatener les sorties brutes</p>
 <hr>
-<p class="correct">Réponse : C) Le coordinator transmet les deux ensembles de resultats à lasynthese</p>
-<p><strong>Explication :</strong> Le coordinator est le point central de l'orchestration. Il collecte les resultats de chaque subagent et les transmet à lasynthese pour intégration.</p>
+<p class="correct">Réponse : C) Le coordinator transmet les deux ensembles de résultats à la synthèse</p>
+<p><strong>Explication :</strong> Le coordinator est le point central de l'orchestration. Il collecte les résultats de chaque subagent et les transmet à la synthèse pour intégration.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) La communication directe entre subagents contourne le coordinator et réduit l'observability.</li>
-<li>B) Le doc analysis n'a pas la responsabilite de fusionner des resultats d'autres agents.</li>
-<li>D) La concatenation brute ne produit pas une synthese cohérente.</li>
+<li>B) Le doc analysis n'a pas la responsabilité de fusionner des résultats d'autres agents.</li>
+<li>D) La concatenation brute ne produit pas une synthèse cohérente.</li>
 </ul>
 </div>
 </details>
@@ -375,20 +375,20 @@
 <details>
 <summary>Q15 (Multi-Agent Research) — Recovery locale vs escalation</summary>
 <div>
-<p><strong>Situation :</strong> Le subagent de doc analysis echoue frequemment sur les PDFs. Toute exception termine le subagent, ce qui implique une intervention excessive du coordinator.</p>
+<p><strong>Situation :</strong> Le subagent de doc analysis échoue fréquemment sur les PDFs. Toute exception termine le subagent, ce qui implique une intervention excessive du coordinator.</p>
 <p><strong>Question :</strong> Quelle stratégie de gestion d'erreur adopter ?</p>
-<p>A) Un agent dedie à lagestion d'erreurs</p>
-<p>B) Toujours retourner un succes partiel</p>
+<p>A) Un agent dédié à la gestion d'erreurs</p>
+<p>B) Toujours retourner un succès partiel</p>
 <p>C) Le coordinator valide tous les documents en amont</p>
-<p>D) Recovery locale pour les erreurs transitoires, escalation uniquement pour les erreurs irrecuperables</p>
+<p>D) Recovery locale pour les erreurs transitoires, escalation uniquement pour les erreurs irrécupérables</p>
 <hr>
-<p class="correct">Réponse : D) Recovery locale pour les erreurs transitoires, escalation uniquement pour les erreurs irrecuperables</p>
-<p><strong>Explication :</strong> La distinction entre erreurs transitoires (retry local) et irrecuperables (escalation) réduit l'implication du coordinator aux cas qui le nécessitent vraiment.</p>
+<p class="correct">Réponse : D) Recovery locale pour les erreurs transitoires, escalation uniquement pour les erreurs irrécupérables</p>
+<p><strong>Explication :</strong> La distinction entre erreurs transitoires (retry local) et irrécupérables (escalation) réduit l'implication du coordinator aux cas qui le nécessitent vraiment.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Un agent dedie aux erreurs est du overengineering.</li>
-<li>B) Retourner toujours un succes partiel masque les vrais échecs.</li>
-<li>C) Le coordinator ne devrait pas pre-valider chaque document — c'est le role du subagent.</li>
+<li>A) Un agent dédié aux erreurs est du overengineering.</li>
+<li>B) Retourner toujours un succès partiel masque les vrais échecs.</li>
+<li>C) Le coordinator ne devrait pas pré-valider chaque document — c'est le rôle du subagent.</li>
 </ul>
 </div>
 </details>
@@ -398,39 +398,39 @@
 <div>
 <p><strong>Situation :</strong> Meme scénario que Q7 — la recherche sur "AI impact on creative industries" ne couvre que l'art visuel.</p>
 <p><strong>Question :</strong> Quelle est la cause principale ?</p>
-<p>A) L'agent de synthese manque de detection de lacunes</p>
+<p>A) L'agent de synthèse manque de détection de lacunes</p>
 <p>B) Le doc analysis filtre trop strictement</p>
 <p>C) La décomposition du coordinator est trop étroite</p>
 <p>D) Le web search est insuffisant</p>
 <hr>
 <p class="correct">Réponse : C) La décomposition du coordinator est trop étroite</p>
-<p><strong>Explication :</strong> Meme logique que Q7 : le coordinator a omis la musique, la littérature et le cinéma dans sa décomposition. Les subagents ne peuvent rechercher que ce qui leur est assigne.</p>
+<p><strong>Explication :</strong> Même logique que Q7 : le coordinator a omis la musique, la littérature et le cinéma dans sa décomposition. Les subagents ne peuvent rechercher que ce qui leur est assigné.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) La synthese ne peut pas détecter des domaines jamais recherches.</li>
+<li>A) La synthèse ne peut pas détecter des domaines jamais recherchés.</li>
 <li>B) Aucune indication d'un filtrage excessif.</li>
-<li>D) Le web search a bien fonctionne pour les taches assignees.</li>
+<li>D) Le web search a bien fonctionné pour les tâches assignées.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q17 (Multi-Agent Research) — Lacunes dans la synthese</summary>
+<summary>Q17 (Multi-Agent Research) — Lacunes dans la synthèse</summary>
 <div>
-<p><strong>Situation :</strong> L'agent de synthese utilise uniquement les sources qui ont réussi, sans mentionner les lacunes de couverture.</p>
+<p><strong>Situation :</strong> L'agent de synthèse utilise uniquement les sources qui ont réussi, sans mentionner les lacunes de couverture.</p>
 <p><strong>Question :</strong> Comment améliorer la transparence du rapport ?</p>
-<p>A) Continuer sans mentionner les donnees indisponibles</p>
-<p>B) Retourner une erreur declenchant un retry complet</p>
+<p>A) Continuer sans mentionner les données indisponibles</p>
+<p>B) Retourner une erreur déclenchant un retry complet</p>
 <p>C) Demander au coordinator de retenter les sources en timeout</p>
-<p>D) Ajouter des coverage annotations montrant quelles conclusions sont bien etayees et ou sont les lacunes</p>
+<p>D) Ajouter des coverage annotations montrant quelles conclusions sont bien étayées et où sont les lacunes</p>
 <hr>
-<p class="correct">Réponse : D) Ajouter des coverage annotations montrant quelles conclusions sont bien etayees et ou sont les lacunes</p>
-<p><strong>Explication :</strong> Les coverage annotations permettent au lecteur de savoir quelles parties du rapport sont fiables et ou des donnees manquent, sans bloquer la production du rapport.</p>
+<p class="correct">Réponse : D) Ajouter des coverage annotations montrant quelles conclusions sont bien étayées et où sont les lacunes</p>
+<p><strong>Explication :</strong> Les coverage annotations permettent au lecteur de savoir quelles parties du rapport sont fiables et où des données manquent, sans bloquer la production du rapport.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Ignorer les lacunes produit un rapport trompeur.</li>
-<li>B) Un retry complet est disproportionne.</li>
-<li>C) Retenter specifiquement les timeouts est utile mais ne résout pas le problème de transparence dans le rapport final.</li>
+<li>B) Un retry complet est disproportionné.</li>
+<li>C) Retenter spécifiquement les timeouts est utile mais ne résout pas le problème de transparence dans le rapport final.</li>
 </ul>
 </div>
 </details>
@@ -446,11 +446,11 @@
 <p>D) Lancer une exception terminant le workflow</p>
 <hr>
 <p class="correct">Réponse : A) Retourner une erreur avec le contexte au coordinator</p>
-<p><strong>Explication :</strong> Un structured error return permet au coordinator de decider de la suite (source alternative, rapport partiel, etc.) sans terminer ni masquer le problème.</p>
+<p><strong>Explication :</strong> Un structured error return permet au coordinator de décider de la suite (source alternative, rapport partiel, etc.) sans terminer ni masquer le problème.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Ignorer silencieusement masque une lacune dans les donnees.</li>
-<li>C) Retenter un PDF corrompu ne changera pas le resultat — l'erreur n'est pas transitoire.</li>
+<li>B) Ignorer silencieusement masque une lacune dans les données.</li>
+<li>C) Retenter un PDF corrompu ne changera pas le résultat — l'erreur n'est pas transitoire.</li>
 <li>D) Terminer le workflow est disproportionne pour un seul fichier.</li>
 </ul>
 </div>
@@ -462,12 +462,12 @@
 <p><strong>Situation :</strong> Les outils <code>analyze_content</code> et <code>analyze_document</code> ont des descriptions qui se chevauchent, causant 45% de misrouting.</p>
 <p><strong>Question :</strong> Comment corriger ce problème ?</p>
 <p>A) Ajouter un pre-routing classifier</p>
-<p>B) Renommer en <code>extract_web_results</code> et mettre a jour la description</p>
+<p>B) Renommer en <code>extract_web_results</code> et mettre à jour la description</p>
 <p>C) Ajouter des few-shot examples</p>
 <p>D) Enrichir uniquement la description de doc analysis</p>
 <hr>
-<p class="correct">Réponse : B) Renommer en extract_web_results et mettre a jour la description</p>
-<p><strong>Explication :</strong> Le nom <code>analyze_content</code> vs <code>analyze_document</code> est trop similaire. Renommer en <code>extract_web_results</code> cree une distinction claire et immediate dans le nom même de l'outil.</p>
+<p class="correct">Réponse : B) Renommer en extract_web_results et mettre à jour la description</p>
+<p><strong>Explication :</strong> Le nom <code>analyze_content</code> vs <code>analyze_document</code> est trop similaire. Renommer en <code>extract_web_results</code> crée une distinction claire et immédiate dans le nom même de l'outil.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Un pre-routing classifier est du overengineering pour un problème de naming.</li>
@@ -480,20 +480,20 @@
 <details>
 <summary>Q20 (Multi-Agent Research) — Avantage du coordinator</summary>
 <div>
-<p><strong>Situation :</strong> Un collegue propose une communication directe entre subagents. Quel est l'avantage principal de garder le coordinator ?</p>
+<p><strong>Situation :</strong> Un collègue propose une communication directe entre subagents. Quel est l'avantage principal de garder le coordinator ?</p>
 <p><strong>Question :</strong> Pourquoi maintenir le coordinator comme point central ?</p>
 <p>A) Observability, gestion uniforme des erreurs, contrôle sur ce que chaque subagent reçoit</p>
 <p>B) Le batching réduit les appels API</p>
 <p>C) Cela permet la logique de retry</p>
-<p>D) La mémoire isolee nécessite de la serialization</p>
+<p>D) La mémoire isolée nécessite de la sérialisation</p>
 <hr>
 <p class="correct">Réponse : A) Observability, gestion uniforme des erreurs, contrôle sur ce que chaque subagent reçoit</p>
-<p><strong>Explication :</strong> Le coordinator centralise l'observability (on peut tracer chaque échange), la gestion d'erreurs (un seul pattern) et le contrôle des donnees transmises à chaque subagent.</p>
+<p><strong>Explication :</strong> Le coordinator centralise l'observability (on peut tracer chaque échange), la gestion d'erreurs (un seul pattern) et le contrôle des données transmises à chaque subagent.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Le batching n'est pas l'avantage principal du pattern coordinator.</li>
-<li>C) La logique de retry peut exister sans coordinator centralise.</li>
-<li>D) La serialization de mémoire est un détail d'implementation, pas un avantage architectural.</li>
+<li>C) La logique de retry peut exister sans coordinator centralisé.</li>
+<li>D) La sérialisation de mémoire est un détail d'implémentation, pas un avantage architectural.</li>
 </ul>
 </div>
 </details>
@@ -503,16 +503,16 @@
 <div>
 <p><strong>Situation :</strong> Le web search fait un timeout. Comment propager l'erreur pour permettre une intelligent recovery ?</p>
 <p><strong>Question :</strong> Quelle stratégie d'error propagation adopter ?</p>
-<p>A) Contexte d'erreur structure (failure type, query, resultats partiels, alternatives)</p>
-<p>B) Retries avec status generique</p>
-<p>C) Ensemble vide marque comme succes</p>
+<p>A) Contexte d'erreur structuré (failure type, query, résultats partiels, alternatives)</p>
+<p>B) Retries avec status générique</p>
+<p>C) Ensemble vide marqué comme succès</p>
 <p>D) Propager l'exception et terminer le workflow</p>
 <hr>
-<p class="correct">Réponse : A) Contexte d'erreur structure (failure type, query, resultats partiels, alternatives)</p>
-<p><strong>Explication :</strong> Meme principe que Q8 : un structured error context donne au coordinator toute l'information pour une recovery intelligente.</p>
+<p class="correct">Réponse : A) Contexte d'erreur structuré (failure type, query, résultats partiels, alternatives)</p>
+<p><strong>Explication :</strong> Même principe que Q8 : un structured error context donne au coordinator toute l'information pour une recovery intelligente.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Un status generique perd le contexte nécessaire à larecovery.</li>
+<li>B) Un status générique perd le contexte nécessaire à la recovery.</li>
 <li>C) Masquer l'échec en succes est dangereux.</li>
 <li>D) Terminer le workflow est disproportionne.</li>
 </ul>
@@ -522,7 +522,7 @@
 <details>
 <summary>Q22 (Multi-Agent Research) — Outil trop permissif</summary>
 <div>
-<p><strong>Situation :</strong> Le doc analysis agent utilise <code>fetch_url</code> mais commence a télécharger des pages de moteurs de recherche.</p>
+<p><strong>Situation :</strong> Le doc analysis agent utilise <code>fetch_url</code> mais commence à télécharger des pages de moteurs de recherche.</p>
 <p><strong>Question :</strong> Comment corriger ce comportement ?</p>
 <p>A) Remplacer par <code>load_document</code> qui valide les URLs</p>
 <p>B) Supprimer <code>fetch_url</code> et router via le coordinator</p>
@@ -530,7 +530,7 @@
 <p>D) Ajouter des instructions dans le prompt</p>
 <hr>
 <p class="correct">Réponse : A) Remplacer par load_document qui valide les URLs</p>
-<p><strong>Explication :</strong> Un outil avec validation integree (principle of least privilege) empeche structurellement l'accès aux URLs non pertinentes, sans dependance sur le prompt.</p>
+<p><strong>Explication :</strong> Un outil avec validation intégrée (principle of least privilege) empêche structurellement l'accès aux URLs non pertinentes, sans dépendance sur le prompt.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Supprimer l'outil et passer par le coordinator ajoute de la latence inutile.</li>
@@ -543,20 +543,20 @@
 <details>
 <summary>Q23 (Multi-Agent Research) — Duplication entre agents</summary>
 <div>
-<p><strong>Situation :</strong> Le web search et le doc analysis investigent les mêmes sous-themes, produisant des duplications.</p>
+<p><strong>Situation :</strong> Le web search et le doc analysis investigent les mêmes sous-thèmes, produisant des duplications.</p>
 <p><strong>Question :</strong> Comment éviter cette duplication ?</p>
 <p>A) Dedupliquer après coup</p>
-<p>B) Le coordinator partitionne l'espace de recherche avant de deleguer</p>
+<p>B) Le coordinator partitionne l'espace de recherche avant de déléguer</p>
 <p>C) Un mécanisme de shared state</p>
-<p>D) Execution sequentielle</p>
+<p>D) Exécution séquentielle</p>
 <hr>
-<p class="correct">Réponse : B) Le coordinator partitionne l'espace de recherche avant de deleguer</p>
-<p><strong>Explication :</strong> Partitionner en amont évite le travail redondant. C'est plus efficace que de dédupliqliquer après avoir consomme des ressources.</p>
+<p class="correct">Réponse : B) Le coordinator partitionne l'espace de recherche avant de déléguer</p>
+<p><strong>Explication :</strong> Partitionner en amont évite le travail redondant. C'est plus efficace que de dédupliquer après avoir consommé des ressources.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) La dédupliqlication après coup gaspille des ressources (tokens, latence).</li>
+<li>A) La déduplication après coup gaspille des ressources (tokens, latence).</li>
 <li>C) Un shared state entre subagents est complexe et réduit l'isolation.</li>
-<li>D) L'exécution sequentielle augmente la latence sans resoudre la duplication.</li>
+<li>D) L'exécution séquentielle augmente la latence sans résoudre la duplication.</li>
 </ul>
 </div>
 </details>
@@ -564,40 +564,40 @@
 <details>
 <summary>Q24 (Multi-Agent Research) — Categories de sources</summary>
 <div>
-<p><strong>Situation :</strong> Trois catégories de sources : academic (15 articles), industry (0 resultats), patents (timeout).</p>
-<p><strong>Question :</strong> Comment interpréter ces resultats ?</p>
-<p>A) Agreger comme 67% de couverture</p>
+<p><strong>Situation :</strong> Trois catégories de sources : academic (15 articles), industry (0 résultats), patents (timeout).</p>
+<p><strong>Question :</strong> Comment interpréter ces résultats ?</p>
+<p>A) Agréger comme 67% de couverture</p>
 <p>B) Les deux échecs nécessitent une intervention</p>
 <p>C) Retenter uniquement les transitoires</p>
-<p>D) Distinguer le timeout (access failure) de l'ensemble vide (resultat valide)</p>
+<p>D) Distinguer le timeout (access failure) de l'ensemble vide (résultat valide)</p>
 <hr>
-<p class="correct">Réponse : D) Distinguer le timeout (access failure) de l'ensemble vide (resultat valide)</p>
-<p><strong>Explication :</strong> Un timeout (patents) signifie que les donnees existent peut-être mais n'ont pas pu être recuperees — c'est un access failure. Un ensemble vide (industry) est un resultat valide : il n'y a pas de donnees. Les deux situations demandent des réponses différentes.</p>
+<p class="correct">Réponse : D) Distinguer le timeout (access failure) de l'ensemble vide (résultat valide)</p>
+<p><strong>Explication :</strong> Un timeout (patents) signifie que les données existent peut-être mais n'ont pas pu être récupérées — c'est un access failure. Un ensemble vide (industry) est un résultat valide : il n'y a pas de données. Les deux situations demandent des réponses différentes.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) 67% est une metrique trompeuse qui confond deux types d'échec.</li>
-<li>B) L'ensemble vide n'est pas un échec — c'est un resultat valide.</li>
-<li>C) Retenter uniquement les transitoires est partiellement correct mais ne répond pas à comment interpréter les resultats.</li>
+<li>A) 67% est une métrique trompeuse qui confond deux types d'échec.</li>
+<li>B) L'ensemble vide n'est pas un échec — c'est un résultat valide.</li>
+<li>C) Retenter uniquement les transitoires est partiellement correct mais ne répond pas à comment interpréter les résultats.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q25 (Multi-Agent Research) — Attention sur les resultats longs</summary>
+<summary>Q25 (Multi-Agent Research) — Attention sur les résultats longs</summary>
 <div>
-<p><strong>Situation :</strong> Les resultats agreges font ~75K tokens. La synthese cite les premiers 15K et les derniers 10K, mais ignore les 50K tokens du milieu.</p>
+<p><strong>Situation :</strong> Les résultats agrégés font ~75K tokens. La synthèse cite les premiers 15K et les derniers 10K, mais ignore les 50K tokens du milieu.</p>
 <p><strong>Question :</strong> Comment corriger ce biais d'attention ?</p>
-<p>A) Resumer sous 20K tokens</p>
-<p>B) Streamer incrementalement</p>
-<p>C) Un resume key-findings au debut + des headings explicites de section tout au long du document</p>
+<p>A) Résumer sous 20K tokens</p>
+<p>B) Streamer incrémentalement</p>
+<p>C) Un résumé key-findings au début + des headings explicites de section tout au long du document</p>
 <p>D) Utiliser une vector database</p>
 <hr>
-<p class="correct">Réponse : C) Un resume key-findings au debut + des headings explicites de section tout au long du document</p>
+<p class="correct">Réponse : C) Un résumé key-findings au début + des headings explicites de section tout au long du document</p>
 <p><strong>Explication :</strong> Le key-findings summary donne une vue d'ensemble, et les headings explicites servent de points d'ancrage pour l'attention dans les sections centrales.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Resumer a 20K perd des détails importants.</li>
-<li>B) Le streaming incremental ne résout pas le problème d'attention globale.</li>
+<li>A) Résumer à 20K perd des détails importants.</li>
+<li>B) Le streaming incrémental ne résout pas le problème d'attention globale.</li>
 <li>D) Une vector database est du overengineering pour ce problème de structuration.</li>
 </ul>
 </div>
@@ -606,41 +606,41 @@
 <details>
 <summary>Q26 (Multi-Agent Research) — Output trop volumineux</summary>
 <div>
-<p><strong>Situation :</strong> L'output combine fait 155K tokens mais la synthese fonctionne au mieux sous 50K.</p>
-<p><strong>Question :</strong> Comment reduire le volume sans perdre l'essentiel ?</p>
+<p><strong>Situation :</strong> L'output combiné fait 155K tokens mais la synthèse fonctionne au mieux sous 50K.</p>
+<p><strong>Question :</strong> Comment réduire le volume sans perdre l'essentiel ?</p>
 <p>A) Modifier les agents en amont pour retourner des structured data (key facts, quotes, relevance scores)</p>
-<p>B) Ajouter un agent de summarization intermediaire</p>
-<p>C) Traiter en batches sequentiels</p>
+<p>B) Ajouter un agent de summarization intermédiaire</p>
+<p>C) Traiter en batches séquentiels</p>
 <p>D) Utiliser une vector database</p>
 <hr>
 <p class="correct">Réponse : A) Modifier les agents en amont pour retourner des structured data (key facts, quotes, relevance scores)</p>
-<p><strong>Explication :</strong> En structurant les donnees en amont, chaque subagent ne transmet que l'essentiel, reduisant naturellement le volume tout en preservant les informations clés.</p>
+<p><strong>Explication :</strong> En structurant les données en amont, chaque subagent ne transmet que l'essentiel, réduisant naturellement le volume tout en préservant les informations clés.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Un agent intermediaire ajoute de la latence et des couts.</li>
-<li>C) Les batches sequentiels augmentent la latence et perdent le contexte global.</li>
+<li>B) Un agent intermédiaire ajoute de la latence et des coûts.</li>
+<li>C) Les batches séquentiels augmentent la latence et perdent le contexte global.</li>
 <li>D) Une vector database est du overengineering pour un problème de format de sortie.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q27 (Multi-Agent Research) — Verification des affirmations (bis)</summary>
+<summary>Q27 (Multi-Agent Research) — Vérification des affirmations (bis)</summary>
 <div>
-<p><strong>Situation :</strong> La synthese doit vérifier des affirmations. 85% sont de simples fact checks, 15% nécessitent une investigation approfondie. Le circuit actuel fait 2-3 allers-retours, +40% de latence.</p>
+<p><strong>Situation :</strong> La synthèse doit vérifier des affirmations. 85% sont de simples fact checks, 15% nécessitent une investigation approfondie. Le circuit actuel fait 2-3 allers-retours, +40% de latence.</p>
 <p><strong>Question :</strong> Comment optimiser la vérification ?</p>
 <p>A) Donner un accès complet au web search</p>
-<p>B) Grouper les verifications à lafin</p>
+<p>B) Grouper les vérifications à la fin</p>
 <p>C) Caching proactif</p>
-<p>D) Un outil limite <code>verify_fact</code> pour les checks simples, le coordinator pour les complexes</p>
+<p>D) Un outil limité <code>verify_fact</code> pour les checks simples, le coordinator pour les complexes</p>
 <hr>
-<p class="correct">Réponse : D) Un outil limite verify_fact pour les checks simples, le coordinator pour les complexes</p>
-<p><strong>Explication :</strong> Meme logique que Q9 : principle of least privilege applique à lavérification. 85% resolus directement, 15% via le coordinator.</p>
+<p class="correct">Réponse : D) Un outil limité verify_fact pour les checks simples, le coordinator pour les complexes</p>
+<p><strong>Explication :</strong> Même logique que Q9 : principle of least privilege appliqué à la vérification. 85% résolus directement, 15% via le coordinator.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Un accès complet viole le principle of least privilege.</li>
-<li>B) Grouper à lafin retarde tout et peut nécessiter de refaire la synthese.</li>
-<li>C) Le caching proactif ne peut pas anticiper quelles verifications seront nécessaires.</li>
+<li>B) Grouper à la fin retarde tout et peut nécessiter de refaire la synthèse.</li>
+<li>C) Le caching proactif ne peut pas anticiper quelles vérifications seront nécessaires.</li>
 </ul>
 </div>
 </details>
@@ -653,14 +653,14 @@
 <summary>Q28 (Claude Code CI) — Output structure pour PR comments</summary>
 <div>
 <p><strong>Situation :</strong> Le CLI en mode <code>--print</code> produit des paragraphes narratifs. Les développeurs veulent des inline PR comments avec file path, line, severity et fix.</p>
-<p><strong>Question :</strong> Comment obtenir un output structure ?</p>
+<p><strong>Question :</strong> Comment obtenir un output structuré ?</p>
 <p>A) Ajouter une section output format dans <code>CLAUDE.md</code></p>
 <p>B) Utiliser <code>--output-format json</code> avec <code>--json-schema</code></p>
 <p>C) Mettre des instructions de formatage dans le prompt</p>
 <p>D) Ajouter une étape de summarization</p>
 <hr>
 <p class="correct">Réponse : B) Utiliser --output-format json avec --json-schema</p>
-<p><strong>Explication :</strong> Les flags <code>--output-format json</code> et <code>--json-schema</code> forcent un output structure de manière déterministe, sans dependre du prompt.</p>
+<p><strong>Explication :</strong> Les flags <code>--output-format json</code> et <code>--json-schema</code> forcent un output structuré de manière déterministe, sans dépendre du prompt.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Le <code>CLAUDE.md</code> donne des instructions mais ne garantit pas le format.</li>
@@ -671,22 +671,22 @@
 </details>
 
 <details>
-<summary>Q29 (Claude Code CI) — Deuxieme instance independante</summary>
+<summary>Q29 (Claude Code CI) — Deuxième instance indépendante</summary>
 <div>
-<p><strong>Situation :</strong> Certains problèmes non evidents ne sont détectes que par un autre membre de l'équipe. Le reasoning de Claude montre qu'il à considere le problème mais à conclu que c'etait correct.</p>
+<p><strong>Situation :</strong> Certains problèmes non évidents ne sont détectés que par un autre membre de l'équipe. Le reasoning de Claude montre qu'il a considéré le problème mais a conclu que c'était correct.</p>
 <p><strong>Question :</strong> Comment détecter ces problèmes subtils ?</p>
-<p>A) Une deuxieme instance independante sans le reasoning de la première</p>
+<p>A) Une deuxième instance indépendante sans le reasoning de la première</p>
 <p>B) Activer l'extended thinking</p>
 <p>C) Inclure plus de tests dans le contexte</p>
 <p>D) Ajouter des exemples d'erreurs dans le prompt</p>
 <hr>
-<p class="correct">Réponse : A) Une deuxieme instance independante sans le reasoning de la première</p>
-<p><strong>Explication :</strong> Une instance independante evalue le code sans être biaisee par le reasoning de la première. C'est le principe de la revue par un pair différent.</p>
+<p class="correct">Réponse : A) Une deuxième instance indépendante sans le reasoning de la première</p>
+<p><strong>Explication :</strong> Une instance indépendante évalue le code sans être biaisée par le reasoning de la première. C'est le principe de la revue par un pair différent.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) L'extended thinking prolonge le même raisonnement — il ne change pas de perspective.</li>
 <li>C) Plus de tests dans le contexte ne corrigent pas un biais de raisonnement.</li>
-<li>D) Les exemples d'erreurs ne couvrent pas les cas non anticipes.</li>
+<li>D) Les exemples d'erreurs ne couvrent pas les cas non anticipés.</li>
 </ul>
 </div>
 </details>
@@ -694,20 +694,20 @@
 <details>
 <summary>Q30 (Claude Code CI) — Batch API et tool use</summary>
 <div>
-<p><strong>Situation :</strong> La code review iterative utilise des tool calls pour aller chercher des fichiers lies. On envisage la Batch API pour reduire les couts.</p>
-<p><strong>Question :</strong> Pourquoi la Batch API n'est-elle pas adaptee ici ?</p>
+<p><strong>Situation :</strong> La code review itérative utilise des tool calls pour aller chercher des fichiers liés. On envisage la Batch API pour réduire les coûts.</p>
+<p><strong>Question :</strong> Pourquoi la Batch API n'est-elle pas adaptée ici ?</p>
 <p>A) Pas de correlation IDs</p>
 <p>B) La Batch API ne peut pas exécuter de tools mid-request</p>
 <p>C) La Batch API ne supporte pas les tool definitions</p>
 <p>D) La latence est trop lente</p>
 <hr>
 <p class="correct">Réponse : B) La Batch API ne peut pas exécuter de tools mid-request</p>
-<p><strong>Explication :</strong> La Batch API traite les requêtes de manière asynchrone et ne peut pas exécuter de tool calls pendant le traitement. Les workflows iteratifs necessitant des tool calls mid-request sont incompatibles.</p>
+<p><strong>Explication :</strong> La Batch API traite les requêtes de manière asynchrone et ne peut pas exécuter de tool calls pendant le traitement. Les workflows itératifs nécessitant des tool calls mid-request sont incompatibles.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Les correlation IDs existent (custom_id).</li>
 <li>C) La Batch API supporte les tool definitions dans la requête.</li>
-<li>D) La latence est un problème secondaire — le blocage fondamental est l'impossibilite d'exécuter des tools.</li>
+<li>D) La latence est un problème secondaire — le blocage fondamental est l'impossibilité d'exécuter des tools.</li>
 </ul>
 </div>
 </details>
@@ -715,39 +715,39 @@
 <details>
 <summary>Q31 (Claude Code CI) — Optimisation cout avec Batch API</summary>
 <div>
-<p><strong>Situation :</strong> Trois analyses : fast style checks (bloquants), weekly security audits, nightly test generation. Comment optimiser les couts ?</p>
-<p><strong>Question :</strong> Quelle repartition synchrone/batch est optimale ?</p>
+<p><strong>Situation :</strong> Trois analyses : fast style checks (bloquants), weekly security audits, nightly test generation. Comment optimiser les coûts ?</p>
+<p><strong>Question :</strong> Quelle répartition synchrone/batch est optimale ?</p>
 <p>A) Tout en batch</p>
 <p>B) Synchrone pour les style checks ; batch pour les security audits et la test generation</p>
 <p>C) Tout en synchrone</p>
 <p>D) Synchrone pour style checks + test generation ; batch uniquement pour la sécurité</p>
 <hr>
 <p class="correct">Réponse : B) Synchrone pour les style checks ; batch pour les security audits et la test generation</p>
-<p><strong>Explication :</strong> Les style checks sont bloquants (pre-merge) et nécessitent une réponse immediate → synchrone. Les security audits (weekly) et la test generation (nightly) tolerent la latence → batch pour economiser 50%.</p>
+<p><strong>Explication :</strong> Les style checks sont bloquants (pre-merge) et nécessitent une réponse immédiate → synchrone. Les security audits (weekly) et la test generation (nightly) tolèrent la latence → batch pour économiser 50%.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Les style checks bloquants ne peuvent pas attendre jusqu'a 24h.</li>
-<li>C) Tout en synchrone gaspille les economies possibles sur les taches non-bloquantes.</li>
-<li>D) La test generation nocturne tolere la latence — pas besoin de synchrone.</li>
+<li>A) Les style checks bloquants ne peuvent pas attendre jusqu'à 24h.</li>
+<li>C) Tout en synchrone gaspille les économies possibles sur les tâches non-bloquantes.</li>
+<li>D) La test generation nocturne tolère la latence — pas besoin de synchrone.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q32 (Claude Code CI) — Criteres explicites pour les commentaires</summary>
+<summary>Q32 (Claude Code CI) — Critères explicites pour les commentaires</summary>
 <div>
-<p><strong>Situation :</strong> Le prompt dit "check comments for accuracy, be conservative." Les resultats sont inconsistants.</p>
-<p><strong>Question :</strong> Comment améliorer la fiabilite de la detection de commentaires inexacts ?</p>
-<p>A) Ajouter les donnees de <code>git blame</code></p>
+<p><strong>Situation :</strong> Le prompt dit "check comments for accuracy, be conservative." Les résultats sont inconsistants.</p>
+<p><strong>Question :</strong> Comment améliorer la fiabilité de la détection de commentaires inexacts ?</p>
+<p>A) Ajouter les données de <code>git blame</code></p>
 <p>B) Des few-shot examples de commentaires trompeurs</p>
 <p>C) Filtrer les TODO/FIXME</p>
-<p>D) Criteres explicites : signaler uniquement quand le commentaire contredit le code</p>
+<p>D) Critères explicites : signaler uniquement quand le commentaire contredit le code</p>
 <hr>
-<p class="correct">Réponse : D) Criteres explicites : signaler uniquement quand le commentaire contredit le code</p>
-<p><strong>Explication :</strong> "Be conservative" est vague. Un critère explicite ("signaler uniquement quand le commentaire contredit le code") elimine l'ambiguite et produit des resultats consistants.</p>
+<p class="correct">Réponse : D) Critères explicites : signaler uniquement quand le commentaire contredit le code</p>
+<p><strong>Explication :</strong> "Be conservative" est vague. Un critère explicite ("signaler uniquement quand le commentaire contredit le code") élimine l'ambiguïté et produit des résultats consistants.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) <code>git blame</code> donne l'historique mais ne clarifie pas les critères de detection.</li>
+<li>A) <code>git blame</code> donne l'historique mais ne clarifie pas les critères de détection.</li>
 <li>B) Les few-shot examples aident mais ne remplacent pas des critères clairs.</li>
 <li>C) Filtrer les TODO/FIXME est un sous-problème, pas la solution principale.</li>
 </ul>
@@ -755,22 +755,22 @@
 </details>
 
 <details>
-<summary>Q33 (Claude Code CI) — Taux de false positives eleves</summary>
+<summary>Q33 (Claude Code CI) — Taux de false positives élevés</summary>
 <div>
 <p><strong>Situation :</strong> Taux de false positives : security 8%, performance 18%, style 52%, documentation 48%. La confiance des développeurs diminue.</p>
 <p><strong>Question :</strong> Comment restaurer la confiance ?</p>
 <p>A) Augmenter les seuils de confidence</p>
-<p>B) Desactiver temporairement les catégories a fort taux de false positives (style, docs) en améliorant leurs prompts</p>
+<p>B) Désactiver temporairement les catégories à fort taux de false positives (style, docs) en améliorant leurs prompts</p>
 <p>C) Garder toutes les catégories et ajouter des labels de confidence</p>
 <p>D) Remplacer par un linter traditionnel</p>
 <hr>
-<p class="correct">Réponse : B) Desactiver temporairement les catégories a fort taux de false positives (style, docs) en améliorant leurs prompts</p>
-<p><strong>Explication :</strong> Desactiver les catégories les moins fiables permet aux développeurs de reconstruire la confiance avec les catégories fiables (security, performance), pendant que les prompts des catégories problématiques sont améliores.</p>
+<p class="correct">Réponse : B) Désactiver temporairement les catégories à fort taux de false positives (style, docs) en améliorant leurs prompts</p>
+<p><strong>Explication :</strong> Désactiver les catégories les moins fiables permet aux développeurs de reconstruire la confiance avec les catégories fiables (security, performance), pendant que les prompts des catégories problématiques sont améliorés.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Augmenter les seuils risque de manquer des vrais problèmes.</li>
-<li>C) Des labels de confidence n'eliminent pas les false positives — les développeurs doivent toujours les evaluer.</li>
-<li>D) Un linter traditionnel ne remplace pas l'analyse semantique de Claude.</li>
+<li>C) Des labels de confidence n'éliminent pas les false positives — les développeurs doivent toujours les évaluer.</li>
+<li>D) Un linter traditionnel ne remplace pas l'analyse sémantique de Claude.</li>
 </ul>
 </div>
 </details>
@@ -778,20 +778,20 @@
 <details>
 <summary>Q34 (Claude Code CI) — Duplication de tests générés</summary>
 <div>
-<p><strong>Situation :</strong> La generation de tests suggere 10 tests mais 6 dupliquent des tests existants.</p>
+<p><strong>Situation :</strong> La génération de tests suggère 10 tests mais 6 dupliquent des tests existants.</p>
 <p><strong>Question :</strong> Comment éviter cette duplication ?</p>
 <p>A) Inclure le fichier de tests existant dans le contexte</p>
-<p>B) Reduire a 5 suggestions</p>
+<p>B) Réduire à 5 suggestions</p>
 <p>C) Se concentrer uniquement sur les edge cases</p>
 <p>D) Post-filtrage par chevauchement de mots-clés</p>
 <hr>
 <p class="correct">Réponse : A) Inclure le fichier de tests existant dans le contexte</p>
-<p><strong>Explication :</strong> Si Claude voit les tests existants, il peut génèrer uniquement des tests complementaires. C'est la solution la plus directe au problème de duplication.</p>
+<p><strong>Explication :</strong> Si Claude voit les tests existants, il peut générer uniquement des tests complémentaires. C'est la solution la plus directe au problème de duplication.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Reduire le nombre ne garantit pas l'elimination des doublons.</li>
+<li>B) Réduire le nombre ne garantit pas l'élimination des doublons.</li>
 <li>C) Se limiter aux edge cases ignore les tests fonctionnels manquants.</li>
-<li>D) Le post-filtrage par mots-clés est imprecis et peut eliminer des tests valides.</li>
+<li>D) Le post-filtrage par mots-clés est imprécis et peut éliminer des tests valides.</li>
 </ul>
 </div>
 </details>
@@ -799,28 +799,28 @@
 <details>
 <summary>Q35 (Claude Code CI) — Re-review après corrections</summary>
 <div>
-<p><strong>Situation :</strong> Apres une review initiale (12 findings), le développeur pousse des corrections. La re-review produit 8 findings dont 5 sont des doublons de la première review.</p>
+<p><strong>Situation :</strong> Après une review initiale (12 findings), le développeur pousse des corrections. La re-review produit 8 findings dont 5 sont des doublons de la première review.</p>
 <p><strong>Question :</strong> Comment éviter les doublons entre reviews ?</p>
-<p>A) Inclure les resultats de la review precedente dans le contexte, avec instruction de ne rapporter que les nouveaux/non-resolus</p>
+<p>A) Inclure les résultats de la review précédente dans le contexte, avec instruction de ne rapporter que les nouveaux/non-résolus</p>
 <p>B) Analyser uniquement le diff</p>
-<p>C) Augmenter le seuil de severite</p>
+<p>C) Augmenter le seuil de sévérité</p>
 <p>D) Post-filtrage automatique</p>
 <hr>
-<p class="correct">Réponse : A) Inclure les resultats de la review precedente dans le contexte, avec instruction de ne rapporter que les nouveaux/non-resolus</p>
-<p><strong>Explication :</strong> En donnant le contexte de la review precedente, Claude peut distinguer les problèmes déjà rapportes des nouveaux, et vérifier si les corrections adressent les findings initiaux.</p>
+<p class="correct">Réponse : A) Inclure les résultats de la review précédente dans le contexte, avec instruction de ne rapporter que les nouveaux/non-résolus</p>
+<p><strong>Explication :</strong> En donnant le contexte de la review précédente, Claude peut distinguer les problèmes déjà rapportés des nouveaux, et vérifier si les corrections adressent les findings initiaux.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Analyser uniquement le diff peut manquer des problèmes introduits par les corrections dans d'autres fichiers.</li>
 <li>C) Augmenter le seuil masque des vrais problèmes.</li>
-<li>D) Le post-filtrage est imprecis et peut eliminer de vrais nouveaux findings.</li>
+<li>D) Le post-filtrage est imprécis et peut éliminer de vrais nouveaux findings.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q36 (Claude Code CI) — Pipeline bloquee (bis)</summary>
+<summary>Q36 (Claude Code CI) — Pipeline bloquée (bis)</summary>
 <div>
-<p><strong>Situation :</strong> La pipeline reste bloquee. La commande est <code>claude "Analyze this PR"</code>.</p>
+<p><strong>Situation :</strong> La pipeline reste bloquée. La commande est <code>claude "Analyze this PR"</code>.</p>
 <p><strong>Question :</strong> Quel flag résout le problème ?</p>
 <p>A) <code>--batch</code></p>
 <p>B) <code>-p</code></p>
@@ -828,12 +828,12 @@
 <p>D) <code>CLAUDE_HEADLESS=true</code></p>
 <hr>
 <p class="correct">Réponse : B) -p</p>
-<p><strong>Explication :</strong> Le flag <code>-p</code> (<code>--print</code>) est la méthode documentee pour le mode non-interactif. Meme question que Q10 sous un angle différent.</p>
+<p><strong>Explication :</strong> Le flag <code>-p</code> (<code>--print</code>) est la méthode documentée pour le mode non-interactif. Même question que Q10 sous un angle différent.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) <code>--batch</code> n'existe pas dans Claude Code CLI.</li>
 <li>C) La redirection stdin ne résout pas le mode interactif.</li>
-<li>D) <code>CLAUDE_HEADLESS=true</code> n'est pas documente.</li>
+<li>D) <code>CLAUDE_HEADLESS=true</code> n'est pas documenté.</li>
 </ul>
 </div>
 </details>
@@ -844,15 +844,15 @@
 <p><strong>Situation :</strong> Une PR de 14 fichiers. La review en single-pass est inconsistante.</p>
 <p><strong>Question :</strong> Quelle approche adopter ?</p>
 <p>A) Passes par fichier + passe d'intégration</p>
-<p>B) Demander aux développeurs de decouper les PRs</p>
-<p>C) Modele plus grand</p>
+<p>B) Demander aux développeurs de découper les PRs</p>
+<p>C) Modèle plus grand</p>
 <p>D) Trois passes + consensus</p>
 <hr>
 <p class="correct">Réponse : A) Passes par fichier + passe d'intégration</p>
 <p><strong>Explication :</strong> Même logique que Q12 : le multi-pass corrige l'attention dilution. Chaque passe a un scope limité pour une analyse approfondie.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Transfere la charge aux développeurs.</li>
+<li>B) Transfère la charge aux développeurs.</li>
 <li>C) Un context window plus grand ne corrige pas l'attention dilution.</li>
 <li>D) Trois passes identiques reproduisent les mêmes biais.</li>
 </ul>
@@ -862,20 +862,20 @@
 <details>
 <summary>Q38 (Claude Code CI) — Temps d'investigation des findings</summary>
 <div>
-<p><strong>Situation :</strong> Les développeurs passent du temps a vérifier la validite de chaque finding.</p>
-<p><strong>Question :</strong> Comment reduire ce temps d'investigation ?</p>
+<p><strong>Situation :</strong> Les développeurs passent du temps à vérifier la validité de chaque finding.</p>
+<p><strong>Question :</strong> Comment réduire ce temps d'investigation ?</p>
 <p>A) Inclure une rationale et un niveau de confidence dans chaque finding</p>
 <p>B) Supprimer automatiquement les patterns de false positives</p>
 <p>C) Categoriser en bloquant vs suggestions</p>
-<p>D) N'afficher que les findings a haute confidence</p>
+<p>D) N'afficher que les findings à haute confidence</p>
 <hr>
 <p class="correct">Réponse : A) Inclure une rationale et un niveau de confidence dans chaque finding</p>
-<p><strong>Explication :</strong> En expliquant pourquoi chaque finding est signale et avec quel degre de certitude, les développeurs peuvent rapidement evaluer la validite sans investigation approfondie.</p>
+<p><strong>Explication :</strong> En expliquant pourquoi chaque finding est signalé et avec quel degré de certitude, les développeurs peuvent rapidement évaluer la validité sans investigation approfondie.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) La suppression automatique risque de masquer des vrais problèmes.</li>
-<li>C) La categorisation aide a prioriser mais n'explique pas pourquoi un finding est signale.</li>
-<li>D) Masquer les findings a basse confidence fait perdre des bugs reels.</li>
+<li>C) La categorisation aide à prioriser mais n'explique pas pourquoi un finding est signalé.</li>
+<li>D) Masquer les findings à basse confidence fait perdre des bugs réels.</li>
 </ul>
 </div>
 </details>
@@ -891,12 +891,12 @@
 <p>D) Les deux en synchrone</p>
 <hr>
 <p class="correct">Réponse : C) Batch pour le tech-debt uniquement</p>
-<p><strong>Explication :</strong> Meme logique que Q11 : le pre-merge check ne peut pas attendre 24h. Seul le rapport nocturne tolere la latence de la Batch API.</p>
+<p><strong>Explication :</strong> Même logique que Q11 : le pre-merge check ne peut pas attendre 24h. Seul le rapport nocturne tolère la latence de la Batch API.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Un fallback complique l'architecture sans benefice pour le pre-merge.</li>
+<li>A) Un fallback complique l'architecture sans bénéfice pour le pre-merge.</li>
 <li>B) Le polling ne change pas la latence de 24h max.</li>
-<li>D) Tout en synchrone renonce aux 50% d'economies sur le tech-debt.</li>
+<li>D) Tout en synchrone renonce aux 50% d'économies sur le tech-debt.</li>
 </ul>
 </div>
 </details>
@@ -904,18 +904,18 @@
 <details>
 <summary>Q40 (Claude Code CI) — Deep analysis nocturne et Batch API</summary>
 <div>
-<p><strong>Situation :</strong> L'analyse approfondie nocturne peut-elle beneficier de la Batch API ?</p>
-<p><strong>Question :</strong> La Batch API est-elle adaptee pour cette analyse ?</p>
+<p><strong>Situation :</strong> L'analyse approfondie nocturne peut-elle bénéficier de la Batch API ?</p>
+<p><strong>Question :</strong> La Batch API est-elle adaptée pour cette analyse ?</p>
 <p>A) Non, elle nécessite des prompts interactifs</p>
-<p>B) Oui, elle tourne la nuit, tolere le délai, et fonctionne avec un modèle de polling</p>
+<p>B) Oui, elle tourne la nuit, tolère le délai, et fonctionne avec un modèle de polling</p>
 <p>C) Non, elle nécessite du multi-turn</p>
 <p>D) Uniquement avec un custom_id</p>
 <hr>
-<p class="correct">Réponse : B) Oui, elle tourne la nuit, tolere le délai, et fonctionne avec un modèle de polling</p>
-<p><strong>Explication :</strong> L'analyse nocturne est le cas d'usage ideal de la Batch API : pas de contrainte de temps, economies de 50%, et le polling permet de recuperer les resultats au matin.</p>
+<p class="correct">Réponse : B) Oui, elle tourne la nuit, tolère le délai, et fonctionne avec un modèle de polling</p>
+<p><strong>Explication :</strong> L'analyse nocturne est le cas d'usage idéal de la Batch API : pas de contrainte de temps, économies de 50%, et le polling permet de récupérer les résultats au matin.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) L'analyse peut être concue comme une requête unique, pas interactive.</li>
+<li>A) L'analyse peut être conçue comme une requête unique, pas interactive.</li>
 <li>C) Une analyse bien structurée ne nécessite pas de multi-turn.</li>
 <li>D) Le custom_id est un paramètre, pas une condition — il est toujours disponible.</li>
 </ul>
@@ -929,41 +929,41 @@
 <details>
 <summary>Q41 (Claude Code) — Structure de sortie incorrecte</summary>
 <div>
-<p><strong>Situation :</strong> La structure de sortie d'une fonction ne correspond pas après 2 iterations.</p>
+<p><strong>Situation :</strong> La structure de sortie d'une fonction ne correspond pas après 2 itérations.</p>
 <p><strong>Question :</strong> Comment corriger efficacement ?</p>
 <p>A) Un prompt plus détaillé</p>
 <p>B) 2-3 exemples concrets input/output</p>
 <p>C) Une contrainte JSON schéma</p>
-<p>D) Recommencer de zero</p>
+<p>D) Recommencer de zéro</p>
 <hr>
 <p class="correct">Réponse : B) 2-3 exemples concrets input/output</p>
-<p><strong>Explication :</strong> Les exemples concrets montrent exactement la structure attendue de manière non ambigue. C'est plus efficace qu'une description textuelle qui peut être interprétée differemment.</p>
+<p><strong>Explication :</strong> Les exemples concrets montrent exactement la structure attendue de manière non ambiguë. C'est plus efficace qu'une description textuelle qui peut être interprétée différemment.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Un prompt plus détaillé peut ajouter de l'ambiguite plutot que la resoudre.</li>
+<li>A) Un prompt plus détaillé peut ajouter de l'ambiguïté plutôt que la résoudre.</li>
 <li>C) Un JSON schéma est utile pour les API responses mais pas pour le format de sortie de code.</li>
-<li>D) Recommencer de zero perd le travail déjà fait et ne garantit pas un meilleur resultat.</li>
+<li>D) Recommencer de zéro perd le travail déjà fait et ne garantit pas un meilleur résultat.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q42 (Claude Code) — Exigences ambigues</summary>
+<summary>Q42 (Claude Code) — Exigences ambiguës</summary>
 <div>
-<p><strong>Situation :</strong> "Add Slack support" — webhooks vs bot tokens vs Slack Apps. Les exigences sont ambigues.</p>
-<p><strong>Question :</strong> Quelle approche est la plus appropriee ?</p>
+<p><strong>Situation :</strong> "Add Slack support" — webhooks vs bot tokens vs Slack Apps. Les exigences sont ambiguës.</p>
+<p><strong>Question :</strong> Quelle approche est la plus appropriée ?</p>
 <p>A) Execution directe avec webhooks</p>
 <p>B) Planning mode pour explorer les options</p>
-<p>C) Scaffolder une classe en differant la décision</p>
+<p>C) Scaffolder une classe en différant la décision</p>
 <p>D) Execution directe avec bot token</p>
 <hr>
 <p class="correct">Réponse : B) Planning mode pour explorer les options</p>
-<p><strong>Explication :</strong> Quand les exigences sont ambigues et qu'il y a plusieurs approches possibles, le planning mode permet d'explorer les options, comprendre les tradeoffs et choisir la bonne approche avant de coder.</p>
+<p><strong>Explication :</strong> Quand les exigences sont ambiguës et qu'il y a plusieurs approches possibles, le planning mode permet d'explorer les options, comprendre les tradeoffs et choisir la bonne approche avant de coder.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Choisir les webhooks sans analyse présuppose le bon choix.</li>
-<li>C) Un scaffold ne résout pas l'ambiguite — il la reporte.</li>
-<li>D) Choisir le bot token sans analyse est tout aussi presomptif.</li>
+<li>C) Un scaffold ne résout pas l'ambiguïté — il la reporte.</li>
+<li>D) Choisir le bot token sans analyse est tout aussi présomptif.</li>
 </ul>
 </div>
 </details>
@@ -971,20 +971,20 @@
 <details>
 <summary>Q43 (Claude Code) — CLAUDE.md trop long</summary>
 <div>
-<p><strong>Situation :</strong> Le fichier <code>CLAUDE.md</code> à dépasse 500 lignes en melangeant différents sujets.</p>
-<p><strong>Question :</strong> Comment reorganiser ?</p>
-<p>A) Decouper en fichiers dans <code>.claude/rules/</code> par theme</p>
-<p>B) Reduire à l'essentiel</p>
+<p><strong>Situation :</strong> Le fichier <code>CLAUDE.md</code> a dépassé 500 lignes en mélangeant différents sujets.</p>
+<p><strong>Question :</strong> Comment réorganiser ?</p>
+<p>A) Découper en fichiers dans <code>.claude/rules/</code> par thème</p>
+<p>B) Réduire à l'essentiel</p>
 <p>C) Migrer vers un wiki externe</p>
-<p>D) Utiliser des références <code>@path</code> vers des fichiers par theme</p>
+<p>D) Utiliser des références <code>@path</code> vers des fichiers par thème</p>
 <hr>
-<p class="correct">Réponse : A) Decouper en fichiers dans .claude/rules/ par theme</p>
-<p><strong>Explication :</strong> Les fichiers dans <code>.claude/rules/</code> permettent de segmenter les instructions par theme avec un chargement conditionnel via YAML frontmatter et glob patterns.</p>
+<p class="correct">Réponse : A) Découper en fichiers dans .claude/rules/ par thème</p>
+<p><strong>Explication :</strong> Les fichiers dans <code>.claude/rules/</code> permettent de segmenter les instructions par thème avec un chargement conditionnel via YAML frontmatter et glob patterns.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Reduire risque de perdre des instructions importantes.</li>
+<li>B) Réduire risque de perdre des instructions importantes.</li>
 <li>C) Un wiki externe n'est pas accessible par Claude Code automatiquement.</li>
-<li>D) Les références <code>@path</code> peuvent fonctionner mais ne beneficient pas du chargement conditionnel automatique.</li>
+<li>D) Les références <code>@path</code> peuvent fonctionner mais ne bénéficient pas du chargement conditionnel automatique.</li>
 </ul>
 </div>
 </details>
@@ -995,17 +995,17 @@
 <p><strong>Situation :</strong> Restructurer un monolithe en microservices (dizaines de fichiers).</p>
 <p><strong>Question :</strong> Quelle approche ?</p>
 <p>A) Planning mode</p>
-<p>B) Execution directe incrementale</p>
+<p>B) Execution directe incrémentale</p>
 <p>C) Execution directe avec instructions détaillées</p>
-<p>D) Execution directe puis planning quand ca se complique</p>
+<p>D) Execution directe puis planning quand ça se complique</p>
 <hr>
 <p class="correct">Réponse : A) Planning mode</p>
-<p><strong>Explication :</strong> Meme logique que Q5 : changements a grande échelle + décisions architecturales = planning mode en premier.</p>
+<p><strong>Explication :</strong> Même logique que Q5 : changements à grande échelle + décisions architecturales = planning mode en premier.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Risque de rework sans vision d'ensemble.</li>
-<li>C) Presuppose une structure connue à l'avance.</li>
-<li>D) Approche reactive — on decouvre les problèmes trop tard.</li>
+<li>C) Présuppose une structure connue à l'avance.</li>
+<li>D) Approche réactive — on découvre les problèmes trop tard.</li>
 </ul>
 </div>
 </details>
@@ -1017,16 +1017,16 @@
 <p><strong>Question :</strong> Comment isoler le contexte du skill ?</p>
 <p>A) Utiliser <code>context: fork</code> dans le YAML frontmatter du skill</p>
 <p>B) Exécuter <code>/compact</code> après</p>
-<p>C) Reduire le nombre d'outils</p>
-<p>D) Decouper en skills plus petits</p>
+<p>C) Réduire le nombre d'outils</p>
+<p>D) Découper en skills plus petits</p>
 <hr>
 <p class="correct">Réponse : A) Utiliser context: fork dans le YAML frontmatter du skill</p>
-<p><strong>Explication :</strong> L'option <code>context: fork</code> cree un fork du contexte pour l'exécution du skill, empechant la pollution du contexte principal de la conversation.</p>
+<p><strong>Explication :</strong> L'option <code>context: fork</code> crée un fork du contexte pour l'exécution du skill, empêchant la pollution du contexte principal de la conversation.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) <code>/compact</code> réduit le contexte mais ne previent pas la pollution.</li>
-<li>C) Reduire les outils ne résout pas la pollution de contexte par les resultats du skill.</li>
-<li>D) Des skills plus petits polluent moins individuellement mais ne resolvent pas le problème fondamental.</li>
+<li>B) <code>/compact</code> réduit le contexte mais ne prévient pas la pollution.</li>
+<li>C) Réduire les outils ne résout pas la pollution de contexte par les résultats du skill.</li>
+<li>D) Des skills plus petits polluent moins individuellement mais ne résolvent pas le problème fondamental.</li>
 </ul>
 </div>
 </details>
@@ -1034,20 +1034,20 @@
 <details>
 <summary>Q46 (Claude Code) — Skill personnel vs équipe</summary>
 <div>
-<p><strong>Situation :</strong> Un développeur veut un style de commit personnel mais l'équipe a un skill <code>/commit</code> partage.</p>
+<p><strong>Situation :</strong> Un développeur veut un style de commit personnel mais l'équipe a un skill <code>/commit</code> partagé.</p>
 <p><strong>Question :</strong> Comment le développeur peut-il avoir son propre style ?</p>
 <p>A) Un skill personnel dans <code>~/.claude/skills/</code> avec un nom différent (ex: <code>/my-commit</code>)</p>
 <p>B) Ajouter une logique conditionnelle dans le skill du projet</p>
-<p>C) Utiliser le même nom dans le repertoire personnel</p>
+<p>C) Utiliser le même nom dans le répertoire personnel</p>
 <p>D) Ajouter <code>override: true</code></p>
 <hr>
 <p class="correct">Réponse : A) Un skill personnel dans ~/.claude/skills/ avec un nom différent (ex: /my-commit)</p>
-<p><strong>Explication :</strong> Les skills personnels dans <code>~/.claude/skills/</code> sont prives et n'affectent pas l'équipe. Un nom différent évite tout conflit avec le skill partage.</p>
+<p><strong>Explication :</strong> Les skills personnels dans <code>~/.claude/skills/</code> sont privés et n'affectent pas l'équipe. Un nom différent évite tout conflit avec le skill partagé.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) La logique conditionnelle complique le skill partage pour un besoin individuel.</li>
-<li>C) Le même nom creerait un conflit de priorite imprevisible.</li>
-<li>D) <code>override: true</code> n'est pas un mécanisme documente pour les skills.</li>
+<li>B) La logique conditionnelle complique le skill partagé pour un besoin individuel.</li>
+<li>C) Le même nom créerait un conflit de priorité imprévisible.</li>
+<li>D) <code>override: true</code> n'est pas un mécanisme documenté pour les skills.</li>
 </ul>
 </div>
 </details>
@@ -1058,17 +1058,17 @@
 <p><strong>Situation :</strong> Trois développeurs ont "comprehensive error handling" mais un nouveau n'a pas ce comportement.</p>
 <p><strong>Question :</strong> Pourquoi le nouveau développeur n'a pas cette instruction ?</p>
 <p>A) L'instruction est dans <code>~/.claude/CLAUDE.md</code> (personnel) et non dans <code>.claude/CLAUDE.md</code> (projet)</p>
-<p>B) Le nouveau à des instructions conflictuelles</p>
+<p>B) Le nouveau a des instructions conflictuelles</p>
 <p>C) Claude apprend par utilisateur</p>
-<p>D) Un redemarrage est nécessaire</p>
+<p>D) Un redémarrage est nécessaire</p>
 <hr>
 <p class="correct">Réponse : A) L'instruction est dans ~/.claude/CLAUDE.md (personnel) et non dans .claude/CLAUDE.md (projet)</p>
-<p><strong>Explication :</strong> Les fichiers dans <code>~/.claude/</code> sont personnels à chaque développeur. Si l'instruction est la plutot que dans le projet, le nouveau développeur ne l'a pas. La solution : deplacer l'instruction dans <code>.claude/CLAUDE.md</code> du projet.</p>
+<p><strong>Explication :</strong> Les fichiers dans <code>~/.claude/</code> sont personnels à chaque développeur. Si l'instruction est là plutôt que dans le projet, le nouveau développeur ne l'a pas. La solution : déplacer l'instruction dans <code>.claude/CLAUDE.md</code> du projet.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Pas d'indication d'instructions conflictuelles.</li>
 <li>C) Claude ne maintient pas de profil par utilisateur entre les sessions.</li>
-<li>D) Un redemarrage ne resoudrait pas un problème de configuration manquante.</li>
+<li>D) Un redémarrage ne résoudrait pas un problème de configuration manquante.</li>
 </ul>
 </div>
 </details>
@@ -1077,19 +1077,19 @@
 <summary>Q48 (Claude Code) — 100+ endpoints REST identiques</summary>
 <div>
 <p><strong>Situation :</strong> 100+ REST endpoints suivent tous le même pattern.</p>
-<p><strong>Question :</strong> Quelle approche pour génèrer chaque endpoint efficacement ?</p>
+<p><strong>Question :</strong> Quelle approche pour générer chaque endpoint efficacement ?</p>
 <p>A) Inclure tous les exemples dans <code>CLAUDE.md</code></p>
 <p>B) Utiliser le planning mode pour chaque endpoint</p>
 <p>C) Un template dans le system prompt</p>
-<p>D) Un skill référncant les exemples d'endpoints, invoque à lademande</p>
+<p>D) Un skill référençant les exemples d'endpoints, invoqué à la demande</p>
 <hr>
-<p class="correct">Réponse : D) Un skill référncant les exemples d'endpoints, invoque à lademande</p>
-<p><strong>Explication :</strong> Un skill est charge uniquement quand invoque, évitant de surcharger le contexte. Il peut référncer des exemples de pattern et être reutilise pour chaque endpoint.</p>
+<p class="correct">Réponse : D) Un skill référençant les exemples d'endpoints, invoqué à la demande</p>
+<p><strong>Explication :</strong> Un skill est chargé uniquement quand invoqué, évitant de surcharger le contexte. Il peut référencer des exemples de pattern et être réutilisé pour chaque endpoint.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) 100+ exemples dans <code>CLAUDE.md</code> surchargent le contexte en permanence.</li>
-<li>B) Le planning mode est excessif pour des taches repetitives suivant un pattern connu.</li>
-<li>C) Un template dans le system prompt est charge à chaque requête, même quand pas nécessaire.</li>
+<li>B) Le planning mode est excessif pour des tâches répétitives suivant un pattern connu.</li>
+<li>C) Un template dans le system prompt est chargé à chaque requête, même quand pas nécessaire.</li>
 </ul>
 </div>
 </details>
@@ -1097,20 +1097,20 @@
 <details>
 <summary>Q49 (Claude Code) — Skill de migration à corriger</summary>
 <div>
-<p><strong>Situation :</strong> Le skill <code>/migration</code> a trois problèmes : (1) les devs l'exécutent sans arguments, (2) il utilise le schéma de conversations precedentes, (3) il fait un cleanup destructif des tests.</p>
-<p><strong>Question :</strong> Comment corriger les trois problèmes simultanement ?</p>
-<p>A) Parametres positionnels + références schéma + avertissement</p>
+<p><strong>Situation :</strong> Le skill <code>/migration</code> a trois problèmes : (1) les devs l'exécutent sans arguments, (2) il utilise le schéma de conversations précédentes, (3) il fait un cleanup destructif des tests.</p>
+<p><strong>Question :</strong> Comment corriger les trois problèmes simultanément ?</p>
+<p>A) Paramètres positionnels + références schéma + avertissement</p>
 <p>B) <code>argument-hint</code> + <code>context: fork</code> + restriction <code>allowed-tools</code></p>
-<p>C) Decouper en deux skills</p>
+<p>C) Découper en deux skills</p>
 <p>D) Validation + extraction schéma + prompt de confirmation</p>
 <hr>
 <p class="correct">Réponse : B) argument-hint + context: fork + restriction allowed-tools</p>
-<p><strong>Explication :</strong> <code>argument-hint</code> guide les devs sur les paramètres requis (problème 1). <code>context: fork</code> isole le contexte pour éviter le schéma residuel (problème 2). <code>allowed-tools</code> restreint les outils disponibles pour empecher le cleanup destructif (problème 3).</p>
+<p><strong>Explication :</strong> <code>argument-hint</code> guide les devs sur les paramètres requis (problème 1). <code>context: fork</code> isole le contexte pour éviter le schéma résiduel (problème 2). <code>allowed-tools</code> restreint les outils disponibles pour empêcher le cleanup destructif (problème 3).</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Les paramètres positionnels et avertissements ne sont pas des mécanismes natifs des skills Claude Code.</li>
-<li>C) Decouper en deux skills ne résout pas les problèmes d'arguments manquants et de contexte residuel.</li>
-<li>D) La validation et le prompt de confirmation ne sont pas des fonctionnalites du YAML frontmatter.</li>
+<li>C) Découper en deux skills ne résout pas les problèmes d'arguments manquants et de contexte résiduel.</li>
+<li>D) La validation et le prompt de confirmation ne sont pas des fonctionnalités du YAML frontmatter.</li>
 </ul>
 </div>
 </details>
@@ -1118,20 +1118,20 @@
 <details>
 <summary>Q50 (Claude Code) — Conventions différentes par zone (bis)</summary>
 <div>
-<p><strong>Situation :</strong> Conventions différentes pour React, API et database. Tests disperses dans le codebase.</p>
-<p><strong>Question :</strong> Comment appliquer des regles contextuelles ?</p>
+<p><strong>Situation :</strong> Conventions différentes pour React, API et database. Tests dispersés dans le codebase.</p>
+<p><strong>Question :</strong> Comment appliquer des règles contextuelles ?</p>
 <p>A) <code>.claude/rules/</code> avec glob patterns</p>
 <p>B) <code>CLAUDE.md</code> racine</p>
 <p>C) Skills</p>
-<p>D) <code>CLAUDE.md</code> par repertoire</p>
+<p>D) <code>CLAUDE.md</code> par répertoire</p>
 <hr>
 <p class="correct">Réponse : A) .claude/rules/ avec glob patterns</p>
-<p><strong>Explication :</strong> Meme logique que Q6 : les glob patterns dans le YAML frontmatter permettent un chargement conditionnel automatique, ideal pour des conventions variees et des tests disperses.</p>
+<p><strong>Explication :</strong> Même logique que Q6 : les glob patterns dans le YAML frontmatter permettent un chargement conditionnel automatique, idéal pour des conventions variées et des tests dispersés.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Le <code>CLAUDE.md</code> racine charge tout sans discrimination.</li>
 <li>C) Les skills sont manuels / on-demand.</li>
-<li>D) Un <code>CLAUDE.md</code> par repertoire ne couvre pas les fichiers disperses.</li>
+<li>D) Un <code>CLAUDE.md</code> par répertoire ne couvre pas les fichiers dispersés.</li>
 </ul>
 </div>
 </details>
@@ -1139,18 +1139,18 @@
 <details>
 <summary>Q51 (Claude Code) — Commande /review pour l'équipe (bis)</summary>
 <div>
-<p><strong>Situation :</strong> Besoin d'une commande <code>/review</code> personnalisee pour toute l'équipe.</p>
-<p><strong>Question :</strong> Ou la placer ?</p>
+<p><strong>Situation :</strong> Besoin d'une commande <code>/review</code> personnalisée pour toute l'équipe.</p>
+<p><strong>Question :</strong> Où la placer ?</p>
 <p>A) <code>~/.claude/commands/</code></p>
 <p>B) <code>.claude/commands/</code> dans le repository du projet</p>
 <p>C) <code>.claude/config.json</code></p>
 <p>D) <code>CLAUDE.md</code> racine</p>
 <hr>
 <p class="correct">Réponse : B) .claude/commands/ dans le repository du projet</p>
-<p><strong>Explication :</strong> Meme logique que Q4 : les commandes dans <code>.claude/commands/</code> du projet sont versionnees et partagees avec l'équipe.</p>
+<p><strong>Explication :</strong> Même logique que Q4 : les commandes dans <code>.claude/commands/</code> du projet sont versionnées et partagées avec l'équipe.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) <code>~/.claude/commands/</code> est personnel, pas partage.</li>
+<li>A) <code>~/.claude/commands/</code> est personnel, pas partagé.</li>
 <li>C) <code>.claude/config.json</code> n'est pas prévu pour les commandes.</li>
 <li>D) Le <code>CLAUDE.md</code> sert aux instructions, pas aux commandes.</li>
 </ul>
@@ -1158,22 +1158,22 @@
 </details>
 
 <details>
-<summary>Q52 (Claude Code) — CLAUDE.md au-dela de 500 lignes (bis)</summary>
+<summary>Q52 (Claude Code) — CLAUDE.md au-delà de 500 lignes (bis)</summary>
 <div>
-<p><strong>Situation :</strong> Le <code>CLAUDE.md</code> à dépasse 500 lignes.</p>
-<p><strong>Question :</strong> Comment reorganiser ?</p>
-<p>A) Decouper dans <code>.claude/rules/</code> par theme</p>
+<p><strong>Situation :</strong> Le <code>CLAUDE.md</code> a dépassé 500 lignes.</p>
+<p><strong>Question :</strong> Comment réorganiser ?</p>
+<p>A) Découper dans <code>.claude/rules/</code> par thème</p>
 <p>B) Supprimer le non-essentiel</p>
 <p>C) Migrer vers des docs externes</p>
 <p>D) Garder un seul fichier avec des headers</p>
 <hr>
-<p class="correct">Réponse : A) Decouper dans .claude/rules/ par theme</p>
-<p><strong>Explication :</strong> Meme logique que Q43 : <code>.claude/rules/</code> permet un decoupage thematique avec chargement conditionnel, sans perdre d'instructions.</p>
+<p class="correct">Réponse : A) Decouper dans .claude/rules/ par thème</p>
+<p><strong>Explication :</strong> Même logique que Q43 : <code>.claude/rules/</code> permet un découpage thématique avec chargement conditionnel, sans perdre d'instructions.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Supprimer risque de perdre des instructions utiles.</li>
 <li>C) Les docs externes ne sont pas automatiquement accessibles par Claude Code.</li>
-<li>D) Un seul fichier de 500+ lignes reste difficile a maintenir et surcharge le contexte.</li>
+<li>D) Un seul fichier de 500+ lignes reste difficile à maintenir et surcharge le contexte.</li>
 </ul>
 </div>
 </details>
@@ -1186,19 +1186,19 @@
 <summary>Q53 (Customer Support) — Confusion entre outils (bis)</summary>
 <div>
 <p><strong>Situation :</strong> L'agent appelle <code>get_customer</code> pour les questions de commandes. Les tool descriptions sont similaires.</p>
-<p><strong>Question :</strong> Comment corriger la selection d'outils ?</p>
+<p><strong>Question :</strong> Comment corriger la sélection d'outils ?</p>
 <p>A) Un routing layer</p>
 <p>B) Enrichir les descriptions avec formats, exemples et boundaries</p>
 <p>C) Des few-shot examples</p>
 <p>D) Combiner les outils</p>
 <hr>
 <p class="correct">Réponse : B) Enrichir les descriptions avec formats, exemples et boundaries</p>
-<p><strong>Explication :</strong> Meme logique que Q2 : les tool descriptions sont le mécanisme principal. Des descriptions détaillées avec input formats, examples et boundaries resolvent l'ambiguite.</p>
+<p><strong>Explication :</strong> Même logique que Q2 : les tool descriptions sont le mécanisme principal. Des descriptions détaillées avec input formats, examples et boundaries résolvent l'ambiguïté.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Un routing layer est du overengineering.</li>
 <li>C) Les few-shot examples ne corrigent pas la cause racine.</li>
-<li>D) Combiner les outils réduit la granularite et demande plus d'effort.</li>
+<li>D) Combiner les outils réduit la granularité et demande plus d'effort.</li>
 </ul>
 </div>
 </details>
@@ -1206,9 +1206,9 @@
 <details>
 <summary>Q54 (Customer Support) — Messages multi-problèmes</summary>
 <div>
-<p><strong>Situation :</strong> Les messages contenant plusieurs problèmes (remboursement + changement d'adresse) font chuter la precision de 94% a 58%.</p>
+<p><strong>Situation :</strong> Les messages contenant plusieurs problèmes (remboursement + changement d'adresse) font chuter la précision de 94% à 58%.</p>
 <p><strong>Question :</strong> Comment améliorer le traitement des messages multi-problèmes ?</p>
-<p>A) Une couche de preprocessing pour decomposer</p>
+<p>A) Une couche de preprocessing pour décomposer</p>
 <p>B) Combiner les outils</p>
 <p>C) Des few-shot examples montrant le traitement de messages multi-problèmes</p>
 <p>D) Une validation de réponse</p>
@@ -1217,9 +1217,9 @@
 <p><strong>Explication :</strong> Les few-shot examples montrent explicitement comment identifier et traiter chaque problème dans un message complexe, sans ajouter de composant d'infrastructure.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Une couche de preprocessing ajoute de la complexite d'infrastructure.</li>
-<li>B) Combiner les outils ne résout pas le problème de detection de multiples issues.</li>
-<li>D) La validation de réponse détecte les erreurs après coup mais ne les previent pas.</li>
+<li>A) Une couche de preprocessing ajoute de la complexité d'infrastructure.</li>
+<li>B) Combiner les outils ne résout pas le problème de détection de multiples issues.</li>
+<li>D) La validation de réponse détecte les erreurs après coup mais ne les prévient pas.</li>
 </ul>
 </div>
 </details>
@@ -1227,8 +1227,8 @@
 <details>
 <summary>Q55 (Customer Support) — Trop de boucles API</summary>
 <div>
-<p><strong>Situation :</strong> Les requêtes simples prennent 3-4 boucles API. <code>get_customer</code> et <code>lookup_order</code> sont appeles sequentiellement.</p>
-<p><strong>Question :</strong> Comment reduire le nombre de boucles ?</p>
+<p><strong>Situation :</strong> Les requêtes simples prennent 3-4 boucles API. <code>get_customer</code> et <code>lookup_order</code> sont appelés séquentiellement.</p>
+<p><strong>Question :</strong> Comment réduire le nombre de boucles ?</p>
 <p>A) Speculative exécution</p>
 <p>B) Augmenter <code>max_tokens</code></p>
 <p>C) Un composite tool</p>
@@ -1238,15 +1238,15 @@
 <p><strong>Explication :</strong> Instruire le modèle à appeler plusieurs outils dans un seul tour (parallel tool use) réduit les allers-retours API sans modifier l'infrastructure. Si les appels sont **dépendants** (ex. lookup_order a besoin de l'ID vérifié de get_customer), ils ne peuvent pas être parallélisés ; ici on suppose des appels **indépendants**.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) La speculative exécution est plus complexe et non documentee pour ce cas d'usage.</li>
+<li>A) La speculative exécution est plus complexe et non documentée pour ce cas d'usage.</li>
 <li>B) <code>max_tokens</code> contrôle la longueur de la réponse, pas le nombre de tool calls.</li>
-<li>C) Un composite tool fusionne des responsabilites distinctes.</li>
+<li>C) Un composite tool fusionne des responsabilités distinctes.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q56 (Customer Support) — Etape sautee (bis)</summary>
+<summary>Q56 (Customer Support) — Étape sautée (bis)</summary>
 <div>
 <p><strong>Situation :</strong> L'agent saute <code>get_customer</code> dans 12% des cas, causant des remboursements incorrects.</p>
 <p><strong>Question :</strong> Quelle solution garantit le respect de l'ordre ?</p>
@@ -1256,12 +1256,12 @@
 <p>D) Renforcer le prompt</p>
 <hr>
 <p class="correct">Réponse : C) Une précondition programmatique</p>
-<p><strong>Explication :</strong> Meme logique que Q1 : consequences financieres = enforcement déterministe. Un contrôle programmatique bloque <code>lookup_order</code> tant que <code>get_customer</code> n'a pas retourné un ID vérifié.</p>
+<p><strong>Explication :</strong> Même logique que Q1 : conséquences financières = enforcement déterministe. Un contrôle programmatique bloque <code>lookup_order</code> tant que <code>get_customer</code> n'a pas retourné un ID vérifié.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Les few-shot examples sont probabilistes.</li>
 <li>B) Un routing classifier n'adresse pas l'ordre d'exécution.</li>
-<li>D) Le prompt est probabiliste — 12% d'échec le demontre.</li>
+<li>D) Le prompt est probabiliste — 12% d'échec le démontre.</li>
 </ul>
 </div>
 </details>
@@ -1269,8 +1269,8 @@
 <details>
 <summary>Q57 (Customer Support) — Explications inconsistantes</summary>
 <div>
-<p><strong>Situation :</strong> Pour les litiges de facturation complexes, l'agent trouve les bonnes solutions mais la satisfaction est basse. L'agent n'explique pas systematiquement son raisonnement.</p>
-<p><strong>Question :</strong> Comment améliorer la qualite des explications ?</p>
+<p><strong>Situation :</strong> Pour les litiges de facturation complexes, l'agent trouve les bonnes solutions mais la satisfaction est basse. L'agent n'explique pas systématiquement son raisonnement.</p>
+<p><strong>Question :</strong> Comment améliorer la qualité des explications ?</p>
 <p>A) Des few-shot examples avec des étapes de raisonnement explicites + un format d'explication</p>
 <p>B) Un prompt d'empathie</p>
 <p>C) Un template de réponse</p>
@@ -1280,8 +1280,8 @@
 <p><strong>Explication :</strong> Les few-shot examples montrent le pattern attendu : raisonnement étape par étape + explication claire. Le modèle reproduit ce format pour les cas similaires.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) L'empathie seule ne résout pas le manque de raisonnement structure.</li>
-<li>C) Un template rigide ne s'adapte pas à lavariete des cas.</li>
+<li>B) L'empathie seule ne résout pas le manque de raisonnement structuré.</li>
+<li>C) Un template rigide ne s'adapte pas à la variété des cas.</li>
 <li>D) Un humain sur tous les cas complexes ne passe pas à l'échelle.</li>
 </ul>
 </div>
@@ -1290,20 +1290,20 @@
 <details>
 <summary>Q58 (Customer Support) — Montants perdus dans la summarization</summary>
 <div>
-<p><strong>Situation :</strong> Des montants spécifiques mentionnes 20+ tours plus tot sont perdus lors de la summarization de la conversation.</p>
-<p><strong>Question :</strong> Comment preserver ces informations critiques ?</p>
+<p><strong>Situation :</strong> Des montants spécifiques mentionnés 20+ tours plus tôt sont perdus lors de la summarization de la conversation.</p>
+<p><strong>Question :</strong> Comment préserver ces informations critiques ?</p>
 <p>A) Augmenter le context window</p>
 <p>B) Un bloc case facts maintenu tout au long de la conversation</p>
 <p>C) Utiliser <code>/compact</code> moins souvent</p>
 <p>D) Des few-shot examples</p>
 <hr>
 <p class="correct">Réponse : B) Un bloc case facts maintenu tout au long de la conversation</p>
-<p><strong>Explication :</strong> Un case facts block est une structure de donnees persistante qui extrait et conserve les informations critiques (montants, dates, IDs) independamment de la summarization.</p>
+<p><strong>Explication :</strong> Un case facts block est une structure de données persistante qui extrait et conserve les informations critiques (montants, dates, IDs) indépendamment de la summarization.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Un context window plus grand ne previent pas la perte lors de la summarization.</li>
-<li>C) Utiliser <code>/compact</code> moins souvent retarde le problème sans le resoudre.</li>
-<li>D) Les few-shot examples montrent un format mais ne preservent pas les donnees factuelles.</li>
+<li>A) Un context window plus grand ne prévient pas la perte lors de la summarization.</li>
+<li>C) Utiliser <code>/compact</code> moins souvent retarde le problème sans le résoudre.</li>
+<li>D) Les few-shot examples montrent un format mais ne préservent pas les données factuelles.</li>
 </ul>
 </div>
 </details>
@@ -1315,16 +1315,16 @@
 <p><strong>Question :</strong> Que doit faire l'agent ?</p>
 <p>A) Un scoring de confidence</p>
 <p>B) Demander un identifiant supplémentaire au client</p>
-<p>C) Retourner le resultat le plus probable</p>
+<p>C) Retourner le résultat le plus probable</p>
 <p>D) Des few-shot examples</p>
 <hr>
 <p class="correct">Réponse : B) Demander un identifiant supplémentaire au client</p>
-<p><strong>Explication :</strong> Quand il y a ambiguite, demander une information supplémentaire (email, numero de commande) est la méthode la plus sure pour identifier le bon client.</p>
+<p><strong>Explication :</strong> Quand il y a ambiguïté, demander une information supplémentaire (email, numéro de commande) est la méthode la plus sûre pour identifier le bon client.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Le scoring de confidence risque de choisir le mauvais client.</li>
 <li>C) Retourner le "plus probable" sans vérification peut causer des erreurs.</li>
-<li>D) Les few-shot examples montrent un pattern mais ne resolvent pas l'ambiguite factuelle.</li>
+<li>D) Les few-shot examples montrent un pattern mais ne résolvent pas l'ambiguïté factuelle.</li>
 </ul>
 </div>
 </details>
@@ -1332,10 +1332,10 @@
 <details>
 <summary>Q60 (Customer Support) — Association mot-clé / outil</summary>
 <div>
-<p><strong>Situation :</strong> Le mot "account" déclenche <code>get_customer</code> a 78%, sans "account" déclenche <code>lookup_order</code> a 93%. Les tool descriptions sont claires et non ambigues.</p>
+<p><strong>Situation :</strong> Le mot "account" déclenche <code>get_customer</code> à 78%, sans "account" déclenche <code>lookup_order</code> à 93%. Les tool descriptions sont claires et non ambiguës.</p>
 <p><strong>Question :</strong> Quelle est la cause la plus probable ?</p>
-<p>A) Le system prompt contient des instructions sensibles aux mots-clés creant des associations d'outils non intentionnelles</p>
-<p>B) Un biais des donnees d'entrainement</p>
+<p>A) Le system prompt contient des instructions sensibles aux mots-clés créant des associations d'outils non intentionnelles</p>
+<p>B) Un biais des données d'entraînement</p>
 <p>C) Le nom de l'outil</p>
 <p>D) La longueur du message</p>
 <hr>
@@ -1343,9 +1343,9 @@
 <p><strong>Explication :</strong> Si les descriptions sont claires, le biais vient probablement (hypothèse la plus probable par élimination) du system prompt qui associe certains mots-clés à certains outils (ex: "when user mentions account, use get_customer").</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Le biais d'entrainement ne causerait pas un pattern aussi spécifique a un mot-clé.</li>
+<li>B) Le biais d'entraînement ne causerait pas un pattern aussi spécifique à un mot-clé.</li>
 <li>C) Le nom de l'outil pourrait avoir un effet mais est secondaire par rapport au system prompt.</li>
-<li>D) La longueur du message n'a pas de correlation avec la selection d'outils.</li>
+<li>D) La longueur du message n'a pas de corrélation avec la sélection d'outils.</li>
 </ul>
 </div>
 </details>
@@ -1361,11 +1361,11 @@
 <p>D) Enrichir les descriptions avec formats, exemples et boundaries</p>
 <hr>
 <p class="correct">Réponse : D) Enrichir les descriptions avec formats, exemples et boundaries</p>
-<p><strong>Explication :</strong> Meme logique que Q2/Q53 : les descriptions sont le mécanisme principal de selection. Des descriptions riches resolvent l'ambiguite directement.</p>
+<p><strong>Explication :</strong> Même logique que Q2/Q53 : les descriptions sont le mécanisme principal de sélection. Des descriptions riches résolvent l'ambiguïté directement.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Un routing layer est du overengineering.</li>
-<li>B) Combiner les outils réduit la granularite.</li>
+<li>B) Combiner les outils réduit la granularité.</li>
 <li>C) Les few-shot examples ne corrigent pas la cause racine.</li>
 </ul>
 </div>
@@ -1374,20 +1374,20 @@
 <details>
 <summary>Q62 (Customer Support) — Controle de la boucle agentique</summary>
 <div>
-<p><strong>Situation :</strong> Comment determiner si la boucle agentique doit continuer ou s'arreter ?</p>
+<p><strong>Situation :</strong> Comment déterminer si la boucle agentique doit continuer ou s'arrêter ?</p>
 <p><strong>Question :</strong> Quel mécanisme contrôle la continuation de la boucle ?</p>
-<p>A) Verifier <code>stop_reason</code> : <code>tool_use</code> → continuer, <code>end_turn</code> → arreter</p>
+<p>A) Vérifier <code>stop_reason</code> : <code>tool_use</code> → continuer, <code>end_turn</code> → arrêter</p>
 <p>B) Parser le texte de la réponse</p>
-<p>C) Une limite d'iterations</p>
-<p>D) Verifier la presence de contenu texte</p>
+<p>C) Une limite d'itérations</p>
+<p>D) Vérifier la présence de contenu texte</p>
 <hr>
-<p class="correct">Réponse : A) Verifier stop_reason : tool_use → continuer, end_turn → arreter</p>
-<p><strong>Explication :</strong> Le champ <code>stop_reason</code> de l'API est le mécanisme officiel. <code>tool_use</code> signifie que le modèle veut appeler un outil (continuer la boucle), <code>end_turn</code> signifie qu'il a termine.</p>
+<p class="correct">Réponse : A) Verifier stop_reason : tool_use → continuer, end_turn → arrêter</p>
+<p><strong>Explication :</strong> Le champ <code>stop_reason</code> de l'API est le mécanisme officiel. <code>tool_use</code> signifie que le modèle veut appeler un outil (continuer la boucle), <code>end_turn</code> signifie qu'il a terminé.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Parser le texte est fragile et non fiable.</li>
-<li>C) Une limite d'iterations est un garde-fou supplémentaire, pas le mécanisme principal.</li>
-<li>D) La presence de texte ne détermine pas si la boucle doit continuer.</li>
+<li>C) Une limite d'itérations est un garde-fou supplémentaire, pas le mécanisme principal.</li>
+<li>D) La présence de texte ne détermine pas si la boucle doit continuer.</li>
 </ul>
 </div>
 </details>
@@ -1403,7 +1403,7 @@
 <p>D) Documenter les formats dans le prompt</p>
 <hr>
 <p class="correct">Réponse : A) Un PostToolUse hook</p>
-<p><strong>Explication :</strong> Un PostToolUse hook intercepte automatiquement les resultats de chaque outil et normalise les formats avant qu'ils n'atteignent le modèle. C'est transparent et systematique.</p>
+<p><strong>Explication :</strong> Un PostToolUse hook intercepte automatiquement les résultats de chaque outil et normalise les formats avant qu'ils n'atteignent le modèle. C'est transparent et systématique.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>B) Modifier les MCP tools peut ne pas être possible (outils tiers).</li>
@@ -1414,21 +1414,21 @@
 </details>
 
 <details>
-<summary>Q64 (Customer Support) — Few-shot pour la selection d'outils</summary>
+<summary>Q64 (Customer Support) — Few-shot pour la sélection d'outils</summary>
 <div>
-<p><strong>Situation :</strong> Il faut des few-shot examples pour la selection d'outils dans les cas ambigus comme "I need help with my recent purchase."</p>
+<p><strong>Situation :</strong> Il faut des few-shot examples pour la sélection d'outils dans les cas ambigus comme "I need help with my recent purchase."</p>
 <p><strong>Question :</strong> Quel format de few-shot est le plus efficace ?</p>
 <p>A) Des sections "use when" / "don't use when" dans les descriptions</p>
-<p>B) Des exemples avec INPUT montrant une requête ambigue similaire + le TOOL CHOICE correct + le RATIONALE</p>
+<p>B) Des exemples avec INPUT montrant une requête ambiguë similaire + le TOOL CHOICE correct + le RATIONALE</p>
 <p>C) Des exemples montrant uniquement le format de sortie</p>
 <p>D) Des exemples avec toutes les combinaisons d'outils possibles</p>
 <hr>
-<p class="correct">Réponse : B) Des exemples avec INPUT montrant une requête ambigue similaire + le TOOL CHOICE correct + le RATIONALE</p>
-<p><strong>Explication :</strong> Le triplet INPUT + TOOL CHOICE + RATIONALE montre au modèle comment raisonner face à l'ambiguite : quelle requête ressemble a quoi, quel outil choisir et pourquoi.</p>
+<p class="correct">Réponse : B) Des exemples avec INPUT montrant une requête ambiguë similaire + le TOOL CHOICE correct + le RATIONALE</p>
+<p><strong>Explication :</strong> Le triplet INPUT + TOOL CHOICE + RATIONALE montre au modèle comment raisonner face à l'ambiguïté : quelle requête ressemble à quoi, quel outil choisir et pourquoi.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Les sections "use when" / "don't use when" sont utiles dans les descriptions mais ne sont pas des few-shot examples.</li>
-<li>C) Le format de sortie ne montre pas le raisonnement de selection.</li>
+<li>C) Le format de sortie ne montre pas le raisonnement de sélection.</li>
 <li>D) Toutes les combinaisons ajoutent trop de tokens et de bruit.</li>
 </ul>
 </div>
@@ -1439,25 +1439,25 @@
 <!-- ============================================================ -->
 
 <div class="key-concept">
-<strong>Contexte du scénario :</strong> votre équipe d'ingenierie veut outiller les développeurs avec un agent qui les aide a naviguer le codebase, automatiser les taches repetitives, et integrer des serveurs MCP pour acceder aux outils internes (Jira, GitHub, base de donnees). L'objectif est de reduire le temps passe sur les taches a faible valeur ajoutee.
+<strong>Contexte du scénario :</strong> votre équipe d'ingénierie veut outiller les développeurs avec un agent qui les aide à naviguer le codebase, automatiser les tâches répétitives, et intégrer des serveurs MCP pour accéder aux outils internes (Jira, GitHub, base de données). L'objectif est de réduire le temps passé sur les tâches à faible valeur ajoutée.
 </div>
 
 <details>
-<summary>Q65 (Developer Productivity Tools) — Strategie d'investigation incrementale</summary>
+<summary>Q65 (Developer Productivity Tools) — Stratégie d'investigation incrémentale</summary>
 <div>
-<p><strong>Situation :</strong> un développeur demande a Claude Code "Comment fonctionne l'authentification dans ce monorepo ?". Le codebase contient 1200 fichiers. Quelle stratégie est la plus efficace pour Claude ?</p>
-<p>A) Lire tous les fichiers du repertoire <code>src/</code> avant de répondre</p>
-<p>B) Utiliser <code>Grep</code> pour trouver les points d'entree (auth, login, session), puis <code>Read</code> les fichiers identifiés, puis <code>Grep</code> les usages, puis <code>Read</code> les consommateurs (incremental investigation)</p>
+<p><strong>Situation :</strong> un développeur demande à Claude Code "Comment fonctionne l'authentification dans ce monorepo ?". Le codebase contient 1200 fichiers. Quelle stratégie est la plus efficace pour Claude ?</p>
+<p>A) Lire tous les fichiers du répertoire <code>src/</code> avant de répondre</p>
+<p>B) Utiliser <code>Grep</code> pour trouver les points d'entrée (auth, login, session), puis <code>Read</code> les fichiers identifiés, puis <code>Grep</code> les usages, puis <code>Read</code> les consommateurs (incremental investigation)</p>
 <p>C) Demander au développeur de lister les fichiers pertinents</p>
-<p>D) Charger le projet entier en context window et synthetiser</p>
+<p>D) Charger le projet entier en context window et synthétiser</p>
 <hr>
-<p class="correct">Réponse : B) Investigation incrementale Grep -&gt; Read -&gt; Grep -&gt; Read</p>
-<p><strong>Explication :</strong> c'est la stratégie recommandée dans D2 §5. Elle minimise le contexte consomme en ne lisant que les fichiers pertinents. <code>Grep</code> identifié les points d'entree, <code>Read</code> les charge, puis on cherche les usages — la comprehension se construit par couches.</p>
+<p class="correct">Réponse : B) Investigation incrémentale Grep -&gt; Read -&gt; Grep -&gt; Read</p>
+<p><strong>Explication :</strong> c'est la stratégie recommandée dans D2 §5. Elle minimise le contexte consommé en ne lisant que les fichiers pertinents. <code>Grep</code> identifie les points d'entrée, <code>Read</code> les charge, puis on cherche les usages — la compréhension se construit par couches.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Lire 1200 fichiers sature le contexte et noie l'information utile (lost-in-the-middle).</li>
-<li>C) Le développeur à demande a Claude précisement parce qu'il ne sait pas — c'est une non-réponse.</li>
-<li>D) Meme avec un grand context window, charger 1200 fichiers degrade la qualite du raisonnement.</li>
+<li>C) Le développeur a demandé à Claude précisément parce qu'il ne sait pas — c'est une non-réponse.</li>
+<li>D) Même avec un grand context window, charger 1200 fichiers dégrade la qualité du raisonnement.</li>
 </ul>
 </div>
 </details>
@@ -1465,18 +1465,18 @@
 <details>
 <summary>Q66 (Developer Productivity Tools) — Subagent Explore vs lecture directe</summary>
 <div>
-<p><strong>Situation :</strong> votre senior dev veut que Claude lui resume les dependances du module Payments avant de planifier une refonte. La sortie verbeuse de l'investigation (lecture de 18 fichiers) pollue le contexte de la session principale. Comment proceder ?</p>
+<p><strong>Situation :</strong> votre senior dev veut que Claude lui résume les dépendances du module Payments avant de planifier une refonte. La sortie verbeuse de l'investigation (lecture de 18 fichiers) pollue le contexte de la session principale. Comment procéder ?</p>
 <p>A) Faire la lecture en thread principal et accepter la pollution.</p>
-<p>B) Deleguer l'investigation a un Explore subagent qui retourne un résumé concis ; le contexte principal reste libre pour la phase de planification.</p>
+<p>B) Déléguer l'investigation à un Explore subagent qui retourne un résumé concis ; le contexte principal reste libre pour la phase de planification.</p>
 <p>C) Demander au dev de faire la lecture lui-même.</p>
 <p>D) Lancer <code>/compact</code> après chaque fichier lu.</p>
 <hr>
-<p class="correct">Réponse : B) Deleguer a un Explore subagent qui retourne un résumé</p>
-<p><strong>Explication :</strong> l'Explore subagent (D3 §4) isole la sortie verbeuse de la phase de decouverte. Le subagent lit les 18 fichiers dans son propre contexte et retourne un résumé concis ("Le module Payments depend de AuthService, OrderModel et de PaymentGateway"). Le contexte principal garde une ligne au lieu de 18 fichiers.</p>
+<p class="correct">Réponse : B) Déléguer à un Explore subagent qui retourne un résumé</p>
+<p><strong>Explication :</strong> l'Explore subagent (D3 §4) isole la sortie verbeuse de la phase de découverte. Le subagent lit les 18 fichiers dans son propre contexte et retourne un résumé concis ("Le module Payments dépend de AuthService, OrderModel et de PaymentGateway"). Le contexte principal garde une ligne au lieu de 18 fichiers.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) La pollution du contexte degrade la phase de planification qui suit.</li>
-<li>C) On annule l'intérêt de l'outil productivite.</li>
+<li>A) La pollution du contexte dégrade la phase de planification qui suit.</li>
+<li>C) On annule l'intérêt de l'outil productivité.</li>
 <li>D) <code>/compact</code> compresse mais perd les détails ; un subagent isole sans perte.</li>
 </ul>
 </div>
@@ -1487,12 +1487,12 @@
 <div>
 <p><strong>Situation :</strong> votre équipe exécute régulièrement une revue de PR avec un format spécifique : analyse sécurité + analyse performance + vérification de la couverture de tests. Vous voulez encapsuler ce workflow. Quelle approche choisir ?</p>
 <p>A) Slash command legacy dans <code>.claude/commands/review.md</code></p>
-<p>B) Skill projet dans <code>.claude/skills/pr-review/SKILL.md</code> avec frontmatter (<code>description</code> pour matching semantique, <code>context: fork</code> pour isolation, <code>allowed-tools</code> pour limiter les outils)</p>
+<p>B) Skill projet dans <code>.claude/skills/pr-review/SKILL.md</code> avec frontmatter (<code>description</code> pour matching sémantique, <code>context: fork</code> pour isolation, <code>allowed-tools</code> pour limiter les outils)</p>
 <p>C) Instruction dans <code>CLAUDE.md</code> qui liste les étapes</p>
 <p>D) Hook PostToolUse qui s'exécute après chaque PR</p>
 <hr>
 <p class="correct">Réponse : B) Skill projet avec SKILL.md frontmatter</p>
-<p><strong>Explication :</strong> les skills sont le format actuel et recommandé (D3 §2). Le frontmatter <code>description</code> permet le matching semantique (Claude active le skill quand il détecte le besoin), <code>context: fork</code> isole la verbosite de la revue dans un subagent, et <code>allowed-tools</code> restreint a Read/Grep/Glob/Bash.</p>
+<p><strong>Explication :</strong> les skills sont le format actuel et recommandé (D3 §2). Le frontmatter <code>description</code> permet le matching sémantique (Claude active le skill quand il détecte le besoin), <code>context: fork</code> isole la verbosité de la revue dans un subagent, et <code>allowed-tools</code> restreint à Read/Grep/Glob/Bash.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Slash commands sont legacy. Skills sont plus puissants.</li>
@@ -1503,16 +1503,16 @@
 </details>
 
 <details>
-<summary>Q68 (Developer Productivity Tools) — Configuration MCP partagee équipe</summary>
+<summary>Q68 (Developer Productivity Tools) — Configuration MCP partagée équipe</summary>
 <div>
 <p><strong>Situation :</strong> votre équipe veut que tous les développeurs aient accès aux mêmes serveurs MCP (Jira interne, GitHub, base PostgreSQL de dev). Chaque développeur doit utiliser ses propres credentials. Quelle approche ?</p>
-<p>A) Mettre les tokens en clair dans <code>.mcp.json</code> versionne</p>
-<p>B) Mettre la config des serveurs dans <code>.mcp.json</code> versionne avec syntaxe <code>${VAR}</code> pour les credentials, chaque développeur fournit ses variables d'environnement localement</p>
+<p>A) Mettre les tokens en clair dans <code>.mcp.json</code> versionné</p>
+<p>B) Mettre la config des serveurs dans <code>.mcp.json</code> versionné avec syntaxe <code>${VAR}</code> pour les credentials, chaque développeur fournit ses variables d'environnement localement</p>
 <p>C) Demander à chaque développeur de lancer <code>claude mcp add</code> pour chaque serveur (config user dans <code>~/.claude.json</code>)</p>
 <p>D) Stocker les credentials dans <code>.claude/settings.json</code></p>
 <hr>
-<p class="correct">Réponse : B) <code>.mcp.json</code> versionne + <code>${VAR}</code> pour les credentials</p>
-<p><strong>Explication :</strong> <code>.mcp.json</code> à laracine du projet est versionne et partage la <em>config</em> des serveurs avec l'équipe (D2 §4 et D3 §6 (HITL ou MCP CLI)). La syntaxe <code>${VAR}</code> résout les credentials au runtime depuis l'environnement de chaque développeur — chacun fournit son propre token, jamais commit.</p>
+<p class="correct">Réponse : B) <code>.mcp.json</code> versionné + <code>${VAR}</code> pour les credentials</p>
+<p><strong>Explication :</strong> <code>.mcp.json</code> à la racine du projet est versionné et partage la <em>config</em> des serveurs avec l'équipe (D2 §4 et D3 §6 (HITL ou MCP CLI)). La syntaxe <code>${VAR}</code> résout les credentials au runtime depuis l'environnement de chaque développeur — chacun fournit son propre token, jamais commit.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Anti-pattern absolu — l'historique Git retient les secrets même après suppression.</li>
@@ -1532,11 +1532,11 @@
 <p>D) <code>{"permissions": {"deny": ["Bash(rm:*)"]}}</code></p>
 <hr>
 <p class="correct">Réponse : B) Bash(npm test:*) + Bash(npm run test:*) + acceptEdits</p>
-<p><strong>Explication :</strong> la syntaxe <code>:*</code> autorisé <code>npm test</code> avec n'importe quels arguments (<code>--watch</code>, <code>--coverage</code>, etc.). On ajoute <code>npm run test:*</code> car certains projets exposent des scripts comme <code>npm run test:unit</code>. <code>defaultMode: acceptEdits</code> auto-accepte les editions sans toucher aux Bash.</p>
+<p><strong>Explication :</strong> la syntaxe <code>:*</code> autorise <code>npm test</code> avec n'importe quels arguments (<code>--watch</code>, <code>--coverage</code>, etc.). On ajoute <code>npm run test:*</code> car certains projets exposent des scripts comme <code>npm run test:unit</code>. <code>defaultMode: acceptEdits</code> auto-accepte les éditions sans toucher aux Bash.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Sans <code>:*</code>, seul <code>npm test</code> exact passe — <code>npm test --watch</code> declencherait une demande.</li>
-<li>C) <code>bypassPermissions</code> est dangereux — autorisé toute commande y compris destructrice.</li>
+<li>A) Sans <code>:*</code>, seul <code>npm test</code> exact passe — <code>npm test --watch</code> déclencherait une demande.</li>
+<li>C) <code>bypassPermissions</code> est dangereux — autorise toute commande y compris destructrice.</li>
 <li>D) Bloque <code>rm</code> mais ne résout pas le problème des tests.</li>
 </ul>
 </div>
@@ -1545,19 +1545,19 @@
 <details>
 <summary>Q70 (Developer Productivity Tools) — Outils Built-in vs MCP : disambiguation</summary>
 <div>
-<p><strong>Situation :</strong> vous avez configure un serveur MCP "internal-search" qui indexe les wikis et docs internes. Mais Claude appelle systematiquement <code>WebFetch</code> pour rechercher de l'info, ignorant le serveur MCP. Pourquoi et comment fixer ?</p>
-<p>A) Le serveur MCP est mal configure — vérifier <code>.mcp.json</code></p>
-<p>B) Les agents préférnt les built-in tools — renforcer la <code>description</code> du tool MCP en soulignant les avantages concrets (donnees internes, contexte équipe) que les built-in ne couvrent pas</p>
+<p><strong>Situation :</strong> vous avez configuré un serveur MCP "internal-search" qui indexe les wikis et docs internes. Mais Claude appelle systématiquement <code>WebFetch</code> pour rechercher de l'info, ignorant le serveur MCP. Pourquoi et comment fixer ?</p>
+<p>A) Le serveur MCP est mal configuré — vérifier <code>.mcp.json</code></p>
+<p>B) Les agents préfèrent les built-in tools — renforcer la <code>description</code> du tool MCP en soulignant les avantages concrets (données internes, contexte équipe) que les built-in ne couvrent pas</p>
 <p>C) Supprimer <code>WebFetch</code> de l'allowlist</p>
 <p>D) Ajouter une instruction dans CLAUDE.md "always use internal-search first"</p>
 <hr>
 <p class="correct">Réponse : B) Renforcer la description MCP avec les differentiateurs</p>
-<p><strong>Explication :</strong> les agents ont une préférnce connue pour les built-in tools (D2 §1). La parade est au niveau de la <code>description</code> du tool MCP : la rendre plus précise et distinctive, souligner les donnees exclusives ("indexe les wikis internes incluant les décisions architecturales, post-mortems et knowledge base — pas accessibles via le web"). Cette differenciation aide le LLM a faire le bon choix.</p>
+<p><strong>Explication :</strong> les agents ont une préférence connue pour les built-in tools (D2 §1). La parade est au niveau de la <code>description</code> du tool MCP : la rendre plus précise et distinctive, souligner les données exclusives ("indexe les wikis internes incluant les décisions architecturales, post-mortems et knowledge base — pas accessibles via le web"). Cette différenciation aide le LLM à faire le bon choix.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Si la config etait fausse, le tool ne serait pas du tout disponible.</li>
-<li>C) Supprime un outil utile au lieu de resoudre la selection.</li>
-<li>D) Instruction prompt = probabiliste. La description du tool est la source primaire de selection.</li>
+<li>A) Si la config était fausse, le tool ne serait pas du tout disponible.</li>
+<li>C) Supprime un outil utile au lieu de résoudre la sélection.</li>
+<li>D) Instruction prompt = probabiliste. La description du tool est la source primaire de sélection.</li>
 </ul>
 </div>
 </details>
@@ -1565,19 +1565,19 @@
 <details>
 <summary>Q71 (Developer Productivity Tools) — Hook PostToolUse pour formater après edition</summary>
 <div>
-<p><strong>Situation :</strong> votre équipe TypeScript veut que tous les fichiers <code>.ts</code> soient automatiquement formates par Prettier après chaque edition par Claude. Solution la plus fiable ?</p>
+<p><strong>Situation :</strong> votre équipe TypeScript veut que tous les fichiers <code>.ts</code> soient automatiquement formatés par Prettier après chaque édition par Claude. Solution la plus fiable ?</p>
 <p>A) Ajouter "Always run prettier after editing TypeScript files" dans <code>CLAUDE.md</code></p>
 <p>B) Configurer un hook <code>PostToolUse</code> dans <code>.claude/settings.json</code> avec <code>matcher: "Edit|Write"</code> et command <code>prettier --write "$CLAUDE_FILE_PATHS"</code></p>
-<p>C) Creer un skill <code>/format</code> que les devs invoquent manuellement</p>
-<p>D) Demander a Claude de toujours faire le formatage dans le même commit</p>
+<p>C) Créer un skill <code>/format</code> que les devs invoquent manuellement</p>
+<p>D) Demander à Claude de toujours faire le formatage dans le même commit</p>
 <hr>
 <p class="correct">Réponse : B) Hook PostToolUse</p>
 <p><strong>Explication :</strong> un hook PostToolUse est **déterministe** — il s'exécute après chaque `Edit` ou `Write`, sans dépendre du raisonnement du modèle (D3 §6 (hooks Claude Code)). Le hook lit le(s) chemin(s) depuis le **payload JSON sur stdin** (ex. `tool_input.file_path`), pas une variable d'environnement. Pas de risque d'oubli, pas de dépendance aux instructions textuelles.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Instruction prompt = probabiliste, peut être oubliéee dans des contextes longs.</li>
+<li>A) Instruction prompt = probabiliste, peut être oubliée dans des contextes longs.</li>
 <li>C) Manuel = fragile et ralentit le workflow.</li>
-<li>D) Melange formatage et commit, et reste probabiliste.</li>
+<li>D) Mélange formatage et commit, et reste probabiliste.</li>
 </ul>
 </div>
 </details>
@@ -1587,25 +1587,25 @@
 <!-- ============================================================ -->
 
 <div class="key-concept">
-<strong>Contexte du scénario :</strong> votre entreprise traite quotidiennement 50 000 documents PDF (factures, contrats, formulaires) provenant de fournisseurs hétérogènes. Vous construisez un pipeline d'extraction structurée avec Claude qui doit produire du JSON exploitable par les systèmes en aval (ERP, comptabilite). Les enjeux : fiabilite, cout, latence, gestion des cas ambigus.
+<strong>Contexte du scénario :</strong> votre entreprise traite quotidiennement 50 000 documents PDF (factures, contrats, formulaires) provenant de fournisseurs hétérogènes. Vous construisez un pipeline d'extraction structurée avec Claude qui doit produire du JSON exploitable par les systèmes en aval (ERP, comptabilité). Les enjeux : fiabilité, coût, latence, gestion des cas ambigus.
 </div>
 
 <details>
 <summary>Q72 (Structured Data Extraction) — Garantir un output JSON valide</summary>
 <div>
-<p><strong>Situation :</strong> votre extraction produit du JSON avec des erreurs syntaxiques (virgules trainantes, guillemets manquants) dans 3% des cas. Comment eliminer ces erreurs ?</p>
-<p>A) Augmenter la temperature pour plus de creativite</p>
+<p><strong>Situation :</strong> votre extraction produit du JSON avec des erreurs syntaxiques (virgules traînantes, guillemets manquants) dans 3% des cas. Comment éliminer ces erreurs ?</p>
+<p>A) Augmenter la temperature pour plus de créativité</p>
 <p>B) Utiliser <code>tool_use</code> avec un input_schema JSON Schema — la syntaxe valide est garantie par construction</p>
-<p>C) Demander a Claude de relire son output avant de le retourner</p>
-<p>D) Post-processer avec un parseur JSON tolerant</p>
+<p>C) Demander à Claude de relire son output avant de le retourner</p>
+<p>D) Post-processer avec un parseur JSON tolérant</p>
 <hr>
 <p class="correct">Réponse : B) tool_use + JSON Schema</p>
-<p><strong>Explication :</strong> le mécanisme <code>tool_use</code> garantit que la sortie respecte la <em>syntaxe</em> JSON et la structure du schéma (D0 §8, D2 §4 (JSON Schema)). Le modèle ne peut plus produire un JSON syntaxiquement invalide. La semantique (valeurs correctes) reste a valider cote app.</p>
+<p><strong>Explication :</strong> le mécanisme <code>tool_use</code> garantit que la sortie respecte la <em>syntaxe</em> JSON et la structure du schéma (D0 §8, D2 §4 (JSON Schema)). Le modèle ne peut plus produire un JSON syntaxiquement invalide. La sémantique (valeurs correctes) reste à valider côté app.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Temperature plus haute = plus d'erreurs, pas moins.</li>
-<li>C) La self-review augmente le cout et reste probabiliste.</li>
-<li>D) Patcher le symptome, pas la cause. Et certaines erreurs (champs manquants) ne sont pas reparables.</li>
+<li>C) La self-review augmente le coût et reste probabiliste.</li>
+<li>D) Patcher le symptôme, pas la cause. Et certaines erreurs (champs manquants) ne sont pas réparables.</li>
 </ul>
 </div>
 </details>
@@ -1613,19 +1613,19 @@
 <details>
 <summary>Q73 (Structured Data Extraction) — Champs nullable contre l'hallucination</summary>
 <div>
-<p><strong>Situation :</strong> votre schéma a <code>"company_name"</code> en <code>required</code>. Pour 8% des documents (factures de freelancers), aucune entreprise n'est mentionnee. Le modèle invente un nom plausible. Comment fixer ?</p>
+<p><strong>Situation :</strong> votre schéma a <code>"company_name"</code> en <code>required</code>. Pour 8% des documents (factures de freelancers), aucune entreprise n'est mentionnée. Le modèle invente un nom plausible. Comment fixer ?</p>
 <p>A) Ajouter des few-shot examples</p>
 <p>B) Rendre le champ nullable : <code>{"type": ["string", "null"]}</code> et le retirer de <code>required</code></p>
 <p>C) Ajouter une validation post-extraction qui rejette les noms suspects</p>
 <p>D) Preprocesser les documents pour exclure les freelancers</p>
 <hr>
 <p class="correct">Réponse : B) Nullable + retirer de required</p>
-<p><strong>Explication :</strong> un champ <code>required</code> force le modèle a fournir une valeur, qui est alors fabriquee si l'info est absente (D0 §8). Le pattern correct : nullable + retrait de <code>required</code>. Le modèle retourné <code>null</code> honnetement quand l'info manque, au lieu d'inventer.</p>
+<p><strong>Explication :</strong> un champ <code>required</code> force le modèle à fournir une valeur, qui est alors fabriquée si l'info est absente (D0 §8). Le pattern correct : nullable + retrait de <code>required</code>. Le modèle retourne <code>null</code> honnêtement quand l'info manque, au lieu d'inventer.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Few-shot peut aider mais ne résout pas la contrainte schéma qui force l'hallucination.</li>
-<li>C) Detecter "noms suspects" est fragile et arbitraire.</li>
-<li>D) Modifie le perimetre metier pour contourner un problème technique.</li>
+<li>C) Détecter "noms suspects" est fragile et arbitraire.</li>
+<li>D) Modifie le périmètre métier pour contourner un problème technique.</li>
 </ul>
 </div>
 </details>
@@ -1633,19 +1633,19 @@
 <details>
 <summary>Q74 (Structured Data Extraction) — Enum avec "other" + champ détail</summary>
 <div>
-<p><strong>Situation :</strong> votre schéma categorise les depenses : <code>enum: ["travel", "meals", "supplies", "software"]</code>. Mais 12% des factures ne rentrent dans aucune catégorie (gym, formation, sponsoring). Comment faire sans casser la structure ?</p>
+<p><strong>Situation :</strong> votre schéma catégorise les dépenses : <code>enum: ["travel", "meals", "supplies", "software"]</code>. Mais 12% des factures ne rentrent dans aucune catégorie (gym, formation, sponsoring). Comment faire sans casser la structure ?</p>
 <p>A) Ajouter chaque nouvelle catégorie à l'enum au fil du temps</p>
 <p>B) Etendre l'enum avec <code>"other"</code> + un champ détail nullable : <code>{"category": "other", "category_detail": "Sponsoring sportif"}</code></p>
 <p>C) Mettre <code>type: "string"</code> sans enum</p>
 <p>D) Filtrer les documents non-conformes en amont</p>
 <hr>
 <p class="correct">Réponse : B) Enum avec "other" + champ détail</p>
-<p><strong>Explication :</strong> ce pattern (D0 §8, D2 §4 (JSON Schema)) capture les cas inattendus sans perte d'information ni hallucination. Le modèle utilise <code>"other"</code> + le champ détail texte libre quand le cas ne rentre pas dans les catégories predefinies. Vous gardez la structure pour 88% des cas et collectez les nouvelles catégories pour decider plus tard de les officialiser.</p>
+<p><strong>Explication :</strong> ce pattern (D0 §8, D2 §4 (JSON Schema)) capture les cas inattendus sans perte d'information ni hallucination. Le modèle utilise <code>"other"</code> + le champ détail texte libre quand le cas ne rentre pas dans les catégories prédéfinies. Vous gardez la structure pour 88% des cas et collectez les nouvelles catégories pour décider plus tard de les officialiser.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Etendre l'enum à chaque nouveau cas est ingerable à long terme.</li>
+<li>A) Étendre l'enum à chaque nouveau cas est ingérable à long terme.</li>
 <li>C) Sans enum, perte totale de la structure contrôlée.</li>
-<li>D) Meme erreur que Q73D — modifier le metier pour contourner.</li>
+<li>D) Même erreur que Q73D — modifier le métier pour contourner.</li>
 </ul>
 </div>
 </details>
@@ -1653,19 +1653,19 @@
 <details>
 <summary>Q75 (Structured Data Extraction) — Batch API pour traitement nocturne</summary>
 <div>
-<p><strong>Situation :</strong> vous traitez 50 000 factures par jour. Le SLA accepte une latence de 24h. Vous cherchez a reduire le cout. Quelle approche ?</p>
-<p>A) Continuer en API synchrone, le cout est secondaire</p>
-<p>B) Utiliser la Message Batches API (50% d'economies, jusqu'a 24h de traitement, correlation via custom_id)</p>
+<p><strong>Situation :</strong> vous traitez 50 000 factures par jour. Le SLA accepte une latence de 24h. Vous cherchez à réduire le coût. Quelle approche ?</p>
+<p>A) Continuer en API synchrone, le coût est secondaire</p>
+<p>B) Utiliser la Message Batches API (50% d'économies, jusqu'à 24h de traitement, correlation via custom_id)</p>
 <p>C) Utiliser un modèle moins capable</p>
-<p>D) Reduire <code>max_tokens</code></p>
+<p>D) Réduire <code>max_tokens</code></p>
 <hr>
 <p class="correct">Réponse : B) Message Batches API</p>
-<p><strong>Explication :</strong> 50 000 docs/jour avec un SLA de 24h est le cas d'usage parfait du Batch API (D4 §5) : 50% d'economies, traitement asynchrone, <code>custom_id</code> pour correler chaque réponse au document source. Pour les échecs, on resoumet uniquement les <code>custom_id</code> en échec.</p>
+<p><strong>Explication :</strong> 50 000 docs/jour avec un SLA de 24h est le cas d'usage parfait du Batch API (D4 §5) : 50% d'économies, traitement asynchrone, <code>custom_id</code> pour corréler chaque réponse au document source. Pour les échecs, on resoumet uniquement les <code>custom_id</code> en échec.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Ignore l'opportunite d'economie de 50%.</li>
-<li>C) Degrade la qualite — les economies sur le modèle peuvent être annulees par les retries d'erreurs.</li>
-<li>D) Tronque les réponses, ne réduit pas significativement le cout.</li>
+<li>A) Ignore l'opportunité d'économie de 50%.</li>
+<li>C) Dégrade la qualité — les économies sur le modèle peuvent être annulées par les retries d'erreurs.</li>
+<li>D) Tronque les réponses, ne réduit pas significativement le coût.</li>
 </ul>
 </div>
 </details>
@@ -1673,9 +1673,9 @@
 <details>
 <summary>Q76 (Structured Data Extraction) — Retry-with-feedback sur erreur de validation</summary>
 <div>
-<p><strong>Situation :</strong> votre extraction sort un JSON valide syntaxiquement, mais la somme des <code>line_items</code> ne correspond pas au <code>total</code> annonce sur la facture. Que faire ?</p>
+<p><strong>Situation :</strong> votre extraction sort un JSON valide syntaxiquement, mais la somme des <code>line_items</code> ne correspond pas au <code>total</code> annoncé sur la facture. Que faire ?</p>
 <p>A) Accepter le JSON et corriger en aval</p>
-<p>B) Retry avec un nouveau prompt incluant : le document original + l'extraction precedente + l'erreur spécifique ("la somme des line_items est 487$ mais le total annonce est 512$")</p>
+<p>B) Retry avec un nouveau prompt incluant : le document original + l'extraction précédente + l'erreur spécifique ("la somme des line_items est 487$ mais le total annoncé est 512$")</p>
 <p>C) Ignorer l'incohérence et logger</p>
 <p>D) Retry avec une temperature plus haute</p>
 <hr>
@@ -1683,8 +1683,8 @@
 <p><strong>Explication :</strong> le pattern retry-with-feedback (D4 §4.4) est efficace pour les erreurs de cohérence interne : on renvoie à Claude le document, sa première extraction, et l'erreur précise. Claude comprend ce qu'il a manqué (ligne oubliée, frais cachés) et corrige. C'est l'usage canonique de la self-correction.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Disperse la vérification semantique partout en aval — anti-pattern.</li>
-<li>C) Laisse passer des donnees fausses qui contamineront l'ERP.</li>
+<li>A) Disperse la vérification sémantique partout en aval — anti-pattern.</li>
+<li>C) Laisse passer des données fausses qui contamineront l'ERP.</li>
 <li>D) Température aléatoire ne corrige pas une erreur de raisonnement.</li>
 </ul>
 </div>
@@ -1693,19 +1693,19 @@
 <details>
 <summary>Q77 (Structured Data Extraction) — Stratified sampling pour mesurer l'accuracy</summary>
 <div>
-<p><strong>Situation :</strong> votre rapport mensuel indique 97% d'accuracy globale. La direction veut deployer en production. Quelle precaution prendre avant ?</p>
-<p>A) 97% est suffisant, deployer</p>
-<p>B) Faire du stratified random sampling : analyser l'accuracy par <em>document type</em> ET par <em>field</em>. 97% global peut masquer 40% d'erreurs sur certains types (factures scannees) ou certains champs (numeros TVA)</p>
-<p>C) Augmenter le seuil a 99% sans changer la mesure</p>
+<p><strong>Situation :</strong> votre rapport mensuel indique 97% d'accuracy globale. La direction veut déployer en production. Quelle précaution prendre avant ?</p>
+<p>A) 97% est suffisant, déployer</p>
+<p>B) Faire du stratified random sampling : analyser l'accuracy par <em>document type</em> ET par <em>field</em>. 97% global peut masquer 40% d'erreurs sur certains types (factures scannées) ou certains champs (numéros TVA)</p>
+<p>C) Augmenter le seuil à 99% sans changer la mesure</p>
 <p>D) Demander aux utilisateurs de rapporter les erreurs</p>
 <hr>
 <p class="correct">Réponse : B) Stratified random sampling</p>
-<p><strong>Explication :</strong> les metriques agregees masquent des problèmes localises (D5 §5). Une accuracy de 97% en moyenne peut cacher des sous-catégories a 60% (factures manuscrites, champs date format US vs EU). L'analyse stratifiee par type ET par field détecte ces poches d'erreur avant qu'elles ne contaminent un cas critique en prod.</p>
+<p><strong>Explication :</strong> les métriques agrégées masquent des problèmes localisés (D5 §5). Une accuracy de 97% en moyenne peut cacher des sous-catégories à 60% (factures manuscrites, champs date format US vs EU). L'analyse stratifiée par type ET par field détecte ces poches d'erreur avant qu'elles ne contaminent un cas critique en prod.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Deploiement aveugle, risque eleve.</li>
+<li>A) Déploiement aveugle, risque élevé.</li>
 <li>C) Rehausser le seuil sans diagnostic ne change pas le problème sous-jacent.</li>
-<li>D) Detection reactive après impact, pas avant.</li>
+<li>D) Détection réactive après impact, pas avant.</li>
 </ul>
 </div>
 </details>
@@ -1713,19 +1713,19 @@
 <details>
 <summary>Q78 (Structured Data Extraction) — Validation conditionnelle JSON Schema</summary>
 <div>
-<p><strong>Situation :</strong> votre schéma extrait des transactions. Si <code>type == "refund"</code>, alors les champs <code>refund_reason</code> et <code>original_transaction_id</code> sont obligatoires. Si <code>type == "payment"</code>, ils ne servent a rien. Comment exprimer cela proprement ?</p>
+<p><strong>Situation :</strong> votre schéma extrait des transactions. Si <code>type == "refund"</code>, alors les champs <code>refund_reason</code> et <code>original_transaction_id</code> sont obligatoires. Si <code>type == "payment"</code>, ils ne servent à rien. Comment exprimer cela proprement ?</p>
 <p>A) Mettre tous les champs dans <code>required</code></p>
 <p>B) Utiliser JSON Schema <code>if</code>/<code>then</code> : si <code>type == "refund"</code>, alors <code>required: ["refund_reason", "original_transaction_id"]</code></p>
-<p>C) Documenter la regle dans la <code>description</code> du tool</p>
-<p>D) Creer deux tools séparés : <code>extract_refund</code> et <code>extract_payment</code></p>
+<p>C) Documenter la règle dans la <code>description</code> du tool</p>
+<p>D) Créer deux tools séparés : <code>extract_refund</code> et <code>extract_payment</code></p>
 <hr>
 <p class="correct">Réponse : B) JSON Schema if/then</p>
 <p><strong>Explication :</strong> JSON Schema draft-07 supporte la validation conditionnelle `if`/`then`/`else` (D2 §4 (JSON Schema)). C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. JSON Schema `if/then/else` exprime l'intention, mais l'API **ne l'applique pas** (validation conditionnelle à faire côté application).</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>A) Force le modèle a fournir <code>refund_reason</code> même pour les payments — il l'inventera.</li>
+<li>A) Force le modèle à fournir <code>refund_reason</code> même pour les payments — il l'inventera.</li>
 <li>C) La description du tool guide le choix d'outil mais ne contraint pas la validation interne du schéma.</li>
-<li>D) Acceptable si la logique etait plus complexe, mais ajoute un risque de misrouting (D2 §1) pour 2 schémas très proches. <code>if</code>/<code>then</code> reste plus simple ici.</li>
+<li>D) Acceptable si la logique était plus complexe, mais ajoute un risque de misrouting (D2 §1) pour 2 schémas très proches. <code>if</code>/<code>then</code> reste plus simple ici.</li>
 </ul>
 </div>
 </details>
@@ -1737,7 +1737,7 @@
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — Questions d'entrainement · Sources : guide officiel CCA · 2026
+CCA Révision — Questions d'entraînement · Sources : guide officiel CCA · 2026
 </p>
 
 

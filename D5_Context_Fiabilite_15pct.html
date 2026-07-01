@@ -469,7 +469,7 @@ Rationale: Frustration ≠ human request. Escalate only on reiteration.</pre>
 <p>Dans un système multi-agents, un <code>subagent</code> peut échouer (timeout, document corrompu, API indisponible). Le coordinateur a besoin d'informations structurées pour décider intelligemment de la suite : retry ? Modifier la requête ? Continuer avec des résultats partiels ? Abandonner cette branche et annoter le manque ?</p>
 
 <h3>Le contexte d'erreur structuré d'un <code>subagent</code></h3>
-<p>Chaque erreur retournee au coordinateur doit inclure quatre éléments : <code>failure_type</code>, la requête tentée (<code>query</code>), les résultats partiels (<code>partial_results</code>), et les alternatives (<code>alternatives</code>).</p>
+<p>Chaque erreur retournée au coordinateur doit inclure quatre éléments : <code>failure_type</code>, la requête tentée (<code>query</code>), les résultats partiels (<code>partial_results</code>), et les alternatives (<code>alternatives</code>).</p>
 <pre>{
   "status": "partial_failure",
   "failure_type": "timeout",
@@ -492,7 +492,7 @@ Rationale: Frustration ≠ human request. Escalate only on reiteration.</pre>
 <table>
 <tr><th>Situation</th><th>Type</th><th>Action du coordinateur</th></tr>
 <tr><td>Connection timeout</td><td>Access failure</td><td>Retry décision (1-2 tentatives), puis propager si l'échec persiste</td></tr>
-<tr><td>0 results retournes</td><td>Valid empty result</td><td>Accepter comme résultat légitime, annoter dans la synthèse</td></tr>
+<tr><td>0 results retournés</td><td>Valid empty result</td><td>Accepter comme résultat légitime, annoter dans la synthèse</td></tr>
 </table>
 
 <h3>Les 4 anti-patterns de gestion d'erreur</h3>
@@ -536,7 +536,7 @@ Note : la couverture de cette section est limitée.
 
 <h4>2. Délégation aux <code>subagent</code>s</h4>
 <p>L'agent principal demande à un <code>subagent</code> <code>Explore</code> d'investiguer les dépendances d'un module. Le <code>subagent</code> lit 15 fichiers dans son propre contexte et retourne un résumé concis au thread principal. Le contexte principal garde une ligne au lieu de 15 fichiers :</p>
-<pre>// Résultat du subagent Explore → résumé retourne au coordinateur
+<pre>// Résultat du subagent Explore → résumé retourné au coordinateur
 "Le module Payments dépend de AuthService, OrderModel
  et de l'API externe PaymentGateway."</pre>
 

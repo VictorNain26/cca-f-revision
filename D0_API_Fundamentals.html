@@ -56,13 +56,13 @@
 <h3>Champs principaux d'une requête</h3>
 
 <table>
-<tr><th>Champ</th><th>Role</th><th>Obligatoire</th></tr>
-<tr><td><code>model</code></td><td>Selection du modèle (<code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code>)</td><td>Oui</td></tr>
+<tr><th>Champ</th><th>Rôle</th><th>Obligatoire</th></tr>
+<tr><td><code>model</code></td><td>Sélection du modèle (<code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code>)</td><td>Oui</td></tr>
 <tr><td><code>max_tokens</code></td><td>Nombre maximum de tokens dans la réponse</td><td>Oui</td></tr>
 <tr><td><code>system</code></td><td>Le system prompt — définit le comportement du modèle. <strong>Passe séparément, PAS dans <code>messages</code></strong></td><td>Non</td></tr>
 <tr><td><code>messages</code></td><td>Historique de la conversation (DOIT contenir l'historique complet — API stateless)</td><td>Oui</td></tr>
-<tr><td><code>tools</code></td><td>Definitions des tools disponibles</td><td>Non</td></tr>
-<tr><td><code>tool_choice</code></td><td>Strategie de selection des tools</td><td>Non</td></tr>
+<tr><td><code>tools</code></td><td>Définitions des tools disponibles</td><td>Non</td></tr>
+<tr><td><code>tool_choice</code></td><td>Stratégie de sélection des tools</td><td>Non</td></tr>
 </table>
 
 <h3>Exemple complet de requête JSON</h3>
@@ -70,7 +70,7 @@
 <pre><code>{
   "model": "claude-sonnet-4-6",
   "max_tokens": 1024,
-  "system": "Tu es un assistant spécialisé en analyse financiere. Reponds de maniere concise.",
+  "system": "Tu es un assistant spécialisé en analyse financière. Réponds de manière concise.",
   "messages": [
     {
       "role": "user",
@@ -95,23 +95,23 @@
 }</code></pre>
 
 <div class="key-concept">
-<strong>Concept clé :</strong> Le champ <code>system</code> est au même niveau que <code>messages</code>, jamais a l'interieur. C'est une erreur courante de le placer comme premier message <code>user</code>.
+<strong>Concept clé :</strong> Le champ <code>system</code> est au même niveau que <code>messages</code>, jamais à l'intérieur. C'est une erreur courante de le placer comme premier message <code>user</code>.
 </div>
 
 <!-- ===== SECTION 2 ===== -->
 <div class="section-header"><h2 id="s2">2. Message Roles</h2></div>
 
-<p>Chaque message dans le tableau <code>messages</code> possede un <code>role</code> qui détermine son origine :</p>
+<p>Chaque message dans le tableau <code>messages</code> possède un <code>role</code> qui détermine son origine :</p>
 
 <table>
 <tr><th>Role</th><th>Description</th><th>Quand l'utiliser</th></tr>
 <tr><td><code>user</code></td><td>Messages de l'utilisateur</td><td>Chaque nouvelle requête ou question</td></tr>
-<tr><td><code>assistant</code></td><td>Reponses du modèle</td><td>Inclus lors du renvoi de l'historique pour maintenir le contexte</td></tr>
-<tr><td><code>user</code> (avec <code>tool_result</code>)</td><td>Resultats d'un appel tool</td><td>Apres exécution d'un tool — renvoye comme content block <code>tool_result</code> dans un message <code>user</code></td></tr>
+<tr><td><code>assistant</code></td><td>Réponses du modèle</td><td>Inclus lors du renvoi de l'historique pour maintenir le contexte</td></tr>
+<tr><td><code>user</code> (avec <code>tool_result</code>)</td><td>Résultats d'un appel tool</td><td>Après exécution d'un tool — renvoyé comme content block <code>tool_result</code> dans un message <code>user</code></td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> A chaque requête API, vous devez envoyer l'historique COMPLET de la conversation. L'API est <strong>stateless</strong> — le modèle ne conserve rien entre deux appels. Si un <code>tool_result</code> est omis, le modèle ne saura pas que le tool a ete execute.
+<strong>EXAM TIP :</strong> À chaque requête API, vous devez envoyer l'historique COMPLET de la conversation. L'API est <strong>stateless</strong> — le modèle ne conserve rien entre deux appels. Si un <code>tool_result</code> est omis, le modèle ne saura pas que le tool a été exécuté.
 </div>
 
 <h3>Exemple d'historique multi-turn</h3>
@@ -131,26 +131,26 @@
 ]</code></pre>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> Envoyer uniquement le dernier message sans l'historique. Le modèle perd tout contexte et ne peut pas répondre correctement a des questions de suivi.
+<strong>Anti-pattern :</strong> Envoyer uniquement le dernier message sans l'historique. Le modèle perd tout contexte et ne peut pas répondre correctement à des questions de suivi.
 </div>
 
 <!-- ===== SECTION 3 ===== -->
 <div class="section-header"><h2 id="s3">3. Le champ <code>stop_reason</code></h2></div>
 
-<p>Chaque réponse de l'API contient un champ <code>stop_reason</code> qui indique pourquoi le modèle a arrete de generer. Ce champ est essentiel pour contrôler le flux de votre application.</p>
+<p>Chaque réponse de l'API contient un champ <code>stop_reason</code> qui indique pourquoi le modèle a arrêté de générer. Ce champ est essentiel pour contrôler le flux de votre application.</p>
 
 <table>
 <tr><th>Valeur</th><th>Signification</th><th>Action typique</th></tr>
-<tr><td><code>"end_turn"</code></td><td>Le modèle a termine naturellement sa réponse</td><td>Afficher la réponse a l'utilisateur</td></tr>
-<tr><td><code>"tool_use"</code></td><td>Le modèle demande l'exécution d'un tool</td><td>Executer le tool, renvoyer le resultat</td></tr>
-<tr><td><code>"max_tokens"</code></td><td>La limite <code>max_tokens</code> a ete atteinte — réponse tronquee</td><td>Augmenter <code>max_tokens</code> ou demander de continuer</td></tr>
-<tr><td><code>"stop_sequence"</code></td><td>Une sequence d'arret personnalisee a ete detectee</td><td>Traitement spécifique selon la sequence</td></tr>
+<tr><td><code>"end_turn"</code></td><td>Le modèle a terminé naturellement sa réponse</td><td>Afficher la réponse à l'utilisateur</td></tr>
+<tr><td><code>"tool_use"</code></td><td>Le modèle demande l'exécution d'un tool</td><td>Exécuter le tool, renvoyer le résultat</td></tr>
+<tr><td><code>"max_tokens"</code></td><td>La limite <code>max_tokens</code> a été atteinte — réponse tronquée</td><td>Augmenter <code>max_tokens</code> ou demander de continuer</td></tr>
+<tr><td><code>"stop_sequence"</code></td><td>Une séquence d'arrêt personnalisée a été détectée</td><td>Traitement spécifique selon la séquence</td></tr>
 </table>
 
 <div class="key-concept">
 <strong>Pour les systèmes agentiques :</strong> Les deux valeurs les plus importantes sont <code>"tool_use"</code> et <code>"end_turn"</code>. Elles controlent la boucle agentique :
 <ul>
-<li><code>"tool_use"</code> → exécuter le tool, renvoyer le resultat, re-appeler l'API</li>
+<li><code>"tool_use"</code> → exécuter le tool, renvoyer le résultat, re-appeler l'API</li>
 <li><code>"end_turn"</code> → le modèle a fini, sortir de la boucle</li>
 </ul>
 Voir <strong>D1</strong> pour les détails sur la boucle agentique.
@@ -159,27 +159,27 @@ Voir <strong>D1</strong> pour les détails sur la boucle agentique.
 <!-- ===== SECTION 4 ===== -->
 <div class="section-header"><h2 id="s4">4. System Prompt</h2></div>
 
-<p>Le system prompt est passe via le champ <code>system</code>, <strong>séparé du tableau <code>messages</code></strong>. Il définit le comportement global du modèle pour toute la conversation.</p>
+<p>Le system prompt est passé via le champ <code>system</code>, <strong>séparé du tableau <code>messages</code></strong>. Il définit le comportement global du modèle pour toute la conversation.</p>
 
-<h3>Caracteristiques clés</h3>
+<h3>Caractéristiques clés</h3>
 <ul>
-<li><strong>Priorite supérieure</strong> aux messages <code>user</code> — le modèle suit le system prompt en priorite</li>
-<li><strong>Charge une seule fois</strong>, s'applique a toute la conversation</li>
+<li><strong>Priorité supérieure</strong> aux messages <code>user</code> — le modèle suit le system prompt en priorité</li>
+<li><strong>Charge une seule fois</strong>, s'applique à toute la conversation</li>
 <li>Consomme des tokens dans le context window à chaque appel</li>
 </ul>
 
 <div class="exam-tip">
-<strong>EXAM TRAP :</strong> La formulation du system prompt peut creer des <strong>associations non intentionnelles avec les tools</strong>. Exemple classique : un system prompt qui dit <em>"always verify the customer's identity"</em> peut provoquer un appel systematique a <code>get_customer</code>, même quand ce n'est pas nécessaire. Le modèle interprété l'instruction comme un déclencheur pour utiliser le tool le plus semantiquement proche.
+<strong>EXAM TRAP :</strong> La formulation du system prompt peut créer des <strong>associations non intentionnelles avec les tools</strong>. Exemple classique : un system prompt qui dit <em>"always verify the customer's identity"</em> peut provoquer un appel systématique à <code>get_customer</code>, même quand ce n'est pas nécessaire. Le modèle interprète l'instruction comme un déclencheur pour utiliser le tool le plus sémantiquement proche.
 </div>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> Placer le system prompt comme premier message <code>user</code> dans <code>messages</code>. Cela reduit sa priorite et le melange avec le contexte conversationnel.
+<strong>Anti-pattern :</strong> Placer le system prompt comme premier message <code>user</code> dans <code>messages</code>. Cela réduit sa priorité et le mélange avec le contexte conversationnel.
 </div>
 
 <!-- ===== SECTION 5 ===== -->
 <div class="section-header"><h2 id="s5" class="page-break">5. Context Window</h2></div>
 
-<p>Le context window représente la quantite totale de tokens que le modèle peut traiter en une seule requête. Il inclut <strong>tout</strong> :</p>
+<p>Le context window représente la quantité totale de tokens que le modèle peut traiter en une seule requête. Il inclut <strong>tout</strong> :</p>
 
 <ul>
 <li>Le <strong>system prompt</strong></li>
@@ -192,24 +192,24 @@ Voir <strong>D1</strong> pour les détails sur la boucle agentique.
 
 <h4>1. L'effet lost-in-the-middle</h4>
 <div class="key-concept">
-Le modèle traite de manière fiable les informations en <strong>debut</strong> et en <strong>fin</strong> du context window, mais a tendance a manquer les détails situes au <strong>milieu</strong>. Plus le contexte est long, plus cet effet est prononce.
+Le modèle traite de manière fiable les informations en <strong>début</strong> et en <strong>fin</strong> du context window, mais a tendance à manquer les détails situés au <strong>milieu</strong>. Plus le contexte est long, plus cet effet est prononcé.
 </div>
 
 <h4>2. Accumulation des tool results</h4>
-<p>Un tool peut retourner un objet avec 40+ champs alors que seuls 5 sont pertinents. Chaque appel ajoute ces resultats volumineux au contexte, le saturant rapidement avec des informations inutiles.</p>
+<p>Un tool peut retourner un objet avec 40+ champs alors que seuls 5 sont pertinents. Chaque appel ajoute ces résultats volumineux au contexte, le saturant rapidement avec des informations inutiles.</p>
 
 <h4>3. Progressive summarization</h4>
-<p>Quand on demande au modèle de resumer l'historique pour liberer du contexte, les <strong>valeurs numeriques</strong>, les <strong>dates</strong> et les <strong>détails spécifiques</strong> sont progressivement perdus au profit de reformulations vagues.</p>
+<p>Quand on demande au modèle de résumer l'historique pour libérer du contexte, les <strong>valeurs numériques</strong>, les <strong>dates</strong> et les <strong>détails spécifiques</strong> sont progressivement perdus au profit de reformulations vagues.</p>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> Les solutions de gestion du context window sont detaillees dans <strong>D5</strong>. Retenez ici les 3 problèmes — ils reviennent souvent dans les questions d'examen.
+<strong>EXAM TIP :</strong> Les solutions de gestion du context window sont détaillées dans <strong>D5</strong>. Retenez ici les 3 problèmes — ils reviennent souvent dans les questions d'examen.
 </div>
 
 <!-- ===== SECTION 6 ===== -->
 <div class="section-header"><h2 id="s6">6. <code>tool_use</code> — le mécanisme</h2></div>
 
 <div class="key-concept">
-<strong>Point fondamental :</strong> Claude n'execute PAS de code. Il généré une <strong>requête structurée d'appel tool</strong> (nom + paramètres). C'est <strong>votre code</strong> qui execute le tool et renvoie le resultat.
+<strong>Point fondamental :</strong> Claude n'exécute PAS de code. Il génère une <strong>requête structurée d'appel tool</strong> (nom + paramètres). C'est <strong>votre code</strong> qui exécute le tool et renvoie le résultat.
 </div>
 
 <h3>Anatomie d'une tool définition</h3>
@@ -217,48 +217,48 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 <table>
 <tr><th>Champ</th><th>Role</th></tr>
 <tr><td><code>name</code></td><td>Identifiant unique du tool</td></tr>
-<tr><td><code>description</code></td><td><strong>Mecanisme principal de selection</strong> — c'est sur cette description que le LLM se base pour choisir un tool</td></tr>
-<tr><td><code>input_schema</code></td><td>Schema JSON Schema definissant les paramètres attendus</td></tr>
+<tr><td><code>description</code></td><td><strong>Mécanisme principal de sélection</strong> — c'est sur cette description que le LLM se base pour choisir un tool</td></tr>
+<tr><td><code>input_schema</code></td><td>Schéma JSON Schema définissant les paramètres attendus</td></tr>
 </table>
 
 <h3>Ecrire une bonne description</h3>
 
-<p>La <code>description</code> est le <strong>mécanisme principal de selection</strong>. Un LLM choisit ses tools en se basant sur leurs descriptions. Une bonne description répond a <strong>4 questions</strong> :</p>
+<p>La <code>description</code> est le <strong>mécanisme principal de sélection</strong>. Un LLM choisit ses tools en se basant sur leurs descriptions. Une bonne description répond à <strong>4 questions</strong> :</p>
 
 <ol>
-<li><strong>Que fait le tool et que retourné-t-il ?</strong></li>
+<li><strong>Que fait le tool et que retourne-t-il ?</strong></li>
 <li><strong>Quels sont les formats des inputs ?</strong> (avec exemples)</li>
 <li><strong>Quels sont les edge cases et les contraintes ?</strong></li>
 <li><strong>Quand l'utiliser par rapport aux alternatives similaires ?</strong></li>
 </ol>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> Des descriptions ambigues ou qui se chevauchent entre tools causent du <strong>misrouting</strong> — le modèle choisit le mauvais tool ou hesite entre plusieurs.
+<strong>Anti-pattern :</strong> Des descriptions ambiguës ou qui se chevauchent entre tools causent du <strong>misrouting</strong> — le modèle choisit le mauvais tool ou hésite entre plusieurs.
 </div>
 
 <h3>Built-in tools vs MCP tools</h3>
 
-<p>Dans un système agentique, le modèle peut avoir accès a des <strong>built-in tools</strong> (definis directement dans la requête) et des <strong>MCP tools</strong> (provenant de serveurs externes). Les agents ont tendance a <strong>preferer les built-in tools</strong>. Pour compenser, il faut <strong>renforcer les descriptions des MCP tools</strong> afin qu'elles soient plus précises et distinctives.</p>
+<p>Dans un système agentique, le modèle peut avoir accès à des <strong>built-in tools</strong> (définis directement dans la requête) et des <strong>MCP tools</strong> (provenant de serveurs externes). Les agents ont tendance à <strong>préférer les built-in tools</strong>. Pour compenser, il faut <strong>renforcer les descriptions des MCP tools</strong> afin qu'elles soient plus précises et distinctives.</p>
 
-<p>Voir <strong>D2</strong> pour une etude approfondie du tool design.</p>
+<p>Voir <strong>D2</strong> pour une étude approfondie du tool design.</p>
 
 <!-- ===== SECTION 7 ===== -->
 <div class="section-header"><h2 id="s7">7. Le paramètre <code>tool_choice</code></h2></div>
 
-<p>Le paramètre <code>tool_choice</code> contrôle comment le modèle decide d'utiliser (ou non) un tool :</p>
+<p>Le paramètre <code>tool_choice</code> contrôle comment le modèle décide d'utiliser (ou non) un tool :</p>
 
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Cas d'usage</th></tr>
-<tr><td><code>{"type": "auto"}</code></td><td>Le modèle decide librement s'il appelle un tool ou non (valeur par <strong>defaut</strong>)</td><td>Conversations generales avec tools optionnels</td></tr>
-<tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel) — <strong>structured output garanti</strong></td><td>Quand vous voulez forcer un output structure sans imposer un tool spécifique</td></tr>
-<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution precis dans un pipeline</td></tr>
+<tr><td><code>{"type": "auto"}</code></td><td>Le modèle décide librement s'il appelle un tool ou non (valeur par <strong>défaut</strong>)</td><td>Conversations générales avec tools optionnels</td></tr>
+<tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel) — <strong>structured output garanti</strong></td><td>Quand vous voulez forcer un output structuré sans imposer un tool spécifique</td></tr>
+<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution précis dans un pipeline</td></tr>
 </table>
 
 <div class="key-concept">
-<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent, mais l'output structure est <strong>garanti</strong>. C'est la méthode recommandée pour obtenir du structured output quand plusieurs schémas sont possibles.
+<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent, mais l'output structuré est <strong>garanti</strong>. C'est la méthode recommandée pour obtenir du structured output quand plusieurs schémas sont possibles.
 </div>
 
-<p>Voir <strong>D2 section 3</strong> pour les stratégies avancees de <code>tool_choice</code>.</p>
+<p>Voir <strong>D2 section 3</strong> pour les stratégies avancées de <code>tool_choice</code>.</p>
 
 <!-- ===== SECTION 8 ===== -->
 <div class="section-header"><h2 id="s8" class="page-break">8. JSON Schemas pour structured output</h2></div>
@@ -271,15 +271,15 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
 
 <table>
 <tr><th>Garanti</th><th>NON garanti</th></tr>
-<tr><td>JSON syntaxiquement valide</td><td>Exactitude semantique des valeurs</td></tr>
-<tr><td>Respect de la structure du schéma</td><td>Coherence entre les champs (ex: totaux qui s'additionnent)</td></tr>
-<tr><td>Types de données corrects</td><td>Absence de valeurs fabriquees (hallucinations)</td></tr>
+<tr><td>JSON syntaxiquement valide</td><td>Exactitude sémantique des valeurs</td></tr>
+<tr><td>Respect de la structure du schéma</td><td>Cohérence entre les champs (ex: totaux qui s'additionnent)</td></tr>
+<tr><td>Types de données corrects</td><td>Absence de valeurs fabriquées (hallucinations)</td></tr>
 </table>
 
-<h3>Regles de conception des schémas</h3>
+<h3>Règles de conception des schémas</h3>
 
 <h4>1. Champs <code>required</code> — avec prudence</h4>
-<p>Ne marquer un champ comme <code>required</code> que si l'information est <strong>toujours disponible</strong>. Sinon, le modèle <strong>fabrique une valeur</strong> plutot que de laisser le champ vide.</p>
+<p>Ne marquer un champ comme <code>required</code> que si l'information est <strong>toujours disponible</strong>. Sinon, le modèle <strong>fabrique une valeur</strong> plutôt que de laisser le champ vide.</p>
 
 <h4>2. Champs nullable</h4>
 <pre><code>"company_name": {
@@ -297,21 +297,21 @@ Le modèle traite de manière fiable les informations en <strong>debut</strong> 
   "type": ["string", "null"],
   "description": "Free-text detail when category is 'other'"
 }</code></pre>
-<p>Evite de perdre des données qui ne rentrent pas dans les catégories predefinies.</p>
+<p>Évite de perdre des données qui ne rentrent pas dans les catégories prédéfinies.</p>
 
 <h4>4. Enum avec <code>"unclear"</code></h4>
 <pre><code>"sentiment": {
   "type": "string",
   "enum": ["positive", "negative", "neutral", "unclear"]
 }</code></pre>
-<p>Permet au modèle d'exprimer son incertitude. Un <code>"unclear"</code> honnete vaut mieux qu'une categorisation erronee.</p>
+<p>Permet au modèle d'exprimer son incertitude. Un <code>"unclear"</code> honnête vaut mieux qu'une catégorisation erronée.</p>
 
 <h3>Types d'erreurs</h3>
 
 <table>
 <tr><th>Type d'erreur</th><th>Cause</th><th>Solution</th></tr>
-<tr><td><strong>Erreur syntaxique</strong> (JSON invalide)</td><td>Generation de texte libre</td><td><strong>Eliminee</strong> par <code>tool_use</code></td></tr>
-<tr><td><strong>Erreur semantique</strong> (valeurs incorrectes)</td><td>Mauvaise interpretation, hallucination</td><td>Validation programmatique + retry</td></tr>
+<tr><td><strong>Erreur syntaxique</strong> (JSON invalide)</td><td>Génération de texte libre</td><td><strong>Éliminée</strong> par <code>tool_use</code></td></tr>
+<tr><td><strong>Erreur sémantique</strong> (valeurs incorrectes)</td><td>Mauvaise interprétation, hallucination</td><td>Validation programmatique + retry</td></tr>
 </table>
 
 <p>Voir <strong>D4</strong> pour les patterns avances de structured output.</p>

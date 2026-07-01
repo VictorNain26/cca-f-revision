@@ -60,11 +60,11 @@
 <div class="section-header"><h2 id="format">1. Format de l'examen (rappel)</h2></div>
 
 <table>
-<tr><th>Element</th><th>Detail</th></tr>
+<tr><th>Élément</th><th>Détail</th></tr>
 <tr><td>Nombre de questions</td><td><strong>60 QCM</strong> : 4 scénarios × 15 questions/scénario</td></tr>
 <tr><td>Durée</td><td><strong>90 minutes</strong> (≈ 1,5 min/question)</td></tr>
 <tr><td>Type de questions</td><td><strong>Multiple choice</strong> : 4 choix, 1 seule réponse correcte</td></tr>
-<tr><td>Score</td><td>Echelle de <strong>100 a 1000</strong>, passing score = <strong>720</strong></td></tr>
+<tr><td>Score</td><td>Échelle de <strong>100 à 1000</strong>, passing score = <strong>720</strong></td></tr>
 <tr><td>Pénalité</td><td><strong>Aucune pénalité</strong> pour réponse fausse</td></tr>
 <tr><td>Scénarios</td><td><strong>4 scénarios sélectionnés aléatoirement</strong> sur les 6 possibles</td></tr>
 <tr><td>Proctoring</td><td><strong>Proctored</strong> via <strong>ProctorFree</strong></td></tr>
@@ -99,21 +99,21 @@
 
 <h4>Concepts clés à maîtriser</h4>
 <ul>
-<li><code>stop_reason</code> pour controller l'agentic loop</li>
-<li><strong>Programmatic enforcement</strong> : bloquer <code>process_refund</code> sans <code>get_customer</code> vérifié au prealable</li>
+<li><code>stop_reason</code> pour contrôler l'agentic loop</li>
+<li><strong>Programmatic enforcement</strong> : bloquer <code>process_refund</code> sans <code>get_customer</code> vérifié au préalable</li>
 <li><strong>Escalation triggers fiables</strong> : explicit request du client, policy gap</li>
 <li><strong>Escalation triggers NON fiables</strong> : sentiment analysis, self-rated confidence</li>
-<li><strong>Structured handoff protocol</strong> : transmettre le contexte complet a l'humain</li>
-<li><strong>Tool descriptions</strong> precises pour éviter le misrouting entre <code>get_customer</code> et <code>lookup_order</code></li>
+<li><strong>Structured handoff protocol</strong> : transmettre le contexte complet à l'humain</li>
+<li><strong>Tool descriptions</strong> précises pour éviter le misrouting entre <code>get_customer</code> et <code>lookup_order</code></li>
 <li><strong>Few-shot examples</strong> pour les multi-issue requests</li>
 </ul>
 
-<h4>Pieges typiques dans les questions</h4>
+<h4>Pièges typiques dans les questions</h4>
 <div class="anti-pattern">
-<strong>"Improve the system prompt"</strong> quand le problème a des consequences financieres → la bonne réponse est <strong>hooks / programmatic enforcement</strong>, pas le prompt.
+<strong>"Improve the system prompt"</strong> quand le problème a des conséquences financières → la bonne réponse est <strong>hooks / programmatic enforcement</strong>, pas le prompt.
 </div>
 <div class="anti-pattern">
-<strong>"Sentiment analysis"</strong> ou <strong>"self-rated confidence (1-10)"</strong> comme triggers d'escalation → ce sont des proxies <strong>unreliable</strong>. Privilegier les critères explicites.
+<strong>"Sentiment analysis"</strong> ou <strong>"self-rated confidence (1-10)"</strong> comme triggers d'escalation → ce sont des proxies <strong>unreliable</strong>. Privilégier les critères explicites.
 </div>
 <div class="anti-pattern">
 <strong>"Add a routing classifier"</strong> → overengineering quand le vrai problème est la description des tools.
@@ -123,7 +123,7 @@
 <div class="page-break"></div>
 <h3 id="s2">Scénario 2 : Code Generation with Claude Code</h3>
 
-<p><strong>Description :</strong> Utiliser Claude Code pour accélérer le développement : generation, refactoring, debugging, documentation. Integration avec custom slash commands et <code>CLAUDE.md</code>.</p>
+<p><strong>Description :</strong> Utiliser Claude Code pour accélérer le développement : génération, refactoring, debugging, documentation. Intégration avec custom slash commands et <code>CLAUDE.md</code>.</p>
 
 <p><strong>Domaines principalement testés :</strong> <strong>D3</strong> (CLAUDE.md hierarchy, skills, planning mode, CI/CD), <strong>D4</strong> (prompt engineering)</p>
 
@@ -137,9 +137,9 @@
 <li><strong>Explore subagent</strong> pour isoler les outputs verbeux</li>
 </ul>
 
-<h4>Pieges typiques dans les questions</h4>
+<h4>Pièges typiques dans les questions</h4>
 <div class="anti-pattern">
-<strong>"Put everything in root CLAUDE.md"</strong> → utiliser <code>.claude/rules/</code> avec glob patterns pour charger conditionnellement les regles pertinentes.
+<strong>"Put everything in root CLAUDE.md"</strong> → utiliser <code>.claude/rules/</code> avec glob patterns pour charger conditionnellement les règles pertinentes.
 </div>
 <div class="anti-pattern">
 <strong>"Claude Code learns per-user preferences"</strong> → FAUX. Il n'y a pas d'apprentissage par utilisateur : tout repose sur la <strong>CLAUDE.md hierarchy</strong>.
@@ -152,41 +152,41 @@
 <div class="page-break"></div>
 <h3 id="s3">Scénario 3 : Multi-Agent Research System</h3>
 
-<p><strong>Description :</strong> Un coordinateur délégué a des subagents spécialisés : web research, document analysis, synthesis, report generation. Le système doit produire des rapports complets avec citations.</p>
+<p><strong>Description :</strong> Un coordinateur délègue à des subagents spécialisés : web research, document analysis, synthesis, report generation. Le système doit produire des rapports complets avec citations.</p>
 
 <p><strong>Domaines principalement testés :</strong> <strong>D1</strong> (hub-and-spoke, Task tool, décomposition, parallel spawning), <strong>D2</strong> (tool allocation), <strong>D5</strong> (error propagation, provenance, context management)</p>
 
 <h4>Concepts clés à maîtriser</h4>
 <ul>
 <li><strong>Hub-and-spoke</strong> : toute communication passe par le coordinateur, jamais directement entre subagents</li>
-<li><strong>Subagent context isolation</strong> : context passing explicite a chaque delegation</li>
+<li><strong>Subagent context isolation</strong> : context passing explicite à chaque délégation</li>
 <li><strong>Narrow décomposition risk</strong> : ne couvrir que l'art visuel pour "creative industries" = couverture insuffisante</li>
 <li><strong>Parallel spawning</strong> : multiple <code>Task</code> calls dans une seule réponse <span style="background-color:#fff3cd;padding:0.2em 0.4em;border-radius:2px;font-size:0.9em;"><code>Task</code> est le nom donné par le guide d'examen (réponse attendue) ; la doc Agent SDK actuelle parle de l'outil <code>Agent</code>. Même concept.</span></li>
 <li><strong>Structured error propagation</strong> : <code>failure_type</code>, <code>partial_results</code>, <code>alternatives</code></li>
-<li><strong>Coverage annotations</strong> dans la synthese</li>
+<li><strong>Coverage annotations</strong> dans la synthèse</li>
 <li><strong>Provenance</strong> : claim-source mappings, conflicting data handling</li>
 <li><strong>Lost-in-the-middle effect</strong> sur les aggregated results</li>
 </ul>
 
-<h4>Pieges typiques dans les questions</h4>
+<h4>Pièges typiques dans les questions</h4>
 <div class="anti-pattern">
 <strong>"Direct communication between subagents"</strong> → TOUJOURS via le coordinateur. C'est le principe fondamental du hub-and-spoke.
 </div>
 <div class="anti-pattern">
-<strong>"Abort the whole workflow on one failure"</strong> → disproportionne. Continuer avec partial results et signaler le gap.
+<strong>"Abort the whole workflow on one failure"</strong> → disproportionné. Continuer avec partial results et signaler le gap.
 </div>
 <div class="anti-pattern">
 <strong>"Generic error status"</strong> → insuffisant. Utiliser structured error context avec <code>failure_type</code>, <code>partial_results</code>, <code>alternatives</code>.
 </div>
 <div class="anti-pattern">
-<strong>"Arbitrarily choose one value"</strong> quand des sources sont conflictuelles → preserve both with attribution. Laisser l'utilisateur decider.
+<strong>"Arbitrarily choose one value"</strong> quand des sources sont conflictuelles → preserve both with attribution. Laisser l'utilisateur décider.
 </div>
 
 <!-- SCENARIO 4 -->
 <div class="page-break"></div>
 <h3 id="s4">Scénario 4 : Developer Productivity Tools</h3>
 
-<p><strong>Description :</strong> L'agent aide les développeurs a explorer des codebases inconnus, generer du boilerplate, et automatiser les taches routinieres. Utilise les built-in tools et MCP servers.</p>
+<p><strong>Description :</strong> L'agent aide les développeurs à explorer des codebases inconnus, générer du boilerplate, et automatiser les tâches routinières. Utilise les built-in tools et MCP servers.</p>
 
 <p><strong>Domaines principalement testés :</strong> <strong>D2</strong> (built-in tools, MCP), <strong>D3</strong> (Claude Code config), <strong>D5</strong> (context management in large codebases)</p>
 
@@ -194,12 +194,12 @@
 <ul>
 <li><strong>Built-in tools</strong> : <code>Glob</code> (find files by pattern), <code>Grep</code> (search content), <code>Read</code>/<code>Write</code>, <code>Edit</code>, <code>Bash</code></li>
 <li><strong>Incremental investigation strategy</strong> : Grep entry points → Read → Grep usages → repeat</li>
-<li><strong>Read + Write fallback</strong> quand <code>Edit</code> echoue (non-unique match)</li>
-<li><strong>Scratchpad files</strong> pour preserver les key findings entre les étapes</li>
-<li><strong>Subagent delegation</strong> pour proteger le context window du main agent</li>
+<li><strong>Read + Write fallback</strong> quand <code>Edit</code> échoue (non-unique match)</li>
+<li><strong>Scratchpad files</strong> pour préserver les key findings entre les étapes</li>
+<li><strong>Subagent delegation</strong> pour protéger le context window du main agent</li>
 </ul>
 
-<h4>Pieges typiques dans les questions</h4>
+<h4>Pièges typiques dans les questions</h4>
 <div class="anti-pattern">
 <strong>Confondre <code>Glob</code> et <code>Grep</code></strong> : Glob = trouver des fichiers par nom/pattern. Grep = chercher du contenu dans les fichiers. Ce sont des usages différents.
 </div>
@@ -228,25 +228,25 @@
 <li><strong>Multi-pass review</strong> : per-file pass + intégration pass</li>
 </ul>
 
-<h4>Pieges typiques dans les questions</h4>
+<h4>Pièges typiques dans les questions</h4>
 <div class="anti-pattern">
 <strong>Oublier le <code>-p</code> flag</strong> → le job CI <strong>hangs indefinitely</strong> en attendant une interaction utilisateur.
 </div>
 <div class="anti-pattern">
-<strong>"Move blocking pre-merge checks to Batch API"</strong> → latence inacceptable (jusqu'a 24h). Le Batch API est pour les workloads <strong>non-blocking</strong> uniquement.
+<strong>"Move blocking pre-merge checks to Batch API"</strong> → latence inacceptable (jusqu'à 24h). Le Batch API est pour les workloads <strong>non-blocking</strong> uniquement.
 </div>
 <div class="anti-pattern">
 <strong>"Batch API supports multi-turn tool calling"</strong> → FAUX. Le Batch API ne supporte pas le multi-turn tool calling.
 </div>
 <div class="anti-pattern">
-<strong>"Larger context window fixes attention quality"</strong> → FAUX. Plus de contexte ne résout pas les problèmes d'attention. Utiliser multi-pass review a la place.
+<strong>"Larger context window fixes attention quality"</strong> → FAUX. Plus de contexte ne résout pas les problèmes d'attention. Utiliser multi-pass review à la place.
 </div>
 
 <!-- SCENARIO 6 -->
 <div class="page-break"></div>
 <h3 id="s6">Scénario 6 : Structured Data Extraction</h3>
 
-<p><strong>Description :</strong> Extraire de l'information de documents non structures, valider avec JSON schémas, maintenir une haute precision. Gerer les edge cases correctement.</p>
+<p><strong>Description :</strong> Extraire de l'information de documents non structurés, valider avec JSON schémas, maintenir une haute précision. Gérer les edge cases correctement.</p>
 
 <p><strong>Domaines principalement testés :</strong> <strong>D4</strong> (JSON schémas, validation, retry, few-shot, self-correction), <strong>D5</strong> (confidence calibration)</p>
 
@@ -257,18 +257,18 @@
 <li><strong>Retry-with-feedback</strong> : original doc + incorrect extraction + specific error → relance</li>
 <li><strong>Self-correction</strong> : <code>stated_total</code> vs <code>calculated_total</code> → <code>conflict_detected</code></li>
 <li><strong>Format normalization rules</strong> : dates en ISO 8601, currency = amount + code</li>
-<li><strong>Pydantic</strong> pour validation structurelle ET semantique</li>
+<li><strong>Pydantic</strong> pour validation structurelle ET sémantique</li>
 <li><strong>Stratified random sampling</strong> : 97% global peut masquer 40% d'erreurs sur certaines catégories</li>
 <li><strong>Field-level confidence scores</strong></li>
-<li><strong>Few-shot</strong> pour informal measurements et formats varies</li>
+<li><strong>Few-shot</strong> pour informal measurements et formats variés</li>
 </ul>
 
-<h4>Pieges typiques dans les questions</h4>
+<h4>Pièges typiques dans les questions</h4>
 <div class="anti-pattern">
-<strong>"Required field for info that may be absent"</strong> → le modèle va fabriquer une valeur. Utiliser <code>nullable</code> a la place.
+<strong>"Required field for info that may be absent"</strong> → le modèle va fabriquer une valeur. Utiliser <code>nullable</code> à la place.
 </div>
 <div class="anti-pattern">
-<strong>"Retry when info is absent from source"</strong> → le retry ne peut pas creer de l'information qui n'existe pas dans le document source. C'est inutile.
+<strong>"Retry when info is absent from source"</strong> → le retry ne peut pas créer de l'information qui n'existe pas dans le document source. C'est inutile.
 </div>
 <div class="anti-pattern">
 <strong>"97% accuracy means the system works"</strong> → vérifier par document type ET par field. Le score global peut masquer des faiblesses graves (stratified sampling).
@@ -278,9 +278,9 @@
 <!-- SECTION 3 : TABLEAU CROISE -->
 <!-- ============================================================ -->
 <div class="page-break"></div>
-<div class="section-header"><h2 id="croise">3. Tableau croisé Scenario x Domaine</h2></div>
+<div class="section-header"><h2 id="croise">3. Tableau croisé Scénario x Domaine</h2></div>
 
-<p>Ce tableau montre quels domaines sont principalement testes par chaque scénario. Utile pour cibler ta révision si tu veux renforcer un domaine spécifique.</p>
+<p>Ce tableau montre quels domaines sont principalement testés par chaque scénario. Utile pour cibler ta révision si tu veux renforcer un domaine spécifique.</p>
 
 <table>
 <tr>
@@ -351,16 +351,16 @@
 <div class="key-concept">
 <strong>Lecture du tableau :</strong>
 <ul>
-<li><strong>D1 (Agentic)</strong> : surtout teste via S1 et S3</li>
-<li><strong>D2 (Tools)</strong> : surtout teste via S1, S3 et S4</li>
-<li><strong>D3 (Claude Code)</strong> : surtout teste via S2, S4 et S5</li>
-<li><strong>D4 (Prompt Engineering)</strong> : surtout teste via S2, S5 et S6</li>
-<li><strong>D5 (Quality)</strong> : surtout teste via S1, S3, S4 et S6</li>
+<li><strong>D1 (Agentic)</strong> : surtout testé via S1 et S3</li>
+<li><strong>D2 (Tools)</strong> : surtout testé via S1, S3 et S4</li>
+<li><strong>D3 (Claude Code)</strong> : surtout testé via S2, S4 et S5</li>
+<li><strong>D4 (Prompt Engineering)</strong> : surtout testé via S2, S5 et S6</li>
+<li><strong>D5 (Quality)</strong> : surtout testé via S1, S3, S4 et S6</li>
 </ul>
 </div>
 
 <div class="exam-tip">
-<strong>Strategie de révision :</strong> Si tu es faible sur un domaine, concentre-toi sur les scénarios correspondants. Par exemple, pour renforcer D1 (Agentic), travaille en priorite S1 et S3.
+<strong>Strategie de révision :</strong> Si tu es faible sur un domaine, concentre-toi sur les scénarios correspondants. Par exemple, pour renforcer D1 (Agentic), travaille en priorité S1 et S3.
 </div>
 
 <!-- ============================================================ -->
@@ -369,7 +369,7 @@
 <div class="page-break"></div>
 <div class="section-header"><h2 id="hors-scope">4. Hors-scope — ne révise pas ça</h2></div>
 
-<p><strong>Ce qui N'EST PAS teste par l'examen CCA-F :</strong> Les topics suivants n'apparaissent pas (ou tres marginalement) dans les 6 scénarios. Les ignorer permet de concentrer ta révision sur ce qui compte vraiment.</p>
+<p><strong>Ce qui N'EST PAS testé par l'examen CCA-F :</strong> Les topics suivants n'apparaissent pas (ou très marginalement) dans les 6 scénarios. Les ignorer permet de concentrer ta révision sur ce qui compte vraiment.</p>
 
 <ul>
 <li><strong>Fine-tuning / entraînement de modèles</strong> : l'examen se concentre sur l'utilisation d'API et d'agents, pas sur comment entraîner Claude.</li>
@@ -379,14 +379,14 @@
 <li><strong>Streaming API</strong> : les appels API standard et Batch API oui, mais pas le streaming détaillé.</li>
 <li><strong>Hébergement de serveurs MCP / AWS Bedrock / GCP Vertex</strong> : les MCP tools locaux et Claude API sont couverts, mais pas le déploiement d'infrastructures ou de services cloud concurrents.</li>
 <li><strong>Auth, billing, gestion de compte</strong> : les aspects opérationnels API (clés, authentification basique) sont hors périmètre.</li>
-<li><strong>Rate limiting, quotas, calcul de pricing</strong> : la facturation détaillée et les limitations d'usage ne sont pas testees.</li>
+<li><strong>Rate limiting, quotas, calcul de pricing</strong> : la facturation détaillée et les limitations d'usage ne sont pas testées.</li>
 <li><strong>Tokenization &amp; token counting (détails internes)</strong> : savoir que les tokens existent oui, mais pas les algos de tokenization ou les outils de counting avancés.</li>
 <li><strong>Détails internes du prompt caching (au-delà de savoir qu'il existe)</strong> : le context reuse est covert, mais pas les mécanismes internes ou l'optimisation fine-grained.</li>
 <li><strong>Benchmarking / comparaison de modèles</strong> : focus sur Claude, pas sur comparatifs avec d'autres LLM.</li>
 </ul>
 
 <div class="exam-tip">
-<strong>Principe :</strong> Si tu te trouves a réviser un de ces sujets et que tu n'es pas sûr qu'il soit couvert, relis les 6 scénarios. S'il n'apparaît pas, c'est probablement hors périmètre de l'examen.
+<strong>Principe :</strong> Si tu te trouves à réviser un de ces sujets et que tu n'es pas sûr qu'il soit couvert, relis les 6 scénarios. S'il n'apparaît pas, c'est probablement hors périmètre de l'examen.
 </div>
 
 <!-- ============================================================ -->
@@ -395,7 +395,7 @@
 <div class="page-break"></div>
 <div class="section-header"><h2 id="distracteurs">5. Les patterns de distracteurs récurrents</h2></div>
 
-<p>A travers les 6 scénarios, certains types de mauvaises réponses reviennent systématiquement. Reconnaître ces patterns permet d'éliminer rapidement les distracteurs.</p>
+<p>À travers les 6 scénarios, certains types de mauvaises réponses reviennent systématiquement. Reconnaître ces patterns permet d'éliminer rapidement les distracteurs.</p>
 
 <table>
 <tr>
@@ -449,7 +449,7 @@
 </table>
 
 <div class="exam-tip">
-<strong>Regle d'or :</strong> Quand une option de réponse propose d'ajouter de la complexite (classifier, agent, couche supplémentaire), demande-toi d'abord si un correctif simple (meilleure description, critère explicite, hook) ne suffirait pas. L'examen privilegie la solution la plus directe et la plus fiable.
+<strong>Règle d'or :</strong> Quand une option de réponse propose d'ajouter de la complexité (classifier, agent, couche supplémentaire), demande-toi d'abord si un correctif simple (meilleure description, critère explicite, hook) ne suffirait pas. L'examen privilégie la solution la plus directe et la plus fiable.
 </div>
 
 <div class="key-concept">
@@ -463,7 +463,7 @@
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — Scenarios de l'examen · Sources : guide officiel CCA · 2026
+CCA Révision — Scénarios de l'examen · Sources : guide officiel CCA · 2026
 </p>
 
 
