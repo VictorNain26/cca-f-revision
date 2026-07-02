@@ -112,14 +112,14 @@
 <h3>Ce que doit contenir une bonne erreur</h3>
 <pre>{
   "isError": true,
-  "content": {
-    "errorCategory": "transient",
-    "isRetryable": true,
-    "message": "Service temporairement indisponible. Timeout sur l'API commandes.",
-    "attempted_query": "order_id=12345",
-    "partial_results": null
-  }
+  "content": [
+    {
+      "type": "text",
+      "text": "errorCategory: transient | isRetryable: true | Service temporairement indisponible. Timeout sur l'API commandes. | attempted_query: order_id=12345"
+    }
+  ]
 }</pre>
+<p>Dans un <code>CallToolResult</code> MCP, <code>content</code> est toujours un <strong>tableau</strong> de content blocks (jamais un objet ni une string). Les champs <code>errorCategory</code>/<code>isRetryable</code> ne font pas partie de la spécification MCP : c'est une <strong>convention de conception applicative</strong>, à encoder dans le texte du bloc <code>text</code> (ou en JSON stringifié dans ce texte), pas des champs officiels du protocole.</p>
 
 <div class="anti-pattern">
 <strong>Anti-pattern — erreur générique :</strong> <code>{"isError": true, "content": "Operation failed"}</code>. L'agent ne peut pas décider s'il doit faire un retry, reformuler la requête ou escalader. Ce type d'erreur générique empêche toute récupération intelligente. C'est le principal anti-pattern testé à l'examen.
@@ -156,12 +156,14 @@
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Quand l'utiliser</th></tr>
 <tr><td><code>{"type": "auto"}</code></td><td>Claude décide librement : texte ou appel d'outil</td><td>Mode par défaut, convient à la majorité des cas</td></tr>
-<tr><td><code>{"type": "any"}</code></td><td>Claude <em>doit</em> appeler un outil (mais choisit lequel)</td><td>Pour garantir une sortie structurée quand plusieurs schémas existent</td></tr>
+<tr><td><code>{"type": "any"}</code></td><td>Claude <em>doit</em> appeler un outil (mais choisit lequel)</td><td>Pour garantir un appel d'outil quand plusieurs schémas existent</td></tr>
 <tr><td><code>{"type": "tool", "name": "..."}</code></td><td>Claude <em>doit</em> appeler un outil précis (forced selection)</td><td>Pour forcer un ordre d'exécution (ex. : <code>extract_metadata</code> avant l'enrichissement)</td></tr>
+<tr><td><code>{"type": "none"}</code></td><td>Claude ne peut appeler aucun outil, réponse texte uniquement</td><td>Pour désactiver temporairement l'usage d'outils sans retirer leur définition</td></tr>
 </table>
+<p><code>disable_parallel_tool_use: true</code> (au sein de l'objet <code>tool_choice</code>) force Claude à n'appeler qu'un seul outil à la fois, quel que soit le <code>type</code> choisi.</p>
 
 <div class="exam-tip">
-<strong>Pour l'examen :</strong> <code>tool_choice</code> avec <code>{"type": "any"}</code> et plusieurs outils d'extraction garantit une sortie structurée tout en laissant Claude choisir le schéma le plus adapté. La forced selection (<code>{"type": "tool", "name": "..."}</code>) garantit une première action spécifique avant le reste du workflow — utile pour imposer un ordre d'exécution.
+<strong>Pour l'examen :</strong> <code>tool_choice</code> avec <code>{"type": "any"}</code> garantit qu'un outil sera appelé, pas que sa sortie respecte le schéma (il faut <code>strict: true</code> pour ça, cf. §4b). La forced selection (<code>{"type": "tool", "name": "..."}</code>) garantit une première action spécifique avant le reste du workflow — utile pour imposer un ordre d'exécution.
 </div>
 
 <!-- ================================================================== -->
@@ -223,7 +225,7 @@
 </ul>
 
 <h3>MCP elicitation — deux modes</h3>
-<p>L'elicitation est une primitive serveur officielle qui complète sampling et roots. Deux variantes :</p>
+<p>L'elicitation est une <em>capability côté client</em> — au même titre que sampling et roots : c'est le serveur qui la demande, mais c'est le client qui la déclare et la fournit. Les primitives côté serveur restent <code>tools</code>, <code>resources</code> et <code>prompts</code>. Deux variantes :</p>
 
 <table>
 <tr><th>Mode</th><th>Spec</th><th>Cas d'usage</th></tr>
@@ -251,6 +253,7 @@
 {
   "method": "elicitation/create",
   "params": {
+    "elicitationId": "elicit-8f2a1c",
     "mode": "url",
     "url": "https://oauth.provider.com/authorize?client_id=...",
     "message": "Connecte-toi à ton compte pour autoriser l'accès"
@@ -258,23 +261,24 @@
 }</pre>
 
 <div class="key-concept">
-<strong>Securite URL mode (obligatoire dans la spec) :</strong>
+<strong>Securite URL mode (niveaux de conformité de la spec) :</strong>
 <ul>
-<li>Le client NE DOIT PAS pre-fetch automatiquement l'URL ni ses métadonnées</li>
-<li>Le client NE DOIT PAS ouvrir l'URL sans consentement explicite de l'utilisateur</li>
-<li>Le client DOIT afficher l'URL complète avant le consentement (anti-phishing)</li>
-<li>L'URL DOIT s'ouvrir dans un navigateur sécurisé (browser système), <strong>jamais</strong> dans un webview embarqué</li>
+<li>Le client NE DOIT PAS pre-fetch automatiquement l'URL ni ses métadonnées (MUST NOT)</li>
+<li>Le client DEVRAIT ne pas ouvrir l'URL sans consentement explicite de l'utilisateur (SHOULD)</li>
+<li>Le client DEVRAIT afficher l'URL complète avant le consentement, en bonne pratique anti-phishing (SHOULD)</li>
+<li>L'URL DEVRAIT s'ouvrir dans un navigateur sécurisé (browser système) plutôt que dans un webview embarqué (SHOULD)</li>
 </ul>
+Tous ces points ne sont pas des <code>MUST</code> : plusieurs sont des recommandations (<code>SHOULD</code>) de bonnes pratiques, pas des exigences strictes de conformité.
 </div>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> distinction des 3 primitives <em>côté serveur</em> :
+<strong>EXAM TIP :</strong> distinction des 3 capabilities <em>côté client</em> :
 <ul>
 <li><strong>Sampling</strong> : serveur demande au client de <em>générer du texte LLM</em></li>
 <li><strong>Roots</strong> : client déclare au serveur les <em>chemins fichier autorisés</em></li>
 <li><strong>Elicitation</strong> : serveur demande au client de <em>collecter une input utilisateur</em></li>
 </ul>
-Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilise quand est crucial.
+Une question d'examen oppose souvent ces 3 capabilities — savoir laquelle utilise quand est crucial. Les primitives côté serveur, elles, sont <code>tools</code> / <code>resources</code> / <code>prompts</code>.
 </div>
 
 <div class="anti-pattern">
@@ -300,7 +304,7 @@ Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilis
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s4b">JSON Schema en profondeur (<code>input_schema</code>)</h3></div>
 
-<p>Le <code>input_schema</code> d'un outil utilise la spécification <strong>JSON Schema draft-07</strong>. Au-delà de <code>type</code>, <code>properties</code> et <code>required</code> déjà vus en D0, plusieurs constructions avancées apparaissent dans les questions d'examen.</p>
+<p>Le <code>input_schema</code> d'un outil utilise par défaut la spécification <strong>JSON Schema 2020-12</strong> (draft-07 seulement si explicitement déclaré via <code>$schema</code>). Au-delà de <code>type</code>, <code>properties</code> et <code>required</code> déjà vus en D0, plusieurs constructions avancées apparaissent dans les questions d'examen.</p>
 
 <h3>Types complexes (<code>oneOf</code>, <code>anyOf</code>, <code>allOf</code>)</h3>
 <table>
@@ -353,7 +357,7 @@ Une question d'examen oppose souvent ces 3 primitives — savoir laquelle utilis
 </table>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> <code>"additionalProperties": false</code> sur un objet rejette tout champ non déclaré dans <code>properties</code>. C'est utile pour forcer Claude à ne produire que les champs documentés. Sans cette contrainte, le modèle peut ajouter des champs hallucinés qui passent la validation syntaxique.
+<strong>EXAM TIP :</strong> <code>"additionalProperties": false</code> sur un objet rejette tout champ non déclaré dans <code>properties</code> — mais seulement si le tool est déclaré avec <code>strict: true</code> (top-level, exige aussi <code>additionalProperties: false</code> et <code>required</code>). Sans <code>strict: true</code>, l'API Claude ne garantit <strong>pas</strong> la conformité au JSON Schema : le modèle peut techniquement produire des champs hallucinés. Pour du JSON structuré fiable, préférer <code>output_config: {"format": {"type": "json_schema", ...}}</code>.
 </div>
 
 <h3>Champs nullable et enums avec fallback (rappel D0 + extension)</h3>
@@ -387,7 +391,7 @@ Ces 3 patterns transforment un schéma rigide en interface tolérante à l'incer
 </div>
 
 <h3>Validation côté application (après réception)</h3>
-<p>Le <code>tool_use</code> garantit la validité <strong>syntaxique</strong> du JSON, pas la cohérence sémantique. Après réception, valider :</p>
+<p>Sans <code>strict: true</code>, l'API Claude ne garantit même pas la conformité <strong>syntaxique</strong> stricte au JSON Schema (respect d'<code>additionalProperties: false</code> compris) — encore moins la cohérence sémantique. Après réception, valider dans tous les cas :</p>
 <ul>
 <li><strong>Cohérence inter-champs :</strong> totaux qui s'additionnent, dates dans l'ordre chronologique</li>
 <li><strong>Existence des références :</strong> les IDs pointent vers des entités réelles</li>
@@ -456,7 +460,7 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 </ol>
 
 <div class="key-concept">
-<strong>Specificite MCP :</strong> la spécification MCP définit un flow OAuth 2.1 standardisé (<code>oauth/authorize</code>, <code>oauth/token</code>, <code>oauth/register</code>). Le client (Claude Desktop, Claude Code) gère automatiquement le flow et stocke les tokens. Le développeur du serveur MCP n'a qu'à implémenter les endpoints conformes à la spec.
+<strong>Specificite MCP :</strong> la spécification MCP s'appuie sur <strong>OAuth 2.1</strong>, complété par la RFC 9728 (<em>Protected Resource Metadata</em>, obligatoire côté serveur MCP), la RFC 8414 (<em>Authorization Server Metadata</em>) et la RFC 7591 (<em>Dynamic Client Registration</em>, optionnelle). Le serveur MCP joue le rôle de <em>resource server</em> ; l'<em>authorization server</em> peut être une entité séparée (ex. Auth0, Google, un IdP interne) — le développeur du serveur MCP n'implémente pas forcément lui-même les endpoints d'authentification. Le client (Claude Desktop, Claude Code) gère automatiquement le flow et stocke les tokens.
 </div>
 
 <h3>Pattern 4 — Authentification mTLS / certificats</h3>
@@ -651,7 +655,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 
 <h3>Erreurs structurées</h3>
 <ul>
-<li>Toujours retourner <code>isError</code>, <code>errorCategory</code> (<code>transient</code> / <code>validation</code> / <code>business</code> / <code>permission</code>) et <code>isRetryable</code>.</li>
+<li>Toujours retourner <code>isError</code> (champ de la spec) et, en convention applicative encodée dans le bloc <code>text</code>, <code>errorCategory</code> (<code>transient</code> / <code>validation</code> / <code>business</code> / <code>permission</code>) et <code>isRetryable</code>.</li>
 <li>Distinguer un échec d'accès (timeout) d'un résultat vide valide (zéro correspondance).</li>
 <li>Les erreurs génériques (<em>"Operation failed"</em>) empêchent toute récupération intelligente — c'est l'anti-pattern principal.</li>
 </ul>
@@ -681,7 +685,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li>Contraintes : <code>format</code> (email, uri, uuid), <code>minLength</code>/<code>maxLength</code>, <code>minimum</code>/<code>maximum</code>, <code>pattern</code> (regex).</li>
 <li><code>"additionalProperties": false</code> pour rejeter les champs hallucinés.</li>
 <li>3 piliers anti-hallucination : nullable, enum + "other"/détail, enum + "unclear".</li>
-<li>Le tool_use garantit la <strong>syntaxe</strong> ; valider la <strong>sémantique</strong> côté app (retry-with-feedback, voir D4).</li>
+<li>Sans <code>strict: true</code>, le tool_use ne garantit ni la conformité syntaxique stricte au schéma ni la sémantique ; valider les deux côté app (retry-with-feedback, voir D4).</li>
 </ul>
 
 <h3>Authentification MCP</h3>
@@ -759,7 +763,7 @@ A) Ajouter "notes" dans <code>properties</code>.<br>
 B) Mettre <code>"additionalProperties": false</code> au niveau de l'objet.<br>
 C) Lister les champs interdits dans une enum.<br>
 D) Utiliser <code>tool_choice: any</code>.</summary>
-<p><strong>Réponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code>. Le <code>tool_use</code> garantit que la sortie respecte le schéma, donc Claude est contraint de ne produire que les champs documentés. A le rendrait acceptable mais ne résout pas la question (le modèle continuerait à inventer d'autres champs). C n'a pas de sens sémantique. D ne contraint pas la structure du résultat.</p>
+<p><strong>Réponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code> — à condition d'activer <code>strict: true</code> sur la définition du tool, sans quoi l'API Claude ne garantit pas la conformité au schéma. A le rendrait acceptable mais ne résout pas la question (le modèle continuerait à inventer d'autres champs). C n'a pas de sens sémantique. D ne contraint pas la structure du résultat.</p>
 </details>
 
 <details>

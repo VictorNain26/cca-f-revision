@@ -70,12 +70,14 @@
 <strong>Règle de décision :</strong> privilégiez les workflows pour la reliability. N'utilisez un agent que lorsque la flexibilité est réellement nécessaire. Les utilisateurs veulent des produits fiables, pas des agents impressionnants.
 </div>
 
-<h3>Les quatre workflow patterns</h3>
+<h3>Les cinq workflow patterns</h3>
+<p>L'essai Anthropic <em>« Building effective agents »</em> distingue <strong>cinq</strong> workflow patterns.</p>
 <table>
 <tr><th>Pattern</th><th>Principe</th><th>Cas d'usage typique</th></tr>
-<tr><td><strong>Parallelization</strong></td><td>Sous-tâches simultanées, puis agrégation</td><td>Tâches décomposables sans dépendances entre elles</td></tr>
-<tr><td><strong>Chaining</strong></td><td>Étapes séquentielles distinctes</td><td>Claude ignore des contraintes dans les prompts longs → découper en étapes</td></tr>
+<tr><td><strong>Prompt chaining</strong></td><td>Étapes séquentielles distinctes</td><td>Claude ignore des contraintes dans les prompts longs → découper en étapes</td></tr>
 <tr><td><strong>Routing</strong></td><td>Classifier l'entrée, puis dispatcher vers le bon pipeline</td><td>Différents types de requêtes nécessitant un traitement différent</td></tr>
+<tr><td><strong>Parallelization</strong></td><td>Sous-tâches simultanées, puis agrégation</td><td>Tâches décomposables sans dépendances entre elles</td></tr>
+<tr><td><strong>Orchestrator-workers</strong></td><td>Un orchestrateur décompose la tâche et délègue à des workers spécialisés</td><td>Sous-tâches non connues à l'avance, nécessitant une décomposition dynamique — voir <strong>section 3</strong> (architecture hub-and-spoke)</td></tr>
 <tr><td><strong>Evaluator-optimizer</strong></td><td>Produire → évaluer → boucler jusqu'à satisfaction</td><td>Qualité variable nécessitant un raffinement itératif</td></tr>
 </table>
 
@@ -131,6 +133,7 @@
 <tr><td><code>"tool_use"</code></td><td>Claude veut appeler un outil</td><td>Exécuter l'outil, ajouter le <code>tool_result</code> à l'historique, relancer une itération</td></tr>
 <tr><td><code>"end_turn"</code></td><td>Claude a terminé</td><td>Afficher le résultat à l'utilisateur, sortir de la boucle</td></tr>
 <tr><td><code>"max_tokens"</code></td><td>La limite de tokens est atteinte</td><td>La réponse est tronquée ; envisager d'augmenter <code>max_tokens</code></td></tr>
+<tr><td><code>"pause_turn"</code></td><td>Un server tool a atteint sa limite d'itérations</td><td>Re-envoyer la requête avec l'historique tel quel pour continuer — ne pas sortir de la boucle</td></tr>
 </table>
 
 <div class="key-concept">
@@ -147,9 +150,12 @@
     # On ajoute la réponse complète à l'historique
     messages.append({"role": "assistant", "content": response.content})
 
-    # Le SEUL signal fiable pour décider de la suite
+    # stop_reason est le signal fiable pour décider de la suite
+    if response.stop_reason == "pause_turn":
+        continue   # server tool interrompu par sa limite d'itérations : on relance tel quel
+
     if response.stop_reason != "tool_use":
-        break   # "end_turn" → la tâche est terminée
+        break   # "end_turn" (ou "refusal" / "model_context_window_exceeded") → la tâche est terminée
 
     # On exécute les outils demandés et on renvoie les tool_results
     tool_results = execute_tools(response.content)
@@ -163,7 +169,7 @@
 <li><strong>Utiliser une limite d'itérations arbitraire</strong> (<code>max_iterations=5</code>) comme condition d'arrêt principale. Cela peut interrompre une tâche légitime en cours d'exécution.</li>
 <li><strong>Vérifier la présence de texte</strong> dans la réponse comme signal de fin. Claude peut générer du texte explicatif ET un <code>tool_use</code> block dans la même réponse.</li>
 </ul>
-<p><strong>Le seul signal fiable est <code>stop_reason == "end_turn"</code>.</strong></p>
+<p><strong>Le signal fiable reste <code>stop_reason</code></strong> — mais il ne se résume pas à <code>"end_turn"</code> : il faut aussi gérer <code>"pause_turn"</code> (server tool interrompu, à relancer sans sortir de la boucle), <code>"refusal"</code> (refus de sécurité) et <code>"model_context_window_exceeded"</code> (fenêtre de contexte dépassée pendant la génération, modèles 4.5+).</p>
 </div>
 
 <div class="exam-tip">
@@ -259,6 +265,7 @@
 <h3>Comment ça fonctionne</h3>
 <p>Pour qu'un coordinateur puisse créer des subagents, son <code>allowedTools</code> doit inclure <code>"Task"</code>. Chaque appel à Task crée un subagent avec son propre contexte isolé.</p>
 
+<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>coordinator = AgentDefinition(
     name="coordinator",
     allowed_tools=["Task", "get_customer", "lookup_order"]
@@ -286,6 +293,7 @@ Task 3 : "Rechercher des articles sur Z"
 # → Les trois s'exécutent simultanément (parallel execution).</pre>
 
 <h3>La configuration AgentDefinition</h3>
+<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>agent = AgentDefinition(
     name="customer_support",
     description="Handles customer returns and order issues",
@@ -344,6 +352,7 @@ You are an expert code reviewer. Provide your review in:
 
 <h3><code>PreToolUse</code> : bloquer les actions non conformes</h3>
 <p>Ce hook intercepte un tool call <em>avant</em> son exécution et peut le bloquer ou le rediriger :</p>
+<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>@hook("PreToolUse")
 def enforce_refund_limit(tool_call):
     if tool_call.name == "process_refund" and tool_call.args.amount > 500:
@@ -351,6 +360,7 @@ def enforce_refund_limit(tool_call):
 
 <h3><code>PostToolUse</code> : normaliser les données avant qu'elles n'atteignent Claude</h3>
 <p>Ce hook intercepte le tool result <em>après</em> l'exécution de l'outil, mais <em>avant</em> que le modèle ne le traite :</p>
+<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>@hook("PostToolUse")
 def normalize_dates(tool_result):
     # Unix timestamp  →  ISO 8601
@@ -609,13 +619,13 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <h3>Workflows vs. agents</h3>
 <ul>
 <li>Privilégier les workflows (reliability) ; réserver les agents aux situations où la flexibilité est indispensable.</li>
-<li>4 workflow patterns : parallelization, chaining, routing, evaluator-optimizer.</li>
+<li>5 workflow patterns : prompt chaining, routing, parallelization, orchestrator-workers (voir section 3, hub-and-spoke), evaluator-optimizer.</li>
 </ul>
 
 <h3>L'agentic loop</h3>
 <ul>
 <li>Cycle <strong>observe-think-act-respond</strong> (OTAR) — grille de lecture conceptuelle de chaque itération.</li>
-<li><code>stop_reason == "tool_use"</code> → continuer. <code>"end_turn"</code> → terminer. C'est le <strong>seul</strong> signal fiable.</li>
+<li><code>stop_reason == "tool_use"</code> → continuer. <code>"pause_turn"</code> → re-envoyer pour continuer (server tool interrompu). <code>"end_turn"</code>, <code>"refusal"</code> ou <code>"model_context_window_exceeded"</code> → terminer. C'est le signal fiable pour piloter la boucle.</li>
 <li>Ne jamais parser le texte de l'assistant, utiliser des limites d'itérations arbitraires ou vérifier la présence de texte comme signal de fin.</li>
 <li>Hooks <code>PreToolUse</code> = entre think et act ; <code>PostToolUse</code> = au début de l'observe suivant.</li>
 </ul>

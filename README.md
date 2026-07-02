@@ -13,7 +13,7 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | Score de passage | **720 / 1000** *(confirmé)* |
 | Scénarios | 4 tirés au sort sur les 6 du pool |
 | Plateforme | Proctored via **ProctorFree** *(confirmé)* |
-| Tentatives | **Une seule** *(confirmé)* |
+| Tentatives | **Une tentative par inscription** — repassage possible après 14 jours d'attente, moyennant ré-inscription (~99–125 $) |
 | Practice Exam | Officielle dans Skilljar — **viser > 900/1000** = meilleur prédicteur de réussite |
 
 ## Couverture du corpus — 100 % du référentiel officiel

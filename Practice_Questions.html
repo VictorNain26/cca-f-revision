@@ -929,7 +929,7 @@
 <details>
 <summary>Q41 (Claude Code) — Structure de sortie incorrecte</summary>
 <div>
-<p><strong>Situation :</strong> La structure de sortie d'une fonction ne correspond pas après 2 itérations.</p>
+<p><strong>Situation :</strong> Le style de code généré (convention de nommage, forme des valeurs retournées) ne correspond pas aux attentes de l'équipe après 2 itérations de reformulation du prompt.</p>
 <p><strong>Question :</strong> Comment corriger efficacement ?</p>
 <p>A) Un prompt plus détaillé</p>
 <p>B) 2-3 exemples concrets input/output</p>
@@ -941,7 +941,7 @@
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Un prompt plus détaillé peut ajouter de l'ambiguïté plutôt que la résoudre.</li>
-<li>C) Un JSON schéma est utile pour les API responses mais pas pour le format de sortie de code.</li>
+<li>C) Un JSON schéma contraint une structure de données (ex. réponse d'API) ; il n'a pas prise sur le style ou les conventions du code source généré.</li>
 <li>D) Recommencer de zéro perd le travail déjà fait et ne garantit pas un meilleur résultat.</li>
 </ul>
 </div>
@@ -1227,7 +1227,7 @@
 <details>
 <summary>Q55 (Customer Support) — Trop de boucles API</summary>
 <div>
-<p><strong>Situation :</strong> Les requêtes simples prennent 3-4 boucles API. <code>get_customer</code> et <code>lookup_order</code> sont appelés séquentiellement.</p>
+<p><strong>Situation :</strong> Les requêtes simples prennent 3-4 boucles API. <code>get_customer</code> et <code>get_known_issues</code>, deux appels indépendants (ni l'un ni l'autre ne dépend du résultat de l'autre), sont appelés séquentiellement.</p>
 <p><strong>Question :</strong> Comment réduire le nombre de boucles ?</p>
 <p>A) Speculative exécution</p>
 <p>B) Augmenter <code>max_tokens</code></p>
@@ -1235,7 +1235,7 @@
 <p>D) Instruire dans le prompt de grouper les requêtes en un seul tour</p>
 <hr>
 <p class="correct">Réponse : D) Instruire dans le prompt de grouper les requêtes en un seul tour</p>
-<p><strong>Explication :</strong> Instruire le modèle à appeler plusieurs outils dans un seul tour (parallel tool use) réduit les allers-retours API sans modifier l'infrastructure. Si les appels sont **dépendants** (ex. lookup_order a besoin de l'ID vérifié de get_customer), ils ne peuvent pas être parallélisés ; ici on suppose des appels **indépendants**.</p>
+<p><strong>Explication :</strong> Instruire le modèle à appeler plusieurs outils dans un seul tour (parallel tool use) réduit les allers-retours API sans modifier l'infrastructure. Ici, <code>get_customer</code> et <code>get_known_issues</code> sont des appels **indépendants** (aucun ne dépend du résultat de l'autre) et peuvent donc être parallélisés dans le même tour — contrairement à Q1/Q56 où <code>lookup_order</code> dépend de l'ID vérifié retourné par <code>get_customer</code>.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) La speculative exécution est plus complexe et non documentée pour ce cas d'usage.</li>
@@ -1567,7 +1567,7 @@
 <div>
 <p><strong>Situation :</strong> votre équipe TypeScript veut que tous les fichiers <code>.ts</code> soient automatiquement formatés par Prettier après chaque édition par Claude. Solution la plus fiable ?</p>
 <p>A) Ajouter "Always run prettier after editing TypeScript files" dans <code>CLAUDE.md</code></p>
-<p>B) Configurer un hook <code>PostToolUse</code> dans <code>.claude/settings.json</code> avec <code>matcher: "Edit|Write"</code> et command <code>prettier --write "$CLAUDE_FILE_PATHS"</code></p>
+<p>B) Configurer un hook <code>PostToolUse</code> dans <code>.claude/settings.json</code> avec <code>matcher: "Edit|Write"</code> et command <code>jq -r '.tool_input.file_path' | xargs prettier --write</code></p>
 <p>C) Créer un skill <code>/format</code> que les devs invoquent manuellement</p>
 <p>D) Demander à Claude de toujours faire le formatage dans le même commit</p>
 <hr>
@@ -1595,12 +1595,12 @@
 <div>
 <p><strong>Situation :</strong> votre extraction produit du JSON avec des erreurs syntaxiques (virgules traînantes, guillemets manquants) dans 3% des cas. Comment éliminer ces erreurs ?</p>
 <p>A) Augmenter la temperature pour plus de créativité</p>
-<p>B) Utiliser <code>tool_use</code> avec un input_schema JSON Schema — la syntaxe valide est garantie par construction</p>
+<p>B) Utiliser <code>tool_use</code> avec un input_schema JSON Schema et <code>strict: true</code> — la syntaxe et la conformité au schéma sont garanties par construction</p>
 <p>C) Demander à Claude de relire son output avant de le retourner</p>
 <p>D) Post-processer avec un parseur JSON tolérant</p>
 <hr>
-<p class="correct">Réponse : B) tool_use + JSON Schema</p>
-<p><strong>Explication :</strong> le mécanisme <code>tool_use</code> garantit que la sortie respecte la <em>syntaxe</em> JSON et la structure du schéma (D0 §8, D2 §4 (JSON Schema)). Le modèle ne peut plus produire un JSON syntaxiquement invalide. La sémantique (valeurs correctes) reste à valider côté app.</p>
+<p class="correct">Réponse : B) tool_use + JSON Schema (strict: true)</p>
+<p><strong>Explication :</strong> forcer le <code>tool_use</code> garantit une sortie *syntaxiquement* valide, mais pas la conformité au schéma sans <code>strict: true</code> sur la définition d'outil — c'est ce flag qui garantit le respect strict du schéma par construction (D0 §8, D2 §4 (JSON Schema)). La méthode recommandée aujourd'hui pour l'extraction structurée est <code>output_config.format</code> (json_schema), qui offre la même garantie côté sortie de réponse. La sémantique (valeurs correctes) reste à valider côté app.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Temperature plus haute = plus d'erreurs, pas moins.</li>

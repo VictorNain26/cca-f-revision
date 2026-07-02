@@ -214,7 +214,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <ul>
 <li><strong>Critères explicites &gt; instructions vagues</strong> ("be conservative" ne marche pas).</li>
 <li><strong>Few-shot = technique #1 de cohérence.</strong> 2-4 exemples avec rationale.</li>
-<li><strong>tool_use + JSON Schema = sortie syntaxique garantie.</strong> Sémantique non garantie → valider côté app.</li>
+<li><strong>Sortie structurée : <code>output_config.format</code> (json_schema) = méthode recommandée</strong> ; tool_use forcé = pattern historique, conformité au schéma garantie seulement avec <code>strict: true</code>. Sémantique non garantie → valider côté app.</li>
 <li><strong>Champs nullable</strong> contre l'hallucination (au lieu de required).</li>
 <li><strong>Enum + "other"/détail</strong> pour les cas non prévus.</li>
 <li><strong>Retry-with-feedback :</strong> doc original + extraction précédente + erreur spécifique.</li>
@@ -237,7 +237,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>Structured handoff :</strong> l'humain n'a pas le transcript — le résumé doit être autosuffisant.</li>
 <li><strong>Errors multi-agent :</strong> <code>failure_type</code> + <code>query</code> + <code>partial_results</code> + <code>alternatives</code>.</li>
 <li><strong>97 % aggregate ≠ 97 % par sous-catégorie.</strong> Stratified random sampling par document type ET par field.</li>
-<li><strong>Prompt caching :</strong> <code>cache_control: {"type":"ephemeral"}</code>, max 4 breakpoints, 90 % d'économie sur reads, rentable dès 2 reuses.</li>
+<li><strong>Prompt caching :</strong> <code>cache_control: {"type":"ephemeral"}</code>, max 4 breakpoints, 90 % d'économie sur reads, rentable dès 1 réutilisation (TTL 5 min ; 2+ en TTL 1 h).</li>
 <li><strong>Manifest.json + état par subagent</strong> = pattern crash recovery.</li>
 </ul>
 </div>
@@ -339,9 +339,9 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Priorité skills</td><td>Enterprise > Personnel > Projet > Plugins</td></tr>
 <tr><td>Hooks events config (principaux)</td><td>UserPromptSubmit, PreToolUse, PostToolUse, Stop, SessionStart, Notification, PreCompact, <em>et autres</em></td></tr>
 <tr><td>Hook return codes</td><td>0 = OK / 2 = blocking (Claude réagit) / autre = non-blocking log</td></tr>
-<tr><td>Hook variables</td><td><code>$CLAUDE_FILE_PATHS</code>, <code>$CLAUDE_TOOL_NAME</code>, <code>$CLAUDE_TOOL_INPUT</code></td></tr>
+<tr><td>Données des hooks</td><td>Payload JSON sur stdin (<code>tool_name</code>, <code>tool_input.file_path</code>…) — pas de variables d'env dédiées ; seule <code>CLAUDE_PROJECT_DIR</code> existe</td></tr>
 <tr><td>CI flags</td><td><code>-p</code> (headless), <code>--output-format json</code>, <code>--json-schema</code>, <code>--max-turns N</code></td></tr>
-<tr><td>MCP config</td><td><code>.mcp.json</code> (projet, versionné) ou <code>~/.claude.json</code> (user, via <code>claude mcp add</code>)</td></tr>
+<tr><td>MCP config</td><td><code>claude mcp add</code> = scope <code>local</code> par défaut ; <code>.mcp.json</code> (projet, versionné) ; <code>--scope user</code> pour global. Précédence local &gt; project &gt; user, sans fusion</td></tr>
 <tr><td>Custom agents</td><td><code>.claude/agents/</code> avec frontmatter name/description/allowed-tools/allowed-skills/model</td></tr>
 </table>
 

@@ -57,7 +57,7 @@
 
 <table>
 <tr><th>Champ</th><th>Rôle</th><th>Obligatoire</th></tr>
-<tr><td><code>model</code></td><td>Sélection du modèle (<code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code>)</td><td>Oui</td></tr>
+<tr><td><code>model</code></td><td>Sélection du modèle (<code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code> ; modèles actuels : <code>claude-opus-4-8</code>, <code>claude-sonnet-5</code>, <code>claude-fable-5</code>)</td><td>Oui</td></tr>
 <tr><td><code>max_tokens</code></td><td>Nombre maximum de tokens dans la réponse</td><td>Oui</td></tr>
 <tr><td><code>system</code></td><td>Le system prompt — définit le comportement du modèle. <strong>Passe séparément, PAS dans <code>messages</code></strong></td><td>Non</td></tr>
 <tr><td><code>messages</code></td><td>Historique de la conversation (DOIT contenir l'historique complet — API stateless)</td><td>Oui</td></tr>
@@ -145,6 +145,9 @@
 <tr><td><code>"tool_use"</code></td><td>Le modèle demande l'exécution d'un tool</td><td>Exécuter le tool, renvoyer le résultat</td></tr>
 <tr><td><code>"max_tokens"</code></td><td>La limite <code>max_tokens</code> a été atteinte — réponse tronquée</td><td>Augmenter <code>max_tokens</code> ou demander de continuer</td></tr>
 <tr><td><code>"stop_sequence"</code></td><td>Une séquence d'arrêt personnalisée a été détectée</td><td>Traitement spécifique selon la séquence</td></tr>
+<tr><td><code>"pause_turn"</code></td><td>Un server tool (ex: web search) a atteint sa limite d'itérations</td><td>Re-envoyer la requête avec l'historique tel quel pour laisser le modèle continuer — <strong>ne pas</strong> traiter comme une fin de tâche</td></tr>
+<tr><td><code>"refusal"</code></td><td>Refus de sécurité du modèle</td><td>Vérifier <code>stop_details</code> pour la raison du refus</td></tr>
+<tr><td><code>"model_context_window_exceeded"</code></td><td>La fenêtre de contexte a été dépassée pendant la génération (modèles 4.5+)</td><td>Réduire le contexte envoyé ou augmenter la marge disponible</td></tr>
 </table>
 
 <div class="key-concept">
@@ -250,12 +253,15 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Cas d'usage</th></tr>
 <tr><td><code>{"type": "auto"}</code></td><td>Le modèle décide librement s'il appelle un tool ou non (valeur par <strong>défaut</strong>)</td><td>Conversations générales avec tools optionnels</td></tr>
-<tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel) — <strong>structured output garanti</strong></td><td>Quand vous voulez forcer un output structuré sans imposer un tool spécifique</td></tr>
+<tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel) — un tool est toujours appelé, mais la conformité au schéma n'est garantie que si le tool utilise <code>strict: true</code></td><td>Quand vous voulez forcer un output structuré sans imposer un tool spécifique</td></tr>
 <tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution précis dans un pipeline</td></tr>
+<tr><td><code>{"type": "none"}</code></td><td>Aucun tool n'est autorisé, même s'il y en a de disponibles</td><td>Forcer une réponse texte pure malgré la présence de tools dans la requête</td></tr>
 </table>
 
+<p>L'option <code>disable_parallel_tool_use: true</code> peut être combinée à <code>tool_choice</code> pour empêcher le modèle d'appeler plusieurs tools en parallèle dans une même réponse.</p>
+
 <div class="key-concept">
-<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent, mais l'output structuré est <strong>garanti</strong>. C'est la méthode recommandée pour obtenir du structured output quand plusieurs schémas sont possibles.
+<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent. C'est le pattern historique du <strong>tool_use forcé</strong> pour obtenir du structured output ; la méthode <strong>recommandée</strong> aujourd'hui est <code>output_config.format</code> (Structured Outputs natifs, voir section 8).
 </div>
 
 <p>Voir <strong>D2 section 3</strong> pour les stratégies avancées de <code>tool_choice</code>.</p>
@@ -264,15 +270,17 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div class="section-header"><h2 id="s8" class="page-break">8. JSON Schemas pour structured output</h2></div>
 
 <div class="key-concept">
-<strong>Point essentiel :</strong> Utiliser <code>tool_use</code> avec des JSON schémas est la méthode <strong>la plus fiable</strong> pour obtenir du structured output de Claude. Le mécanisme <strong>garantit un JSON syntaxiquement valide</strong>.
+<strong>Point essentiel :</strong> La méthode <strong>recommandée</strong> pour obtenir du structured output de Claude est désormais les <strong>Structured Outputs natifs</strong> : passer <code>output_config: {"format": {"type": "json_schema", "schema": {...}}}</code> à <code>messages.create</code> (ou, côté SDK Python, utiliser <code>client.messages.parse()</code> avec un modèle Pydantic). Ce mécanisme garantit un JSON syntaxiquement valide <strong>et</strong> conforme au schéma.
 </div>
+
+<p>Le pattern <strong>« tool_use forcé »</strong> (<code>tool_choice: {"type": "any"}</code> ou <code>{"type": "tool", "name": "..."}</code>, voir section 7) reste valable et fonctionne, mais c'est le pattern <strong>historique</strong>. Sans <code>strict: true</code> sur la définition du tool — qui impose <code>additionalProperties: false</code> et la liste <code>required</code> — la conformité au schéma <strong>n'est pas garantie</strong> : le modèle peut omettre des champs requis ou ajouter des champs non prévus.</p>
 
 <h3>Ce qui est garanti vs ce qui ne l'est pas</h3>
 
 <table>
 <tr><th>Garanti</th><th>NON garanti</th></tr>
 <tr><td>JSON syntaxiquement valide</td><td>Exactitude sémantique des valeurs</td></tr>
-<tr><td>Respect de la structure du schéma</td><td>Cohérence entre les champs (ex: totaux qui s'additionnent)</td></tr>
+<tr><td>Respect de la structure du schéma (Structured Outputs natifs, ou <code>tool_use</code> avec <code>strict: true</code>)</td><td>Cohérence entre les champs (ex: totaux qui s'additionnent)</td></tr>
 <tr><td>Types de données corrects</td><td>Absence de valeurs fabriquées (hallucinations)</td></tr>
 </table>
 

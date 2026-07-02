@@ -81,7 +81,7 @@
 Les standards de code sont décrits dans @./standards/coding-style.md
 Les exigences de test sont dans @./standards/testing-requirements.md
 La vue d'ensemble du projet est dans @README.md</pre>
-<p>Le <code>@</code> se place immédiatement avant le path (sans espace). Les paths relatifs sont résolus par rapport au fichier contenant l'import. La profondeur maximale d'imbrication est de <strong>5 niveaux</strong>.</p>
+<p>Le <code>@</code> se place immédiatement avant le path (sans espace). Les paths relatifs sont résolus par rapport au fichier contenant l'import. La profondeur maximale d'imbrication est de <strong>4 niveaux</strong> (« four hops »).</p>
 
 <h3>Le répertoire <code>.claude/rules/</code></h3>
 <p>Une alternative au <code>CLAUDE.md</code> monolithique : des fichiers thématiques dont le chargement dépend des fichiers en cours d'édition.</p>
@@ -131,7 +131,7 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 </div>
 
 <h3>Le bloc <code>permissions</code> : allowlist et denylist</h3>
-<p>Le mécanisme de permissions de Claude Code fonctionne par <strong>allowlist explicite</strong>. Sans entrée dans <code>permissions.allow</code>, chaque appel d'outil déclenche une demande de confirmation utilisateur — bloquant pour les pipelines CI.</p>
+<p>Le mécanisme de permissions de Claude Code fonctionne par <strong>allowlist explicite</strong>. Sans entrée dans <code>permissions.allow</code>, chaque appel d'outil <em>mutant</em> déclenche une demande de confirmation utilisateur — bloquant pour les pipelines CI. Les outils read-only (<code>Read</code>, <code>Grep</code>, <code>Glob</code>, et les commandes Bash en lecture seule comme <code>ls</code>/<code>cat</code>/<code>git status</code>) ne demandent pas d'approbation par défaut.</p>
 
 <pre>// .claude/settings.json
 {
@@ -223,10 +223,10 @@ Quand tu rédiges une description de PR :
 <table>
 <tr><th>Paramètre</th><th>Obligatoire</th><th>Rôle</th></tr>
 <tr><td><code>name</code></td><td>Optionnel — défaut = nom du dossier du skill</td><td>Display name (identifiant optionnel). Par défaut, le nom du dossier du skill sert de nom de commande (ex. <code>/review</code> pour <code>.claude/skills/review/SKILL.md</code>).</td></tr>
-<tr><td><code>description</code></td><td>Oui</td><td>Détermine <em>quand</em> Claude active le skill (matching sémantique) — <code>description</code> + <code>when_to_use</code> tronqués à ~1536 caractères dans le listing — et influence <em>comment</em> il rédige le prompt. C'est le champ le plus déterminant pour le déclenchement.</td></tr>
+<tr><td><code>description</code></td><td>Recommandée — si omise, le premier paragraphe du corps sert de description</td><td>Détermine <em>quand</em> Claude active le skill (matching sémantique) — <code>description</code> + <code>when_to_use</code> tronqués à ~1536 caractères dans le listing — et influence <em>comment</em> il rédige le prompt. C'est le champ le plus déterminant pour le déclenchement.</td></tr>
 <tr><td><code>context: fork</code></td><td>Non</td><td>Exécute le skill dans un contexte isolé de subagent. La sortie verbeuse ne pollue pas la session principale.</td></tr>
 <tr><td><code>allowed-tools</code></td><td>Non</td><td>Restreint les outils disponibles (ex. : lecture seule = ni <code>Edit</code> ni <code>Write</code>).</td></tr>
-<tr><td><code>argument-hint</code></td><td>Non</td><td>Demande un paramètre quand le skill est invoqué sans argument.</td></tr>
+<tr><td><code>argument-hint</code></td><td>Non</td><td>Indice affiché à l'autocomplétion pour suggérer le paramètre attendu quand le skill est invoqué en slash command.</td></tr>
 </table>
 
 <div class="exam-tip">
@@ -247,10 +247,10 @@ Hiérarchie complète : <strong>Enterprise</strong> (la plus haute) &gt; <strong
 </div>
 
 <h3>Skills et subagents</h3>
-<p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents intégrés (Explore subagent, Plan) ne peuvent pas y accéder. Seuls les agents personnalisés (dans <code>.claude/agents/</code>) peuvent utiliser des skills, à condition qu'ils soient listés dans le frontmatter de l'agent.</p>
+<p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents intégrés (Explore subagent, Plan) ne peuvent pas y accéder. Les agents personnalisés (dans <code>.claude/agents/</code>) peuvent invoquer n'importe quel skill (projet/user/plugin) via le Skill tool ; ceux listés dans le champ <code>skills</code> du frontmatter sont en plus préchargés dans leur contexte.</p>
 
 <h3>Custom agents (<code>.claude/agents/</code>)</h3>
-<p>Les <strong>custom agents</strong> sont des subagents spécialisés définis au niveau projet ou user, distincts des agents intégrés (Explore, Plan, etc.). Ils s'invoquent via le Task tool ou le slash <code>/agents</code>.</p>
+<p>Les <strong>custom agents</strong> sont des subagents spécialisés définis au niveau projet ou user, distincts des agents intégrés (Explore, Plan, etc.). Ils s'invoquent via le Task tool ; le slash <code>/agents</code> sert à les <strong>gérer</strong> (créer, éditer, lister), pas à les invoquer.</p>
 
 <pre>// .claude/agents/security-reviewer.md
 ---
@@ -272,10 +272,10 @@ Output JSON: { issues: [{severity, file, line, message}] }</pre>
 
 <table>
 <tr><th>Champ</th><th>Role</th></tr>
-<tr><td><code>name</code></td><td>Identifiant pour invocation (<code>/agents security-reviewer</code> ou via Task tool)</td></tr>
+<tr><td><code>name</code></td><td>Identifiant pour invocation via le Task tool</td></tr>
 <tr><td><code>description</code></td><td>Détermine quand l'agent est invoqué automatiquement (matching sémantique)</td></tr>
 <tr><td><code>tools</code></td><td>Restreint les outils — typique : lecture seule pour un reviewer</td></tr>
-<tr><td><code>skills</code></td><td>Liste les skills accessibles à cet agent (sinon il n'en voit aucun)</td></tr>
+<tr><td><code>skills</code></td><td>Précharge le contenu de ces skills dans le contexte de l'agent (l'agent peut quand même invoquer d'autres skills via le Skill tool)</td></tr>
 <tr><td><code>model</code></td><td>Override du modèle : opus pour les analyses complexes, haiku pour les tâches mécaniques</td></tr>
 </table>
 
@@ -349,7 +349,7 @@ Bullet points over paragraphs. Code over prose. Skip the closing summary.</pre>
 <table>
 <tr><th>Commande</th><th>Effet</th></tr>
 <tr><td><code>/plugin marketplace add &lt;source&gt;</code></td><td>Ajoute une marketplace : <code>owner/repo</code> GitHub, URL Git, ou chemin local vers <code>marketplace.json</code></td></tr>
-<tr><td><code>/plugin install &lt;name&gt;@&lt;marketplace&gt;</code></td><td>Installe un plugin spécifique (ex : <code>/plugin install commit-commands@anthropics-claude-code</code>)</td></tr>
+<tr><td><code>/plugin install &lt;name&gt;@&lt;marketplace&gt;</code></td><td>Installe un plugin spécifique (ex : <code>/plugin install commit-commands@claude-plugins-official</code>)</td></tr>
 <tr><td><code>/plugin list</code></td><td>Liste les plugins installés et leur état</td></tr>
 <tr><td><code>/reload-plugins</code></td><td>Recharge les plugins après install ou modification</td></tr>
 <tr><td><code>/plugin market</code></td><td>Raccourci pour <code>/plugin marketplace</code></td></tr>
@@ -359,14 +359,14 @@ Bullet points over paragraphs. Code over prose. Skip the closing summary.</pre>
 <table>
 <tr><th>Source</th><th>Adresse</th><th>Contenu</th></tr>
 <tr><td><strong>Officielle Anthropic</strong></td><td><code>anthropics/claude-plugins-official</code></td><td>Plugins curated, qualité garantie (commit-commands, code-review, etc.)</td></tr>
-<tr><td><strong>Communautaires</strong></td><td><code>claude-plugins.dev</code>, <code>claudemarketplaces.com</code></td><td>Plugins tiers, varie en qualité</td></tr>
+<tr><td><strong>Communautaires</strong></td><td><code>anthropics/claude-plugins-community</code></td><td>Plugins tiers, varie en qualité</td></tr>
 <tr><td><strong>Repo prive</strong></td><td>URL Git de votre choix</td><td>Plugins maison pour l'équipe</td></tr>
 </table>
 
 <pre># Workflow typique
 claude
 &gt; /plugin marketplace add anthropics/claude-plugins-official
-&gt; /plugin install commit-commands@anthropics-claude-code
+&gt; /plugin install commit-commands@claude-plugins-official
 &gt; /reload-plugins
 &gt; /plugin list
 
@@ -378,7 +378,7 @@ claude
 <li>Un <strong>skill</strong> est une unité individuelle (un fichier <code>SKILL.md</code> avec frontmatter)</li>
 <li>Un <strong>plugin</strong> est un <em>bundle</em> distribuable contenant plusieurs skills + commands + hooks + agents</li>
 </ul>
-La <strong>hiérarchie de priorité</strong> rappelée : <code>Enterprise &gt; Personnel &gt; Projet &gt; Plugins</code>. Les plugins ont la priorité la plus basse — un skill projet local de même nom écrase le plugin.
+La <strong>hiérarchie de priorité</strong> rappelée : <code>Enterprise &gt; Personnel &gt; Projet &gt; Plugins</code>. Les skills de plugins sont namespacés (<code>plugin:skill-name</code>) et ne peuvent donc pas être écrasés par un skill projet de même nom — seuls les skills bundled avec Claude Code (ex. <code>/code-review</code>) sont surchargeables.
 </div>
 
 <div class="exam-tip">
@@ -482,7 +482,7 @@ Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de dé
 
 <h3>Les sorties structurées</h3>
 <pre>claude -p "Revue de cette PR" --output-format json --json-schema '{...}'</pre>
-<p>Le résultat est un JSON conforme au schéma fourni via <code>--json-schema</code>, que vous pouvez parser pour poster automatiquement des commentaires inline via l'API GitHub.</p>
+<p>Le résultat reste l'enveloppe JSON habituelle de <code>--output-format json</code> ; le contenu conforme au schéma fourni via <code>--json-schema</code> se trouve dans le champ <code>structured_output</code>, que vous pouvez parser pour poster automatiquement des commentaires inline via l'API GitHub.</p>
 
 <h3>L'isolation de session pour la revue</h3>
 <div class="key-concept">
@@ -561,7 +561,7 @@ jobs:
         with:
           script: |
             const review = require('./review.json');
-            for (const issue of review.issues) {
+            for (const issue of review.structured_output.issues) {
               await github.rest.pulls.createReviewComment({
                 ...context.repo,
                 pull_number: context.issue.number,
@@ -620,26 +620,24 @@ jobs:
           {
             "type": "command",
             "command": "jq -r '.tool_input.file_path' | xargs npm run lint -- --fix",
-            "timeout": 30000
+            "timeout": 30
           }
         ]
       }
     ],
     "UserPromptSubmit": [
       {
-        "matcher": "*",
         "hooks": [
           {
             "type": "command",
             "command": "echo \"Branche actuelle : $(git branch --show-current)\"",
-            "timeout": 5000
+            "timeout": 5
           }
         ]
       }
     ],
     "Stop": [
       {
-        "matcher": "*",
         "hooks": [
           {
             "type": "command",
@@ -653,10 +651,10 @@ jobs:
 
 <table>
 <tr><th>Champ</th><th>Role</th></tr>
-<tr><td><code>matcher</code></td><td>Filtre regex sur le nom de l'outil (PreToolUse / PostToolUse) ou <code>"*"</code> pour tous</td></tr>
+<tr><td><code>matcher</code></td><td>Filtre regex sur le nom de l'outil (PreToolUse / PostToolUse) ou <code>"*"</code> pour tous. Ignoré pour <code>UserPromptSubmit</code> et <code>Stop</code>, qui ne supportent pas de matcher</td></tr>
 <tr><td><code>type</code></td><td>Toujours <code>"command"</code> dans la config (les hooks programmatiques sont via le SDK)</td></tr>
 <tr><td><code>command</code></td><td>Commande shell exécutée. Les hooks reçoivent les données en JSON sur stdin avec <code>tool_name</code> et <code>tool_input</code>. Variable d'env disponible : <code>CLAUDE_PROJECT_DIR</code></td></tr>
-<tr><td><code>timeout</code></td><td>Millisecondes avant kill (défaut : 60000). Important pour éviter de bloquer la session</td></tr>
+<tr><td><code>timeout</code></td><td>Secondes avant kill (défaut : 600 s pour les hooks command, 30 s pour <code>UserPromptSubmit</code>). Important pour éviter de bloquer la session</td></tr>
 </table>
 
 <div class="key-concept">
@@ -670,7 +668,7 @@ Pour PreToolUse, un code 2 <strong>annule l'appel d'outil</strong> et permet de 
 </div>
 
 <div class="exam-tip">
-<strong>Scénario d'examen :</strong> votre équipe veut que tous les fichiers TypeScript soient automatiquement reformatés après édition par Claude. Solution : un hook <code>PostToolUse</code> avec <code>matcher: "Edit|Write"</code> qui exécute <code>prettier --write "$CLAUDE_FILE_PATHS"</code>. Pas besoin d'instructions dans <code>CLAUDE.md</code> ni de skill — le hook est <strong>déterministe</strong> (toujours exécuté), contrairement aux instructions textuelles que Claude peut oublier.
+<strong>Scénario d'examen :</strong> votre équipe veut que tous les fichiers TypeScript soient automatiquement reformatés après édition par Claude. Solution : un hook <code>PostToolUse</code> avec <code>matcher: "Edit|Write"</code> qui lit le JSON reçu sur stdin et exécute <code>jq -r '.tool_input.file_path' | xargs prettier --write</code>. Pas besoin d'instructions dans <code>CLAUDE.md</code> ni de skill — le hook est <strong>déterministe</strong> (toujours exécuté), contrairement aux instructions textuelles que Claude peut oublier.
 </div>
 
 <h3>Hooks vs. instructions vs. skills : quand utiliser quoi</h3>
@@ -685,10 +683,11 @@ Pour PreToolUse, un code 2 <strong>annule l'appel d'outil</strong> et permet de 
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s6c">Configuration des serveurs MCP via la CLI</h3></div>
 
-<p>Les serveurs MCP peuvent être déclarés de deux manières : dans un fichier <code>.mcp.json</code> à la racine du projet (versionné, partagé équipe), ou via la CLI <code>claude mcp add</code> qui édite <code>~/.claude.json</code> (user-level).</p>
+<p>Les serveurs MCP peuvent être déclarés de trois manières, selon le <strong>scope</strong> : <code>local</code> (défaut de <code>claude mcp add</code>, privé au projet, stocké dans <code>~/.claude.json</code> sous le chemin du projet), <code>project</code> (fichier <code>.mcp.json</code> à la racine du projet, versionné, partagé équipe), ou <code>user</code> (<code>--scope user</code>, disponible dans tous les projets, stocké dans <code>~/.claude.json</code>).</p>
 
 <h3>La commande <code>claude mcp add</code></h3>
 <pre># Ajout d'un serveur stdio (transport local par sous-processus)
+# Scope par défaut : local (privé à ce projet)
 claude mcp add github -- npx -y @modelcontextprotocol/server-github
 
 # Ajout avec variables d'env (token API, URL de base)
@@ -698,6 +697,9 @@ claude mcp add postgres \
 
 # Ajout d'un serveur HTTP/SSE distant
 claude mcp add my-api --transport http https://api.example.com/mcp
+
+# Ajout en scope user (disponible dans tous les projets)
+claude mcp add github --scope user -- npx -y @modelcontextprotocol/server-github
 
 # Lister les serveurs enregistrés
 claude mcp list
@@ -728,11 +730,11 @@ claude mcp remove github</pre>
 }</pre>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> les <strong>secrets</strong> ne doivent jamais être écrits en clair dans <code>.mcp.json</code> (versionné). Utilisez la syntaxe <code>${VAR}</code> pour référencer des variables d'environnement, ou définissez le serveur dans <code>~/.claude.json</code> (user, non versionné) via <code>claude mcp add -e</code>.
+<strong>EXAM TIP :</strong> les <strong>secrets</strong> ne doivent jamais être écrits en clair dans <code>.mcp.json</code> (versionné). Utilisez la syntaxe <code>${VAR}</code> pour référencer des variables d'environnement, ou définissez le serveur en scope <code>local</code> ou <code>user</code> (non versionnés, dans <code>~/.claude.json</code>) via <code>claude mcp add -e</code>.
 </div>
 
 <div class="key-concept">
-<strong>Hiérarchie de résolution MCP :</strong> au démarrage de Claude Code, les serveurs sont chargés depuis (priorité croissante) : config user (<code>~/.claude.json</code>) → <code>.mcp.json</code> du projet → arguments CLI <code>--mcp-config</code>. Un même nom dans plusieurs sources entraîne une fusion, l'entrée de plus haute priorité l'emporte.
+<strong>Hiérarchie de résolution MCP :</strong> pour un même nom de serveur, la précédence des scopes est <strong>local &gt; project &gt; user</strong> — sans fusion des champs : l'entrée entière du scope gagnant est utilisée, celles des autres scopes sont ignorées.
 </div>
 
 <!-- ================================================================== -->
@@ -759,7 +761,7 @@ claude mcp remove github</pre>
 <ul>
 <li>Trois niveaux : user (personnel), project (équipe), directory (local).</li>
 <li>Erreur classique : mettre les instructions au user-level au lieu du project-level.</li>
-<li>Syntaxe <code>@path</code> pour les imports modulaires (profondeur max : 5 niveaux).</li>
+<li>Syntaxe <code>@path</code> pour les imports modulaires (profondeur max : 4 niveaux).</li>
 <li><code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> et glob patterns pour le chargement conditionnel.</li>
 <li>Glob patterns préférables pour les conventions cross-directory ; directory <code>CLAUDE.md</code> pour les règles strictement locales.</li>
 <li><code>/memory</code> pour persister des notes entre sessions ; <code>/compact</code> pour compresser le contexte.</li>
@@ -787,7 +789,7 @@ claude mcp remove github</pre>
 <h3>CI/CD</h3>
 <ul>
 <li>Le flag <code>-p</code> (<code>--print</code>) active le <strong>headless mode</strong>, obligatoire en CI.</li>
-<li><code>--output-format json</code> + <code>--json-schema</code> pour des sorties structurées.</li>
+<li><code>--output-format json</code> + <code>--json-schema</code> pour des sorties structurées (résultat conforme dans <code>structured_output</code>).</li>
 <li><code>--max-turns N</code> est un garde-fou contre les boucles agentiques infinies.</li>
 <li>Instance indépendante pour la revue (pas la même session qui a généré le code).</li>
 <li>Inclure les résultats de revue précédents pour éviter les commentaires dupliqués.</li>
@@ -810,13 +812,13 @@ claude mcp remove github</pre>
 <li>Définis dans le bloc <code>"hooks"</code> de <code>settings.json</code> — distincts des hooks Agent SDK (D1).</li>
 <li>Événements : <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>, <code>SessionStart</code>, <code>Notification</code>, <code>PreCompact</code>.</li>
 <li>Code de retour : 0 = OK, 2 = blocking (Claude réagit), autre = non-blocking.</li>
-<li>Variables : <code>$CLAUDE_FILE_PATHS</code>, <code>$CLAUDE_TOOL_NAME</code>, <code>$CLAUDE_TOOL_INPUT</code>.</li>
+<li>Données transmises au hook en JSON sur stdin (<code>tool_name</code>, <code>tool_input.file_path</code>, …). Variables d'env disponibles : <code>CLAUDE_PROJECT_DIR</code>, <code>CLAUDE_PLUGIN_ROOT</code>, <code>CLAUDE_ENV_FILE</code>.</li>
 <li>Hook = déterministe (toujours exécuté) ; CLAUDE.md = instruction souple ; skill = workflow invocable.</li>
 </ul>
 
 <h3>MCP dans Claude Code</h3>
 <ul>
-<li><code>.mcp.json</code> au projet (versionné) ou <code>~/.claude.json</code> (user, via <code>claude mcp add</code>).</li>
+<li>Scopes : <code>local</code> (défaut, privé au projet), <code>project</code> (<code>.mcp.json</code>, versionné), <code>user</code> (<code>--scope user</code>) — tous via <code>~/.claude.json</code> sauf <code>project</code>. Précédence : local &gt; project &gt; user.</li>
 <li>Transports : <code>stdio</code> (sous-processus local) ou <code>http</code> (distant).</li>
 <li>Secrets via <code>${VAR}</code> ou via flag <code>-e</code> de <code>claude mcp add</code>.</li>
 </ul>
@@ -902,7 +904,7 @@ A) Mettre <code>GITHUB_TOKEN: "ghp_xxx"</code> dans <code>.mcp.json</code>.
 B) Mettre <code>GITHUB_TOKEN: "${GITHUB_TOKEN}"</code> dans <code>.mcp.json</code> et chacun definit la variable d'env localement.
 C) Stocker le token dans <code>.claude/settings.json</code>.
 D) Encoder le token en base64 dans <code>.mcp.json</code>.</summary>
-<p><strong>Réponse : B.</strong> La syntaxe <code>${VAR}</code> dans <code>.mcp.json</code> est résolue au runtime depuis l'environnement. Le fichier reste versionné sans secret exposé ; chaque développeur fournit son propre token via son shell (<code>export GITHUB_TOKEN=...</code>) ou via un gestionnaire de secrets local. A et D exposent le secret dans Git. C mélange les responsabilités et expose toujours le secret si <code>settings.json</code> est versionné. Alternative légitime : utiliser <code>claude mcp add github -e GITHUB_TOKEN=...</code> qui écrit dans <code>~/.claude.json</code> (user-level, non versionné).</p>
+<p><strong>Réponse : B.</strong> La syntaxe <code>${VAR}</code> dans <code>.mcp.json</code> est résolue au runtime depuis l'environnement. Le fichier reste versionné sans secret exposé ; chaque développeur fournit son propre token via son shell (<code>export GITHUB_TOKEN=...</code>) ou via un gestionnaire de secrets local. A et D exposent le secret dans Git. C mélange les responsabilités et expose toujours le secret si <code>settings.json</code> est versionné. Alternative légitime : utiliser <code>claude mcp add github -e GITHUB_TOKEN=...</code> en scope <code>local</code> (défaut) ou <code>user</code>, qui écrit dans <code>~/.claude.json</code> (non versionné).</p>
 </details>
 
 <nav class="doc-nav">

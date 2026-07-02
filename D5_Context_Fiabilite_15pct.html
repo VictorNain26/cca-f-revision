@@ -138,7 +138,7 @@ def trim_order_fields(result):
 </table>
 
 <div class="key-concept">
-<strong>Comportement :</strong> les tool results effacés sont remplacés par un placeholder textuel pour que Claude sache qu'ils ont été retirés. La réponse contient un bloc <code>context_management.applied_edits</code> avec le détail (combien de tool uses effacés, combien de tokens libérés).
+<strong>Comportement :</strong> les tool results effacés sont remplacés par un placeholder textuel pour que Claude sache qu'ils ont été retirés. La réponse contient un champ top-level <code>context_management.applied_edits</code> (pas un bloc de contenu) avec le détail (combien de tool uses effacés, combien de tokens libérés).
 </div>
 
 <div class="exam-tip">
@@ -172,12 +172,12 @@ Les deux sont complémentaires : le hook réduit la taille initiale, l'API gère
 <tr><th>Métrique</th><th>Sans cache</th><th>Avec cache (cache hit)</th></tr>
 <tr><td>Coût des input tokens cachés</td><td>1× tarif standard</td><td><strong>0,1×</strong> tarif standard (90% de réduction)</td></tr>
 <tr><td>Écriture cache (cache write, premier appel)</td><td>—</td><td><strong>1,25×</strong> tarif standard (TTL 5 min) ou <strong>2×</strong> (TTL 1h)</td></tr>
-<tr><td>Latence (TTFT)</td><td>1×</td><td>Réduite (souvent ~50% sur prompts longs)</td></tr>
+<tr><td>Latence (TTFT)</td><td>1×</td><td>Réduite (jusqu'à ~85% sur prompts longs)</td></tr>
 <tr><td>TTL (durée de vie)</td><td>—</td><td>5 minutes (par défaut) ou 1 heure (option)</td></tr>
 </table>
 
 <div class="key-concept">
-<strong>Règle économique :</strong> le cache est rentable dès que le prefix mis en cache est <strong>réutilisé au moins 2 fois</strong> dans la fenêtre TTL. En dessous, le surcoût de cache write (1,25×) n'est pas amorti.
+<strong>Règle économique :</strong> en TTL 5 min, le cache est rentable dès <strong>1 seule réutilisation</strong> du prefix (write 1,25× + read 0,1× = 1,35× à comparer aux 2× qu'aurait coûté un rappel sans cache). Le seuil de <strong>2 réutilisations</strong> ne s'applique qu'en TTL 1 h, où le write coûte 2×.
 </div>
 
 <h3>Les <code>cache_control</code> breakpoints</h3>
@@ -186,24 +186,23 @@ Les deux sont complémentaires : le hook réduit la taille initiale, l'API gère
 <pre>{
   "model": "claude-sonnet-4-6",
   "max_tokens": 1024,
-  "system": [
-    {
-      "type": "text",
-      "text": "Tu es un assistant juridique spécialisé...",
-      "cache_control": { "type": "ephemeral" }    <-- breakpoint 1 (system stable)
-    }
-  ],
   "tools": [
     { "name": "search_cases", "description": "...", "input_schema": {...} },
     { "name": "fetch_doc", "description": "...", "input_schema": {...},
-      "cache_control": { "type": "ephemeral" }   <-- breakpoint 2 (tools stables)
+      "cache_control": { "type": "ephemeral" }   <-- breakpoint 1 (tools + system, cachés ensemble)
+    }
+  ],
+  "system": [
+    {
+      "type": "text",
+      "text": "Tu es un assistant juridique spécialisé..."
     }
   ],
   "messages": [
     { "role": "user", "content": [
         { "type": "text",
           "text": "Voici le dossier complet (50k tokens)...",
-          "cache_control": { "type": "ephemeral" }  <-- breakpoint 3 (gros doc)
+          "cache_control": { "type": "ephemeral" }  <-- breakpoint 2 (gros doc)
         }
     ]},
     { "role": "assistant", "content": "..." },
@@ -212,26 +211,27 @@ Les deux sont complémentaires : le hook réduit la taille initiale, l'API gère
 }</pre>
 
 <h3>L'ordre de placement (du plus stable au moins stable)</h3>
+<p>L'ordre réel de rendu du prefix par l'API est <strong><code>tools</code> → <code>system</code> → <code>messages</code></strong>. Un breakpoint placé sur le dernier bloc <code>tools</code> couvre donc aussi le <code>system</code> qui le suit dans le prefix : tools et system sont cachés ensemble via un seul breakpoint.</p>
 <table>
 <tr><th>Position</th><th>Contenu</th><th>Stabilité</th></tr>
-<tr><td>1. <code>system</code></td><td>System prompt</td><td>Très stable (rarement modifié)</td></tr>
-<tr><td>2. <code>tools</code></td><td>Définitions d'outils</td><td>Stable (change avec le déploiement)</td></tr>
+<tr><td>1. <code>tools</code></td><td>Définitions d'outils</td><td>Stable (change avec le déploiement)</td></tr>
+<tr><td>2. <code>system</code></td><td>System prompt</td><td>Très stable (rarement modifié)</td></tr>
 <tr><td>3. Premier <code>user</code></td><td>Documents larges, contexte de tâche</td><td>Stable pendant une session</td></tr>
-<tr><td>4. Derniers <code>messages</code></td><td>Historique de conversation</td><td>Variable (à NE PAS cacher)</td></tr>
+<tr><td>4. Derniers <code>messages</code></td><td>Historique de conversation</td><td>Variable, mais un breakpoint sur le dernier bloc du dernier turn est le pattern documenté pour le multi-turn</td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> les blocs sont mis en cache <strong>jusqu'au dernier breakpoint inclus</strong>. Si vous placez un breakpoint sur le system prompt et un autre sur le dernier message, vous payez 2 cache writes mais cachez tout l'entre-deux. Pour un agent multi-turn, l'optimum est : breakpoint sur system, breakpoint sur tools, breakpoint sur le contexte initial du dossier — <em>jamais</em> sur les messages mouvants.
+<strong>EXAM TIP :</strong> les blocs sont mis en cache <strong>jusqu'au dernier breakpoint inclus</strong>. Si vous placez un breakpoint sur les tools/system et un autre sur le dernier message, vous payez 2 cache writes mais cachez tout l'entre-deux. Pour un agent multi-turn, l'optimum est : breakpoint sur tools+system, breakpoint sur le contexte initial du dossier, et un breakpoint sur le dernier bloc du dernier turn — le match se fait par préfixe, donc ajouter un nouveau turn n'invalide pas le préfixe antérieur et les hits s'accumulent au fil des turns.
 </div>
 
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> mettre <code>cache_control</code> sur chaque message utilisateur. Chaque turn invalide le cache du turn précédent (le contenu n'est plus identique) et déclenche un cache write inutile. Résultat : surcoût net au lieu d'économie.
+<strong>Anti-pattern :</strong> mettre <code>cache_control</code> sur chaque message utilisateur au lieu du dernier bloc du dernier turn uniquement. Le pattern documenté pour le multi-turn est un breakpoint unique sur le dernier bloc du dernier turn ; multiplier les breakpoints sur des messages intermédiaires gaspille le budget de 4 breakpoints sans bénéfice, le préfixe antérieur restant de toute façon couvert par matching de préfixe.
 </div>
 
 <h3>Quand le cache est invalidé</h3>
 <ul>
 <li>Toute modification du <strong>system prompt</strong> invalide tout le cache aval</li>
-<li>Toute modification des <strong>tool definitions</strong> invalide le cache à partir des tools</li>
+<li>Toute modification des <strong>tool definitions</strong> invalide la <strong>totalité</strong> du cache : les tools sont en position 0 du prefix, donc les modifier invalide aussi le system et tout ce qui suit</li>
 <li>Tout changement <em>avant</em> un breakpoint invalide ce breakpoint et tous les suivants</li>
 <li>Expiration du TTL (5 min ou 1h selon configuration)</li>
 <li>Changement de modèle (le cache est lié au modèle exact)</li>
@@ -264,7 +264,7 @@ Les deux sont complémentaires : le hook réduit la taille initiale, l'API gère
 </table>
 
 <div class="exam-tip">
-<strong>Règle de calcul :</strong> contexte effectif disponible = limite du modèle − <code>max_tokens</code> de la réponse − tokens stables (system, tools) − tool results restants. Si le budget calculé est négatif avant un appel, déclencher <code>/compact</code> ou déléguer à un subagent <em>avant</em> l'appel, pas après l'erreur 400.
+<strong>Règle de calcul :</strong> contexte effectif disponible = limite du modèle − <code>max_tokens</code> de la réponse − tokens stables (system, tools) − tool results restants. Si le budget calculé est négatif avant un appel, déclencher <code>/compact</code> ou déléguer à un subagent <em>avant</em> l'appel, pas après l'erreur 400. Au-delà de cette erreur 400 pré-appel, un dépassement survenant <em>en cours de génération</em> sur les modèles 4.5+ ne renvoie pas une erreur mais un <code>stop_reason: "model_context_window_exceeded"</code> en HTTP 200 — à détecter et traiter comme un signal de troncature.
 </div>
 
 <h3>Progressive summarization (compression progressive)</h3>
@@ -317,18 +317,20 @@ Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaiso
 <tr><td><strong>Memory tool</strong> (API)</td><td>FS virtuel client</td><td>Permanente entre sessions</td><td>Préférences user à long terme dans une app</td></tr>
 </table>
 
-<pre>// Le memory tool expose 4 opérations standard
+<pre>// Le memory tool expose 6 commandes standard
 {
   "name": "memory",
   "type": "memory_20250818"  // version officielle
 }
 
-// Claude appelle automatiquement :
-// - memory(action="view", path="/")          → lister les fichiers
-// - memory(action="view", path="/notes.md")  → lire un fichier
-// - memory(action="create", path="/notes.md", file_text="...")  → écrire
-// - memory(action="str_replace", path="/notes.md", old_str=..., new_str=...)
-// - memory(action="delete", path="/notes.md")</pre>
+// Claude appelle automatiquement (champ "command", pas "action") :
+// - memory(command="view", path="/")          → lister les fichiers
+// - memory(command="view", path="/notes.md")  → lire un fichier
+// - memory(command="create", path="/notes.md", file_text="...")  → écrire
+// - memory(command="str_replace", path="/notes.md", old_str=..., new_str=...)
+// - memory(command="insert", path="/notes.md", insert_line=3, insert_text="...")  → insérer une ligne
+// - memory(command="delete", path="/notes.md")
+// - memory(command="rename", old_path="/notes.md", new_path="/archive.md")</pre>
 
 <div class="key-concept">
 <strong>Quand utiliser :</strong> applications conversationnelles à long terme où Claude doit se souvenir de préférences user (style préféré, contraintes médicales, projets en cours) entre sessions, <em>sans</em> tout réinjecter dans le prompt à chaque turn. C'est le complément naturel du prompt caching : le cache économise sur les contenus stables ; le memory tool stocke ce qui doit être rappelé sélectivement.
@@ -339,7 +341,7 @@ Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaiso
 </div>
 
 <h3>Token budgeting : un calcul chiffré pas-à-pas</h3>
-<p>Mettons en pratique le concept de §1 sur un cas concret : <strong>agent juridique multi-turn, modèle Claude Sonnet 4.6 (200k tokens), session de 15 turns sur un dossier de 50k tokens</strong>.</p>
+<p>Mettons en pratique le concept de §1 sur un cas concret : <strong>agent juridique multi-turn, modèle Claude Haiku 4.5 (200k tokens), session de 15 turns sur un dossier de 50k tokens</strong>. (Note : Sonnet 4.6 dispose d'une fenêtre de 1M tokens ; on choisit ici Haiku 4.5, dont la fenêtre est bien de 200K, pour que les pourcentages ci-dessous restent valides.)</p>
 
 <table>
 <tr><th>Composante</th><th>Tokens alloués</th><th>Stratégie</th></tr>
@@ -357,7 +359,7 @@ Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaiso
 <strong>Calcul d'économie cache (turn 2 → 15) :</strong>
 <ul>
 <li>Tokens cachés (stables) = 3 000 + 5 000 + 50 000 = <strong>58 000 tokens</strong></li>
-<li>Coût input standard Sonnet 4.6 ≈ 3 $/1M tokens</li>
+<li>Coût input standard (illustratif) ≈ 3 $/1M tokens</li>
 <li>Sans cache, sur 14 turns = 58 000 × 14 = 812 000 tokens × 3 $/1M = <strong>2,44 $</strong></li>
 <li>Avec cache (lecture à 0,1× = 0,30 $/1M) :
   <ul>
@@ -377,7 +379,7 @@ Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaiso
 <tr><td>Total prévu &gt; 80 % du contexte</td><td>Déclencher <code>/compact</code> ou progressive summarization niveau 2</td></tr>
 <tr><td>Tool results accumulent &gt; 20 % du contexte</td><td>Vérifier le hook PostToolUse de trimming (D5 §1)</td></tr>
 <tr><td>Cache hit rate &lt; 50 %</td><td>Le prefix change trop — déplacer les contenus mouvants après le dernier breakpoint</td></tr>
-<tr><td>Erreur 400 "context length exceeded"</td><td>Subagent Explore + scratchpad + nouvelle session avec résumé</td></tr>
+<tr><td>Erreur 400 "context length exceeded" (avant appel), ou <code>stop_reason: "model_context_window_exceeded"</code> en HTTP 200 (dépassement en cours de génération, modèles 4.5+)</td><td>Subagent Explore + scratchpad + nouvelle session avec résumé</td></tr>
 <tr><td>Faits critiques perdus après <code>/compact</code></td><td>Le case facts block n'était pas en place — l'ajouter et restaurer depuis scratchpad</td></tr>
 </table>
 
@@ -682,10 +684,10 @@ Note : la couverture de cette section est limitée.
 <li><code>cache_control: {"type":"ephemeral"}</code> marque un breakpoint — tout le prefix antérieur est mis en cache.</li>
 <li>Maximum <strong>4 breakpoints</strong> par requête. Placement type : system, tools, contexte initial du dossier.</li>
 <li>Économie : <strong>90 % sur les input tokens cachés</strong> ; surcoût write : 1,25× (TTL 5 min) ou 2× (TTL 1 h).</li>
-<li>Rentable dès <strong>2 réutilisations</strong> du prefix dans la fenêtre TTL.</li>
-<li>Anti-pattern : cacher les messages mouvants (chaque turn invalide le précédent).</li>
+<li>Rentable dès <strong>1 réutilisation</strong> en TTL 5 min ; <strong>2 réutilisations</strong> en TTL 1 h (write 2×).</li>
+<li>Anti-pattern : cacher les messages mouvants (chaque turn invalide le précédent) ; ordre de rendu réel = tools → system → messages.</li>
 <li>Métriques : <code>cache_creation_input_tokens</code> (write), <code>cache_read_input_tokens</code> (hit). Hit rate cible &gt; 80 % sur turns 2+.</li>
-<li>Token budget = limite modèle − <code>max_tokens</code> − stables − tool results. Anticiper, ne pas attendre l'erreur 400.</li>
+<li>Token budget = limite modèle − <code>max_tokens</code> − stables − tool results. Anticiper, ne pas attendre l'erreur 400 ou le <code>stop_reason: "model_context_window_exceeded"</code> (modèles 4.5+).</li>
 <li>Progressive summarization à 3 niveaux : naturelle (<code>/compact</code>), structurée (subagent), hiérarchique (résumé des résumés).</li>
 <li>CALM (concept) : Compression / Allocation / Loss prevention / Monitoring — combinaison, pas alternative.</li>
 </ul>

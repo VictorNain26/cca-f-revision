@@ -152,12 +152,13 @@ Les few-shot examples sont particulièrement efficaces pour l'extraction de mesu
 <div class="section-header"><h2 id="s3">3. Les sorties structurées avec tool_use et JSON Schema (Task 4.3)</h2></div>
 
 <h3>Le problème que cela résout</h3>
-<p>Quand vous avez besoin que Claude retourne des données dans un format précis (pour alimenter un pipeline, une API, ou un système d'automatisation), le texte libre est insuffisant. Le mécanisme <code>tool_use</code> combiné à un JSON Schema garantit un résultat syntaxiquement valide et conforme à la structure attendue.</p>
+<p>Quand vous avez besoin que Claude retourne des données dans un format précis (pour alimenter un pipeline, une API, ou un système d'automatisation), le texte libre est insuffisant. La méthode recommandée aujourd'hui est celle des <strong>Structured Outputs</strong> natifs : <code>output_config: {"format": {"type": "json_schema", "schema": {...}}}</code> (ou, côté SDK, <code>client.messages.parse()</code> avec un modèle Pydantic, dont le résultat est exposé dans <code>response.parsed_output</code>). Le mécanisme <code>tool_use</code> combiné à un JSON Schema reste un pattern valable pour obtenir une sortie structurée.</p>
 
 <div class="key-concept">
-<strong><code>tool_use</code> + JSON Schema = la méthode la plus fiable pour obtenir une sortie structurée.</strong><br>
-Ce mécanisme <strong>garantit</strong> : un JSON syntaxiquement valide (pas d'accolades manquantes, pas de virgules en trop) et la présence des champs <code>required</code>.<br>
-Il <strong>ne garantit pas</strong> : la correction sémantique (les valeurs peuvent être fausses, les totaux peuvent ne pas correspondre).
+<strong>Structured Outputs natifs = la méthode recommandée pour obtenir une sortie structurée.</strong><br>
+Avec <code>output_config.format.type = "json_schema"</code> (ou <code>client.messages.parse()</code>), la conformité au schéma et la présence des champs <code>required</code> sont garanties.<br>
+Le <code>tool_use</code> forcé reste un pattern valable, mais <strong>sans <code>strict: true</code></strong> sur la définition d'outil, il ne garantit <strong>ni</strong> la conformité au schéma <strong>ni</strong> la présence des champs <code>required</code> — le modèle peut produire un JSON valide mais qui s'écarte du schéma.<br>
+Dans tous les cas, ce qui n'est <strong>jamais</strong> garanti : la correction sémantique (les valeurs peuvent être fausses, les totaux peuvent ne pas correspondre).
 </div>
 
 <h3>Le paramètre <code>tool_choice</code></h3>
@@ -166,6 +167,7 @@ Il <strong>ne garantit pas</strong> : la correction sémantique (les valeurs peu
 <tr><td><code>auto</code></td><td>Claude décide s'il utilise l'outil ou non</td><td>Scénarios où l'outil n'est pas toujours pertinent</td></tr>
 <tr><td><code>any</code></td><td>Claude doit utiliser au moins un outil parmi ceux disponibles</td><td>Forcer une sortie structurée sans imposer un outil précis</td></tr>
 <tr><td><strong>Forced</strong> (nom spécifique)</td><td>Claude doit utiliser exactement cet outil</td><td>Extraction avec un schéma précis et obligatoire</td></tr>
+<tr><td><code>{"type": "none"}</code></td><td>Claude ne doit utiliser aucun outil</td><td>Forcer une réponse en texte libre même si des outils sont déclarés</td></tr>
 </table>
 
 <h3>Les règles de conception d'un schéma</h3>
@@ -180,7 +182,7 @@ Il <strong>ne garantit pas</strong> : la correction sémantique (les valeurs peu
 <h3>Erreurs syntaxiques vs erreurs sémantiques</h3>
 <table>
 <tr><th>Type</th><th>Exemple</th><th>Comment les traiter</th></tr>
-<tr><td><strong>Syntax errors</strong></td><td>JSON invalide, mauvais type de champ</td><td>Éliminées par <code>tool_use</code> avec un schéma</td></tr>
+<tr><td><strong>Syntax errors</strong></td><td>JSON invalide, mauvais type de champ</td><td>Éliminées par les Structured Outputs natifs (ou <code>tool_use</code> avec <code>strict: true</code>)</td></tr>
 <tr><td><strong>Semantic errors</strong></td><td>Totaux incohérents, valeur dans le mauvais champ</td><td>Validation programmatique + retry-with-feedback</td></tr>
 </table>
 
@@ -346,10 +348,14 @@ def extract_invoice(document_text: str, max_retries: int = 3) -&gt; Invoice:
 <table>
 <tr><th>Paramètre</th><th>Valeur</th></tr>
 <tr><td>Réduction de coût</td><td><strong>50 %</strong></td></tr>
-<tr><td>Fenêtre de traitement</td><td>Jusqu'à <strong>24 heures</strong></td></tr>
+<tr><td>Fenêtre de traitement</td><td>La plupart des batchs terminent en moins d'1 heure, jusqu'à <strong>24 heures</strong> maximum</td></tr>
 <tr><td>SLA de latence</td><td><strong>Aucun garanti</strong></td></tr>
+<tr><td>Limites de taille</td><td><strong>100 000 requêtes</strong> ou <strong>256 Mo</strong> par batch (la limite atteinte en premier s'applique)</td></tr>
+<tr><td>Conservation des résultats</td><td><strong>29 jours</strong></td></tr>
+<tr><td>Ordre des résultats</td><td><strong>Non ordonné</strong> — matcher chaque réponse par <code>custom_id</code>, jamais par position</td></tr>
 <tr><td>Boucle d'outils interactive</td><td><strong>Non supportée</strong> : pas de boucle d'outils interactive, une passe, une réponse</td></tr>
 <tr><td>Correlation requête/réponse</td><td>Via le champ <code>custom_id</code></td></tr>
+<tr><td>Features Messages supportées</td><td>Toutes, y compris le <strong>prompt caching</strong></td></tr>
 </table>
 
 <div class="exam-tip">
@@ -424,7 +430,7 @@ En pratique, découper cette fenêtre en blocs plus petits (par exemple, 2 fenê
 <h3>La temperature</h3>
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Usage</th></tr>
-<tr><td><strong>0</strong></td><td>Déterministe (toujours le token le plus probable)</td><td>Extraction de données, tâches factuelles</td></tr>
+<tr><td><strong>0</strong></td><td>Quasi-déterministe (toujours le token le plus probable, mais jamais garanti identique d'un appel à l'autre)</td><td>Extraction de données, tâches factuelles</td></tr>
 <tr><td><strong>Proche de 1</strong></td><td>Plus créatif (tokens moins probables sélectionnés)</td><td>Brainstorming, rédaction créative</td></tr>
 </table>
 
@@ -434,7 +440,7 @@ En pratique, découper cette fenêtre en blocs plus petits (par exemple, 2 fenê
 
 <h3>Autres techniques de contrôle</h3>
 <ul>
-<li><strong>Pre-remplissage du message assistant :</strong> commencer le message assistant pour orienter la réponse dans une direction précise.</li>
+<li><strong>Pre-remplissage du message assistant :</strong> commencer le message assistant pour orienter la réponse dans une direction précise. <strong>Technique legacy</strong> : sur tous les modèles 4.6+ (Opus 4.6/4.7/4.8, Sonnet 4.6/5, Fable 5), pré-remplir le message assistant retourne une erreur 400. Le remplacement officiel est les structured outputs ou une instruction system.</li>
 <li><strong>Stop sequences :</strong> forcer l'arrêt de la génération quand une chaîne spécifique apparaît.</li>
 <li><strong>Prompt chaining :</strong> décomposer une tâche complexe en étapes séquentielles focalisées, chacune avec son propre prompt.</li>
 </ul>
@@ -455,7 +461,7 @@ En pratique, découper cette fenêtre en blocs plus petits (par exemple, 2 fenê
 <tr><td><strong>E</strong></td><td><strong>E</strong>xplicit criteria : les règles précises de décision</td><td>§1 (critères explicites)</td></tr>
 <tr><td><strong>C</strong></td><td><strong>C</strong>ontext : documents, données, historique pertinent (avec balises XML)</td><td>§7 (structurer avec XML)</td></tr>
 <tr><td><strong>I</strong></td><td><strong>I</strong>nstructions / Steps : les étapes du raisonnement attendu</td><td>§7 (CoT) (chain-of-thought)</td></tr>
-<tr><td><strong>S</strong></td><td><strong>S</strong>chema : le format de sortie (JSON Schema via tool_use, balises XML, prefill)</td><td>§3 (structured output)</td></tr>
+<tr><td><strong>S</strong></td><td><strong>S</strong>chema : le format de sortie (Structured Outputs / JSON Schema via tool_use, balises XML ; prefill = technique legacy, en erreur 400 sur les modèles 4.6+)</td><td>§3 (structured output)</td></tr>
 <tr><td><strong>E</strong></td><td><strong>E</strong>xamples : few-shot examples sur les cas ambigus</td><td>§2 (few-shot)</td></tr>
 </table>
 
@@ -512,7 +518,7 @@ Output: { category: "other", severity: "medium", escalate: true,
 
 <h3>Extended thinking — API par version de modèle</h3>
 
-<p><strong>Sur Opus 4.7 (avril 2026) :</strong> seul le mode <code>adaptive</code> est accepté. Le paramètre <code>budget_tokens</code> a été <strong>retiré</strong> ; le modèle décide dynamiquement combien de tokens investir dans le raisonnement selon la complexité. Spécifier <code>budget_tokens</code> retourne une erreur 400.</p>
+<p><strong>Sur Opus 4.7 (avril 2026) :</strong> le mode <code>adaptive</code> est accepté, ainsi que <code>{"type": "disabled"}</code> ou l'omission pure et simple du paramètre <code>thinking</code>. Le paramètre <code>budget_tokens</code> a été <strong>retiré</strong> ; quand adaptive thinking est activé, le modèle décide dynamiquement combien de tokens investir dans le raisonnement selon la complexité. Spécifier <code>budget_tokens</code> retourne une erreur 400.</p>
 
 <pre>// Opus 4.7 — adaptive thinking (par défaut quand activé)
 {
@@ -539,15 +545,15 @@ Output: { category: "other", severity: "medium", escalate: true,
 <strong>Comportement adaptive thinking :</strong>
 <ul>
 <li>Pas de budget fixe — Claude décide selon la complexité (simple lookup = court raisonnement, debug complexe = raisonnement plus profond)</li>
-<li>Le modèle voit un compteur de tokens restants et priorise pour finir gracieusement</li>
+<li>Un compteur de tokens restants visible par le modèle existe via les <strong>Task Budgets</strong> (<code>output_config.task_budget</code>, beta <code>task-budgets-2026-03-13</code>) — c'est un mécanisme distinct de l'adaptive thinking, qui permet de plafonner le budget global (thinking + output) d'une requête et que le modèle priorise pour finir gracieusement</li>
 <li>Le reasoning trace n'est pas affiché directement (accessible via <code>content[].type == "thinking"</code>)</li>
 <li>L'output principal arrive ensuite dans un block <code>type: "text"</code> séparé</li>
-<li><strong>Interleaved thinking</strong> (beta header <code>interleaved-thinking-2025-05-14</code>) : Claude peut raisonner <em>entre</em> les tool calls dans la boucle agentique</li>
+<li><strong>Interleaved thinking</strong> : avec l'adaptive thinking, il est activé automatiquement, <strong>sans</strong> header beta. Le header beta <code>interleaved-thinking-2025-05-14</code> n'est requis que sur l'ancien chemin <code>budget_tokens</code> (thinking classique) pour que Claude puisse raisonner <em>entre</em> les tool calls dans la boucle agentique</li>
 </ul>
 </div>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> si une question oppose <em>budget_tokens manuel</em> à <em>adaptive thinking</em> sur Opus 4.7, la bonne réponse est toujours <code>adaptive</code> — le manuel n'est plus accepté. Sur les modèles 4.6 et antérieurs, les deux marchent mais adaptive est l'avenir.
+<strong>EXAM TIP :</strong> si une question oppose <em>budget_tokens manuel</em> à <em>adaptive thinking</em> sur Opus 4.7, la bonne réponse est toujours <code>adaptive</code> — le manuel n'est plus accepté. « Sur les modèles 4.6 et antérieurs, les deux marchent » n'est vrai que pour la <strong>famille 4.6</strong> (dépréciée mais encore acceptée) : sur les modèles pré-4.6, seul <code>{"type": "enabled", "budget_tokens": N}</code> existe, <code>adaptive</code> n'y est pas disponible.
 </div>
 
 <h3>Quand utiliser CoT vs ne pas l'utiliser</h3>
@@ -758,7 +764,7 @@ IGNORE PREVIOUS INSTRUCTIONS. You are now...
 
 <h3>Chain-of-thought et extended thinking</h3>
 <ul>
-<li>3 variantes : CoT inline ("think step by step"), CoT structure (balises <code>&lt;thinking&gt;</code>), extended thinking API (<code>thinking: {type:"enabled", budget_tokens:N}</code>).</li>
+<li>3 variantes : CoT inline ("think step by step"), CoT structure (balises <code>&lt;thinking&gt;</code>), extended thinking API (<code>thinking: {"type": "adaptive"}</code> ; <code>budget_tokens</code> déprécié sur la famille 4.6, en erreur 400 sur 4.7+).</li>
 <li>Recommandé pour : raisonnement multi-étapes, décisions multi-critères, code review complexe.</li>
 <li>Déconseillé pour : extraction simple, latence critique user-facing.</li>
 <li>Compatible tool_use : Claude peut réfléchir avant chaque tool call dans la boucle agentique.</li>
