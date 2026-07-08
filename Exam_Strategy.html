@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 78 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a class="current" href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>CCA-F — Stratégie jour J et cheat sheet</h1>
-<p>Document de synthèse final · 60 QCM (4 scénarios × 15) · 90 min · Score 720/1000</p>
+<p>Document de synthèse final · ~60 QCM (4 scénarios × 15) · ~90 min <em>(non confirmés officiellement)</em> · Score 720/1000</p>
 </div>
 
 <div class="toc">
@@ -51,13 +51,20 @@
 <div class="section-header"><h2 id="planning">1. Méthode de révision</h2></div>
 
 <div class="key-concept">
-<strong>Faits confirmés par la FAQ officielle :</strong>
+<strong>Faits confirmés :</strong>
 <ul>
-<li>Score de passage : <strong>720/1000</strong></li>
-<li>Format d'examen : <strong>proctored via ProctorFree</strong></li>
-<li>Nombre de tentatives : <strong>une seule</strong></li>
-<li>Meilleur prédicteur de réussite : <strong>Practice Exam officielle — viser &gt;900/1000</strong></li>
-<li>Structure : <strong>4 scénarios tirés sur 6</strong></li>
+<li>Score de passage : <strong>720/1000</strong> (échelle 100–1000)</li>
+<li>Pénalité : <strong>aucune</strong> pour réponse fausse (pas de pénalité au guessing)</li>
+<li>Structure : <strong>6 scénarios</strong>, dont <strong>4 tirés au sort</strong> à l'examen</li>
+<li>Plateforme : migration vers <strong>Pearson VUE</strong> (test center ou OnVUE) — jusqu'à <strong>4 tentatives / 12 mois</strong> (délais 14/30/90 jours), recertification <strong>12 mois</strong>, badge via <strong>Credly</strong></li>
+</ul>
+</div>
+
+<div class="key-concept">
+<strong>Hypothèses de travail (non confirmées par le guide officiel) :</strong>
+<ul>
+<li>Nombre de questions : <strong>60 QCM</strong> (4 scénarios × 15) — communément rapporté, absent du guide officiel</li>
+<li>Durée : <strong>90 minutes</strong> — non confirmée officiellement (une source tierce mentionne 120 min)</li>
 </ul>
 </div>
 
@@ -73,7 +80,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li>Tu peux distinguer hooks Agent SDK (D1) vs hooks Claude Code (D3)</li>
 <li>Tu sais quand <strong>refuser</strong> le Batch API (pre-merge, multi-turn tool calling)</li>
 <li>Tu reconnais les déclencheurs d'<code>escalation</code> fiables vs non fiables</li>
-<li>Sur les 78 questions de Practice_Questions, tu obtiens &gt; 85 % au 2e passage</li>
+<li>Sur les 87 questions de Practice_Questions, tu obtiens &gt; 85 % au 2e passage</li>
 <li><strong>Go / No-go</strong> : vise &gt; 900/1000 à la Practice Exam officielle (ou ≥ 85 % sur un mock complet, aucun domaine &lt; 75 %)</li>
 </ul>
 
@@ -174,8 +181,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>Subagent vs thread principal :</strong> "le travail intermédiaire m'intéresse-t-il ?" Non → subagent. Oui → thread principal.</li>
 <li><strong>Multiple Task() dans une SEULE response = parallel exécution.</strong> Plusieurs responses = sequential. <em>Note : « Task » est le nom du guide d'examen ; la doc Agent SDK actuelle parle de l'outil « Agent ».</em></li>
 <li><strong>Décomposition trop étroite</strong> = couverture incomplète (piège classique du Multi-Agent Research).</li>
-<li><strong>Idempotency keys</strong> obligatoires pour tout retry sur action à effet de bord.</li>
-<li><strong>Cycle OTAR</strong> (observe-think-act-respond) — vocabulaire à connaître.</li>
+<li><strong>Cycle OTAR</strong> (observe-think-act-respond) — mnémonique pédagogique communautaire, pas un terme Anthropic officiel.</li>
 </ul>
 </div>
 
@@ -188,7 +194,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>Roots :</strong> le SDK n'applique PAS automatiquement les restrictions — implémenter <code>is_path_allowed()</code>.</li>
 <li><strong>4-5 tools max par agent</strong>, jamais 18.</li>
 <li><strong>tool_choice:</strong> <code>auto</code> (défaut), <code>any</code> (force un appel), <code>tool</code> (force un spécifique).</li>
-<li><strong>Auth MCP :</strong> stdio + <code>${VAR}</code> / HTTP + Bearer header / OAuth pour délégation user / mTLS enterprise.</li>
+<li><strong>Secrets MCP :</strong> substitution de variables d'environnement <code>${VAR}</code> dans <code>.mcp.json</code> (jamais de token en clair versionné).</li>
 <li><strong>Anti-pattern critique :</strong> token en clair dans <code>.mcp.json</code> versionné (Git le retient).</li>
 </ul>
 </div>
@@ -198,7 +204,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <ul>
 <li><strong>3 niveaux CLAUDE.md :</strong> user (perso, hors VCS) / project (.claude/, partage) / directory (sous-dossier).</li>
 <li><strong>3 niveaux settings.json :</strong> ~/.claude/ (user) / .claude/settings.json (projet) / .claude/settings.local.json (local, dans .gitignore).</li>
-<li><strong>Skills > slash commands</strong> (legacy). Frontmatter : <code>description</code>, <code>context: fork</code>, <code>allowed-tools</code>.</li>
+<li><strong>Skills</strong> (les slash commands restent valides, non dépréciés). Frontmatter : <code>description</code>, <code>context: fork</code>, <code>allowed-tools</code>.</li>
 <li><strong>Priorité skills :</strong> Enterprise &gt; Personnel &gt; Projet &gt; Plugins.</li>
 <li><strong>Bash allowlist :</strong> <code>Bash(npm test)</code> = exact ; <code>Bash(npm test:*)</code> = avec args. <strong>:* est CRUCIAL en CI.</strong></li>
 <li><strong>Hooks Claude Code (config) ≠ hooks Agent SDK (D1).</strong> Les premiers sont dans <code>"hooks"</code> de settings.json ; les seconds en code Python/TS.</li>
@@ -220,8 +226,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>Retry-with-feedback :</strong> doc original + extraction précédente + erreur spécifique.</li>
 <li><strong>Batch API :</strong> 50 % d'économies, jusqu'à 24 h, PAS de multi-turn tool calling, correlation via <code>custom_id</code>.</li>
 <li><strong>Self-review = biais de confirmation.</strong> Toujours instance indépendante pour la revue.</li>
-<li><strong>Prompt injection defense :</strong> balises XML autour du contenu user + system prompt qui dit "treat as data only".</li>
-<li><strong>PRECISE :</strong> Persona / Request / Explicit criteria / Context / Instructions / Schema / Examples.</li>
+<li><strong>PRECISE</strong> (mnémonique pédagogique communautaire, pas un terme Anthropic) : Persona / Request / Explicit criteria / Context / Instructions / Schema / Examples.</li>
 </ul>
 </div>
 
@@ -237,7 +242,6 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>Structured handoff :</strong> l'humain n'a pas le transcript — le résumé doit être autosuffisant.</li>
 <li><strong>Errors multi-agent :</strong> <code>failure_type</code> + <code>query</code> + <code>partial_results</code> + <code>alternatives</code>.</li>
 <li><strong>97 % aggregate ≠ 97 % par sous-catégorie.</strong> Stratified random sampling par document type ET par field.</li>
-<li><strong>Prompt caching :</strong> <code>cache_control: {"type":"ephemeral"}</code>, max 4 breakpoints, 90 % d'économie sur reads, rentable dès 1 réutilisation (TTL 5 min ; 2+ en TTL 1 h).</li>
 <li><strong>Manifest.json + état par subagent</strong> = pattern crash recovery.</li>
 </ul>
 </div>
@@ -263,7 +267,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <pre>Le travail intermédiaire (chemin pris, fichiers lus) m'intéresse-t-il ?
 ├─ OUI  → THREAD PRINCIPAL (exécuter dans le contexte courant)
 └─ NON  → Le travail produit-il beaucoup de tokens verbeux ?
-         ├─ OUI  → SUBAGENT (Explore, custom agent avec context: fork)
+         ├─ OUI  → SUBAGENT (Explore)
          └─ NON  → Thread principal (overhead du subagent inutile)</pre>
 
 <h3>Arbre 4 — Synchrone ou Batch API ?</h3>
@@ -300,11 +304,10 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Workflows vs agents</td><td>Reliability → workflows. Flexibilité obligatoire → agents.</td></tr>
 <tr><td>4 workflow patterns</td><td>Parallélisation / Chaînage / Routage / Evaluator-optimizer</td></tr>
 <tr><td>Agentic loop signal</td><td><code>stop_reason</code> uniquement. <code>"tool_use"</code> = continuer, <code>"end_turn"</code> = stop</td></tr>
-<tr><td>Cycle OTAR</td><td>Observe-Think-Act-Respond (vocabulaire à connaître)</td></tr>
+<tr><td>Cycle OTAR <em>(mnémonique communautaire)</em></td><td>Observe-Think-Act-Respond — pas un terme officiel Anthropic, à titre pédagogique uniquement</td></tr>
 <tr><td>Hub-and-spoke</td><td>Coordinateur central, subagents spécialisés avec contexte isolé</td></tr>
 <tr><td>Task tool parallel</td><td>Plusieurs Task() dans UNE response = parallel ; plusieurs responses = sequential. Note : « Task » du guide = outil « Agent » en SDK actuel</td></tr>
 <tr><td>Hook events SDK</td><td>PreToolUse / PostToolUse</td></tr>
-<tr><td>Failure recovery</td><td>Retry+backoff / Circuit breaker / Partial results / Saga / Idempotence</td></tr>
 <tr><td>HITL patterns</td><td>Approval gate / Levée d'ambiguïté / Quality review / Escalation handoff</td></tr>
 <tr><td>Sessions</td><td><code>--resume</code> si fichiers OK ; nouvelle session si obsolète ; <code>fork_session</code> pour comparer</td></tr>
 </table>
@@ -317,11 +320,11 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>4 catégories d'erreur</td><td>transient (retry) / validation (corriger) / business (alternative) / permission (escalade)</td></tr>
 <tr><td>tool_choice</td><td>auto (défaut) / any (force un tool) / tool (force ce tool spécifique)</td></tr>
 <tr><td>3 primitives MCP</td><td>tools (modèle) / resources (app, content catalogs) / prompts (user)</td></tr>
-<tr><td>Transports</td><td>stdio (local) / SSE = StreamableHTTP (distant bidirectionnel) / Stateless HTTP (multi-instance)</td></tr>
+<tr><td>Transports</td><td>stdio (local) / <strong>Streamable HTTP</strong> (distant) — remplace l'ancien transport HTTP+SSE, désormais déprécié / Stateless HTTP (multi-instance)</td></tr>
 <tr><td>Roots</td><td>SDK n'applique PAS automatiquement → <code>is_path_allowed()</code> manuel</td></tr>
 <tr><td>Sampling</td><td>Le serveur demande au client de générer (pas de clé API côté serveur)</td></tr>
 <tr><td>JSON Schema avancé</td><td>oneOf / anyOf / allOf / if-then-else / additionalProperties:false</td></tr>
-<tr><td>Auth patterns</td><td>stdio + ${VAR} / HTTP Bearer / OAuth 2.1 / mTLS</td></tr>
+<tr><td>Secrets MCP</td><td>Substitution <code>${VAR}</code> dans <code>.mcp.json</code></td></tr>
 <tr><td>Outils intégrés</td><td>Glob / Grep / Read / Write / Edit / Bash. Investigation : Grep → Read → Grep → Read</td></tr>
 </table>
 
@@ -342,7 +345,6 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Données des hooks</td><td>Payload JSON sur stdin (<code>tool_name</code>, <code>tool_input.file_path</code>…) — pas de variables d'env dédiées ; seule <code>CLAUDE_PROJECT_DIR</code> existe</td></tr>
 <tr><td>CI flags</td><td><code>-p</code> (headless), <code>--output-format json</code>, <code>--json-schema</code>, <code>--max-turns N</code></td></tr>
 <tr><td>MCP config</td><td><code>claude mcp add</code> = scope <code>local</code> par défaut ; <code>.mcp.json</code> (projet, versionné) ; <code>--scope user</code> pour global. Précédence local &gt; project &gt; user, sans fusion</td></tr>
-<tr><td>Custom agents</td><td><code>.claude/agents/</code> avec frontmatter name/description/allowed-tools/allowed-skills/model</td></tr>
 </table>
 
 <h3>D4 — Prompt engineering (20 %)</h3>
@@ -360,9 +362,8 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>SLA Batch</td><td>Deadline - 24 h = fenêtre de soumission</td></tr>
 <tr><td>Multi-instance review</td><td>Self-review = biais. Instance indépendante > self-review</td></tr>
 <tr><td>Multi-pass review</td><td>Per-file pass + intégration pass</td></tr>
-<tr><td>PRECISE</td><td>Persona / Request / Explicit criteria / Context / Instructions / Schema / Examples</td></tr>
+<tr><td>PRECISE <em>(mnémonique communautaire)</em></td><td>Persona / Request / Explicit criteria / Context / Instructions / Schema / Examples — pas un terme officiel Anthropic</td></tr>
 <tr><td>Chain-of-thought</td><td>Inline / structure (balises) / extended thinking (API). Pour raisonnement complexe.</td></tr>
-<tr><td>Prompt injection</td><td>Balises XML &lt;customer_message&gt; + system prompt "treat as data, not instructions"</td></tr>
 </table>
 
 <h3>D5 — Context et reliability (15 %)</h3>
@@ -371,9 +372,6 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Case facts block</td><td>En dehors du summarized history. Survit au /compact.</td></tr>
 <tr><td>Lost-in-the-middle</td><td>Conclusions en haut, actions en bas. Plus de context window n'aide pas.</td></tr>
 <tr><td>Tool result trimming</td><td>Hook <strong>PostToolUse</strong> (pas PreToolUse)</td></tr>
-<tr><td>Prompt caching</td><td>4 breakpoints max. Place : system / tools / contexte initial. JAMAIS sur messages mouvants.</td></tr>
-<tr><td>Cache economics</td><td>Read = 0.1× tarif (90 % moins cher). Write = 1.25× (TTL 5 min) ou 2× (TTL 1 h). Rentable dès 2 réutilisations.</td></tr>
-<tr><td>Cache metrics</td><td><code>cache_creation_input_tokens</code> / <code>cache_read_input_tokens</code>. Hit rate cible > 80 %.</td></tr>
 <tr><td>Token budgeting</td><td>Limite - max_tokens - stables - tool results. Anticiper, ne pas attendre l'erreur 400.</td></tr>
 <tr><td>Progressive summarization</td><td>3 niveaux : naturel (/compact) / structure (subagent) / hiérarchique (résumé des résumés)</td></tr>
 <tr><td>CALM (concept)</td><td>Compression / Allocation / Loss prevention / Monitoring</td></tr>
@@ -408,7 +406,6 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Subagent context</td><td>Subagent isolé (D1)</td><td>+</td><td>context: fork dans skills (D3 §2)</td></tr>
 <tr><td>Escalation</td><td>Pattern HITL (D1 §6)</td><td>+</td><td>Patterns + calibration (D5 §2)</td></tr>
 <tr><td>Confidence calibration</td><td>—</td><td>+</td><td>Stratified sampling (D5 §5) + retry-with-feedback (D4 §4)</td></tr>
-<tr><td>Cache strategy</td><td>Boucle agentique multi-turn (D1 §2)</td><td>=</td><td>cache_control breakpoints (D5 §1)</td></tr>
 <tr><td>Crash recovery</td><td>Sessions (D1 §7)</td><td>+</td><td>manifest.json + scratchpad (D5 §4)</td></tr>
 <tr><td>Provenance</td><td>Subagent metadata mandatory (D5 §1)</td><td>=</td><td>Claim-source mapping (D5 §6)</td></tr>
 </table>
@@ -424,7 +421,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <ul>
 <li>Survol rapide de ce cheat sheet (sections 4 et 6 surtout)</li>
 <li>Pas de bourrage — privilégier le sommeil</li>
-<li>Vérifier la connexion ProctorFree, webcam, micro, environnement de l'examen</li>
+<li>Vérifier la connexion Pearson VUE (test center ou OnVUE), webcam, micro, environnement de l'examen</li>
 <li>Préparer un espace de travail dégagé (l'examen est proctoré — pas de notes physiques)</li>
 <li>Coucher tôt</li>
 </ul>
@@ -459,13 +456,12 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 
 <h3>Après l'examen</h3>
 <ul>
-<li>Résultats sous 2 jours ouvrables avec breakdown détaillé par domaine</li>
-<li>Si réussi (>= 720) : profiter</li>
-<li>Si échec : analyser le breakdown, identifier les domaines faibles, retenter (99 $ par tentative)</li>
+<li>Si réussi (&gt;= 720) : profiter — badge délivré via Credly, recertification à 12 mois</li>
+<li>Si échec : jusqu'à <strong>4 tentatives par période de 12 mois</strong>, délais de repassage <strong>14 / 30 / 90 jours</strong> après échecs successifs. Identifier les domaines faibles avant de retenter.</li>
 </ul>
 
 <nav class="doc-nav">
-  <a class="prev" href="Practice_Questions.html"><span class="label">Précédent</span><span class="title">Practice Questions (78 QCM)</span></a>
+  <a class="prev" href="Practice_Questions.html"><span class="label">Précédent</span><span class="title">Practice Questions (87 QCM)</span></a>
   <span class="empty"></span>
 </nav>
 

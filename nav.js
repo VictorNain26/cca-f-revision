@@ -12,7 +12,7 @@
     ['D3_Claude_Code_Config_20pct.html', 'D3', 'D3 — Configuration Claude Code (20 %)'],
     ['D4_Prompt_Engineering_20pct.html', 'D4', 'D4 — Prompt engineering (20 %)'],
     ['D5_Context_Fiabilite_15pct.html', 'D5', 'D5 — Context et reliability (15 %)'],
-    ['Practice_Questions.html', 'QCM', 'Practice Questions — 78 QCM corrigés'],
+    ['Practice_Questions.html', 'QCM', 'Practice Questions — 87 QCM corrigés'],
     ['Scenarios_Exam.html', 'Scénarios', "Les 6 scénarios d'examen"],
     ['Exam_Strategy.html', 'Stratégie', 'Stratégie jour J + cheat sheet'],
   ];

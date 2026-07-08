@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 78 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -42,7 +42,7 @@
 <li><a href="#s4">Intégrer des MCP servers dans Claude Code</a>
   <ul>
     <li><a href="#s4b">JSON Schema en profondeur (input_schema)</a></li>
-    <li><a href="#s4c">Patterns d'authentification MCP (env, OAuth, headers)</a></li>
+    <li><a href="#s4c">Secrets via variables d'environnement (.mcp.json)</a></li>
     <li><a href="#s4d">Cookbook : un serveur MCP custom complet</a></li>
   </ul>
 </li>
@@ -56,7 +56,7 @@
 <div class="section-header"><h2 id="s1">1. Concevoir des interfaces d'outils claires (Task 2.1)</h2></div>
 
 <h3>Le problème que cela résout</h3>
-<p>Quand Claude dispose de plusieurs outils aux fonctions proches, il choisit lequel appeler en se basant principalement sur la <code>description</code> de chaque outil. Si deux descriptions se ressemblent trop, Claude confond les outils — c'est le <code>misrouting</code>. Par exemple, si <code>analyze_content</code> est décrit comme <em>"analyzes content and extracts key information"</em> et <code>analyze_document</code> comme <em>"analyzes documents and extracts key information"</em>, Claude les confondra dans environ 45 % des cas.</p>
+<p>Quand Claude dispose de plusieurs outils aux fonctions proches, il choisit lequel appeler en se basant principalement sur la <code>description</code> de chaque outil. Si deux descriptions se ressemblent trop, Claude confond les outils — c'est le <code>misrouting</code>. Par exemple, si <code>analyze_content</code> est décrit comme <em>"analyzes content and extracts key information"</em> et <code>analyze_document</code> comme <em>"analyzes documents and extracts key information"</em>, Claude les confondra fréquemment — dans le scénario d'examen associé, 45 % des requêtes étaient mal routées (chiffre illustratif propre à ce scénario, pas une constante générale du taux de misrouting).</p>
 
 <div class="key-concept">
 <strong>Règle fondamentale :</strong> la <code>description</code> d'un outil est le <strong>mécanisme principal de sélection</strong> qu'un LLM utilise pour décider quel outil appeler. Des descriptions vagues ou redondantes entraînent un <code>misrouting</code> systématique.
@@ -136,6 +136,10 @@
 
 <div class="key-concept">
 <strong>Distinction fondamentale :</strong> un <strong>échec d'accès</strong> (timeout — le serveur n'a pas répondu) est très différent d'un <strong>résultat vide valide</strong> (la requête a réussi, mais il n'y a aucune correspondance). Le premier nécessite une décision de retry ; le second est une information utile en soi. Les deux doivent être clairement distingués dans la réponse du <code>tool_use</code>.
+</div>
+
+<div class="exam-tip">
+<strong>Pattern complémentaire — local error recovery dans les <code>subagent</code>s :</strong> un <code>subagent</code> ne doit pas propager au coordinateur chaque erreur MCP individuelle. Il tente une récupération locale (1-2 retries sur les erreurs <code>transient</code>), et ne remonte que les erreurs <strong>irrécupérables</strong> — avec les résultats partiels déjà obtenus et la requête tentée (<code>attempted_query</code>). Détail complet et exemple de payload : voir D5 §3 (Task 5.3, « La propagation d'erreurs dans les systèmes multi-agents »), qui traite explicitement ce pattern comme complément de D1 (hub-and-spoke) et D2 (erreurs structurées MCP).
 </div>
 
 <!-- ================================================================== -->
@@ -304,7 +308,7 @@ Une question d'examen oppose souvent ces 3 capabilities — savoir laquelle util
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s4b">JSON Schema en profondeur (<code>input_schema</code>)</h3></div>
 
-<p>Le <code>input_schema</code> d'un outil utilise par défaut la spécification <strong>JSON Schema 2020-12</strong> (draft-07 seulement si explicitement déclaré via <code>$schema</code>). Au-delà de <code>type</code>, <code>properties</code> et <code>required</code> déjà vus en D0, plusieurs constructions avancées apparaissent dans les questions d'examen.</p>
+<p>Le <code>input_schema</code> d'un outil utilise un sous-ensemble standard de JSON Schema — la documentation Anthropic ne s'engage sur <strong>aucun draft par défaut précis</strong> (elle ne mentionne ni 2020-12 ni draft-07, seulement « standard JSON Schema with limitations »). Au-delà de <code>type</code>, <code>properties</code> et <code>required</code> déjà vus en D0, plusieurs constructions avancées apparaissent dans les questions d'examen.</p>
 
 <h3>Types complexes (<code>oneOf</code>, <code>anyOf</code>, <code>allOf</code>)</h3>
 <table>
@@ -357,7 +361,7 @@ Une question d'examen oppose souvent ces 3 capabilities — savoir laquelle util
 </table>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> <code>"additionalProperties": false</code> sur un objet rejette tout champ non déclaré dans <code>properties</code> — mais seulement si le tool est déclaré avec <code>strict: true</code> (top-level, exige aussi <code>additionalProperties: false</code> et <code>required</code>). Sans <code>strict: true</code>, l'API Claude ne garantit <strong>pas</strong> la conformité au JSON Schema : le modèle peut techniquement produire des champs hallucinés. Pour du JSON structuré fiable, préférer <code>output_config: {"format": {"type": "json_schema", ...}}</code>.
+<strong>EXAM TIP :</strong> <code>"additionalProperties": false</code> sur un objet rejette tout champ non déclaré dans <code>properties</code> — mais seulement si le tool est déclaré avec <code>strict: true</code> (top-level). <code>strict: true</code> exige <code>additionalProperties: false</code> sur chaque objet, mais <strong>pas</strong> que toutes les propriétés soient listées dans <code>required</code> — les propriétés optionnelles restent autorisées. En revanche, plusieurs contraintes du tableau ci-dessus sont <strong>incompatibles avec <code>strict: true</code></strong> (erreur 400 si présentes) : <code>minLength</code>, <code>maxLength</code>, <code>minimum</code>, <code>maximum</code>, <code>multipleOf</code>, ainsi que <code>maxItems</code> (seul <code>minItems</code> avec la valeur 0 ou 1 est supporté) ; <code>pattern</code> n'est que partiellement supporté (regex simple, sans lookahead ni backreference). Sans <code>strict: true</code>, l'API Claude ne garantit <strong>pas</strong> la conformité au JSON Schema : le modèle peut techniquement produire des champs hallucinés. Pour du JSON structuré fiable, préférer <code>output_config: {"format": {"type": "json_schema", ...}}</code>.
 </div>
 
 <h3>Champs nullable et enums avec fallback (rappel D0 + extension)</h3>
@@ -402,10 +406,12 @@ Ces 3 patterns transforment un schéma rigide en interface tolérante à l'incer
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s4c">Patterns d'authentification MCP</h3></div>
 
-<p>Les serveurs MCP exposent souvent des données protégées (GitHub, Slack, base de données). L'authentification est gérable de plusieurs manières selon le transport et le contexte.</p>
+<p style="display:inline-block;padding:2px 10px;border:1px solid #999;border-radius:4px;font-size:0.85em;"><strong>Périmètre examen.</strong> La gestion des secrets testée par le guide se limite à la substitution de variables d'environnement (<code>${VAR}</code>) dans <code>.mcp.json</code>.</p>
 
-<h3>Pattern 1 — Variables d'environnement (stdio, recommandé)</h3>
-<p>Le pattern le plus simple et securise pour les serveurs <strong>stdio</strong> (sous-processus local). Le serveur lit la variable au démarrage.</p>
+<p>Les serveurs MCP exposent souvent des données protégées (GitHub, Slack, base de données).</p>
+
+<h3>Pattern in-scope — Variables d'environnement (stdio)</h3>
+<p>Le pattern couvert par le guide, déjà présenté en §4 ci-dessus : le serveur lit la variable au démarrage, résolue via <code>${VAR}</code> dans <code>.mcp.json</code>.</p>
 <pre>// .mcp.json (versionne)
 {
   "mcpServers": {
@@ -426,62 +432,8 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 <strong>Pourquoi c'est sûr :</strong> le token n'apparaît jamais dans le repository (la variable n'est résolue qu'au runtime). Pour la rotation, chaque développeur met à jour son env, sans toucher à Git.
 </div>
 
-<h3>Pattern 2 — Headers Authorization (HTTP/StreamableHTTP)</h3>
-<p>Pour les serveurs MCP distants, le client envoie l'authentification dans les headers HTTP à chaque requête.</p>
-<pre>// .mcp.json
-{
-  "mcpServers": {
-    "internal-api": {
-      "type": "http",
-      "url": "https://api.internal.example.com/mcp",
-      "headers": {
-        "Authorization": "Bearer ${INTERNAL_API_TOKEN}",
-        "X-Tenant-ID": "${TENANT_ID}"
-      }
-    }
-  }
-}</pre>
-
-<table>
-<tr><th>Schéma d'authentification</th><th>Header</th><th>Cas d'usage</th></tr>
-<tr><td><strong>Bearer token</strong></td><td><code>Authorization: Bearer &lt;token&gt;</code></td><td>API tokens longue durée, JWT</td></tr>
-<tr><td><strong>API Key</strong></td><td><code>X-API-Key: &lt;key&gt;</code> ou similaire</td><td>Services SaaS (Stripe, OpenAI, etc.)</td></tr>
-<tr><td><strong>Basic Auth</strong></td><td><code>Authorization: Basic &lt;base64&gt;</code></td><td>Legacy, déconseillé en production</td></tr>
-</table>
-
-<h3>Pattern 3 — OAuth 2.0 (delegation utilisateur)</h3>
-<p>Pour les serveurs qui agissent <em>au nom d'un utilisateur</em> (accès a son Google Drive, son Slack personnel), l'authentification ne peut pas être statique. Le flow OAuth :</p>
-<ol>
-<li>Le serveur MCP redirige l'utilisateur vers le provider (Google, Slack)</li>
-<li>L'utilisateur s'authentifie et accorde les scopes demandés</li>
-<li>Le provider renvoie un <code>authorization_code</code></li>
-<li>Le serveur l'échange contre un <code>access_token</code> (court) + <code>refresh_token</code> (long)</li>
-<li>Les requêtes ultérieures utilisent l'<code>access_token</code>, refresh quand nécessaire</li>
-</ol>
-
-<div class="key-concept">
-<strong>Specificite MCP :</strong> la spécification MCP s'appuie sur <strong>OAuth 2.1</strong>, complété par la RFC 9728 (<em>Protected Resource Metadata</em>, obligatoire côté serveur MCP), la RFC 8414 (<em>Authorization Server Metadata</em>) et la RFC 7591 (<em>Dynamic Client Registration</em>, optionnelle). Le serveur MCP joue le rôle de <em>resource server</em> ; l'<em>authorization server</em> peut être une entité séparée (ex. Auth0, Google, un IdP interne) — le développeur du serveur MCP n'implémente pas forcément lui-même les endpoints d'authentification. Le client (Claude Desktop, Claude Code) gère automatiquement le flow et stocke les tokens.
-</div>
-
-<h3>Pattern 4 — Authentification mTLS / certificats</h3>
-<p>Pour les environnements enterprise sensibles (banques, sante), les certificats clients TLS authentifient le client à chaque connexion. Configuration plus rare, mais à connaître par son existence.</p>
-
-<h3>Tableau décisionnel</h3>
-<table>
-<tr><th>Situation</th><th>Pattern recommandé</th></tr>
-<tr><td>Token API personnel, serveur local</td><td>Variable d'environnement (stdio + <code>${VAR}</code>)</td></tr>
-<tr><td>Service SaaS partagé (Stripe, etc.)</td><td>Header Authorization avec <code>${VAR}</code></td></tr>
-<tr><td>Accès à des ressources d'un utilisateur (Google, Slack)</td><td>OAuth 2.1 (gérée par le client MCP)</td></tr>
-<tr><td>Environnement enterprise haute sécurité</td><td>mTLS + audit log</td></tr>
-<tr><td>Multi-tenant SaaS</td><td>OAuth + scope par tenant</td></tr>
-</table>
-
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> stocker un token en clair dans <code>.mcp.json</code> versionne. Même si vous le supprimez plus tard, l'historique Git le conserve indéfiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code> non versionne.
-</div>
-
-<div class="exam-tip">
-<strong>Scénario d'examen :</strong> votre équipe déploie un serveur MCP custom pour un outil interne. Chaque développeur doit accéder à ses propres dossiers. Quel pattern ? <strong>OAuth 2.1</strong> — l'authentification se fait par utilisateur, pas par token de service. Un token statique partage reviendrait a donner a tout le monde l'accès aux dossiers de tout le monde.
+<strong>Anti-pattern (in-scope) :</strong> stocker un token en clair dans <code>.mcp.json</code> versionne. Même si vous le supprimez plus tard, l'historique Git le conserve indéfiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code> non versionne.
 </div>
 
 <!-- ================================================================== -->
@@ -489,25 +441,27 @@ export GITHUB_TOKEN=ghp_xxx</pre>
 
 <p>Cet exemple synthétise tous les concepts MCP de la section dans un serveur Python minimal mais complet : les 3 primitives (<code>tools</code>, <code>resources</code>, <code>prompts</code>), une vérification de <code>roots</code>, et un usage de <code>sampling</code>.</p>
 
-<pre>// server.py — un serveur MCP "internal-docs" custom
+<div class="anti-pattern">
+<strong>⚠️ Pseudocode illustratif — ne reproduit pas les signatures réelles du SDK MCP.</strong> Ce code illustre les <em>concepts</em> (roots, sampling, tools/resources/prompts, erreur structurée), pas une API à copier-coller. En particulier, dans le SDK MCP Python (FastMCP) réel : il n'existe pas de décorateur <code>@mcp.on_roots_changed</code> (on récupère les roots via <code>await ctx.session.list_roots()</code>, avec <code>ctx: Context</code> injecté en paramètre du tool) ; <code>mcp.sample(...)</code> n'existe pas non plus (le sampling se fait via <code>await ctx.session.create_message(...)</code>) ; et un tool ne retourne pas un dict <code>{"isError": ..., "errorCategory": ...}</code> — le mécanisme standard est de lever une exception, que le SDK convertit en <code>CallToolResult(isError=True, content=[...])</code>.
+</div>
+
+<pre>// server.py — un serveur MCP "internal-docs" custom (pseudocode)
 from mcp.server.fastmcp import FastMCP
 from pathlib import Path
 import json
 
 mcp = FastMCP("internal-docs")
 
-ALLOWED_ROOTS = []  # rempli par on_roots_changed
-
 # ---- ROOTS : vérification d'accès ---------------------
-@mcp.on_roots_changed
-async def on_roots_changed(roots):
-    global ALLOWED_ROOTS
-    ALLOWED_ROOTS = [Path(r.uri.replace("file://", "")) for r in roots]
+# API réelle : await ctx.session.list_roots() (ctx: Context en paramètre du tool)
+async def get_allowed_roots(ctx) -> list[Path]:
+    roots = await ctx.session.list_roots()
+    return [Path(r.uri.replace("file://", "")) for r in roots.roots]
 
-def is_path_allowed(path: Path) -> bool:
+def is_path_allowed(path: Path, allowed_roots: list[Path]) -> bool:
     """Le SDK MCP n'applique PAS automatiquement les roots — on doit vérifier."""
     abs_path = path.resolve()
-    return any(abs_path.is_relative_to(r) for r in ALLOWED_ROOTS)
+    return any(abs_path.is_relative_to(r) for r in allowed_roots)
 
 # ---- TOOLS : controles par le modele ------------------
 @mcp.tool()
@@ -519,16 +473,21 @@ async def search_docs(query: str, max_results: int = 10) -> dict:
     return {"results": [...]}
 
 @mcp.tool()
-async def read_doc(path: str) -> dict:
+async def read_doc(path: str, ctx) -> dict:
     """Read the full content of an internal doc. Use after search_docs
        has identified a relevant path."""
     p = Path(path)
-    if not is_path_allowed(p):
+    allowed_roots = await get_allowed_roots(ctx)
+    if not is_path_allowed(p, allowed_roots):
+        # Erreur structurée : content est un TABLEAU de blocs (cf. §2) ;
+        # errorCategory/isRetryable sont une convention applicative encodée
+        # dans le texte, pas des champs top-level du protocole.
         return {
             "isError": True,
-            "errorCategory": "permission",
-            "isRetryable": False,
-            "message": f"Path {path} is outside allowed roots."
+            "content": [{
+                "type": "text",
+                "text": f"errorCategory: permission | isRetryable: false | Path {path} is outside allowed roots."
+            }]
         }
     return {"content": p.read_text()}
 
@@ -549,14 +508,14 @@ async def summarize_doc(doc_path: str) -> list:
     ]
 
 # ---- SAMPLING : le serveur demande au CLIENT de générer
+# API réelle : await ctx.session.create_message(...) (ctx: Context en paramètre)
 @mcp.tool()
-async def classify_query(query: str) -> dict:
+async def classify_query(query: str, ctx) -> dict:
     """Classify a query as 'technical' or 'business'.
        Uses sampling to delegate generation to the client's LLM —
        no API key needed on the server side."""
-    result = await mcp.sample(
+    result = await ctx.session.create_message(
         messages=[{"role": "user", "content": f"Classify: {query}"}],
-        system="Reply with one word: 'technical' or 'business'.",
         max_tokens=10
     )
     return {"category": result.content[0].text.strip()}
@@ -568,7 +527,7 @@ if __name__ == "__main__":
 <strong>Ce que cet exemple illustre :</strong>
 <ul>
 <li><strong>tools</strong> avec descriptions explicites répondant aux 4 questions (que fait, format input, edge cases, quand utiliser)</li>
-<li><strong>Erreur structurée</strong> (<code>errorCategory: "permission"</code>) avec <code>isRetryable: false</code> conforme à §2</li>
+<li><strong>Erreur structurée</strong> : <code>content</code> reste un tableau, <code>errorCategory</code>/<code>isRetryable</code> sont une convention applicative encodée dans le texte du bloc (pas des champs top-level du protocole — voir §2)</li>
 <li><strong>Roots check explicite</strong> via <code>is_path_allowed()</code> — le SDK ne le fait pas tout seul</li>
 <li><strong>Resource "catalog"</strong> = content catalog qui réduit les appels exploratoires</li>
 <li><strong>Sampling</strong> : le serveur n'a pas besoin de clé API, il délègue au client</li>
@@ -684,18 +643,15 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li>Validation conditionnelle <code>if</code>/<code>then</code>/<code>else</code> pour les exigences contextuelles.</li>
 <li>Contraintes : <code>format</code> (email, uri, uuid), <code>minLength</code>/<code>maxLength</code>, <code>minimum</code>/<code>maximum</code>, <code>pattern</code> (regex).</li>
 <li><code>"additionalProperties": false</code> pour rejeter les champs hallucinés.</li>
+<li>Sous <code>strict: true</code> : <code>additionalProperties: false</code> obligatoire, propriétés optionnelles permises (pas besoin que tout soit dans <code>required</code>) — mais <code>minLength</code>/<code>maxLength</code>/<code>minimum</code>/<code>maximum</code>/<code>multipleOf</code>/<code>maxItems</code> non supportés (400), seul <code>minItems</code> (0/1) l'est.</li>
 <li>3 piliers anti-hallucination : nullable, enum + "other"/détail, enum + "unclear".</li>
 <li>Sans <code>strict: true</code>, le tool_use ne garantit ni la conformité syntaxique stricte au schéma ni la sémantique ; valider les deux côté app (retry-with-feedback, voir D4).</li>
 </ul>
 
 <h3>Authentification MCP</h3>
 <ul>
-<li><strong>stdio</strong> : variables d'env (<code>${TOKEN}</code> dans <code>env</code>) — pattern le plus simple.</li>
-<li><strong>HTTP</strong> : headers <code>Authorization: Bearer</code>, <code>X-API-Key</code>.</li>
-<li><strong>OAuth 2.1</strong> : délégation par utilisateur — endpoints standardisés par la spec MCP.</li>
-<li><strong>mTLS</strong> : enterprise haute sécurité.</li>
-<li>Multi-tenant : OAuth + scopes ; token de service partagé = anti-pattern.</li>
-<li>Anti-pattern absolu : token en clair dans <code>.mcp.json</code> versionné (l'historique Git le retient).</li>
+<li><strong>In-scope</strong> : variables d'env (<code>${VAR}</code> dans <code>env</code>, stdio) — seul pattern couvert par le guide.</li>
+<li>Anti-pattern absolu (in-scope) : token en clair dans <code>.mcp.json</code> versionné (l'historique Git le retient).</li>
 </ul>
 
 <h3>Outils intégrés</h3>
@@ -735,7 +691,7 @@ B) Le format JSON est incorrect.<br>
 C) <code>isError</code> devrait être <code>false</code>.<br>
 D) Le message est trop court.</summary>
 <p><strong>Réponse : A</strong></p>
-<p>Une erreur générique ne fournit aucune information pour la prise de décision. Sans <code>errorCategory</code> ni <code>isRetryable</code>, l'agent ne sait pas si l'erreur est <code>transient</code> (retry), <code>validation</code> (corriger l'entrée), <code>business</code> (expliquer à l'utilisateur) ou <code>permission</code> (escalader). Le format JSON est valide (B est faux), <code>isError: true</code> est correct (C est faux), et la longueur du message n'est pas le problème (D est faux).</p>
+<p>Une erreur générique ne fournit aucune information pour la prise de décision. Sans <code>errorCategory</code> ni <code>isRetryable</code> encodés dans le texte du bloc <code>content</code>, l'agent ne sait pas si l'erreur est <code>transient</code> (retry), <code>validation</code> (corriger l'entrée), <code>business</code> (expliquer à l'utilisateur) ou <code>permission</code> (escalader). <code>isError: true</code> est correct (C est faux), et la longueur du message n'est pas le problème central (D est faux). Sur B : <code>content</code> devrait être un <strong>tableau</strong> de content blocks (cf. §2), donc cet exemple est en réalité non conforme sur la forme — mais ce n'est pas le point testé : même reformaté en <code>[{"type": "text", "text": "Operation failed"}]</code>, le message resterait trop générique pour permettre une récupération intelligente. C'est cette généricité, pas la validité de forme, qui fait l'anti-pattern.</p>
 </details>
 
 <details>
@@ -754,7 +710,7 @@ A) Mettre tous les champs dans <code>required</code>.<br>
 B) Utiliser <code>if</code>/<code>then</code> : si <code>type == "refund"</code>, alors <code>required: ["amount", "reason"]</code>.<br>
 C) Documenter la regle uniquement dans la <code>description</code>.<br>
 D) Creer deux outils séparés.</summary>
-<p><strong>Réponse : B.</strong> JSON Schema draft-07 supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle. C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modèle à fournir <code>amount</code> même pour <code>info_only</code> (et il l'inventera). C déplace la responsabilité sur le modèle (peu fiable). D est correct mais ajoute de la complexité et du <code>misrouting</code> potentiel — préférer <code>if</code>/<code>then</code> si la logique est simple.</p>
+<p><strong>Réponse : B.</strong> JSON Schema supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle (introduit en draft-07, disponible dans les drafts suivants). C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modèle à fournir <code>amount</code> même pour <code>info_only</code> (et il l'inventera). C déplace la responsabilité sur le modèle (peu fiable). D est correct mais ajoute de la complexité et du <code>misrouting</code> potentiel — préférer <code>if</code>/<code>then</code> si la logique est simple.</p>
 </details>
 
 <details>
@@ -766,14 +722,6 @@ D) Utiliser <code>tool_choice: any</code>.</summary>
 <p><strong>Réponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code> — à condition d'activer <code>strict: true</code> sur la définition du tool, sans quoi l'API Claude ne garantit pas la conformité au schéma. A le rendrait acceptable mais ne résout pas la question (le modèle continuerait à inventer d'autres champs). C n'a pas de sens sémantique. D ne contraint pas la structure du résultat.</p>
 </details>
 
-<details>
-<summary>Q7 : Votre équipe construit un serveur MCP qui doit accéder aux dossiers Google Drive de chaque développeur (chacun ses propres fichiers). Quel pattern d'authentification ?<br>
-A) Un service account Google partage, token dans <code>.mcp.json</code>.<br>
-B) Une clé API par développeur en variable d'environnement.<br>
-C) OAuth 2.1 — chaque utilisateur autorisé individuellement, le client MCP géré les tokens.<br>
-D) Authentification HTTP Basic.</summary>
-<p><strong>Réponse : C.</strong> Quand l'authentification est <strong>par utilisateur</strong> (ressources personnelles), seul OAuth 2.1 fournit la délégation propre : chaque dev passe par le flow d'autorisation Google, reçoit son propre <code>access_token</code>, et le client MCP le stocke. A est dangereux (un service account partagé = tout le monde voit tout). B fonctionnerait pour des clés techniques, mais Google Drive ne distribue pas de clés API par utilisateur — il faut un flow OAuth. D est obsolète et inadapté.</p>
-</details>
 
 <nav class="doc-nav">
   <a class="prev" href="D1_Architecture_Orchestration_27pct.html"><span class="label">Précédent</span><span class="title">D1 — Architecture et orchestration</span></a>

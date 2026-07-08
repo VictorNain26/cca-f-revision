@@ -23,7 +23,7 @@
   <a class="current" href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 78 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -123,7 +123,7 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 </table>
 
 <div class="key-concept">
-<strong>Ordre de précédence (du plus haut au plus bas) :</strong> <code>settings.local.json</code> &gt; <code>settings.json</code> (projet) &gt; <code>~/.claude/settings.json</code> (user) &gt; défauts. Les valeurs sont fusionnées champ par champ : une autorisation ajoutée en local n'efface pas celles du projet.
+<strong>Ordre de précédence (du plus haut au plus bas) :</strong> <strong>managed/enterprise settings</strong> (politique imposée par l'organisation, non surchargeable par les niveaux suivants) &gt; <code>settings.local.json</code> &gt; <code>settings.json</code> (projet) &gt; <code>~/.claude/settings.json</code> (user) &gt; défauts. Les valeurs sont fusionnées champ par champ : une autorisation ajoutée en local n'efface pas celles du projet.
 </div>
 
 <div class="anti-pattern">
@@ -131,7 +131,7 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 </div>
 
 <h3>Le bloc <code>permissions</code> : allowlist et denylist</h3>
-<p>Le mécanisme de permissions de Claude Code fonctionne par <strong>allowlist explicite</strong>. Sans entrée dans <code>permissions.allow</code>, chaque appel d'outil <em>mutant</em> déclenche une demande de confirmation utilisateur — bloquant pour les pipelines CI. Les outils read-only (<code>Read</code>, <code>Grep</code>, <code>Glob</code>, et les commandes Bash en lecture seule comme <code>ls</code>/<code>cat</code>/<code>git status</code>) ne demandent pas d'approbation par défaut.</p>
+<p>Le mécanisme de permissions de Claude Code fonctionne par <strong>allowlist explicite</strong>. Sans entrée dans <code>permissions.allow</code>, chaque appel d'outil <em>mutant</em> déclenche une demande de confirmation utilisateur — bloquant pour les pipelines CI. Les outils read-only (<code>Read</code>, <code>Grep</code>, <code>Glob</code>) ne demandent jamais d'approbation. Un sous-ensemble <strong>fixe et non configurable</strong> de commandes Bash en lecture seule (<code>ls</code>, <code>cat</code>, <code>echo</code>, <code>pwd</code>, <code>head</code>, <code>tail</code>, <code>grep</code>, <code>find</code>, <code>wc</code>, <code>which</code>, <code>diff</code>, <code>stat</code>, <code>du</code>, <code>cd</code>, et les formes en lecture seule de <code>git</code>) est également exempté par défaut, dans tous les modes. Cette liste est fermée : toute autre commande Bash, même read-only en apparence, demande une approbation sauf allowlist explicite (bloc ci-dessous) ou sandbox.</p>
 
 <pre>// .claude/settings.json
 {
@@ -184,7 +184,7 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
     "NODE_ENV": "development"
   }
 }</pre>
-<p>Les variables ici sont injectées dans toutes les commandes <code>Bash</code> exécutées par Claude Code. Pour les <strong>secrets</strong>, utilisez <code>settings.local.json</code> (non versionné) ou des références aux variables shell : <code>"API_KEY": "${ANTHROPIC_API_KEY}"</code>.</p>
+<p>Les variables ici sont injectées dans toutes les commandes <code>Bash</code> exécutées par Claude Code. Pour les <strong>secrets</strong>, utilisez <code>settings.local.json</code> (non versionné) plutôt que d'écrire la valeur en clair dans <code>env</code> — la syntaxe d'expansion <code>${VAR}</code> n'est pas documentée pour ce bloc <code>env</code> de <code>settings.json</code> (elle l'est en revanche pour <code>.mcp.json</code>, cf. §6c).</p>
 
 <div class="exam-tip">
 <strong>Scénario d'examen :</strong> un développeur a configuré des autorisations dans <code>.claude/settings.local.json</code> et constate qu'elles ne s'appliquent pas sur la machine de son collègue. Cause : <code>settings.local.json</code> est explicitement <strong>non versionné</strong>. Solution : déplacer les règles partagées dans <code>.claude/settings.json</code>.
@@ -196,8 +196,8 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 <h3>Le problème que cela résout</h3>
 <p>Si vous répétez régulièrement les mêmes instructions ("fais une revue en suivant ce format", "génère des tests selon nos conventions"), il est plus efficace de les encapsuler dans une commande réutilisable.</p>
 
-<h3>Les slash commands (format legacy)</h3>
-<p>Les slash commands sont le format historique, stocké dans <code>.claude/commands/</code>. Elles restent fonctionnelles mais sont considérées comme legacy.</p>
+<h3>Les slash commands</h3>
+<p>Les slash commands sont stockées dans <code>.claude/commands/</code> (partagées via VCS) et restent un mécanisme pleinement valide, non déprécié. Skills et slash commands coexistent ; le skill est simplement mieux outillé pour les workflows complexes (isolation de contexte, matching sémantique).</p>
 <table>
 <tr><th>Portee</th><th>Emplacement</th><th>Partage</th></tr>
 <tr><td><strong>Projet</strong></td><td><code>.claude/commands/</code></td><td>Versionne via VCS, disponible après clonage</td></tr>
@@ -225,7 +225,8 @@ Quand tu rédiges une description de PR :
 <tr><td><code>name</code></td><td>Optionnel — défaut = nom du dossier du skill</td><td>Display name (identifiant optionnel). Par défaut, le nom du dossier du skill sert de nom de commande (ex. <code>/review</code> pour <code>.claude/skills/review/SKILL.md</code>).</td></tr>
 <tr><td><code>description</code></td><td>Recommandée — si omise, le premier paragraphe du corps sert de description</td><td>Détermine <em>quand</em> Claude active le skill (matching sémantique) — <code>description</code> + <code>when_to_use</code> tronqués à ~1536 caractères dans le listing — et influence <em>comment</em> il rédige le prompt. C'est le champ le plus déterminant pour le déclenchement.</td></tr>
 <tr><td><code>context: fork</code></td><td>Non</td><td>Exécute le skill dans un contexte isolé de subagent. La sortie verbeuse ne pollue pas la session principale.</td></tr>
-<tr><td><code>allowed-tools</code></td><td>Non</td><td>Restreint les outils disponibles (ex. : lecture seule = ni <code>Edit</code> ni <code>Write</code>).</td></tr>
+<tr><td><code>allowed-tools</code></td><td>Non</td><td><strong>Pré-approbation de permissions</strong> : liste les outils utilisables sans demande de confirmation quand ce skill est actif (les autres outils restent disponibles, mais soumis au flux de permission normal). Pour retirer un outil du pool disponible, utiliser <code>disallowed-tools</code>. <em>Pour l'examen, le guide parle de « restrict tool access » ; la doc actuelle distingue pré-approbation (<code>allowed-tools</code>) et retrait (<code>disallowed-tools</code>).</em></td></tr>
+<tr><td><code>disallowed-tools</code></td><td>Non</td><td>Retire des outils du pool disponible pour ce skill (ex. : bloquer <code>AskUserQuestion</code> dans un skill destiné à tourner en arrière-plan sans interaction).</td></tr>
 <tr><td><code>argument-hint</code></td><td>Non</td><td>Indice affiché à l'autocomplétion pour suggérer le paramètre attendu quand le skill est invoqué en slash command.</td></tr>
 </table>
 
@@ -247,75 +248,7 @@ Hiérarchie complète : <strong>Enterprise</strong> (la plus haute) &gt; <strong
 </div>
 
 <h3>Skills et subagents</h3>
-<p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents intégrés (Explore subagent, Plan) ne peuvent pas y accéder. Les agents personnalisés (dans <code>.claude/agents/</code>) peuvent invoquer n'importe quel skill (projet/user/plugin) via le Skill tool ; ceux listés dans le champ <code>skills</code> du frontmatter sont en plus préchargés dans leur contexte.</p>
-
-<h3>Custom agents (<code>.claude/agents/</code>)</h3>
-<p>Les <strong>custom agents</strong> sont des subagents spécialisés définis au niveau projet ou user, distincts des agents intégrés (Explore, Plan, etc.). Ils s'invoquent via le Task tool ; le slash <code>/agents</code> sert à les <strong>gérer</strong> (créer, éditer, lister), pas à les invoquer.</p>
-
-<pre>// .claude/agents/security-reviewer.md
----
-name: security-reviewer
-description: Reviews code changes for security issues — SQL injection,
-  XSS, auth bypass, secrets in code. Use when reviewing PRs that touch
-  authentication, data input handling, or external integrations.
-tools: Read, Grep, Glob, Bash(git diff:*)
-skills: ["sql-pattern-check", "secrets-scan"]
-model: claude-opus-4-7
----
-You are a security-focused code reviewer. For each file in the diff:
-1. Identify auth checks (or their absence)
-2. Look for direct SQL string concatenation
-3. Flag any hardcoded credentials or tokens
-4. Check input validation on external boundaries
-
-Output JSON: { issues: [{severity, file, line, message}] }</pre>
-
-<table>
-<tr><th>Champ</th><th>Role</th></tr>
-<tr><td><code>name</code></td><td>Identifiant pour invocation via le Task tool</td></tr>
-<tr><td><code>description</code></td><td>Détermine quand l'agent est invoqué automatiquement (matching sémantique)</td></tr>
-<tr><td><code>tools</code></td><td>Restreint les outils — typique : lecture seule pour un reviewer</td></tr>
-<tr><td><code>skills</code></td><td>Précharge le contenu de ces skills dans le contexte de l'agent (l'agent peut quand même invoquer d'autres skills via le Skill tool)</td></tr>
-<tr><td><code>model</code></td><td>Override du modèle : opus pour les analyses complexes, haiku pour les tâches mécaniques</td></tr>
-</table>
-
-<div class="key-concept">
-<strong>Custom agents vs Skills vs Subagents intégrés :</strong>
-<ul>
-<li><strong>Skills</strong> = workflow encapsulé (instructions + tools + skill name)</li>
-<li><strong>Custom agents</strong> = persona avec son propre system prompt, modèle, et périmètre d'outils — peut utiliser des skills</li>
-<li><strong>Subagents intégrés</strong> (Explore, Plan) = primitives fournies par Claude Code, non-personnalisables</li>
-</ul>
-Les custom agents brillent quand vous voulez une <em>persona</em> (security-reviewer, refactor-architect, doc-writer) réutilisable avec ses propres outils et skills.
-</div>
-
-<h3>Output styles</h3>
-<p>Les <strong>output styles</strong> personnalisent le ton et le format des réponses de Claude Code sans modifier le system prompt principal. Configurés dans <code>~/.claude/output-styles/</code> ou <code>.claude/output-styles/</code>.</p>
-
-<pre>// .claude/output-styles/concise.md
----
-name: concise
-description: Terse responses, minimal explanations
----
-Be terse. No filler phrases. No "I'll do X" announcements before doing X.
-Bullet points over paragraphs. Code over prose. Skip the closing summary.</pre>
-
-<p>Activation : <code>/output-style concise</code> ou via le bloc <code>"outputStyle"</code> dans <code>settings.json</code>. Cas d'usage typique : pair-programming pro (concise) vs pédagogique (verbose).</p>
-
-<h3>Statusline (configuration de la barre d'état)</h3>
-<p>La <strong>statusline</strong> affiche en bas de l'interface des informations contextuelles (branche Git, modèle actif, tokens consommés, etc.). Elle se configure via une commande shell qui produit la ligne :</p>
-
-<pre>// .claude/settings.json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "echo \"$(git branch --show-current) | $(date +%H:%M)\""
-  }
-}</pre>
-
-<div class="exam-tip">
-<strong>Note pour l'examen :</strong> output styles et statusline sont des sujets <em>marginaux</em> (peu probables mais pas impossibles). L'important est de savoir qu'ils existent et de ne pas les confondre avec les skills, hooks, ou settings de permissions. Si une question parle de "personnaliser le ton des réponses sans toucher au system prompt", c'est <code>output-styles</code>.
-</div>
+<p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents intégrés (Explore subagent, Plan) ne peuvent pas y accéder ; un subagent disposant du Skill tool peut en revanche invoquer les skills (projet, user, plugin) à la demande.</p>
 
 <h3>Permissions par tool avec patterns</h3>
 <p>En complément des allowlists Bash vues en §1 (settings.json), les permissions s'appliquent aussi aux outils <code>Read</code>, <code>Edit</code>, <code>Write</code>, <code>WebFetch</code> avec des glob patterns :</p>
@@ -339,50 +272,6 @@ Bullet points over paragraphs. Code over prose. Skip the closing summary.</pre>
 
 <div class="key-concept">
 <strong>Précédence :</strong> <code>deny</code> &gt; <code>allow</code> (defense en profondeur). Une règle <code>deny</code> sur un sous-chemin l'emporte sur une règle <code>allow</code> plus large. Cela permet d'ouvrir <code>Read(./src/**)</code> tout en bloquant explicitement <code>Read(./src/secrets/**)</code>.
-</div>
-
-<h3>Plugins Claude Code</h3>
-
-<p>Les <strong>plugins</strong> sont le mécanisme officiel de distribution et d'installation de bundles de fonctionnalités (skills, slash commands, hooks, agents, MCP servers) en une seule unité installable. Ils s'installent depuis des <em>marketplaces</em> publiques (officielle Anthropic ou communautaires) ou depuis n'importe quel repo Git.</p>
-
-<h3>Commandes principales</h3>
-<table>
-<tr><th>Commande</th><th>Effet</th></tr>
-<tr><td><code>/plugin marketplace add &lt;source&gt;</code></td><td>Ajoute une marketplace : <code>owner/repo</code> GitHub, URL Git, ou chemin local vers <code>marketplace.json</code></td></tr>
-<tr><td><code>/plugin install &lt;name&gt;@&lt;marketplace&gt;</code></td><td>Installe un plugin spécifique (ex : <code>/plugin install commit-commands@claude-plugins-official</code>)</td></tr>
-<tr><td><code>/plugin list</code></td><td>Liste les plugins installés et leur état</td></tr>
-<tr><td><code>/reload-plugins</code></td><td>Recharge les plugins après install ou modification</td></tr>
-<tr><td><code>/plugin market</code></td><td>Raccourci pour <code>/plugin marketplace</code></td></tr>
-</table>
-
-<h3>Marketplaces officielles vs communautaires</h3>
-<table>
-<tr><th>Source</th><th>Adresse</th><th>Contenu</th></tr>
-<tr><td><strong>Officielle Anthropic</strong></td><td><code>anthropics/claude-plugins-official</code></td><td>Plugins curated, qualité garantie (commit-commands, code-review, etc.)</td></tr>
-<tr><td><strong>Communautaires</strong></td><td><code>anthropics/claude-plugins-community</code></td><td>Plugins tiers, varie en qualité</td></tr>
-<tr><td><strong>Repo prive</strong></td><td>URL Git de votre choix</td><td>Plugins maison pour l'équipe</td></tr>
-</table>
-
-<pre># Workflow typique
-claude
-&gt; /plugin marketplace add anthropics/claude-plugins-official
-&gt; /plugin install commit-commands@claude-plugins-official
-&gt; /reload-plugins
-&gt; /plugin list
-
-# Le plugin est dispo dans VS Code et terminal Claude Code</pre>
-
-<div class="key-concept">
-<strong>Distinction importante :</strong>
-<ul>
-<li>Un <strong>skill</strong> est une unité individuelle (un fichier <code>SKILL.md</code> avec frontmatter)</li>
-<li>Un <strong>plugin</strong> est un <em>bundle</em> distribuable contenant plusieurs skills + commands + hooks + agents</li>
-</ul>
-La <strong>hiérarchie de priorité</strong> rappelée : <code>Enterprise &gt; Personnel &gt; Projet &gt; Plugins</code>. Les skills de plugins sont namespacés (<code>plugin:skill-name</code>) et ne peuvent donc pas être écrasés par un skill projet de même nom — seuls les skills bundled avec Claude Code (ex. <code>/code-review</code>) sont surchargeables.
-</div>
-
-<div class="exam-tip">
-<strong>Scénario d'examen :</strong> votre équipe veut standardiser les conventions de revue de code sans que chaque développeur reconfigure son installation. Solution canonique : créer un plugin custom dans un repo Git partagé, demander à l'équipe de faire <code>/plugin marketplace add &lt;votre-repo&gt;</code> + <code>/plugin install team-conventions</code>. Mise à jour : push au repo, chaque dev fait <code>/reload-plugins</code>.
 </div>
 
 <!-- ================================================================== -->
@@ -652,7 +541,7 @@ jobs:
 <table>
 <tr><th>Champ</th><th>Role</th></tr>
 <tr><td><code>matcher</code></td><td>Filtre regex sur le nom de l'outil (PreToolUse / PostToolUse) ou <code>"*"</code> pour tous. Ignoré pour <code>UserPromptSubmit</code> et <code>Stop</code>, qui ne supportent pas de matcher</td></tr>
-<tr><td><code>type</code></td><td>Toujours <code>"command"</code> dans la config (les hooks programmatiques sont via le SDK)</td></tr>
+<tr><td><code>type</code></td><td>Cinq types possibles : <code>"command"</code> (shell, le plus courant — utilisé dans tous les exemples ci-dessus), <code>"http"</code> (requête HTTP sortante), <code>"mcp_tool"</code> (appel d'un tool exposé par un serveur MCP), <code>"prompt"</code> (soumet un prompt à Claude), <code>"agent"</code> (invoque un subagent)</td></tr>
 <tr><td><code>command</code></td><td>Commande shell exécutée. Les hooks reçoivent les données en JSON sur stdin avec <code>tool_name</code> et <code>tool_input</code>. Variable d'env disponible : <code>CLAUDE_PROJECT_DIR</code></td></tr>
 <tr><td><code>timeout</code></td><td>Secondes avant kill (défaut : 600 s pour les hooks command, 30 s pour <code>UserPromptSubmit</code>). Important pour éviter de bloquer la session</td></tr>
 </table>
@@ -746,7 +635,7 @@ claude mcp remove github</pre>
 <tr><th>Fonctionnalité</th><th>Chargement</th><th>Déclenchement</th><th>Isolation</th><th>Usage idéal</th></tr>
 <tr><td><strong>CLAUDE.md</strong></td><td>Toujours</td><td>Automatique</td><td>Non</td><td>Standards universels du projet</td></tr>
 <tr><td><strong>Skills</strong></td><td>À la demande</td><td>Matching sémantique</td><td>Optionnelle (<code>context: fork</code>)</td><td>Expertise spécifique à une tâche</td></tr>
-<tr><td><strong>Slash commands</strong></td><td>À l'invocation</td><td>Manuel (<code>/commande</code>)</td><td>Non</td><td>Workflows répétables explicites (legacy)</td></tr>
+<tr><td><strong>Slash commands</strong></td><td>À l'invocation</td><td>Manuel (<code>/commande</code>)</td><td>Non</td><td>Workflows répétables explicites</td></tr>
 <tr><td><strong>Hooks</strong></td><td>Événementiel</td><td>Événement (appel d'outil)</td><td>Non</td><td>Opérations automatiques (lint, validation)</td></tr>
 <tr><td><strong>Subagents</strong></td><td>À la demande</td><td>Délégation explicite</td><td><strong>Oui</strong></td><td>Tâches déléguées avec isolation</td></tr>
 <tr><td><strong>Serveurs MCP</strong></td><td>À la connexion</td><td>Via les outils</td><td>Non</td><td>Outils et intégrations externes</td></tr>
@@ -769,10 +658,10 @@ claude mcp remove github</pre>
 
 <h3>Skills et slash commands</h3>
 <ul>
-<li>Slash commands dans <code>.claude/commands/</code> : format legacy, partage via VCS.</li>
+<li>Slash commands dans <code>.claude/commands/</code> : mécanisme valide, partage via VCS.</li>
 <li>Skills dans <code>.claude/skills/</code> : format actuel, <code>SKILL.md</code> avec YAML frontmatter.</li>
 <li>Skills personnels dans <code>~/.claude/skills/</code> : doivent utiliser des <strong>noms différents</strong> des skills projet (le skill <strong>personnel</strong> prend la priorité pour un même nom).</li>
-<li><code>context: fork</code> pour l'isolation dans un subagent, <code>allowed-tools</code> pour restreindre les outils.</li>
+<li><code>context: fork</code> pour l'isolation dans un subagent, <code>allowed-tools</code> pour la pré-approbation des outils (pas une restriction — <code>disallowed-tools</code> retire un outil du pool disponible).</li>
 <li>Priorité : Enterprise &gt; Personnel &gt; Projet &gt; Plugins.</li>
 </ul>
 
@@ -800,7 +689,7 @@ claude mcp remove github</pre>
 <h3>Configuration JSON et permissions</h3>
 <ul>
 <li><strong>Trois niveaux</strong> : <code>~/.claude/settings.json</code> (user) / <code>.claude/settings.json</code> (projet, versionné) / <code>.claude/settings.local.json</code> (local, dans <code>.gitignore</code>).</li>
-<li>Précédence : <code>settings.local.json</code> &gt; <code>settings.json</code> projet &gt; user &gt; défauts.</li>
+<li>Précédence : managed/enterprise &gt; <code>settings.local.json</code> &gt; <code>settings.json</code> projet &gt; user &gt; défauts.</li>
 <li><code>permissions.allow</code> : allowlist explicite nécessaire en CI pour éviter les blocages.</li>
 <li>Syntaxe Bash : <code>Bash(npm test)</code> = exact ; <code>Bash(npm test:*)</code> = avec arguments libres.</li>
 <li><code>defaultMode</code> : <code>"default"</code> / <code>"acceptEdits"</code> / <code>"plan"</code> / <code>"bypassPermissions"</code> (dangereux).</li>
@@ -850,7 +739,7 @@ A) Ajouter <code>context: fork</code> dans le frontmatter du skill.
 B) Utiliser <code>/compact</code> après le skill.
 C) Reduire les outils du skill avec <code>allowed-tools</code>.
 D) Decouper le skill en plus petits skills.</summary>
-<p><strong>Réponse : A.</strong> Le paramètre <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> exécute le skill dans un subagent isolé. La sortie verbeuse ne pollue pas la session principale, et Claude conserve le contexte de la tâche originale. B compresserait le contexte mais avec perte d'information. C limiterait les capacités du skill sans résoudre le problème de pollution du contexte. D ajouterait de la complexité sans isolation.</p>
+<p><strong>Réponse : A.</strong> Le paramètre <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> exécute le skill dans un subagent isolé. La sortie verbeuse ne pollue pas la session principale, et Claude conserve le contexte de la tâche originale. B compresserait le contexte mais avec perte d'information. C changerait le pool d'outils pré-approuvés du skill (<code>allowed-tools</code>) sans résoudre le problème de pollution du contexte. D ajouterait de la complexité sans isolation.</p>
 </details>
 
 <details>

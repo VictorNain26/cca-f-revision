@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 78 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -41,12 +41,7 @@
 <li><a href="#s3">L'architecture hub-and-spoke</a></li>
 <li><a href="#s4">Les stratégies de décomposition</a></li>
 <li><a href="#s5">Le Task tool, context passing et spawning</a></li>
-<li><a href="#s6">Programmatic enforcement et hooks</a>
-  <ul>
-    <li><a href="#s6b">Failure recovery patterns (retries, circuit breakers, partial results)</a></li>
-    <li><a href="#s6c">Human-in-the-loop comme pattern d'architecture</a></li>
-  </ul>
-</li>
+<li><a href="#s6">Programmatic enforcement et hooks</a></li>
 <li><a href="#s7">La gestion des sessions</a></li>
 <li><a href="#s8">Synthese + questions d'auto-evaluation</a></li>
 </ol>
@@ -122,7 +117,7 @@
 </table>
 
 <div class="key-concept">
-<strong>OTAR n'est pas un protocole de l'API</strong> — c'est une grille de lecture pour décrire le comportement de la boucle. L'examen utilise le vocabulaire "observe-think-act-respond" pour parler du fonctionnement standard d'un agent. Comprendre la grille permet de raisonner sur ou intervenir : un hook <code>PreToolUse</code> intercepte entre <em>think</em> et <em>act</em>, un hook <code>PostToolUse</code> intercepte au début du prochain <em>observe</em>.
+<strong>OTAR n'est pas un protocole de l'API</strong> — c'est une grille de lecture pour décrire le comportement de la boucle, pas le vocabulaire de l'examen. L'examen cadre ce domaine via <code>stop_reason</code> (<code>"tool_use"</code> vs <code>"end_turn"</code>), jamais via OTAR. Comprendre la grille reste utile pour raisonner sur les hooks : un hook <code>PreToolUse</code> intercepte entre la décision d'appel (le bloc <code>tool_use</code> est émis) et l'exécution de l'outil par ton code ; un hook <code>PostToolUse</code> intercepte au début du prochain <em>observe</em>, une fois le tool result obtenu.
 </div>
 
 <h3>Comment ça fonctionne</h3>
@@ -265,6 +260,8 @@
 <h3>Comment ça fonctionne</h3>
 <p>Pour qu'un coordinateur puisse créer des subagents, son <code>allowedTools</code> doit inclure <code>"Task"</code>. Chaque appel à Task crée un subagent avec son propre contexte isolé.</p>
 
+<p><em>Note : depuis Claude Code v2.1.63, cet outil a été renommé <code>Task</code> → <code>Agent</code> dans le produit (les deux noms coexistent dans la documentation actuelle). Pour l'examen, retenez <code>"Task"</code> — c'est le terme utilisé par le guide officiel.</em></p>
+
 <p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>coordinator = AgentDefinition(
     name="coordinator",
@@ -306,21 +303,6 @@ Task 3 : "Rechercher des articles sur Z"
 
 <p>Rédigez les prompts du coordinateur en termes d'<strong>objectifs et de critères de qualité</strong> (« le rapport doit couvrir au moins cinq secteurs avec des sources datées ») plutôt qu'en instructions procédurales étape par étape.</p>
 
-<h3>Les subagents dans Claude Code</h3>
-<p>Dans Claude Code, les subagents personnalisés se configurent dans <code>.claude/agents/nom-du-subagent.md</code>. Le frontmatter définit les métadonnées, et la suite constitue le system prompt :</p>
-<pre>---
-name: code-quality-reviewer
-description: Reviews code for quality, security, and best practices.
-  You must tell the agent precisely which files to review.
-tools: Bash, Glob, Grep, Read
-model: sonnet
-color: purple
----
-You are an expert code reviewer. Provide your review in:
-1. Summary  2. Critical Issues  3. Major Issues
-4. Minor Issues  5. Recommendations  6. Approval Status
-7. Obstacles Encountered</pre>
-
 <h3>Les quatre caractéristiques d'un subagent efficace</h3>
 <table>
 <tr><th>#</th><th>Caractéristique</th><th>Pourquoi c'est important</th></tr>
@@ -336,7 +318,7 @@ You are an expert code reviewer. Provide your review in:
 <div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Tasks 1.4 &amp; 1.5)</h2></div>
 
 <h3>Le problème que cela résout</h3>
-<p>Dans un workflow de support client, il est critique de vérifier l'identité du client <em>avant</em> de traiter un remboursement. On peut l'écrire dans le prompt… mais les instructions dans le prompt ont un taux de conformité de l'ordre de 90-95 %, pas 100 %. Sur des milliers d'interactions, même un faible taux d'échec peut causer des remboursements versés au mauvais client.</p>
+<p>Dans un workflow de support client, il est critique de vérifier l'identité du client <em>avant</em> de traiter un remboursement. On peut l'écrire dans le prompt… mais les instructions dans le prompt ont un taux de conformité élevé, jamais garanti à 100 % — le guide officiel parle seulement d'un <em>non-zero failure rate</em> (le « 90-95 % » parfois cité en formation est illustratif, pas un chiffre officiel). Sur des milliers d'interactions, même un faible taux d'échec peut causer des remboursements versés au mauvais client.</p>
 
 <p>Le <strong>programmatic enforcement</strong> résout ce problème en rendant la violation <em>impossible</em> par le code, plutôt qu'<em>improbable</em> par le prompt.</p>
 
@@ -372,7 +354,7 @@ def normalize_dates(tool_result):
 <p>C'est l'une des distinctions les plus testées à l'examen. La règle est simple :</p>
 <table>
 <tr><th></th><th>Hooks (programmatic enforcement)</th><th>Prompt instructions</th></tr>
-<tr><td><strong>Garantie</strong></td><td>Deterministe (100 %)</td><td>Probabiliste (&gt; 90 %, mais pas 100 %)</td></tr>
+<tr><td><strong>Garantie</strong></td><td>Deterministe (100 %)</td><td>Probabiliste (non-zero failure rate — pas 100 % ; le guide ne donne pas de chiffre exact, le « &gt; 90 % » est illustratif)</td></tr>
 <tr><td><strong>Quand les utiliser</strong></td><td>Business rules critiques, opérations financières, conformité réglementaire</td><td>Préférences générales, formatting, recommandations</td></tr>
 <tr><td><strong>Exemple</strong></td><td>Bloquer les remboursements supérieurs à 500 $</td><td>« Try to resolve the issue before escalating »</td></tr>
 </table>
@@ -404,182 +386,6 @@ def normalize_dates(tool_result):
 </div>
 
 <!-- ================================================================== -->
-<div class="subsection"><h3 id="s6b">Failure recovery patterns (retries, circuit breakers, partial results)</h3></div>
-
-<p>Au-delà du structured handoff (D5 §3 — propagation d'erreur), un agent doit décider <strong>quand</strong> réessayer, <strong>comment</strong> dégrader, et <strong>quand</strong> abandonner. Cinq patterns standards.</p>
-
-<h3>Pattern 1 — Retry avec backoff exponentiel</h3>
-<p>Pour les erreurs <code>transient</code> (timeout, 503, rate limit). Une seule tentative supplémentaire est rarement suffisante ; la plupart des SDK Anthropic retentent automatiquement avec un délai croissant.</p>
-<pre>// Backoff : 1s → 2s → 4s → 8s (max 4 tentatives en général)
-attempts: 1 → wait 1s → 2 → wait 2s → 3 → wait 4s → 4 → fail
-
-// Configuration côté SDK Anthropic
-client = Anthropic(max_retries=3)</pre>
-
-<table>
-<tr><th>Type d'erreur</th><th>Retry pertinent ?</th><th>Strategie</th></tr>
-<tr><td>503, timeout, network</td><td>Oui</td><td>Backoff exponentiel, 3-4 tentatives</td></tr>
-<tr><td>429 (rate limit)</td><td>Oui</td><td>Respecter <code>Retry-After</code> header</td></tr>
-<tr><td>400 (validation)</td><td>Oui après correction</td><td>Modifier la requête (retry-with-feedback, voir D4 §4.4)</td></tr>
-<tr><td>401, 403 (auth)</td><td>Non</td><td>Escalader, refresh token</td></tr>
-<tr><td>500 (erreur serveur metier)</td><td>Selon contexte</td><td>1 retry max, sinon propager</td></tr>
-</table>
-
-<h3>Pattern 2 — Circuit breaker</h3>
-<p>Après N échecs consécutifs sur un même outil ou serveur, <strong>arrêter de tenter</strong> pendant une fenêtre de temps. Évite de saturer un service déjà en panne et permet à l'agent de dégrader proprement.</p>
-
-<pre>// États d'un circuit breaker
-CLOSED   : tout passe normalement (état initial)
-OPEN     : échec persistant détecté, on bloque sans tenter (cooldown 30s-5min)
-HALF-OPEN: cooldown écoulé, on laisse passer 1 requête test
-           — succès → CLOSED ; échec → OPEN à nouveau</pre>
-
-<div class="key-concept">
-<strong>Quand l'utiliser :</strong> dans les systèmes multi-agents avec dépendances externes (API tierces, MCP servers distants). Un circuit breaker par dépendance évite l'effet domino — un service en panne ne fait pas tomber l'agent entier.
-</div>
-
-<h3>Pattern 3 — Partial results / graceful degradation</h3>
-<p>Plutôt qu'échouer en bloc, livrer ce qui a fonctionné avec une <strong>annotation explicite</strong> de ce qui manque. C'est le cousin direct des <code>coverage annotations</code> de D5 §3.</p>
-
-<pre>// Résultat d'un agent multi-source qui a partiellement échoué
-{
-  "status": "partial_success",
-  "completed": ["web_search", "doc_analysis"],
-  "failed": ["patent_search"],
-  "results": { ... },
-  "missing_data": "Patent search timed out — patent landscape not covered",
-  "confidence": 0.75
-}</pre>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> sur les questions de scénario Multi-Agent Research, la bonne réponse face a un échec partiel est presque toujours <strong>"continuer avec partial results et annoter les lacunes"</strong>, pas "abandonner le workflow" ni "retry indefiniment".
-</div>
-
-<h3>Pattern 4 — Compensating actions (rollback)</h3>
-<p>Quand un workflow multi-étapes échoue au milieu (étape 3 sur 5), il faut <strong>défaire</strong> les effets des étapes déjà exécutées pour éviter un état incohérent. Distinct des transactions DB classiques car les agents font souvent appel à des systèmes sans transactions distribuées.</p>
-
-<pre>// Saga pattern : à chaque action, définir sa compensation
-def book_trip():
-    flight = book_flight()       # action 1
-    try:
-        hotel = book_hotel()     # action 2
-        try:
-            car = book_car()     # action 3
-        except:
-            cancel_hotel(hotel)  # compensate action 2
-            cancel_flight(flight) # compensate action 1
-            raise</pre>
-
-<h3>Pattern 5 — Idempotence et keys</h3>
-<p>Pour rendre les retries sûrs, chaque action doit être <strong>idempotente</strong> : la répéter ne change pas le résultat. Les API exposent souvent un paramètre <code>idempotency_key</code> pour cela.</p>
-
-<pre>// Stripe-style : même key = même charge, jamais double
-POST /v1/refunds
-Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
-
-<div class="anti-pattern">
-<strong>Anti-pattern critique :</strong> retry sans idempotence sur une action à effet de bord. Exemple classique : retry de <code>process_refund</code> après un timeout réseau — sans idempotency key, vous avez peut-être remboursé deux fois. <strong>Toujours</strong> vérifier l'idempotence avant d'autoriser un retry sur une action transactionnelle.
-</div>
-
-<h3>Decision tree : quel pattern utiliser</h3>
-<table>
-<tr><th>Situation</th><th>Pattern</th></tr>
-<tr><td>Erreur transient (timeout, 503)</td><td>Retry + backoff exponentiel</td></tr>
-<tr><td>Service externe en panne prolongée</td><td>Circuit breaker</td></tr>
-<tr><td>Sous-tâche d'une recherche multi-source</td><td>Partial results + coverage annotation</td></tr>
-<tr><td>Workflow transactionnel multi-étapes</td><td>Compensating actions (saga)</td></tr>
-<tr><td>Toute action à effet de bord</td><td>Idempotency key</td></tr>
-<tr><td>Cas critique financier/légal</td><td>Hook PreToolUse + idempotency + audit log</td></tr>
-</table>
-
-<!-- ================================================================== -->
-<div class="subsection"><h3 id="s6c">Human-in-the-loop comme pattern d'architecture</h3></div>
-
-<p>Le <strong>human-in-the-loop (HITL)</strong> n'est pas seulement l'<em>escalation</em> en fin de workflow (vue en D5 §2). C'est un <strong>pattern d'architecture</strong> où un humain est intégré <em>dans</em> la boucle décisionnelle de l'agent, pas seulement en sortie.</p>
-
-<h3>Quatre points d'insertion d'un humain dans la boucle</h3>
-
-<table>
-<tr><th>Pattern HITL</th><th>Où l'humain intervient</th><th>Cas d'usage</th></tr>
-<tr><td><strong>1. Approval gate</strong></td><td>Avant l'exécution d'une action sensible</td><td>Opérations financières, déploiements, suppressions</td></tr>
-<tr><td><strong>2. Disambiguation</strong></td><td>Quand l'agent détecte une ambiguïté</td><td>Multiple matches client, intention floue</td></tr>
-<tr><td><strong>3. Quality review</strong></td><td>Sur un échantillon de sorties</td><td>Extraction de données, classification, content moderation</td></tr>
-<tr><td><strong>4. Escalation handoff</strong></td><td>Quand l'agent ne peut pas résoudre</td><td>Support client (vu en D5 §2)</td></tr>
-</table>
-
-<h3>Pattern 1 — Approval gate (validation avant action)</h3>
-<p>L'agent prépare une action sensible et <em>attend</em> la validation humaine avant d'exécuter. Implémentation typique :</p>
-
-<pre>// L'agent déclare son intention via un tool dédié
-&lt;tool_use name="propose_refund"&gt;
-  customer_id: CUST-12345
-  amount: 489.99
-  reason: "Defective item, customer has photos"
-&lt;/tool_use&gt;
-
-// Le tool ne fait PAS le refund — il crée une demande d'approbation
-// dans un dashboard humain et retourne :
-&lt;tool_result&gt;
-  status: "awaiting_approval"
-  approval_id: "APR-2024-0042"
-  timeout: "2024-12-15T18:00:00Z"
-&lt;/tool_result&gt;
-
-// L'agent doit alors continuer son workflow (informer le client) ou
-// boucler avec poll_approval(APR-2024-0042) selon la latence acceptable</pre>
-
-<div class="key-concept">
-<strong>Couplage avec les hooks :</strong> un approval gate est typiquement implémenté via un hook <code>PreToolUse</code> qui intercepte les actions sensibles, déclenche une notification humaine, et bloque l'exécution jusqu'à réponse. Le hook offre la <strong>garantie déterministe</strong> que l'humain est consulté (vs. une simple instruction dans le prompt qui peut être contournée).
-</div>
-
-<h3>Pattern 2 — Disambiguation</h3>
-<p>Quand l'agent détecte une ambiguïté (3 clients avec le même nom de famille, requête avec plusieurs interprétations possibles), au lieu de deviner, il <strong>demande des informations supplémentaires</strong>.</p>
-
-<pre>// L'agent détecte 3 matches et n'invente pas
-"J'ai trouvé 3 comptes au nom de Smith. Pour confirmer le vôtre,
- pouvez-vous fournir votre email ou les 4 derniers chiffres de
- votre numéro de téléphone enregistré ?"</pre>
-
-<div class="anti-pattern">
-<strong>Anti-pattern :</strong> deviner. Si plusieurs candidats matchent, l'agent ne doit jamais choisir le "plus probable" sur des critères implicites. Le risque (mauvais client, mauvais ordre) excède largement le coût d'une interaction supplémentaire.
-</div>
-
-<h3>Pattern 3 — Quality review (echantillonnage)</h3>
-<p>Pour les workflows automatisés à grand volume (extraction de données, classification), un humain revoit périodiquement un <strong>échantillon stratifié</strong> (D5 §5) des sorties. Le but : détecter les dérives, calibrer les seuils de confiance, améliorer les prompts.</p>
-
-<table>
-<tr><th>Stratégie d'échantillonnage</th><th>Cas d'usage</th></tr>
-<tr><td>Aléatoire stratifié par catégorie</td><td>Mesure du taux d'erreur global</td></tr>
-<tr><td>Tous les cas low-confidence (&lt; 0.7)</td><td>Calibration des seuils</td></tr>
-<tr><td>Cas à fort enjeu (montant &gt; 1000$)</td><td>Risk-weighted review</td></tr>
-<tr><td>Nouveaux patterns détectés</td><td>Adaptation aux données</td></tr>
-</table>
-
-<h3>Pattern 4 — Escalation handoff</h3>
-<p>Vu en détail en D5 §2 (escalation patterns + structured handoff). C'est le pattern HITL "fin de boucle" — l'agent passe la main quand il a épuisé ses options ou rencontre un cas hors périmètre.</p>
-
-<h3>Architecture combinee : les 4 patterns dans un même système</h3>
-<pre>+----------------------------------------------+
-|  Agent de support client                     |
-|                                              |
-|  Disambiguation gate (Pattern 2)             |
-|     - Multiple matches ? Ask user            |
-|                                              |
-|  Approval gate (Pattern 1, hook PreToolUse)  |
-|     - Refund &gt; 500$ ? Wait for human approval|
-|                                              |
-|  Quality review (Pattern 3, async)           |
-|     - 5% des cas envoyés en revue humaine    |
-|                                              |
-|  Escalation handoff (Pattern 4)              |
-|     - Cas non résolu ? Structured handoff    |
-+----------------------------------------------+</pre>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> les questions de scénario Customer Support testent souvent la <strong>combinaison</strong> de plusieurs patterns HITL, pas un seul. Si une question oppose "ajouter une instruction dans le prompt" et "implémenter un hook PreToolUse comme approval gate" pour une action critique, la bonne réponse est <strong>toujours</strong> le hook (déterministe). Voir aussi §6 sur le programmatic enforcement.
-</div>
-
-<!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. La gestion des sessions (Task 1.7)</h2></div>
 
 <h3>Le problème que cela résout</h3>
@@ -602,7 +408,8 @@ Idempotency-Key: refund-CUST-12345-ORDER-67890</pre>
 <table>
 <tr><th>Situation</th><th>Choix recommandé</th></tr>
 <tr><td>Le contexte précédent est encore valide (fichiers inchangés)</td><td><code>--resume</code></td></tr>
-<tr><td>Les tool results sont obsolètes (fichiers modifiés)</td><td>Nouvelle session avec un résumé structuré injecté</td></tr>
+<tr><td>Un nombre limité de fichiers précis ont changé, le reste du contexte reste valide</td><td><code>--resume</code> en informant explicitement l'agent des fichiers précisément modifiés, pour une ré-analyse ciblée (plutôt qu'une ré-exploration complète)</td></tr>
+<tr><td>Les tool results sont obsolètes (fichiers modifiés de façon étendue ou incertaine)</td><td>Nouvelle session avec un résumé structuré injecté</td></tr>
 <tr><td>On veut comparer deux approches</td><td><code>fork_session</code></td></tr>
 <tr><td>Beaucoup de temps a passé et le contexte s'est dégradé</td><td>Nouvelle session : « Here's a summary of our findings… »</td></tr>
 </table>
@@ -627,26 +434,7 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <li>Cycle <strong>observe-think-act-respond</strong> (OTAR) — grille de lecture conceptuelle de chaque itération.</li>
 <li><code>stop_reason == "tool_use"</code> → continuer. <code>"pause_turn"</code> → re-envoyer pour continuer (server tool interrompu). <code>"end_turn"</code>, <code>"refusal"</code> ou <code>"model_context_window_exceeded"</code> → terminer. C'est le signal fiable pour piloter la boucle.</li>
 <li>Ne jamais parser le texte de l'assistant, utiliser des limites d'itérations arbitraires ou vérifier la présence de texte comme signal de fin.</li>
-<li>Hooks <code>PreToolUse</code> = entre think et act ; <code>PostToolUse</code> = au début de l'observe suivant.</li>
-</ul>
-
-<h3>Failure recovery</h3>
-<ul>
-<li>5 patterns : retry+backoff exponentiel / circuit breaker / partial results / compensating actions (saga) / idempotency keys.</li>
-<li>Retry pertinent : 503, timeout, rate limit (429), 400 après correction. Non pertinent : 401/403.</li>
-<li>Circuit breaker (CLOSED/OPEN/HALF-OPEN) pour les dépendances externes en panne prolongée.</li>
-<li>Partial results + coverage annotations pour les workflows multi-source (lien D5 §3).</li>
-<li><strong>Anti-pattern critique :</strong> retry sans idempotency key sur action a effet de bord (double remboursement).</li>
-</ul>
-
-<h3>Human-in-the-loop (HITL)</h3>
-<ul>
-<li>4 patterns : approval gate / disambiguation / quality review (échantillon) / escalation handoff.</li>
-<li>Approval gate = hook PreToolUse + notification humaine + blocage jusqu'a réponse.</li>
-<li>Disambiguation = demander des infos quand plusieurs candidats matchent ; ne jamais deviner.</li>
-<li>Quality review = échantillonnage stratifié + calibration des seuils (lien D5 §5).</li>
-<li>Escalation handoff = structured handoff (lien D5 §2).</li>
-<li>Combinaison : les 4 patterns coexistent dans un système robuste, ils ne s'excluent pas.</li>
+<li>Hooks <code>PreToolUse</code> = entre la décision d'appel (bloc <code>tool_use</code> émis) et l'exécution de l'outil ; <code>PostToolUse</code> = au début de l'observe suivant.</li>
 </ul>
 
 <h3>L'architecture multi-agents (hub-and-spoke)</h3>
@@ -710,30 +498,12 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </details>
 
 <details>
-<summary>Q6 : Situation : votre agent appelle <code>process_refund</code> via une API tierce. Le premier appel timeout au bout de 30 secondes. L'agent retry automatiquement. Quel est le risque, et comment le neutraliser ?
-A) Aucun risque — un timeout signifie que la requête a échoué.
-B) Risque de double remboursement — passer un <code>idempotency_key</code> dans la requête pour que l'API reconnaisse les doublons.
-C) Augmenter le timeout à 60 secondes.
-D) Demander la confirmation à Claude avant de retry.</summary>
-<p><strong>Réponse : B.</strong> Un timeout réseau ne signifie <em>pas</em> que la requête n'a pas atteint le serveur — elle a peut-être été traitée, mais la réponse n'est jamais revenue au client. Sans <code>idempotency_key</code>, le retry créerait un second remboursement sur la même commande. Avec une key (par exemple <code>refund-CUST-12345-ORDER-67890</code>), l'API reconnaît que c'est la même opération et retourne le résultat de la première exécution. C ne résout pas le problème de fond. D ne résout rien (Claude n'a pas plus d'info que le code).</p>
-</details>
-
-<details>
-<summary>Q7 : Situation : votre agent multi-source dépendait de 4 APIs externes. L'API patents tombe en panne pour 30 minutes. L'agent retry chaque appel 4 fois avant d'échouer, multipliant la latence par 4 sur cette branche pendant toute la durée de la panne. Quel pattern résout proprement ce problème ?
-A) Réduire le nombre de retries.
-B) Implémenter un circuit breaker sur l'API patents : après 3 échecs consécutifs, ouvrir le circuit pendant 5 min, puis tester en half-open.
-C) Supprimer la branche patents du workflow.
-D) Augmenter le nombre de subagents.</summary>
-<p><strong>Réponse : B.</strong> Un circuit breaker arrête les appels vers une dépendance en panne prolongée, évitant le gaspillage de latence et de tokens. Les autres branches du workflow continuent de fonctionner ; la branche patents est annotée comme "indisponible" via partial results. A est un compromis grossier (dégradera la fiabilité quand l'API marche). C abandonne la fonctionnalité. D ajoute de la complexité sans traiter la cause.</p>
-</details>
-
-<details>
-<summary>Q8 : Situation : votre agent de support client peut émettre des remboursements jusqu'à 5000$. La direction veut une approbation humaine au-delà de 500$. Vous avez le choix entre : (1) ajouter "always ask for approval if amount &gt; 500" dans le system prompt, (2) implémenter un hook PreToolUse qui intercepte <code>process_refund</code>, ouvre une demande d'approbation et bloque jusqu'à réponse. Lequel et pourquoi ?
+<summary>Q6 : Situation : votre agent de support client peut émettre des remboursements jusqu'à 5000$. La direction veut une approbation humaine au-delà de 500$. Vous avez le choix entre : (1) ajouter "always ask for approval if amount &gt; 500" dans le system prompt, (2) implémenter un hook PreToolUse qui intercepte <code>process_refund</code>, ouvre une demande d'approbation et bloque jusqu'à réponse. Lequel et pourquoi ?
 A) Option 1 — c'est plus rapide à implémenter.
 B) Option 1 — Claude est très fiable sur le suivi d'instructions.
-C) Option 2 — un approval gate via hook PreToolUse offre une garantie déterministe ; les instructions textuelles sont probabilistes (&gt; 90 % mais pas 100 %), insuffisantes pour des décisions financières.
+C) Option 2 — un approval gate via hook PreToolUse offre une garantie déterministe ; les instructions textuelles restent probabilistes (non-zero failure rate selon le guide, jamais 100 %), insuffisantes pour des décisions financières.
 D) Les deux donnent le même résultat.</summary>
-<p><strong>Réponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement) couplée au pattern HITL "approval gate". Pour toute action à conséquence financière, légale ou de sécurité, l'enforcement doit être <strong>déterministe</strong> via un hook. Une instruction prompt peut être contournée, mal interprétée, ou oubliée dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable à 1 % d'échec sur des milliers de transactions.</p>
+<p><strong>Réponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement). Pour toute action à conséquence financière, légale ou de sécurité, l'enforcement doit être <strong>déterministe</strong> via un hook. Une instruction prompt peut être contournée, mal interprétée, ou oubliée dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable à 1 % d'échec sur des milliers de transactions.</p>
 </details>
 
 <nav class="doc-nav">

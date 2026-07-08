@@ -8,23 +8,25 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 
 | Paramètre | Valeur |
 |---|---|
-| Questions | 60 QCM scénarisés (4 scénarios × 15) |
-| Durée | 90 minutes |
-| Score de passage | **720 / 1000** *(confirmé)* |
-| Scénarios | 4 tirés au sort sur les 6 du pool |
-| Plateforme | Proctored via **ProctorFree** *(confirmé)* |
-| Tentatives | **Une tentative par inscription** — repassage possible après 14 jours d'attente, moyennant ré-inscription (~99–125 $) |
-| Practice Exam | Officielle dans Skilljar — **viser > 900/1000** = meilleur prédicteur de réussite |
+| Questions | 60 QCM scénarisés (4 scénarios × 15) *(communément rapporté, non confirmé officiellement)* |
+| Durée | 90 minutes *(non confirmée officiellement)* |
+| Score de passage | **720 / 1000** *(confirmé, échelle 100–1000)* |
+| Pénalité | **Aucune** pour réponse fausse *(pas de pénalité au guessing)* |
+| Scénarios | **6 au total**, **4 tirés au sort** sur le pool |
+| Plateforme | Proctored via **Pearson VUE** — test center ou OnVUE *(migration 2026)* |
+| Tentatives | Jusqu'à **4 tentatives par période glissante de 12 mois**, délais de repassage **14 / 30 / 90 jours** après échecs successifs |
+| Recertification | Validité **12 mois** — badge délivré via **Credly** |
+| Practice Exam | Officielle — **viser > 900/1000** = meilleur prédicteur de réussite |
 
 ## Couverture du corpus — 100 % du référentiel officiel
 
 | Domaine | Poids | Sujets clés |
 |---|---|---|
-| **D1** Architecture & Orchestration | 27 % | Workflows vs agents, agentic loop (cycle OTAR), hub-and-spoke, hooks SDK, failure recovery, HITL, sessions |
-| **D2** Tool Design & MCP | 18 % | Descriptions, erreurs structurées, tool_choice, primitives MCP, JSON Schema, authentification, cookbook serveur |
-| **D3** Claude Code Configuration | 20 % | CLAUDE.md, settings.json, permissions Bash, skills, hooks Claude Code, custom agents, CI/CD GitHub Actions |
-| **D4** Prompt Engineering | 20 % | Critères explicites, few-shot, JSON Schema, retry-with-feedback Pydantic, Batch API, PRECISE, CoT, prompt injection |
-| **D5** Context & Reliability | 15 % | Case facts, prompt caching cache_control, token budgeting, escalation, multi-agent errors, provenance, memory tool |
+| **D1** Architecture & Orchestration | 27 % | Workflows vs agents, agentic loop (cycle OTAR), hub-and-spoke, hooks SDK, sessions |
+| **D2** Tool Design & MCP | 18 % | Descriptions, erreurs structurées, tool_choice, primitives MCP, JSON Schema, cookbook serveur |
+| **D3** Claude Code Configuration | 20 % | CLAUDE.md, settings.json, permissions Bash, skills, hooks Claude Code, CI/CD GitHub Actions |
+| **D4** Prompt Engineering | 20 % | Critères explicites, few-shot, JSON Schema, retry-with-feedback Pydantic, Batch API, PRECISE, CoT |
+| **D5** Context & Reliability | 15 % | Case facts, token budgeting, escalation, multi-agent errors, provenance |
 
 ## Contenu du corpus
 
@@ -38,7 +40,7 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | `D4_Prompt_Engineering_20pct.html` | Domaine 4 |
 | `D5_Context_Fiabilite_15pct.html` | Domaine 5 |
 | `Scenarios_Exam.html` | Les 6 scénarios + tableau croisé scénario × domaine |
-| `Practice_Questions.html` | 78 QCM corrigés (12 expliqués + 66 sur les 6 scénarios) |
+| `Practice_Questions.html` | Questions d'entraînement corrigées (questions expliquées en détail + questions sur les 6 scénarios) |
 | `Exam_Strategy.html` | Cheat sheet jour J, méthodologie QCM, 6 arbres de décision |
 | `styles.css` | Design system unifié partagé par tous les documents |
 

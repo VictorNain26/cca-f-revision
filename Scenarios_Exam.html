@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 78 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
   <a class="current" href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>Les 6 scénarios de l'examen CCA-F</h1>
-<p>60 questions au total : 4 scénarios tirés au sort × 15 questions/scénario · Chaque question est située dans un scénario</p>
+<p>60 questions au total : 4 scénarios tirés au sort × 15 questions/scénario <em>(communément rapporté, non confirmé par le guide officiel)</em> · Chaque question est située dans un scénario</p>
 </div>
 
 <!-- TABLE OF CONTENTS -->
@@ -61,18 +61,18 @@
 
 <table>
 <tr><th>Élément</th><th>Détail</th></tr>
-<tr><td>Nombre de questions</td><td><strong>60 QCM</strong> : 4 scénarios × 15 questions/scénario</td></tr>
-<tr><td>Durée</td><td><strong>90 minutes</strong> (≈ 1,5 min/question)</td></tr>
+<tr><td>Nombre de questions</td><td><strong>60 QCM</strong> : 4 scénarios × 15 questions/scénario <em>(communément rapporté, non confirmé officiellement)</em></td></tr>
+<tr><td>Durée</td><td><strong>90 minutes</strong> (≈ 1,5 min/question) <em>(non confirmée officiellement)</em></td></tr>
 <tr><td>Type de questions</td><td><strong>Multiple choice</strong> : 4 choix, 1 seule réponse correcte</td></tr>
 <tr><td>Score</td><td>Échelle de <strong>100 à 1000</strong>, passing score = <strong>720</strong></td></tr>
 <tr><td>Pénalité</td><td><strong>Aucune pénalité</strong> pour réponse fausse</td></tr>
 <tr><td>Scénarios</td><td><strong>4 scénarios sélectionnés aléatoirement</strong> sur les 6 possibles</td></tr>
-<tr><td>Proctoring</td><td><strong>Proctored</strong> via <strong>ProctorFree</strong></td></tr>
-<tr><td>Tentatives</td><td><strong>Une seule tentative autorisée</strong> à l'examen officiel</td></tr>
+<tr><td>Plateforme</td><td>Proctored via <strong>Pearson VUE</strong> (test center ou OnVUE)</td></tr>
+<tr><td>Tentatives</td><td>Jusqu'à <strong>4 tentatives par période de 12 mois</strong>, délais de repassage 14/30/90 jours après échecs successifs</td></tr>
 </table>
 
 <div class="exam-tip">
-<strong>Pratique avant le jour J :</strong> Anthropic fournit une <strong>Practice Exam officielle</strong> dans Skilljar. Viser <strong>&gt;900/1000</strong> est le meilleur prédicteur de réussite à l'examen réel. Utilise-la pour te familiariser avec le format et les pièges avant ta tentative unique.
+<strong>Pratique avant le jour J :</strong> Anthropic fournit une <strong>Practice Exam officielle</strong>. Viser <strong>&gt;900/1000</strong> est le meilleur prédicteur de réussite à l'examen réel. Utilise-la pour te familiariser avec le format et les pièges avant de te présenter à l'examen.
 </div>
 
 
@@ -125,7 +125,7 @@
 
 <p><strong>Description :</strong> Utiliser Claude Code pour accélérer le développement : génération, refactoring, debugging, documentation. Intégration avec custom slash commands et <code>CLAUDE.md</code>.</p>
 
-<p><strong>Domaines principalement testés :</strong> <strong>D3</strong> (CLAUDE.md hierarchy, skills, planning mode, CI/CD), <strong>D4</strong> (prompt engineering)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D3</strong> (CLAUDE.md hierarchy, skills, planning mode, CI/CD), <strong>D5</strong> (context management via Explore subagent)</p>
 
 <h4>Concepts clés à maîtriser</h4>
 <ul>
@@ -188,7 +188,7 @@
 
 <p><strong>Description :</strong> L'agent aide les développeurs à explorer des codebases inconnus, générer du boilerplate, et automatiser les tâches routinières. Utilise les built-in tools et MCP servers.</p>
 
-<p><strong>Domaines principalement testés :</strong> <strong>D2</strong> (built-in tools, MCP), <strong>D3</strong> (Claude Code config), <strong>D5</strong> (context management in large codebases)</p>
+<p><strong>Domaines principalement testés :</strong> <strong>D2</strong> (built-in tools, MCP), <strong>D3</strong> (Claude Code config), <strong>D1</strong> (subagent delegation, task decomposition)</p>
 
 <h4>Concepts clés à maîtriser</h4>
 <ul>
@@ -307,8 +307,8 @@
 <td></td>
 <td></td>
 <td>&#10003; hiérarchie CLAUDE.md, skills, commands</td>
-<td>&#10003; prompt engineering</td>
 <td></td>
+<td>&#10003; context management (Explore subagent)</td>
 </tr>
 <tr>
 <td><strong>S3</strong> Multi-Agent Research</td>
@@ -322,11 +322,11 @@
 <tr>
 <td><strong>S4</strong> Developer Productivity</td>
 <td></td>
-<td></td>
+<td>&#10003; subagent delegation, task decomposition</td>
 <td>&#10003; built-in tools, MCP</td>
 <td>&#10003; Claude Code config</td>
 <td></td>
-<td>&#10003; context management</td>
+<td></td>
 </tr>
 <tr>
 <td><strong>S5</strong> CI/CD Integration</td>
@@ -351,16 +351,16 @@
 <div class="key-concept">
 <strong>Lecture du tableau :</strong>
 <ul>
-<li><strong>D1 (Agentic)</strong> : surtout testé via S1 et S3</li>
+<li><strong>D1 (Agentic)</strong> : surtout testé via S1, S3 et S4</li>
 <li><strong>D2 (Tools)</strong> : surtout testé via S1, S3 et S4</li>
 <li><strong>D3 (Claude Code)</strong> : surtout testé via S2, S4 et S5</li>
-<li><strong>D4 (Prompt Engineering)</strong> : surtout testé via S2, S5 et S6</li>
-<li><strong>D5 (Quality)</strong> : surtout testé via S1, S3, S4 et S6</li>
+<li><strong>D4 (Prompt Engineering)</strong> : surtout testé via S5 et S6</li>
+<li><strong>D5 (Quality)</strong> : surtout testé via S1, S2, S3 et S6</li>
 </ul>
 </div>
 
 <div class="exam-tip">
-<strong>Strategie de révision :</strong> Si tu es faible sur un domaine, concentre-toi sur les scénarios correspondants. Par exemple, pour renforcer D1 (Agentic), travaille en priorité S1 et S3.
+<strong>Strategie de révision :</strong> Si tu es faible sur un domaine, concentre-toi sur les scénarios correspondants. Par exemple, pour renforcer D1 (Agentic), travaille en priorité S1, S3 et S4.
 </div>
 
 <!-- ============================================================ -->
@@ -458,7 +458,7 @@
 
 <nav class="doc-nav">
   <a class="prev" href="D5_Context_Fiabilite_15pct.html"><span class="label">Précédent</span><span class="title">D5 — Context et reliability</span></a>
-  <a class="next" href="Practice_Questions.html"><span class="label">Suivant</span><span class="title">Practice Questions (78 QCM)</span></a>
+  <a class="next" href="Practice_Questions.html"><span class="label">Suivant</span><span class="title">Practice Questions (87 QCM)</span></a>
 </nav>
 
 <hr>

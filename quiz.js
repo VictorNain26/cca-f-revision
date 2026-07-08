@@ -89,9 +89,19 @@
   };
 
   const findCorrectLetter = (detailsEl) => {
-    const text = (detailsEl.textContent || '').replace(/\s+/g, ' ');
-    const m = text.match(/R[ée]ponse\s*:?\s*<?([A-E])\b/i);
+    // Scopé à p.correct : le seul marqueur officiel de réponse (voir convention du
+    // corpus). Scanner tout le textContent du <details> ferait aussi matcher un
+    // "Réponse : X" mentionné dans une situation/narration, pas seulement le marqueur.
+    const correctP = detailsEl.querySelector('p.correct');
+    if (!correctP) return null;
+    const text = (correctP.textContent || '').replace(/\s+/g, ' ');
+    const m = text.match(/R[ée]ponse\s*:?\s*([A-E])\)/i);
     return m ? m[1].toUpperCase() : null;
+  };
+
+  const extractCategory = (summaryText) => {
+    const m = (summaryText || '').match(/^\s*Q\s*\d+\s*\(([^)]+)\)/i);
+    return m ? m[1].trim() : 'Autre';
   };
 
   // ---------- Wrap réponse dans <details class="answer-reveal"> ----------
@@ -229,6 +239,9 @@
     const summary = detailsEl.querySelector(':scope > summary');
     if (!summary) return;
     const qid = quizId(detailsEl, idx);
+    // Capturé avant toute décoration/mutation du summary (q-tag, split des choix).
+    detailsEl.dataset.qid = qid;
+    detailsEl.dataset.category = extractCategory(summary.textContent);
 
     // 1) Réponse correcte AVANT de wrapper (pour ne pas perdre le texte)
     const correctLetter = findCorrectLetter(detailsEl);
@@ -315,6 +328,38 @@
     const pct = Math.round((answered / totalQ) * 100);
     const scorePct = answered > 0 ? Math.round((correct / answered) * 100) : 0;
 
+    // Score par catégorie (tag "(Domaine)" ou "(Scénario)" extrait du summary,
+    // stocké sur chaque <details> par processQuiz). Purement dérivé du DOM au
+    // rendu : aucun changement de forme dans le state persisté (STORAGE_KEY
+    // inchangée, dégradation propre si un state plus ancien ne matche plus aucun
+    // <details> de la page).
+    const byCategory = new Map();
+    for (const el of document.querySelectorAll('details[data-quiz-processed="1"]')) {
+      const cat = el.dataset.category || 'Autre';
+      if (!byCategory.has(cat)) byCategory.set(cat, { answered: 0, correct: 0 });
+      const rec = pageQ[el.dataset.qid];
+      if (rec) {
+        const entry = byCategory.get(cat);
+        entry.answered++;
+        if (rec.correct) entry.correct++;
+      }
+    }
+    const breakdownRows = [...byCategory.entries()]
+      .filter(([, v]) => v.answered > 0)
+      .sort((a, b) => a[0].localeCompare(b[0], 'fr'));
+
+    const breakdownHtml = breakdownRows.length > 0
+      ? `<details class="prog-breakdown">` +
+        `<summary>Détail par catégorie</summary>` +
+        `<div class="prog-breakdown-body">` +
+        breakdownRows.map(([cat, v]) => {
+          const p = Math.round((v.correct / v.answered) * 100);
+          return `<div class="prog-breakdown-row"><span class="prog-breakdown-cat">${cat}</span>` +
+            `<span class="prog-breakdown-score ${p >= 70 ? 'good' : 'warn'}">${v.correct} / ${v.answered} (${p}%)</span></div>`;
+        }).join('') +
+        `</div></details>`
+      : '';
+
     widget.innerHTML =
       `<div class="prog-row"><span class="prog-label">Questions</span>` +
       `<strong>${answered} / ${totalQ}</strong></div>` +
@@ -323,6 +368,7 @@
         ? `<div class="prog-score"><span class="prog-label">Score</span>` +
           `<strong class="${scorePct >= 70 ? 'good' : 'warn'}">${correct} / ${answered} (${scorePct}%)</strong></div>`
         : '') +
+      breakdownHtml +
       `<button class="prog-reset" type="button" aria-label="Réinitialiser">Reset</button>`;
 
     widget.querySelector('.prog-reset')?.addEventListener('click', () => {

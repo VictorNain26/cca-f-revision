@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 78 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -167,7 +167,7 @@ Voir <strong>D1</strong> pour les détails sur la boucle agentique.
 <h3>Caractéristiques clés</h3>
 <ul>
 <li><strong>Priorité supérieure</strong> aux messages <code>user</code> — le modèle suit le system prompt en priorité</li>
-<li><strong>Charge une seule fois</strong>, s'applique à toute la conversation</li>
+<li><strong>Défini une fois côté code</strong>, mais renvoyé (et refacturé) à chaque appel — l'API est stateless</li>
 <li>Consomme des tokens dans le context window à chaque appel</li>
 </ul>
 
@@ -274,6 +274,10 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </div>
 
 <p>Le pattern <strong>« tool_use forcé »</strong> (<code>tool_choice: {"type": "any"}</code> ou <code>{"type": "tool", "name": "..."}</code>, voir section 7) reste valable et fonctionne, mais c'est le pattern <strong>historique</strong>. Sans <code>strict: true</code> sur la définition du tool — qui impose <code>additionalProperties: false</code> et la liste <code>required</code> — la conformité au schéma <strong>n'est pas garantie</strong> : le modèle peut omettre des champs requis ou ajouter des champs non prévus.</p>
+
+<div class="exam-tip">
+<strong>Pour l'examen :</strong> la bonne réponse pour le structured output est le pattern <strong>tool_use forcé</strong> (<code>tool_choice</code>) — c'est le mécanisme couvert par le guide officiel CCA-F. Les <strong>Structured Outputs natifs</strong> (<code>output_config.format</code>) sont la méthode actuelle recommandée par la documentation Anthropic, mais n'apparaissent pas dans le guide : ne les proposez pas comme réponse à l'examen. Dans les deux cas, la garantie de conformité au schéma suppose <code>strict: true</code> sur la définition du tool (ou l'équivalent natif) — sans quoi le modèle peut omettre ou ajouter des champs.
+</div>
 
 <h3>Ce qui est garanti vs ce qui ne l'est pas</h3>
 

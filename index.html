@@ -23,15 +23,15 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 78 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
   <h1>Corpus de révision CCA-F</h1>
-  <p>Claude Certified Architect — Foundations · Score de passage <strong>720/1000</strong> · proctored ProctorFree · 60 QCM (4 scénarios × 15) · 90 min</p>
-  <span class="weight">5 domaines · 6 scénarios (4 tirés au sort) · 78 QCM corrigés + 41 questions d'auto-éval</span>
+  <p>Claude Certified Architect — Foundations · Score de passage <strong>720/1000</strong> · proctored via Pearson VUE (test center ou OnVUE) · ~60 QCM (4 scénarios × 15) · ~90 min <em>(non confirmés officiellement)</em></p>
+  <span class="weight">5 domaines · 6 scénarios (4 tirés au sort) · 87 questions d'entraînement corrigées + auto-évaluations par domaine</span>
 </div>
 
 <h2 id="overview">Vue d'ensemble</h2>
@@ -56,35 +56,35 @@
   <a class="card" href="D1_Architecture_Orchestration_27pct.html">
     <span class="card-tag">D1 · 27 % du score</span>
     <h3 class="card-title">Architecture et orchestration</h3>
-    <p class="card-desc">Workflows vs agents, agentic loop (cycle OTAR), hub-and-spoke, décomposition, hooks SDK, failure recovery, human-in-the-loop, sessions.</p>
-    <p class="card-meta">7 sections · 8 questions auto-éval</p>
+    <p class="card-desc">Workflows vs agents, agentic loop (cycle OTAR), hub-and-spoke, décomposition, hooks SDK, sessions.</p>
+    <p class="card-meta">7 sections · 6 questions auto-éval</p>
   </a>
 
   <a class="card" href="D2_Tool_Design_MCP_18pct.html">
     <span class="card-tag">D2 · 18 % du score</span>
     <h3 class="card-title">Tool design et MCP</h3>
-    <p class="card-desc">Conception de descriptions, erreurs structurées, tool_choice, primitives MCP, JSON Schema avancé, authentification, cookbook serveur custom.</p>
-    <p class="card-meta">5 sections · 7 questions auto-éval</p>
+    <p class="card-desc">Conception de descriptions, erreurs structurées, tool_choice, primitives MCP, JSON Schema avancé, cookbook serveur custom.</p>
+    <p class="card-meta">5 sections · 6 questions auto-éval</p>
   </a>
 
   <a class="card" href="D3_Claude_Code_Config_20pct.html">
     <span class="card-tag">D3 · 20 % du score</span>
     <h3 class="card-title">Claude Code configuration</h3>
-    <p class="card-desc">Hiérarchie CLAUDE.md et settings, permissions Bash, skills, hooks Claude Code, custom agents, planning mode, CI/CD avec GitHub Actions.</p>
+    <p class="card-desc">Hiérarchie CLAUDE.md et settings, permissions Bash, skills, hooks Claude Code, planning mode, CI/CD avec GitHub Actions.</p>
     <p class="card-meta">7 sections · 9 questions auto-éval</p>
   </a>
 
   <a class="card" href="D4_Prompt_Engineering_20pct.html">
     <span class="card-tag">D4 · 20 % du score</span>
     <h3 class="card-title">Prompt engineering et structured output</h3>
-    <p class="card-desc">Critères explicites, few-shot, tool_use + JSON Schema, retry-with-feedback Pydantic, Batch API, multi-pass review, PRECISE, CoT, prompt injection.</p>
-    <p class="card-meta">7 sections · 7 questions auto-éval</p>
+    <p class="card-desc">Critères explicites, few-shot, tool_use + JSON Schema, retry-with-feedback Pydantic, Batch API, multi-pass review, PRECISE, CoT.</p>
+    <p class="card-meta">7 sections · 6 questions auto-éval</p>
   </a>
 
   <a class="card" href="D5_Context_Fiabilite_15pct.html">
     <span class="card-tag">D5 · 15 % du score</span>
     <h3 class="card-title">Context management et reliability</h3>
-    <p class="card-desc">Case facts, prompt caching cache_control, token budgeting, progressive summarization, escalation, multi-agent errors, provenance, memory tool.</p>
+    <p class="card-desc">Case facts, token budgeting, progressive summarization, escalation, multi-agent errors, provenance.</p>
     <p class="card-meta">7 sections · 6 questions auto-éval</p>
   </a>
 
@@ -115,9 +115,9 @@
 <div class="cards-grid">
 
   <a class="card" href="Practice_Questions.html">
-    <span class="card-tag">Active recall · 78 QCM</span>
+    <span class="card-tag">Active recall · 87 QCM</span>
     <h3 class="card-title">Practice Questions</h3>
-    <p class="card-desc">12 questions expliquées + 66 questions sur les 6 scénarios officiels. Chaque QCM corrigé avec explication et raison d'écarter chaque distracteur.</p>
+    <p class="card-desc">Questions expliquées en détail + questions couvrant les 6 scénarios officiels. Chaque QCM corrigé avec explication et raison d'écarter chaque distracteur.</p>
     <p class="card-meta">Couverture 6/6 scénarios</p>
   </a>
 
@@ -134,11 +134,11 @@
 
 <table>
 <tr><th>Domaine</th><th>Poids</th><th>Sujets clés</th></tr>
-<tr><td><strong>D1</strong> Agentic Architecture &amp; Orchestration</td><td>27 %</td><td>Agent loops, multi-agent coordination, subagent orchestration, task décomposition, parallel vs sequential, HITL, failure recovery, sessions</td></tr>
-<tr><td><strong>D2</strong> Tool Design &amp; MCP Integration</td><td>18 %</td><td>MCP server architecture (3 primitives), JSON Schema, transports, tool descriptions, authentication, tool boundaries, error responses</td></tr>
-<tr><td><strong>D3</strong> Claude Code Configuration &amp; Workflows</td><td>20 %</td><td>CLAUDE.md hierarchy, settings.json, Bash allowlists, skills, hooks Claude Code, custom agents, plan mode, CI/CD patterns</td></tr>
-<tr><td><strong>D4</strong> Prompt Engineering &amp; Structured Output</td><td>20 %</td><td>PRECISE, few-shot, JSON schémas, validation-retry loops, batch processing, prompt injection prevention, chain-of-thought</td></tr>
-<tr><td><strong>D5</strong> Context Management &amp; Reliability</td><td>15 %</td><td>Long-context stratégies, prompt caching avec cache_control, conversation summarization, token budgeting, handoff, escalation, error propagation</td></tr>
+<tr><td><strong>D1</strong> Agentic Architecture &amp; Orchestration</td><td>27 %</td><td>Agent loops, multi-agent coordination, subagent orchestration, task décomposition, parallel vs sequential, sessions</td></tr>
+<tr><td><strong>D2</strong> Tool Design &amp; MCP Integration</td><td>18 %</td><td>MCP server architecture (3 primitives), JSON Schema, transports, tool descriptions, tool boundaries, error responses</td></tr>
+<tr><td><strong>D3</strong> Claude Code Configuration &amp; Workflows</td><td>20 %</td><td>CLAUDE.md hierarchy, settings.json, Bash allowlists, skills, hooks Claude Code, plan mode, CI/CD patterns</td></tr>
+<tr><td><strong>D4</strong> Prompt Engineering &amp; Structured Output</td><td>20 %</td><td>Critères explicites <em>(structure PRECISE : mnémonique communautaire)</em>, few-shot, JSON schémas, validation-retry loops, batch processing, chain-of-thought</td></tr>
+<tr><td><strong>D5</strong> Context Management &amp; Reliability</td><td>15 %</td><td>Long-context stratégies, conversation summarization, token budgeting, handoff, escalation, error propagation</td></tr>
 </table>
 
 <h2 id="scénarios">Les 6 scénarios (4 tirés au sort)</h2>
@@ -156,13 +156,14 @@
 
 <table>
 <tr><th>Paramètre</th><th>Valeur</th></tr>
-<tr><td>Score de passage</td><td><strong>720/1000</strong> <em>(confirmé)</em></td></tr>
-<tr><td>Plateforme</td><td>Proctored via <strong>ProctorFree</strong> <em>(confirmé)</em></td></tr>
-<tr><td>Tentatives</td><td><strong>Une tentative par inscription</strong> — repassage possible après 14 jours d'attente, moyennant ré-inscription (~99–125 $)</td></tr>
+<tr><td>Score de passage</td><td><strong>720/1000</strong> <em>(confirmé, échelle 100–1000)</em></td></tr>
+<tr><td>Pénalité</td><td><strong>Aucune</strong> pour réponse fausse <em>(confirmé, pas de pénalité au guessing)</em></td></tr>
+<tr><td>Plateforme</td><td>Proctored via <strong>Pearson VUE</strong> — test center ou OnVUE <em>(migration 2026)</em></td></tr>
+<tr><td>Tentatives</td><td>Jusqu'à <strong>4 tentatives par période glissante de 12 mois</strong>, délais de repassage <strong>14 / 30 / 90 jours</strong> après échecs successifs</td></tr>
+<tr><td>Recertification</td><td>Validité <strong>12 mois</strong> — badge délivré via <strong>Credly</strong></td></tr>
 <tr><td>Format des questions</td><td>1 réponse correcte parmi 4 choix · 4 scénarios tirés au sort sur 6</td></tr>
-<tr><td>Questions / durée</td><td>60 QCM (4 scénarios × 15) / 90 min</td></tr>
-<tr><td>Practice Exam</td><td>Officielle (Skilljar) — viser <strong>&gt; 900/1000</strong> = meilleur prédicteur de réussite</td></tr>
-<tr><td>Coût</td><td>99 $ <em>(« gratuit pour les 5000 premiers » rapporté par sources tierces, non confirmé)</em></td></tr>
+<tr><td>Questions / durée</td><td>60 QCM (4 scénarios × 15) / 90 min <em>(non confirmés officiellement)</em></td></tr>
+<tr><td>Practice Exam</td><td>Officielle — viser <strong>&gt; 900/1000</strong> = meilleur prédicteur de réussite</td></tr>
 </table>
 
 <nav class="doc-nav">
