@@ -105,7 +105,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <p>Le guide officiel CCA-F propose 4 exercices pratiques pour consolider les domaines. Chacun teste plusieurs domaines :</p>
 
 <ul>
-<li><strong>1. Build a Multi-Tool Agent with Escalation Logic</strong> — D1 (agentic loop, HITL), D2 (tool descriptions, tool_choice), D5 (escalation patterns, structured handoff)</li>
+<li><strong>1. Build a Multi-Tool Agent with Escalation Logic</strong> — D1 (agentic loop, enforcement), D2 (tool descriptions, tool_choice), D5 (escalation patterns, structured handoff)</li>
 <li><strong>2. Configure Claude Code for a Team Development Workflow</strong> — D3 (CLAUDE.md hierarchy, permissions, skills), D2 (MCP configuration)</li>
 <li><strong>3. Build a Structured Data Extraction Pipeline</strong> — D4 (JSON Schema, retry-with-feedback, few-shot), D5 (validation, confidence calibration)</li>
 <li><strong>4. Design and Debug a Multi-Agent Research Pipeline</strong> — D1 (hub-and-spoke, parallel spawning, error propagation), D2 (tool allocation), D5 (context management, provenance)</li>
@@ -191,7 +191,6 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>Description = mécanisme #1 de sélection.</strong> Misrouting = chevauchement sémantique → renommer/diviser.</li>
 <li><strong>Erreurs structurées MCP :</strong> <code>errorCategory</code> (transient/validation/business/permission) + <code>isRetryable</code>.</li>
 <li><strong>Timeout ≠ 0 results.</strong> Timeout = access failure (retry décision). 0 results = valid empty (annoter).</li>
-<li><strong>Roots :</strong> le SDK n'applique PAS automatiquement les restrictions — implémenter <code>is_path_allowed()</code>.</li>
 <li><strong>4-5 tools max par agent</strong>, jamais 18.</li>
 <li><strong>tool_choice:</strong> <code>auto</code> (défaut), <code>any</code> (force un appel), <code>tool</code> (force un spécifique).</li>
 <li><strong>Secrets MCP :</strong> substitution de variables d'environnement <code>${VAR}</code> dans <code>.mcp.json</code> (jamais de token en clair versionné).</li>
@@ -308,7 +307,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Hub-and-spoke</td><td>Coordinateur central, subagents spécialisés avec contexte isolé</td></tr>
 <tr><td>Task tool parallel</td><td>Plusieurs Task() dans UNE response = parallel ; plusieurs responses = sequential. Note : « Task » du guide = outil « Agent » en SDK actuel</td></tr>
 <tr><td>Hook events SDK</td><td>PreToolUse / PostToolUse</td></tr>
-<tr><td>HITL patterns</td><td>Approval gate / Levée d'ambiguïté / Quality review / Escalation handoff</td></tr>
+<tr><td>Enforcement &amp; escalation</td><td>Approval gate = hook PreToolUse (D1 §6) ; escalation = structured handoff + déclencheurs fiables (D5 §2)</td></tr>
 <tr><td>Sessions</td><td><code>--resume</code> si fichiers OK ; nouvelle session si obsolète ; <code>fork_session</code> pour comparer</td></tr>
 </table>
 
@@ -320,9 +319,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>4 catégories d'erreur</td><td>transient (retry) / validation (corriger) / business (alternative) / permission (escalade)</td></tr>
 <tr><td>tool_choice</td><td>auto (défaut) / any (force un tool) / tool (force ce tool spécifique)</td></tr>
 <tr><td>3 primitives MCP</td><td>tools (modèle) / resources (app, content catalogs) / prompts (user)</td></tr>
-<tr><td>Transports</td><td>stdio (local) / <strong>Streamable HTTP</strong> (distant) — remplace l'ancien transport HTTP+SSE, désormais déprécié / Stateless HTTP (multi-instance)</td></tr>
-<tr><td>Roots</td><td>SDK n'applique PAS automatiquement → <code>is_path_allowed()</code> manuel</td></tr>
-<tr><td>Sampling</td><td>Le serveur demande au client de générer (pas de clé API côté serveur)</td></tr>
+<tr><td>Transport MCP (CLI)</td><td><code>claude mcp add --transport stdio</code> (local) | <code>http</code> (distant)</td></tr>
 <tr><td>JSON Schema avancé</td><td>oneOf / anyOf / allOf / if-then-else / additionalProperties:false</td></tr>
 <tr><td>Secrets MCP</td><td>Substitution <code>${VAR}</code> dans <code>.mcp.json</code></td></tr>
 <tr><td>Outils intégrés</td><td>Glob / Grep / Read / Write / Edit / Bash. Investigation : Grep → Read → Grep → Read</td></tr>
@@ -398,13 +395,13 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <table>
 <tr><th>Pont</th><th>D1</th><th>↔</th><th>D2/D3/D4/D5</th></tr>
 <tr><td>Hooks SDK vs Claude Code</td><td>Hooks SDK (D1 §6)</td><td>≠</td><td>Hooks Claude Code (D3 §6)</td></tr>
-<tr><td>Programmatic enforcement et HITL</td><td>Hook PreToolUse (D1)</td><td>=</td><td>Approval gate HITL (D1 §6)</td></tr>
+<tr><td>Programmatic enforcement</td><td>Hook PreToolUse (D1)</td><td>=</td><td>Approval gate = blocage déterministe (D1 §6)</td></tr>
 <tr><td>Erreurs structurées</td><td>Erreur subagent (D1, D5 §3)</td><td>=</td><td>4 catégories MCP (D2 §2)</td></tr>
 <tr><td>Tool result trimming</td><td>Context preservation (D5 §1)</td><td>via</td><td>Hook PostToolUse (D3 §6)</td></tr>
 <tr><td>Structured output</td><td>tool_use + JSON Schema (D0, D4 §3)</td><td>+</td><td>Pydantic validation (D4 §4)</td></tr>
 <tr><td>Forced tool_use</td><td>tool_choice (D2 §3)</td><td>+</td><td>Schema strict + retry-with-feedback (D4 §4)</td></tr>
 <tr><td>Subagent context</td><td>Subagent isolé (D1)</td><td>+</td><td>context: fork dans skills (D3 §2)</td></tr>
-<tr><td>Escalation</td><td>Pattern HITL (D1 §6)</td><td>+</td><td>Patterns + calibration (D5 §2)</td></tr>
+<tr><td>Escalation</td><td>Enforcement par hook (D1 §6)</td><td>+</td><td>Patterns + calibration (D5 §2)</td></tr>
 <tr><td>Confidence calibration</td><td>—</td><td>+</td><td>Stratified sampling (D5 §5) + retry-with-feedback (D4 §4)</td></tr>
 <tr><td>Crash recovery</td><td>Sessions (D1 §7)</td><td>+</td><td>manifest.json + scratchpad (D5 §4)</td></tr>
 <tr><td>Provenance</td><td>Subagent metadata mandatory (D5 §1)</td><td>=</td><td>Claim-source mapping (D5 §6)</td></tr>

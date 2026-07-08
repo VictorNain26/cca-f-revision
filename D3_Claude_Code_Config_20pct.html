@@ -482,7 +482,7 @@ jobs:
 <p><strong>Distinction critique à retenir pour l'examen :</strong></p>
 <table>
 <tr><th>Type de hook</th><th>Défini où ?</th><th>Quand l'utiliser</th></tr>
-<tr><td><strong>Hooks Agent SDK</strong> (D1 §5)</td><td>Code Python/TS, dans la configuration de l'agent</td><td>Quand vous construisez un agent via le SDK</td></tr>
+<tr><td><strong>Hooks Agent SDK</strong> (D1 §6)</td><td>Code Python/TS, dans la configuration de l'agent</td><td>Quand vous construisez un agent via le SDK</td></tr>
 <tr><td><strong>Hooks Claude Code (config)</strong></td><td>Bloc <code>"hooks"</code> dans <code>settings.json</code></td><td>Pour la CLI Claude Code, sans coder un agent</td></tr>
 </table>
 
@@ -493,9 +493,6 @@ jobs:
 <tr><td><code>PreToolUse</code></td><td>Avant l'exécution d'un outil par Claude</td><td>Validation supplémentaire d'un <code>Bash</code> dangereux, audit log</td></tr>
 <tr><td><code>PostToolUse</code></td><td>Après l'exécution d'un outil</td><td>Lint automatique après <code>Edit</code>, formatage, vérification de schéma</td></tr>
 <tr><td><code>Stop</code></td><td>Quand Claude termine son tour</td><td>Notification de fin, sauvegarde de transcript, déclenchement de tests</td></tr>
-<tr><td><code>SessionStart</code></td><td>Au démarrage d'une session Claude Code</td><td>Charger des variables d'env, vérifier la branche Git, afficher un statut</td></tr>
-<tr><td><code>Notification</code></td><td>Quand Claude veut notifier l'utilisateur (idle, attente)</td><td>Envoyer une notification système, log</td></tr>
-<tr><td><code>PreCompact</code></td><td>Avant un <code>/compact</code> automatique ou manuel</td><td>Sauvegarder l'état avant compression</td></tr>
 </table>
 
 <h3>Anatomie d'un hook</h3>
@@ -584,7 +581,7 @@ claude mcp add postgres \
   -e DATABASE_URL=postgres://... \
   -- npx -y @modelcontextprotocol/server-postgres
 
-# Ajout d'un serveur HTTP/SSE distant
+# Ajout d'un serveur HTTP distant
 claude mcp add my-api --transport http https://api.example.com/mcp
 
 # Ajout en scope user (disponible dans tous les projets)
@@ -699,9 +696,9 @@ claude mcp remove github</pre>
 <h3>Hooks Claude Code (config-level)</h3>
 <ul>
 <li>Définis dans le bloc <code>"hooks"</code> de <code>settings.json</code> — distincts des hooks Agent SDK (D1).</li>
-<li>Événements : <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>, <code>SessionStart</code>, <code>Notification</code>, <code>PreCompact</code>.</li>
+<li>Événements : <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>.</li>
 <li>Code de retour : 0 = OK, 2 = blocking (Claude réagit), autre = non-blocking.</li>
-<li>Données transmises au hook en JSON sur stdin (<code>tool_name</code>, <code>tool_input.file_path</code>, …). Variables d'env disponibles : <code>CLAUDE_PROJECT_DIR</code>, <code>CLAUDE_PLUGIN_ROOT</code>, <code>CLAUDE_ENV_FILE</code>.</li>
+<li>Données transmises au hook en JSON sur stdin (<code>tool_name</code>, <code>tool_input.file_path</code>, …). Variable d'env disponible : <code>CLAUDE_PROJECT_DIR</code>.</li>
 <li>Hook = déterministe (toujours exécuté) ; CLAUDE.md = instruction souple ; skill = workflow invocable.</li>
 </ul>
 

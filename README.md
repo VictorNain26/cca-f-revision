@@ -23,7 +23,7 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | Domaine | Poids | Sujets clés |
 |---|---|---|
 | **D1** Architecture & Orchestration | 27 % | Workflows vs agents, agentic loop (cycle OTAR), hub-and-spoke, hooks SDK, sessions |
-| **D2** Tool Design & MCP | 18 % | Descriptions, erreurs structurées, tool_choice, primitives MCP, JSON Schema, cookbook serveur |
+| **D2** Tool Design & MCP | 18 % | Descriptions, erreurs structurées, tool_choice, primitives MCP, JSON Schema |
 | **D3** Claude Code Configuration | 20 % | CLAUDE.md, settings.json, permissions Bash, skills, hooks Claude Code, CI/CD GitHub Actions |
 | **D4** Prompt Engineering | 20 % | Critères explicites, few-shot, JSON Schema, retry-with-feedback Pydantic, Batch API, PRECISE, CoT |
 | **D5** Context & Reliability | 15 % | Case facts, token budgeting, escalation, multi-agent errors, provenance |

@@ -42,8 +42,6 @@
 <li><a href="#s4">Intégrer des MCP servers dans Claude Code</a>
   <ul>
     <li><a href="#s4b">JSON Schema en profondeur (input_schema)</a></li>
-    <li><a href="#s4c">Secrets via variables d'environnement (.mcp.json)</a></li>
-    <li><a href="#s4d">Cookbook : un serveur MCP custom complet</a></li>
   </ul>
 </li>
 <li><a href="#s5">Les outils intégrés de Claude Code</a></li>
@@ -196,6 +194,10 @@
 }</pre>
 <p>La syntaxe <code>${VARIABLE_NAME}</code> est résolue au lancement. Chaque développeur fournit ses propres credentials via ses variables d'environnement locales, ce qui permet de versionner <code>.mcp.json</code> sans exposer de secrets.</p>
 
+<div class="anti-pattern">
+<strong>Anti-pattern (in-scope) :</strong> stocker un token en clair dans <code>.mcp.json</code> versionne. Même si vous le supprimez plus tard, l'historique Git le conserve indéfiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code> non versionne.
+</div>
+
 <h3>Les trois primitives MCP</h3>
 <p>MCP expose trois types de primitives, chacune contrôlée par un acteur différent :</p>
 <table>
@@ -209,101 +211,8 @@
 <strong><code>resources</code> comme « content catalogs » :</strong> les <code>resources</code> sont particulièrement utiles pour exposer des catalogues de contenu (schémas de base de données, listes de tâches, hiérarchies de navigation). Elles réduisent le nombre d'appels de <code>tools</code> exploratoires en fournissant directement les données de contexte dont l'application a besoin.
 </div>
 
-<h3>Les transports MCP</h3>
-<table>
-<tr><th>Transport</th><th>Localisation</th><th>Bidirectionnel</th><th>Sampling et notifications</th></tr>
-<tr><td><strong>Stdio</strong></td><td>Même machine uniquement</td><td>Oui, complet</td><td>Support total</td></tr>
-<tr><td><strong>Streamable HTTP</strong></td><td>Distant (via URL)</td><td>Via SSE (contournement)</td><td>Selon les flags de configuration</td></tr>
-<tr><td><strong>Streamable HTTP en mode stateless</strong></td><td>Distant, multi-instance</td><td>Non</td><td>Désactivés (pas de session)</td></tr>
-</table>
-
-<div class="anti-pattern">
-<strong>Piège de déploiement :</strong> utilisez le <strong>même transport</strong> en développement et en production. Développer avec Stdio puis déployer en HTTP cause des échecs liés aux différences de communication bidirectionnelle.
-</div>
-
-<h3>Concepts avancés</h3>
-<ul>
-<li><strong>Sampling :</strong> permet aux MCP servers de demander au client de générer du texte via son LLM, sans que le serveur ait besoin de clés API ni de supporter les coûts de tokens. Utile pour les serveurs publics.</li>
-<li><strong>Roots :</strong> fichiers et dossiers auxquels l'utilisateur accorde l'accès au préalable. Ils offrent deux avantages : le <strong>contrôle des permissions</strong> (limiter l'accès aux zones autorisées) et la <strong>découverte autonome</strong> (Claude navigue dans les roots sans que l'utilisateur fournisse le chemin complet).</li>
-<li><strong>Elicitation</strong> (spec MCP 2025-06-18 et 2025-11-25) : permet au serveur de <em>demander une input à l'utilisateur</em> au cours d'un appel — sans devoir prendre cette input en paramètre du tool initial.</li>
-</ul>
-
-<h3>MCP elicitation — deux modes</h3>
-<p>L'elicitation est une <em>capability côté client</em> — au même titre que sampling et roots : c'est le serveur qui la demande, mais c'est le client qui la déclare et la fournit. Les primitives côté serveur restent <code>tools</code>, <code>resources</code> et <code>prompts</code>. Deux variantes :</p>
-
-<table>
-<tr><th>Mode</th><th>Spec</th><th>Cas d'usage</th></tr>
-<tr><td><strong>Form mode</strong></td><td>2025-06-18</td><td>Le serveur demande des inputs primitifs (string, number, boolean) avec un schéma simple — typiquement un formulaire dans le client</td></tr>
-<tr><td><strong>URL mode</strong></td><td>2025-11-25 (SEP-1036)</td><td>Le serveur fournit une URL ; le client ouvre l'URL dans le navigateur pour les flows sensibles (OAuth, paiement, saisie de clé API)</td></tr>
-</table>
-
-<pre>// Form mode — schéma d'inputs primitifs
-// Serveur → client
-{
-  "method": "elicitation/create",
-  "params": {
-    "message": "Confirmer l'envoi du remboursement ?",
-    "requestedSchema": {
-      "type": "object",
-      "properties": {
-        "approved": { "type": "boolean", "description": "Approuver le remboursement" },
-        "amount":   { "type": "number",  "description": "Montant en USD" }
-      }
-    }
-  }
-}
-
-// URL mode — flow externe (OAuth, paiement)
-{
-  "method": "elicitation/create",
-  "params": {
-    "elicitationId": "elicit-8f2a1c",
-    "mode": "url",
-    "url": "https://oauth.provider.com/authorize?client_id=...",
-    "message": "Connecte-toi à ton compte pour autoriser l'accès"
-  }
-}</pre>
-
-<div class="key-concept">
-<strong>Securite URL mode (niveaux de conformité de la spec) :</strong>
-<ul>
-<li>Le client NE DOIT PAS pre-fetch automatiquement l'URL ni ses métadonnées (MUST NOT)</li>
-<li>Le client DEVRAIT ne pas ouvrir l'URL sans consentement explicite de l'utilisateur (SHOULD)</li>
-<li>Le client DEVRAIT afficher l'URL complète avant le consentement, en bonne pratique anti-phishing (SHOULD)</li>
-<li>L'URL DEVRAIT s'ouvrir dans un navigateur sécurisé (browser système) plutôt que dans un webview embarqué (SHOULD)</li>
-</ul>
-Tous ces points ne sont pas des <code>MUST</code> : plusieurs sont des recommandations (<code>SHOULD</code>) de bonnes pratiques, pas des exigences strictes de conformité.
-</div>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> distinction des 3 capabilities <em>côté client</em> :
-<ul>
-<li><strong>Sampling</strong> : serveur demande au client de <em>générer du texte LLM</em></li>
-<li><strong>Roots</strong> : client déclare au serveur les <em>chemins fichier autorisés</em></li>
-<li><strong>Elicitation</strong> : serveur demande au client de <em>collecter une input utilisateur</em></li>
-</ul>
-Une question d'examen oppose souvent ces 3 capabilities — savoir laquelle utilise quand est crucial. Les primitives côté serveur, elles, sont <code>tools</code> / <code>resources</code> / <code>prompts</code>.
-</div>
-
-<div class="anti-pattern">
-<strong>Point de sécurité important :</strong> le SDK MCP n'applique <em>pas</em> automatiquement les restrictions de roots. Le développeur du serveur doit implémenter manuellement les vérifications d'accès avec une fonction comme <code>is_path_allowed()</code>. Sans cette implémentation, les roots sont déclaratifs mais pas effectivement appliqués. <em>(Source : guide officiel, section Roots.)</em>
-</div>
-
 <h3>Choix entre community servers et custom servers</h3>
 <p>Pour les intégrations standards (Jira, GitHub, Slack), préférez les <strong>community servers</strong> existants. Ne construisez un custom server que pour les workflows spécifiques à votre équipe que personne d'autre n'a implémentés. Tous les <code>tools</code> de tous les serveurs connectés sont découverts à la connexion et disponibles simultanément.</p>
-
-<h3>Terminologie des transports — point de vocabulaire</h3>
-<table>
-<tr><th>Terme dans la doc Anthropic</th><th>Équivalent spécification MCP</th><th>Cas d'usage</th></tr>
-<tr><td><strong>stdio</strong></td><td>Standard I/O transport</td><td>Sous-processus local lancé par Claude Code</td></tr>
-<tr><td><strong>SSE</strong> (Server-Sent Events)</td><td>SSE transport (legacy MCP)</td><td>Stream HTTP unidirectionnel, déprécié au profit de StreamableHTTP</td></tr>
-<tr><td><strong>StreamableHTTP</strong></td><td>HTTP transport actuel</td><td>Distant via URL, supporte sampling/notifications via SSE en retour</td></tr>
-<tr><td><strong>HTTP stateless</strong></td><td>HTTP sans session</td><td>Multi-instance (load-balanced), pas de sampling</td></tr>
-</table>
-
-<div class="exam-tip">
-<strong>EXAM TIP — vocabulaire :</strong> les anciennes références parlent de <strong>"SSE"</strong> ; les matériels récents et la doc Anthropic utilisent <strong>"StreamableHTTP"</strong>. Si une question oppose <em>stdio vs SSE</em>, lire SSE comme "transport HTTP distant avec stream bidirectionnel". La distinction critique a retenir : <strong>stdio = local uniquement</strong>, <strong>HTTP = distant</strong>.
-</div>
 
 <!-- ================================================================== -->
 <div class="subsection"><h3 id="s4b">JSON Schema en profondeur (<code>input_schema</code>)</h3></div>
@@ -401,158 +310,7 @@ Ces 3 patterns transforment un schéma rigide en interface tolérante à l'incer
 <li><strong>Existence des références :</strong> les IDs pointent vers des entités réelles</li>
 <li><strong>Plages métier :</strong> un montant négatif est syntaxiquement valide mais business-invalide</li>
 </ul>
-<p>Voir D4 §4.4 pour le pattern <em>retry-with-feedback</em> : en cas d'échec de validation, renvoyer l'erreur à Claude pour qu'il corrige.</p>
-
-<!-- ================================================================== -->
-<div class="subsection"><h3 id="s4c">Patterns d'authentification MCP</h3></div>
-
-<p style="display:inline-block;padding:2px 10px;border:1px solid #999;border-radius:4px;font-size:0.85em;"><strong>Périmètre examen.</strong> La gestion des secrets testée par le guide se limite à la substitution de variables d'environnement (<code>${VAR}</code>) dans <code>.mcp.json</code>.</p>
-
-<p>Les serveurs MCP exposent souvent des données protégées (GitHub, Slack, base de données).</p>
-
-<h3>Pattern in-scope — Variables d'environnement (stdio)</h3>
-<p>Le pattern couvert par le guide, déjà présenté en §4 ci-dessus : le serveur lit la variable au démarrage, résolue via <code>${VAR}</code> dans <code>.mcp.json</code>.</p>
-<pre>// .mcp.json (versionne)
-{
-  "mcpServers": {
-    "github": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
-    }
-  }
-}
-
-// Le développeur fournit le token dans son shell
-export GITHUB_TOKEN=ghp_xxx</pre>
-
-<div class="key-concept">
-<strong>Pourquoi c'est sûr :</strong> le token n'apparaît jamais dans le repository (la variable n'est résolue qu'au runtime). Pour la rotation, chaque développeur met à jour son env, sans toucher à Git.
-</div>
-
-<div class="anti-pattern">
-<strong>Anti-pattern (in-scope) :</strong> stocker un token en clair dans <code>.mcp.json</code> versionne. Même si vous le supprimez plus tard, l'historique Git le conserve indéfiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code> non versionne.
-</div>
-
-<!-- ================================================================== -->
-<div class="subsection"><h3 id="s4d">Cookbook : un serveur MCP custom complet</h3></div>
-
-<p>Cet exemple synthétise tous les concepts MCP de la section dans un serveur Python minimal mais complet : les 3 primitives (<code>tools</code>, <code>resources</code>, <code>prompts</code>), une vérification de <code>roots</code>, et un usage de <code>sampling</code>.</p>
-
-<div class="anti-pattern">
-<strong>⚠️ Pseudocode illustratif — ne reproduit pas les signatures réelles du SDK MCP.</strong> Ce code illustre les <em>concepts</em> (roots, sampling, tools/resources/prompts, erreur structurée), pas une API à copier-coller. En particulier, dans le SDK MCP Python (FastMCP) réel : il n'existe pas de décorateur <code>@mcp.on_roots_changed</code> (on récupère les roots via <code>await ctx.session.list_roots()</code>, avec <code>ctx: Context</code> injecté en paramètre du tool) ; <code>mcp.sample(...)</code> n'existe pas non plus (le sampling se fait via <code>await ctx.session.create_message(...)</code>) ; et un tool ne retourne pas un dict <code>{"isError": ..., "errorCategory": ...}</code> — le mécanisme standard est de lever une exception, que le SDK convertit en <code>CallToolResult(isError=True, content=[...])</code>.
-</div>
-
-<pre>// server.py — un serveur MCP "internal-docs" custom (pseudocode)
-from mcp.server.fastmcp import FastMCP
-from pathlib import Path
-import json
-
-mcp = FastMCP("internal-docs")
-
-# ---- ROOTS : vérification d'accès ---------------------
-# API réelle : await ctx.session.list_roots() (ctx: Context en paramètre du tool)
-async def get_allowed_roots(ctx) -> list[Path]:
-    roots = await ctx.session.list_roots()
-    return [Path(r.uri.replace("file://", "")) for r in roots.roots]
-
-def is_path_allowed(path: Path, allowed_roots: list[Path]) -> bool:
-    """Le SDK MCP n'applique PAS automatiquement les roots — on doit vérifier."""
-    abs_path = path.resolve()
-    return any(abs_path.is_relative_to(r) for r in allowed_roots)
-
-# ---- TOOLS : controles par le modele ------------------
-@mcp.tool()
-async def search_docs(query: str, max_results: int = 10) -> dict:
-    """Search internal documentation. Returns matching documents with
-       title, path, and a relevant excerpt. Use this BEFORE read_doc to
-       discover what's available."""
-    # ... implementation (full-text search) ...
-    return {"results": [...]}
-
-@mcp.tool()
-async def read_doc(path: str, ctx) -> dict:
-    """Read the full content of an internal doc. Use after search_docs
-       has identified a relevant path."""
-    p = Path(path)
-    allowed_roots = await get_allowed_roots(ctx)
-    if not is_path_allowed(p, allowed_roots):
-        # Erreur structurée : content est un TABLEAU de blocs (cf. §2) ;
-        # errorCategory/isRetryable sont une convention applicative encodée
-        # dans le texte, pas des champs top-level du protocole.
-        return {
-            "isError": True,
-            "content": [{
-                "type": "text",
-                "text": f"errorCategory: permission | isRetryable: false | Path {path} is outside allowed roots."
-            }]
-        }
-    return {"content": p.read_text()}
-
-# ---- RESOURCES : contrôlées par l'application ---------
-@mcp.resource("docs://catalog")
-async def catalog() -> str:
-    """Liste hiérarchique des docs disponibles — content catalog
-       qui évite les appels search_docs exploratoires."""
-    return json.dumps({"sections": [...]})
-
-# ---- PROMPTS : controles par l'utilisateur ------------
-@mcp.prompt()
-async def summarize_doc(doc_path: str) -> list:
-    """Predefined prompt: summarize a doc in 5 bullet points.
-       Triggered by user (button, slash command)."""
-    return [
-        {"role": "user", "content": f"Summarize {doc_path} in 5 bullets."}
-    ]
-
-# ---- SAMPLING : le serveur demande au CLIENT de générer
-# API réelle : await ctx.session.create_message(...) (ctx: Context en paramètre)
-@mcp.tool()
-async def classify_query(query: str, ctx) -> dict:
-    """Classify a query as 'technical' or 'business'.
-       Uses sampling to delegate generation to the client's LLM —
-       no API key needed on the server side."""
-    result = await ctx.session.create_message(
-        messages=[{"role": "user", "content": f"Classify: {query}"}],
-        max_tokens=10
-    )
-    return {"category": result.content[0].text.strip()}
-
-if __name__ == "__main__":
-    mcp.run(transport="stdio")  # ou "streamable-http" pour distant</pre>
-
-<div class="key-concept">
-<strong>Ce que cet exemple illustre :</strong>
-<ul>
-<li><strong>tools</strong> avec descriptions explicites répondant aux 4 questions (que fait, format input, edge cases, quand utiliser)</li>
-<li><strong>Erreur structurée</strong> : <code>content</code> reste un tableau, <code>errorCategory</code>/<code>isRetryable</code> sont une convention applicative encodée dans le texte du bloc (pas des champs top-level du protocole — voir §2)</li>
-<li><strong>Roots check explicite</strong> via <code>is_path_allowed()</code> — le SDK ne le fait pas tout seul</li>
-<li><strong>Resource "catalog"</strong> = content catalog qui réduit les appels exploratoires</li>
-<li><strong>Sampling</strong> : le serveur n'a pas besoin de clé API, il délègue au client</li>
-<li><strong>Transport configurable</strong> : stdio en local, streamable-http en déploiement distant</li>
-</ul>
-</div>
-
-<h3>Tester un serveur MCP</h3>
-<pre># 1. Dev local : Claude Code lance le serveur en sous-processus
-claude mcp add internal-docs -- python ./server.py
-claude  # le serveur est découvert au démarrage
-
-# 2. Inspector officiel pour debugger
-npx @modelcontextprotocol/inspector python ./server.py
-# Ouvre une UI web pour explorer tools/resources/prompts
-
-# 3. Test programmatique avec le SDK MCP client
-from mcp.client.stdio import stdio_client
-async with stdio_client(...) as session:
-    tools = await session.list_tools()
-    result = await session.call_tool("search_docs", {"query": "auth"})</pre>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> sur les questions "comment tester un MCP server avant déploiement", les bonnes réponses tournent autour de l'<strong>MCP Inspector</strong> (officiel) ou d'un test programmatique via le client SDK. Les distracteurs typiques : "déployer directement en prod et observer", "utiliser un debugger Python attaché" — pas faux, mais moins canonique.
-</div>
+<p>Voir D4 §4 pour le pattern <em>retry-with-feedback</em> : en cas d'échec de validation, renvoyer l'erreur à Claude pour qu'il corrige.</p>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s5">5. Les outils intégrés de Claude Code (Task 2.5)</h2></div>
@@ -633,8 +391,6 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li>Trois primitives : <code>tools</code> (modèle), <code>resources</code> (application), <code>prompts</code> (utilisateur).</li>
 <li><code>resources</code> = « content catalogs » qui réduisent les appels exploratoires.</li>
 <li>Préférer les community servers pour les intégrations standards ; custom servers pour les workflows spécifiques.</li>
-<li>Roots : le SDK n'applique pas automatiquement les restrictions — implémenter <code>is_path_allowed()</code>.</li>
-<li>Transports : <strong>stdio</strong> (local) / <strong>Streamable HTTP</strong> (distant, bidirectionnel ; SSE = ancien transport HTTP, <strong>déprécié</strong>, remplacé par Streamable HTTP) / <strong>HTTP stateless</strong> = mode de Streamable HTTP sans session (multi-instance).</li>
 </ul>
 
 <h3>JSON Schema (input_schema)</h3>

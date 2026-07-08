@@ -133,7 +133,7 @@ def trim_order_fields(result):
 </table>
 
 <div class="exam-tip">
-<strong>Règle de calcul :</strong> contexte effectif disponible = limite du modèle − <code>max_tokens</code> de la réponse − tokens stables (system, tools) − tool results restants. Si le budget calculé est négatif avant un appel, déclencher <code>/compact</code> ou déléguer à un subagent <em>avant</em> l'appel, pas après l'erreur 400. Au-delà de cette erreur 400 pré-appel, un dépassement survenant <em>en cours de génération</em> sur les modèles 4.5+ ne renvoie pas une erreur mais un <code>stop_reason: "model_context_window_exceeded"</code> en HTTP 200 — à détecter et traiter comme un signal de troncature.
+<strong>Règle de calcul :</strong> contexte effectif disponible = limite du modèle − <code>max_tokens</code> de la réponse − tokens stables (system, tools) − tool results restants. Si le budget calculé est négatif avant un appel, déclencher <code>/compact</code> ou déléguer à un subagent <em>avant</em> l'appel, pas après l'erreur 400.
 </div>
 
 <h3>Progressive summarization (compression progressive)</h3>
@@ -180,7 +180,7 @@ Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaiso
 </div>
 
 <h3>Token budgeting : un calcul chiffré pas-à-pas</h3>
-<p>Mettons en pratique le concept de §1 sur un cas concret : <strong>agent juridique multi-turn, modèle Claude Haiku 4.5 (200k tokens), session de 15 turns sur un dossier de 50k tokens</strong>. (Note : Sonnet 4.6 dispose d'une fenêtre de 1M tokens ; on choisit ici Haiku 4.5, dont la fenêtre est bien de 200K, pour que les pourcentages ci-dessous restent valides.)</p>
+<p>Mettons en pratique le concept de §1 sur un cas concret : <strong>agent juridique multi-turn, modèle Claude Haiku 4.5 (200k tokens), session de 15 turns sur un dossier de 50k tokens</strong>.</p>
 
 <table>
 <tr><th>Composante</th><th>Tokens alloués</th><th>Stratégie</th></tr>
@@ -198,7 +198,7 @@ Ces 4 axes sont indépendants et complémentaires — utilisez-les en combinaiso
 <tr><th>Symptôme</th><th>Action immédiate</th></tr>
 <tr><td>Total prévu &gt; 80 % du contexte</td><td>Déclencher <code>/compact</code> ou progressive summarization niveau 2</td></tr>
 <tr><td>Tool results accumulent &gt; 20 % du contexte</td><td>Vérifier le hook PostToolUse de trimming (D5 §1)</td></tr>
-<tr><td>Erreur 400 "context length exceeded" (avant appel), ou <code>stop_reason: "model_context_window_exceeded"</code> en HTTP 200 (dépassement en cours de génération, modèles 4.5+)</td><td>Subagent Explore + scratchpad + nouvelle session avec résumé</td></tr>
+<tr><td>Erreur 400 "context length exceeded" (avant appel)</td><td>Subagent Explore + scratchpad + nouvelle session avec résumé</td></tr>
 <tr><td>Faits critiques perdus après <code>/compact</code></td><td>Le case facts block n'était pas en place — l'ajouter et restaurer depuis scratchpad</td></tr>
 </table>
 
@@ -500,7 +500,7 @@ Note : la couverture de cette section est limitée.
 
 <h3>Token budgeting</h3>
 <ul>
-<li>Token budget = limite modèle − <code>max_tokens</code> − stables − tool results. Anticiper, ne pas attendre l'erreur 400 ou le <code>stop_reason: "model_context_window_exceeded"</code> (modèles 4.5+).</li>
+<li>Token budget = limite modèle − <code>max_tokens</code> − stables − tool results. Anticiper, ne pas attendre l'erreur 400.</li>
 <li>Progressive summarization à 3 niveaux : naturelle (<code>/compact</code>), structurée (subagent), hiérarchique (résumé des résumés).</li>
 <li>CALM (mnémonique communautaire) : Compression / Allocation / Loss prevention / Monitoring — combinaison, pas alternative.</li>
 </ul>

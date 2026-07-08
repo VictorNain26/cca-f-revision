@@ -1682,7 +1682,7 @@
 <p>D) Retry avec un nouveau prompt incluant : le document original + l'extraction précédente + l'erreur spécifique ("la somme des line_items est 487$ mais le total annoncé est 512$")</p>
 <hr>
 <p class="correct">Réponse : D) Retry-with-feedback</p>
-<p><strong>Explication :</strong> le pattern retry-with-feedback (D4 §4.4) est efficace pour les erreurs de cohérence interne : on renvoie à Claude le document, sa première extraction, et l'erreur précise. Claude comprend ce qu'il a manqué (ligne oubliée, frais cachés) et corrige. C'est l'usage canonique de la self-correction.</p>
+<p><strong>Explication :</strong> le pattern retry-with-feedback (D4 §4) est efficace pour les erreurs de cohérence interne : on renvoie à Claude le document, sa première extraction, et l'erreur précise. Claude comprend ce qu'il a manqué (ligne oubliée, frais cachés) et corrige. C'est l'usage canonique de la self-correction.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
 <li>A) Disperse la vérification sémantique partout en aval — anti-pattern.</li>
