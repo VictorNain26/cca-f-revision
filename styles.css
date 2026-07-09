@@ -1172,44 +1172,6 @@ footer,
   transition: width 0.3s ease-out;
 }
 
-.cca-progress-widget .prog-breakdown {
-  margin: 6px 0;
-  padding-top: 6px;
-  border-top: 1px solid var(--border);
-}
-
-.cca-progress-widget .prog-breakdown summary {
-  cursor: pointer;
-  padding: 4px 0;
-  color: var(--ink-mute);
-  font-size: 8.5pt;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  list-style: none;
-}
-
-.cca-progress-widget .prog-breakdown summary::-webkit-details-marker { display: none; }
-
-.cca-progress-widget .prog-breakdown-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
-  font-size: 8.5pt;
-}
-
-.cca-progress-widget .prog-breakdown-cat {
-  color: var(--ink-mute);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cca-progress-widget .prog-breakdown-score { font-weight: 600; }
-.cca-progress-widget .prog-breakdown-score.good { color: #2f9d6a; }
-.cca-progress-widget .prog-breakdown-score.warn { color: var(--primary); }
-
 .cca-progress-widget .prog-reset {
   width: 100%;
   background: transparent;
