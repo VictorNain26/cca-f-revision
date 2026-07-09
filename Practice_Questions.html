@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a class="current" href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
+  <a class="current" href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>Questions d'entraînement CCA-F</h1>
-<p>12 questions expliquées (issues du guide officiel) + 75 questions d'entraînement écrites par l'auteur de cette révision (imitations du style d'examen sur les 6 scénarios + questions transversales, PAS des questions officielles Anthropic) · Active recall = technique #1 pour la certification</p>
+<p>85 QCM corrigés : 12 questions expliquées (issues du guide officiel) + 73 questions d'entraînement écrites par l'auteur (imitations du style d'examen), dont 4 questions multi-réponses (couvrant D1, D2, D4, D5) · Active recall = technique #1 pour la certification</p>
 </div>
 
 <div class="toc">
@@ -41,10 +41,10 @@
 <li><a href="#scénario-research">Practice Test — Multi-Agent Research System (Q13-Q27)</a></li>
 <li><a href="#scénario-ci">Practice Test — Claude Code for CI (Q28-Q40)</a></li>
 <li><a href="#scénario-codegen">Practice Test — Code Generation with Claude Code (Q41-Q52)</a></li>
-<li><a href="#scénario-support">Practice Test — Customer Support Agent (Q53-Q64)</a></li>
-<li><a href="#scénario-devtools">Practice Test — Developer Productivity Tools (Q65-Q71)</a></li>
-<li><a href="#scénario-extraction">Practice Test — Structured Data Extraction (Q72-Q78)</a></li>
-<li><a href="#questions-transversales">Practice Test — Questions transversales (Q79-Q87)</a></li>
+<li><a href="#scénario-support">Practice Test — Customer Support Agent (Q53-Q63)</a></li>
+<li><a href="#scénario-devtools">Practice Test — Developer Productivity Tools (Q63-Q66)</a></li>
+<li><a href="#scénario-extraction">Practice Test — Structured Data Extraction (Q68-Q72)</a></li>
+<li><a href="#questions-transversales">Practice Test — Questions transversales et multi-réponses (Q68-Q79)</a></li>
 </ol>
 </div>
 
@@ -55,7 +55,7 @@
 <div class="key-concept">
 <h3>Format et règles</h3>
 <ul>
-<li><strong>Format :</strong> QCM, 4 choix, 1 seule réponse correcte. Score de 100 à 1000, seuil de réussite : <strong>720</strong>.</li>
+<li><strong>Format :</strong> QCM à choix multiple : chaque question indique combien de réponses sélectionner (une ou plusieurs). Score de 100 à 1000, seuil de réussite : <strong>720</strong>.</li>
 <li><strong>Pas de pénalité</strong> → répondre à TOUTES les questions, ne jamais laisser de blanc.</li>
 <li><strong>Méthode de lecture :</strong> lire la <em>situation</em> d'abord, identifier le concept testé, PUIS regarder les choix.</li>
 </ul>
@@ -678,7 +678,7 @@
 <p><strong>Situation :</strong> Certains problèmes non évidents ne sont détectés que par un autre membre de l'équipe. Le reasoning de Claude montre qu'il a considéré le problème mais a conclu que c'était correct.</p>
 <p><strong>Question :</strong> Comment détecter ces problèmes subtils ?</p>
 <p>A) Une deuxième instance indépendante sans le reasoning de la première</p>
-<p>B) Activer l'extended thinking</p>
+<p>B) Redemander à la même instance de re-vérifier avec un prompt plus strict</p>
 <p>C) Inclure plus de tests dans le contexte</p>
 <p>D) Ajouter des exemples d'erreurs dans le prompt</p>
 <hr>
@@ -686,7 +686,7 @@
 <p><strong>Explication :</strong> Une instance indépendante évalue le code sans être biaisée par le reasoning de la première. C'est le principe de la revue par un pair différent.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) L'extended thinking prolonge le même raisonnement — il ne change pas de perspective.</li>
+<li>B) La même instance conserve son biais de confirmation quel que soit le prompt — elle ne change pas de perspective.</li>
 <li>C) Plus de tests dans le contexte ne corrigent pas un biais de raisonnement.</li>
 <li>D) Les exemples d'erreurs ne couvrent pas les cas non anticipés.</li>
 </ul>
@@ -1181,7 +1181,7 @@
 </details>
 
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="scénario-support" class="page-break">6. Practice Test — Customer Support Agent (Q53-Q64)</h2></div>
+<div class="section-header"><h2 id="scénario-support" class="page-break">6. Practice Test — Customer Support Agent (Q53-Q63)</h2></div>
 <!-- ============================================================ -->
 
 <details>
@@ -1395,28 +1395,7 @@
 </details>
 
 <details>
-<summary>Q63 (Customer Support) — Normalisation des formats de date MCP</summary>
-<div>
-<p><strong>Situation :</strong> Les MCP tools retournent des formats de date différents (Unix timestamp, ISO 8601, "Mar 5"). Comment normaliser ?</p>
-<p><strong>Question :</strong> Quelle est la meilleure approche ?</p>
-<p>A) Un outil <code>normalize_data</code></p>
-<p>B) Modifier les outils</p>
-<p>C) Un PostToolUse hook</p>
-<p>D) Documenter les formats dans le prompt</p>
-<hr>
-<p class="correct">Réponse : C) Un PostToolUse hook</p>
-<p><strong>Explication :</strong> Un PostToolUse hook intercepte automatiquement les résultats de chaque outil et normalise les formats avant qu'ils n'atteignent le modèle. C'est transparent et systématique.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
-<ul>
-<li>A) Un outil supplémentaire ajoute un tour de boucle pour chaque normalisation.</li>
-<li>B) Modifier les MCP tools peut ne pas être possible (outils tiers).</li>
-<li>D) Documenter dans le prompt ne garantit pas une normalisation consistante.</li>
-</ul>
-</div>
-</details>
-
-<details>
-<summary>Q64 (Customer Support) — Few-shot pour la sélection d'outils</summary>
+<summary>Q63 (Customer Support) — Few-shot pour la sélection d'outils</summary>
 <div>
 <p><strong>Situation :</strong> Il faut des few-shot examples pour la sélection d'outils dans les cas ambigus comme "I need help with my recent purchase."</p>
 <p><strong>Question :</strong> Quel format de few-shot est le plus efficace ?</p>
@@ -1437,7 +1416,7 @@
 </details>
 
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="scénario-devtools" class="page-break">7. Practice Test — Developer Productivity Tools (Q65-Q71)</h2></div>
+<div class="section-header"><h2 id="scénario-devtools" class="page-break">7. Practice Test — Developer Productivity Tools (Q63-Q66)</h2></div>
 <!-- ============================================================ -->
 
 <div class="key-concept">
@@ -1445,7 +1424,7 @@
 </div>
 
 <details>
-<summary>Q65 (Developer Productivity Tools) — Stratégie d'investigation incrémentale</summary>
+<summary>Q64 (Developer Productivity Tools) — Stratégie d'investigation incrémentale</summary>
 <div>
 <p><strong>Situation :</strong> un développeur demande à Claude Code "Comment fonctionne l'authentification dans ce monorepo ?". Le codebase contient 1200 fichiers. Quelle stratégie est la plus efficace pour Claude ?</p>
 <p>A) Lire tous les fichiers du répertoire <code>src/</code> dans leur intégralité avant de répondre</p>
@@ -1465,7 +1444,7 @@
 </details>
 
 <details>
-<summary>Q66 (Developer Productivity Tools) — Subagent Explore vs lecture directe</summary>
+<summary>Q65 (Developer Productivity Tools) — Subagent Explore vs lecture directe</summary>
 <div>
 <p><strong>Situation :</strong> votre senior dev veut que Claude lui résume les dépendances du module Payments avant de planifier une refonte. La sortie verbeuse de l'investigation (lecture de 18 fichiers) pollue le contexte de la session principale. Comment procéder ?</p>
 <p>A) Faire la lecture en thread principal et accepter la pollution de contexte.</p>
@@ -1485,7 +1464,7 @@
 </details>
 
 <details>
-<summary>Q67 (Developer Productivity Tools) — Custom skill vs slash command</summary>
+<summary>Q66 (Developer Productivity Tools) — Custom skill vs slash command</summary>
 <div>
 <p><strong>Situation :</strong> votre équipe exécute régulièrement une revue de PR avec un format spécifique : analyse sécurité + analyse performance + vérification de la couverture de tests. Vous voulez encapsuler ce workflow. Quelle approche choisir ?</p>
 <p>A) Skill projet dans <code>.claude/skills/pr-review/SKILL.md</code> avec frontmatter (<code>description</code> pour matching sémantique, <code>context: fork</code> pour isolation, <code>allowed-tools</code> pour limiter les outils)</p>
@@ -1505,47 +1484,7 @@
 </details>
 
 <details>
-<summary>Q68 (Developer Productivity Tools) — Configuration MCP partagée équipe</summary>
-<div>
-<p><strong>Situation :</strong> votre équipe veut que tous les développeurs aient accès aux mêmes serveurs MCP (Jira interne, GitHub, base PostgreSQL de dev). Chaque développeur doit utiliser ses propres credentials. Quelle approche ?</p>
-<p>A) Committer les tokens d'API en clair directement dans <code>.mcp.json</code></p>
-<p>B) Mettre la config des serveurs dans <code>.mcp.json</code> versionné avec <code>${VAR}</code> pour les credentials, fournis localement par chaque développeur</p>
-<p>C) Demander à chaque développeur de lancer <code>claude mcp add</code> pour chaque serveur individuellement</p>
-<p>D) Stocker les credentials partagés dans le fichier <code>.claude/settings.json</code> du projet</p>
-<hr>
-<p class="correct">Réponse : B) <code>.mcp.json</code> versionné + <code>${VAR}</code> pour les credentials</p>
-<p><strong>Explication :</strong> <code>.mcp.json</code> à la racine du projet est versionné et partage la <em>config</em> des serveurs avec l'équipe (D2 §4 et D3 §6). La syntaxe <code>${VAR}</code> résout les credentials au runtime depuis l'environnement de chaque développeur — chacun fournit son propre token, jamais commit.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
-<ul>
-<li>A) Anti-pattern absolu — l'historique Git retient les secrets même après suppression.</li>
-<li>C) Ne mutualise pas la config (chaque dev doit re-faire la setup, divergence des configs).</li>
-<li>D) <code>settings.json</code> est pour les permissions/hooks, pas pour la config MCP.</li>
-</ul>
-</div>
-</details>
-
-<details>
-<summary>Q69 (Developer Productivity Tools) — Permissions Bash en CI dev</summary>
-<div>
-<p><strong>Situation :</strong> votre équipe veut que les développeurs utilisent Claude Code en mode "acceptEdits" sur leur poste, mais les tests doivent toujours passer (<code>npm test</code>) sans demande. Quelle config dans <code>.claude/settings.json</code> ?</p>
-<p>A) <code>{"permissions": {"allow": ["Bash(npm test)"]}}</code></p>
-<p>B) <code>{"permissions": {"deny": ["Bash(rm:*)"]}}</code></p>
-<p>C) <code>{"permissions": {"defaultMode": "bypassPermissions"}}</code></p>
-<p>D) <code>{"permissions": {"allow": ["Bash(npm test:*)", "Bash(npm run test:*)"], "defaultMode": "acceptEdits"}}</code></p>
-<hr>
-<p class="correct">Réponse : D) Bash(npm test:*) + Bash(npm run test:*) + acceptEdits</p>
-<p><strong>Explication :</strong> la syntaxe <code>:*</code> autorise <code>npm test</code> avec n'importe quels arguments (<code>--watch</code>, <code>--coverage</code>, etc.). On ajoute <code>npm run test:*</code> car certains projets exposent des scripts comme <code>npm run test:unit</code>. <code>defaultMode: acceptEdits</code> auto-accepte les éditions sans toucher aux Bash.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
-<ul>
-<li>A) Sans <code>:*</code>, seul <code>npm test</code> exact passe — <code>npm test --watch</code> déclencherait une demande.</li>
-<li>B) Bloque <code>rm</code> mais ne résout pas le besoin d'autoriser les tests sans confirmation.</li>
-<li>C) <code>bypassPermissions</code> est dangereux — autorise toute commande y compris destructrice.</li>
-</ul>
-</div>
-</details>
-
-<details>
-<summary>Q70 (Developer Productivity Tools) — Outils Built-in vs MCP : disambiguation</summary>
+<summary>Q67 (Developer Productivity Tools) — Outils Built-in vs MCP : disambiguation</summary>
 <div>
 <p><strong>Situation :</strong> vous avez configuré un serveur MCP "internal-search" qui indexe les wikis et docs internes. Mais Claude appelle systématiquement <code>WebFetch</code> pour rechercher de l'info, ignorant le serveur MCP. Pourquoi et comment fixer ?</p>
 <p>A) Le serveur MCP est mal configuré — vérifier <code>.mcp.json</code></p>
@@ -1564,28 +1503,8 @@
 </div>
 </details>
 
-<details>
-<summary>Q71 (Developer Productivity Tools) — Hook PostToolUse pour formater après edition</summary>
-<div>
-<p><strong>Situation :</strong> votre équipe TypeScript veut que tous les fichiers <code>.ts</code> soient automatiquement formatés par Prettier après chaque édition par Claude. Solution la plus fiable ?</p>
-<p>A) Configurer un hook <code>PostToolUse</code> dans <code>.claude/settings.json</code> avec <code>matcher: "Edit|Write"</code> et command <code>jq -r '.tool_input.file_path' | xargs prettier --write</code></p>
-<p>B) Ajouter "Always run prettier after editing TypeScript files" dans <code>CLAUDE.md</code></p>
-<p>C) Créer un skill <code>/format</code> que les devs invoquent manuellement</p>
-<p>D) Demander à Claude de toujours faire le formatage dans le même commit</p>
-<hr>
-<p class="correct">Réponse : A) Hook PostToolUse</p>
-<p><strong>Explication :</strong> un hook PostToolUse est déterministe — il s'exécute après chaque <code>Edit</code> ou <code>Write</code>, sans dépendre du raisonnement du modèle (D3 §6). Le hook lit le(s) chemin(s) depuis le payload JSON sur stdin (ex. <code>tool_input.file_path</code>), pas une variable d'environnement. Pas de risque d'oubli, pas de dépendance aux instructions textuelles.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
-<ul>
-<li>B) Instruction prompt = probabiliste, peut être oubliée dans des contextes longs.</li>
-<li>C) Manuel = fragile et ralentit le workflow.</li>
-<li>D) Mélange formatage et commit, et reste probabiliste.</li>
-</ul>
-</div>
-</details>
-
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="scénario-extraction" class="page-break">8. Practice Test — Structured Data Extraction (Q72-Q78)</h2></div>
+<div class="section-header"><h2 id="scénario-extraction" class="page-break">8. Practice Test — Structured Data Extraction (Q68-Q72)</h2></div>
 <!-- ============================================================ -->
 
 <div class="key-concept">
@@ -1593,27 +1512,7 @@
 </div>
 
 <details>
-<summary>Q72 (Structured Data Extraction) — Garantir un output JSON valide</summary>
-<div>
-<p><strong>Situation :</strong> votre extraction produit du JSON avec des erreurs syntaxiques (virgules traînantes, guillemets manquants) dans 3% des cas. Comment éliminer ces erreurs ?</p>
-<p>A) Augmenter la temperature pour plus de créativité dans la génération</p>
-<p>B) Utiliser <code>tool_use</code> avec un input_schema JSON Schema et <code>strict: true</code></p>
-<p>C) Demander à Claude de relire et corriger son propre output avant de le retourner</p>
-<p>D) Post-processer la sortie avec un parseur JSON tolérant aux erreurs de syntaxe</p>
-<hr>
-<p class="correct">Réponse : B) tool_use + JSON Schema (strict: true)</p>
-<p><strong>Explication :</strong> forcer le <code>tool_use</code> garantit une sortie *syntaxiquement* valide, mais pas la conformité au schéma sans <code>strict: true</code> sur la définition d'outil — c'est ce flag qui garantit le respect strict du schéma par construction (D0 §8, D2 §4 (JSON Schema)). La méthode recommandée aujourd'hui pour l'extraction structurée est <code>output_config.format</code> (json_schema), qui offre la même garantie côté sortie de réponse. La sémantique (valeurs correctes) reste à valider côté app.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
-<ul>
-<li>A) Temperature plus haute = plus d'erreurs, pas moins.</li>
-<li>C) La self-review augmente le coût et reste probabiliste.</li>
-<li>D) Patcher le symptôme, pas la cause. Et certaines erreurs (champs manquants) ne sont pas réparables.</li>
-</ul>
-</div>
-</details>
-
-<details>
-<summary>Q73 (Structured Data Extraction) — Champs nullable contre l'hallucination</summary>
+<summary>Q68 (Structured Data Extraction) — Champs nullable contre l'hallucination</summary>
 <div>
 <p><strong>Situation :</strong> votre schéma a <code>"company_name"</code> en <code>required</code>. Pour 8% des documents (factures de freelancers), aucune entreprise n'est mentionnée. Le modèle invente un nom plausible. Comment fixer ?</p>
 <p>A) Ajouter des few-shot examples</p>
@@ -1633,7 +1532,7 @@
 </details>
 
 <details>
-<summary>Q74 (Structured Data Extraction) — Enum avec "other" + champ détail</summary>
+<summary>Q69 (Structured Data Extraction) — Enum avec "other" + champ détail</summary>
 <div>
 <p><strong>Situation :</strong> votre schéma catégorise les dépenses : <code>enum: ["travel", "meals", "supplies", "software"]</code>. Mais 12% des factures ne rentrent dans aucune catégorie (gym, formation, sponsoring). Comment faire sans casser la structure ?</p>
 <p>A) Ajouter chaque nouvelle catégorie à l'enum au fil du temps</p>
@@ -1647,13 +1546,13 @@
 <ul>
 <li>A) Étendre l'enum à chaque nouveau cas est ingérable à long terme.</li>
 <li>B) Sans enum, perte totale de la structure contrôlée.</li>
-<li>D) Même erreur que Q73D — modifier le métier pour contourner.</li>
+<li>D) Même erreur que Q68D — modifier le métier pour contourner.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q75 (Structured Data Extraction) — Batch API pour traitement nocturne</summary>
+<summary>Q70 (Structured Data Extraction) — Batch API pour traitement nocturne</summary>
 <div>
 <p><strong>Situation :</strong> vous traitez 50 000 factures par jour. Le SLA accepte une latence de 24h. Vous cherchez à réduire le coût. Quelle approche ?</p>
 <p>A) Utiliser la Message Batches API pour ce traitement nocturne</p>
@@ -1673,7 +1572,7 @@
 </details>
 
 <details>
-<summary>Q76 (Structured Data Extraction) — Retry-with-feedback sur erreur de validation</summary>
+<summary>Q71 (Structured Data Extraction) — Retry-with-feedback sur erreur de validation</summary>
 <div>
 <p><strong>Situation :</strong> votre extraction sort un JSON valide syntaxiquement, mais la somme des <code>line_items</code> ne correspond pas au <code>total</code> annoncé sur la facture. Que faire ?</p>
 <p>A) Accepter le JSON et corriger en aval</p>
@@ -1693,7 +1592,7 @@
 </details>
 
 <details>
-<summary>Q77 (Structured Data Extraction) — Stratified sampling pour mesurer l'accuracy</summary>
+<summary>Q72 (Structured Data Extraction) — Stratified sampling pour mesurer l'accuracy</summary>
 <div>
 <p><strong>Situation :</strong> votre rapport mensuel indique 97% d'accuracy globale. La direction veut déployer en production. Quelle précaution prendre avant ?</p>
 <p>A) 97% est suffisant, déployer</p>
@@ -1712,32 +1611,12 @@
 </div>
 </details>
 
-<details>
-<summary>Q78 (Structured Data Extraction) — Validation conditionnelle JSON Schema</summary>
-<div>
-<p><strong>Situation :</strong> votre schéma extrait des transactions. Si <code>type == "refund"</code>, alors les champs <code>refund_reason</code> et <code>original_transaction_id</code> sont obligatoires. Si <code>type == "payment"</code>, ils ne servent à rien. Comment exprimer cela proprement ?</p>
-<p>A) Mettre tous les champs dans <code>required</code></p>
-<p>B) Documenter la règle dans la <code>description</code> du tool</p>
-<p>C) Utiliser JSON Schema <code>if</code>/<code>then</code> : si <code>type == "refund"</code>, alors <code>required: ["refund_reason", "original_transaction_id"]</code></p>
-<p>D) Créer deux tools séparés : <code>extract_refund</code> et <code>extract_payment</code></p>
-<hr>
-<p class="correct">Réponse : C) JSON Schema if/then</p>
-<p><strong>Explication :</strong> JSON Schema draft-07 supporte la validation conditionnelle `if`/`then`/`else` (D2 §4 (JSON Schema)). C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. JSON Schema `if/then/else` exprime l'intention, mais l'API **ne l'applique pas** (validation conditionnelle à faire côté application).</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
-<ul>
-<li>A) Force le modèle à fournir <code>refund_reason</code> même pour les payments — il l'inventera.</li>
-<li>B) La description du tool guide le choix d'outil mais ne contraint pas la validation interne du schéma.</li>
-<li>D) Acceptable si la logique était plus complexe, mais ajoute un risque de misrouting (D2 §1) pour 2 schémas très proches. <code>if</code>/<code>then</code> reste plus simple ici.</li>
-</ul>
-</div>
-</details>
-
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="questions-transversales" class="page-break">9. Practice Test — Questions transversales (Q79-Q87)</h2></div>
+<div class="section-header"><h2 id="questions-transversales" class="page-break">9. Practice Test — Questions transversales et multi-réponses (Q68-Q79)</h2></div>
 <!-- ============================================================ -->
 
 <details>
-<summary>Q79 (D1) — Task tool, allowedTools et context passing</summary>
+<summary>Q73 (D1) — Task tool, allowedTools et context passing</summary>
 <div>
 <p><strong>Situation :</strong> le coordinateur d'un système multi-agents doit lancer trois recherches en parallèle sur des sujets différents, chacune confiée à un subagent de recherche isolé.</p>
 <p><strong>Question :</strong> quelle configuration respecte les bonnes pratiques du <code>Task</code> tool pour ce besoin ?</p>
@@ -1758,7 +1637,7 @@
 </details>
 
 <details>
-<summary>Q80 (D1) — Prompt chaining vs dynamic decomposition</summary>
+<summary>Q74 (D1) — Prompt chaining vs dynamic decomposition</summary>
 <div>
 <p><strong>Situation :</strong> vous devez concevoir un agent qui explore un codebase legacy inconnu pour identifier les modules sans tests et proposer un plan de couverture, sans savoir à l'avance combien de modules existent ni leurs dépendances.</p>
 <p><strong>Question :</strong> quelle stratégie de décomposition est la mieux adaptée ?</p>
@@ -1779,7 +1658,7 @@
 </details>
 
 <details>
-<summary>Q81 (D1) — --resume vs fork_session vs nouvelle session</summary>
+<summary>Q75 (D1) — --resume vs fork_session vs nouvelle session</summary>
 <div>
 <p><strong>Situation :</strong> vous reprenez une investigation démarrée hier. Depuis, exactement deux fichiers du module concerné ont été modifiés, le reste du codebase est inchangé.</p>
 <p><strong>Question :</strong> quelle est l'approche recommandée ?</p>
@@ -1800,7 +1679,7 @@
 </details>
 
 <details>
-<summary>Q82 (D2) — tool_choice : auto, any, forced selection</summary>
+<summary>Q76 (D2) — tool_choice : auto, any, forced selection</summary>
 <div>
 <p><strong>Situation :</strong> un pipeline d'extraction doit toujours appeler <code>extract_metadata</code> en premier, avant tout autre traitement, quel que soit le document.</p>
 <p><strong>Question :</strong> quelle configuration de <code>tool_choice</code> impose ce comportement ?</p>
@@ -1821,7 +1700,7 @@
 </details>
 
 <details>
-<summary>Q83 (D2) — MCP resources vs tools vs prompts</summary>
+<summary>Q77 (D2) — MCP resources vs tools vs prompts</summary>
 <div>
 <p><strong>Situation :</strong> votre application a besoin d'afficher dans l'interface la liste des tables d'une base de données pour que l'utilisateur choisisse la bonne avant de lancer une requête. Cette liste ne doit pas nécessiter d'action de la part du modèle.</p>
 <p><strong>Question :</strong> quelle primitive MCP est adaptée à ce besoin ?</p>
@@ -1842,7 +1721,7 @@
 </details>
 
 <details>
-<summary>Q84 (D2) — Glob vs Grep pour tracer des appelants ré-exportés</summary>
+<summary>Q78 (D2) — Glob vs Grep pour tracer des appelants ré-exportés</summary>
 <div>
 <p><strong>Situation :</strong> vous devez retrouver tous les appelants d'une fonction <code>analyzeDocument</code> qui est ré-exportée sous plusieurs alias à travers le codebase.</p>
 <p><strong>Question :</strong> quelle méthode est correcte ?</p>
@@ -1863,7 +1742,7 @@
 </details>
 
 <details>
-<summary>Q85 (D5) — Structured handoff vers un opérateur humain</summary>
+<summary>Q79 (D5) — Structured handoff vers un opérateur humain</summary>
 <div>
 <p><strong>Situation :</strong> un agent de support client escalade un cas vers un opérateur humain qui n'a pas accès au transcript complet de la conversation.</p>
 <p><strong>Question :</strong> que doit contenir le message transmis à l'opérateur ?</p>
@@ -1884,7 +1763,7 @@
 </details>
 
 <details>
-<summary>Q86 (D5) — scratchpad, /compact et manifest.json</summary>
+<summary>Q80 (D5) — scratchpad, /compact et manifest.json</summary>
 <div>
 <p><strong>Situation :</strong> un système multi-agents tourne depuis plusieurs heures. Chaque subagent maintient son propre état, et vous voulez pouvoir reprendre le workflow exactement là où il s'est arrêté en cas de crash, sans relancer les tâches déjà terminées.</p>
 <p><strong>Question :</strong> quel mécanisme est spécifiquement conçu pour ce besoin de crash recovery ?</p>
@@ -1905,7 +1784,7 @@
 </details>
 
 <details>
-<summary>Q87 (D5) — Données temporelles dans le claim-source mapping</summary>
+<summary>Q81 (D5) — Données temporelles dans le claim-source mapping</summary>
 <div>
 <p><strong>Situation :</strong> un agent de synthèse multi-sources rapporte : « Source A dit que la part de musique générée par IA sur le streaming est de 10%. Source B dit 15%. Contradiction. » Source A date de 2023, Source B de 2024, mais ces dates n'apparaissent pas dans le rapport.</p>
 <p><strong>Question :</strong> quel est le problème et comment le corriger ?</p>
@@ -1923,6 +1802,46 @@
 <li>C) Fusionner en une moyenne invente une donnée qui n'existe dans aucune source et détruit l'attribution individuelle de chaque claim.</li>
 </ul>
 </div>
+</details>
+
+<details>
+<summary>Q82 (D1) — Context passing vers subagents <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) Inclure l'historique complet de la conversation du coordinateur pour que le subagent comprenne le contexte
+B) Utiliser un format structuré séparant les données métier des métadonnées techniques
+C) Laisser le subagent hériter implicitement du contexte du coordinateur sans passage explicite
+D) Filtrer et transmettre uniquement les données strictement nécessaires à la tâche du subagent
+E) Redéfinir complètement l'objectif pour chaque subagent sans rappel du contexte global</summary>
+<p class="correct"><strong>Réponses : B, D.</strong> Dans un système multi-agents orchestré, le context passing doit utiliser des formats structurés (distinction données/métadonnées) et ne transmettre que l'essentiel pour la tâche (D1 §5, Task 1.3). Le contexte du coordinateur ne s'hérite pas automatiquement ; chaque subagent a une mémoire isolée. A) surcharge inutilement le contexte du subagent avec du bruit. C) est faux car aucune héritage implicite. E) risque de perdre l'alignement avec la tâche globale.</p>
+</details>
+
+<details>
+<summary>Q83 (D2) — Amélioration de la sélection d'outils ambigus <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) Renommer les outils pour rendre les noms distincts et auto-explicatifs
+B) Enrichir chaque description avec des exemples input/output concrets et des boundaries clairs
+C) Ajouter un pre-routing classifier placé après les outils pour re-router les mauvaises sélections
+D) Créer des few-shot examples montrant les cas ambigus et la bonne sélection pour chacun
+E) Augmenter simplement le nombre d'outils disponibles pour offrir plus d'options</summary>
+<p class="correct"><strong>Réponses : B, D.</strong> Les tool descriptions enrichies (input formats, examples, boundaries) sont le mécanisme primaire de sélection, directement appliqué par le modèle (D2 §1). Les few-shot examples renforcent ce pattern en montrant explicitement comment raisonner face à l'ambiguïté (D2 §3). A) aide mais ne suffit pas seul. C) est du overengineering (post-routing après les outils). E) ajoute du bruit sans clarifier les distinctions.</p>
+</details>
+
+<details>
+<summary>Q84 (D4) — Extraction structurée et gestion des cas ambigus <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) Rendre tous les champs obligatoires dans le schéma pour forcer une valeur du modèle
+B) Utiliser des champs nullable (type: ["string", "null"]) et retirer du required quand l'information peut manquer
+C) Ajouter une option "other" dans les enums avec un champ détail texte libre pour capturer les cas inattendus
+D) Valider post-extraction et rejeter automatiquement les extractions incohérentes
+E) Augmenter la temperature pour plus de variation dans les réponses du modèle</summary>
+<p class="correct"><strong>Réponses : B, C.</strong> B) prévient l'hallucination : un champ required force le modèle à inventer une valeur quand l'info manque ; nullable + retrait du required permet au modèle de retourner honnêtement null (D0 §8). C) capture les cas hors-enum sans perte d'information : si un cas ne rentre pas dans les catégories prédéfinies, retourner "other" + détail texte (D2 §4). A) provoque exactement le problème que B résout. D) ne prévient pas, ne fait que détecter après coup. E) augmente l'aléatoire, pas la qualité.</p>
+</details>
+
+<details>
+<summary>Q85 (D5) — Synthèse multi-sources avec données contradictoires <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) Présenter uniquement la source la plus probable et ignorer les autres pour éviter la confusion
+B) Annoter les conflits détectés et laisser la décision au coordinateur ou au lecteur
+C) Inclure les métadonnées temporelles (dates de publication) dans le claim-source mapping pour distinguer évolution vs contradiction
+D) Fusionner les valeurs différentes en une moyenne pour présenter un chiffre unique et cohérent
+E) Documenter la couverture des données (domaines couverts, lacunes identifiées) pour la transparence du rapport</summary>
+<p class="correct"><strong>Réponses : B, C.</strong> B) : les conflits doivent être annotés et remontés au coordinateur sans prise de décision unilatérale par la synthèse (D5 §2, Task 5.2). C) : les données temporelles changent le sens : "10% en 2023 + 15% en 2024" = croissance, pas contradiction ; les dates dans le claim-source mapping révèlent cette distinction (D5 §6, Task 5.6). A) revient à perdre l'attribution de la source écartée. D) invente une donnée qui n'existe dans aucune source. E) est utile mais pas aussi critique que B et C pour résoudre les contradictions.</p>
 </details>
 
 <nav class="doc-nav">

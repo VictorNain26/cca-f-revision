@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -57,7 +57,7 @@
 
 <table>
 <tr><th>Champ</th><th>Rôle</th><th>Obligatoire</th></tr>
-<tr><td><code>model</code></td><td>Sélection du modèle (<code>claude-opus-4-6</code>, <code>claude-sonnet-4-6</code>, <code>claude-haiku-4-5</code> ; modèles actuels : <code>claude-opus-4-8</code>, <code>claude-sonnet-5</code>, <code>claude-fable-5</code>)</td><td>Oui</td></tr>
+<tr><td><code>model</code></td><td>Identifiant du modèle Claude à utiliser (les IDs de modèles précis ne sont pas matière d'examen)</td><td>Oui</td></tr>
 <tr><td><code>max_tokens</code></td><td>Nombre maximum de tokens dans la réponse</td><td>Oui</td></tr>
 <tr><td><code>system</code></td><td>Le system prompt — définit le comportement du modèle. <strong>Passe séparément, PAS dans <code>messages</code></strong></td><td>Non</td></tr>
 <tr><td><code>messages</code></td><td>Historique de la conversation (DOIT contenir l'historique complet — API stateless)</td><td>Oui</td></tr>
@@ -68,7 +68,7 @@
 <h3>Exemple complet de requête JSON</h3>
 
 <pre><code>{
-  "model": "claude-sonnet-4-6",
+  "model": "claude-sonnet-5",
   "max_tokens": 1024,
   "system": "Tu es un assistant spécialisé en analyse financière. Réponds de manière concise.",
   "messages": [

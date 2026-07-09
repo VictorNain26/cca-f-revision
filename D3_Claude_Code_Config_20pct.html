@@ -23,7 +23,7 @@
   <a class="current" href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -36,21 +36,12 @@
 <div class="toc">
 <strong>Sommaire</strong>
 <ol>
-<li><a href="#s1">La hiérarchie <code>CLAUDE.md</code> et l'organisation modulaire</a>
-  <ul>
-    <li><a href="#s1b"><code>settings.json</code> vs <code>settings.local.json</code> et permissions Bash</a></li>
-  </ul>
-</li>
+<li><a href="#s1">La hiérarchie <code>CLAUDE.md</code> et l'organisation modulaire</a></li>
 <li><a href="#s2">Les slash commands et les skills</a></li>
 <li><a href="#s3">Les règles conditionnelles par chemin</a></li>
 <li><a href="#s4">Planning mode vs. direct exécution</a></li>
 <li><a href="#s5">Le raffinement itératif</a></li>
-<li><a href="#s6">L'intégration dans les pipelines CI/CD</a>
-  <ul>
-    <li><a href="#s6b">Les hooks Claude Code (au niveau config)</a></li>
-    <li><a href="#s6c">Configuration des serveurs MCP via la CLI</a></li>
-  </ul>
-</li>
+<li><a href="#s6">L'intégration dans les pipelines CI/CD</a></li>
 <li><a href="#s7">Arbre de décision : quelle fonctionnalité utiliser</a></li>
 <li><a href="#s8">Synthèse — les points clés</a></li>
 <li><a href="#s9">Auto-évaluation</a></li>
@@ -110,87 +101,6 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 </ul>
 
 <!-- ================================================================== -->
-<div class="subsection"><h3 id="s1b"><code>settings.json</code> vs <code>settings.local.json</code> et permissions Bash</h3></div>
-
-<p><strong>Pourquoi cette distinction est critique :</strong> à côté de <code>CLAUDE.md</code> (qui contient des <em>instructions</em> en prose), Claude Code utilise des fichiers JSON de <em>configuration</em> qui contrôlent les <strong>permissions</strong>, les <strong>variables d'environnement</strong>, les <strong>hooks</strong>, et les <strong>serveurs MCP</strong>. Confondre les deux est une erreur classique à l'examen.</p>
-
-<h3>Les trois niveaux de <code>settings.json</code></h3>
-<table>
-<tr><th>Niveau</th><th>Emplacement</th><th>Versionné ?</th><th>Usage</th></tr>
-<tr><td><strong>User</strong></td><td><code>~/.claude/settings.json</code></td><td>Non — personnel</td><td>Préférences globales (theme, model par défaut)</td></tr>
-<tr><td><strong>Project (partagé)</strong></td><td><code>.claude/settings.json</code></td><td><strong>Oui</strong> — commit dans Git</td><td>Standards d'équipe : permissions, hooks, MCP partagés</td></tr>
-<tr><td><strong>Project (local)</strong></td><td><code>.claude/settings.local.json</code></td><td><strong>Non</strong> — dans <code>.gitignore</code></td><td>Surcharges locales par développeur (chemins absolus, secrets)</td></tr>
-</table>
-
-<div class="key-concept">
-<strong>Ordre de précédence (du plus haut au plus bas) :</strong> <strong>managed/enterprise settings</strong> (politique imposée par l'organisation, non surchargeable par les niveaux suivants) &gt; <code>settings.local.json</code> &gt; <code>settings.json</code> (projet) &gt; <code>~/.claude/settings.json</code> (user) &gt; défauts. Les valeurs sont fusionnées champ par champ : une autorisation ajoutée en local n'efface pas celles du projet.
-</div>
-
-<div class="anti-pattern">
-<strong>Anti-pattern :</strong> commiter <code>.claude/settings.local.json</code>. Ce fichier doit être dans <code>.gitignore</code> par convention — il contient des chemins spécifiques à la machine, des clés d'API, ou des autorisations dangereuses (<code>Bash(rm:*)</code>) que vous ne voulez pas imposer à l'équipe.
-</div>
-
-<h3>Le bloc <code>permissions</code> : allowlist et denylist</h3>
-<p>Le mécanisme de permissions de Claude Code fonctionne par <strong>allowlist explicite</strong>. Sans entrée dans <code>permissions.allow</code>, chaque appel d'outil <em>mutant</em> déclenche une demande de confirmation utilisateur — bloquant pour les pipelines CI. Les outils read-only (<code>Read</code>, <code>Grep</code>, <code>Glob</code>) ne demandent jamais d'approbation. Un sous-ensemble <strong>fixe et non configurable</strong> de commandes Bash en lecture seule (<code>ls</code>, <code>cat</code>, <code>echo</code>, <code>pwd</code>, <code>head</code>, <code>tail</code>, <code>grep</code>, <code>find</code>, <code>wc</code>, <code>which</code>, <code>diff</code>, <code>stat</code>, <code>du</code>, <code>cd</code>, et les formes en lecture seule de <code>git</code>) est également exempté par défaut, dans tous les modes. Cette liste est fermée : toute autre commande Bash, même read-only en apparence, demande une approbation sauf allowlist explicite (bloc ci-dessous) ou sandbox.</p>
-
-<pre>// .claude/settings.json
-{
-  "permissions": {
-    "allow": [
-      "Bash(npm test:*)",
-      "Bash(npm run lint:*)",
-      "Bash(git status)",
-      "Bash(git diff:*)",
-      "Read(./src/**)",
-      "Edit(./src/**)",
-      "WebFetch(domain:docs.anthropic.com)"
-    ],
-    "deny": [
-      "Bash(rm:*)",
-      "Bash(curl:*)",
-      "Read(./.env)",
-      "Read(./secrets/**)"
-    ],
-    "defaultMode": "acceptEdits"
-  }
-}</pre>
-
-<h3>Syntaxe des allowlists Bash</h3>
-<table>
-<tr><th>Pattern</th><th>Signification</th><th>Exemple</th></tr>
-<tr><td><code>Bash(commande)</code></td><td>Commande exacte uniquement</td><td><code>Bash(git status)</code> autorisé <em>uniquement</em> <code>git status</code></td></tr>
-<tr><td><code>Bash(commande:*)</code></td><td>Commande avec n'importe quels arguments</td><td><code>Bash(npm test:*)</code> autorisé <code>npm test --watch</code>, <code>npm test src/foo</code>, etc.</td></tr>
-<tr><td><code>Bash(prefixe:*)</code></td><td>Préfixe de mot suivi de tout</td><td><code>Bash(git diff:*)</code> autorisé <code>git diff main</code> mais <strong>pas</strong> <code>git push</code></td></tr>
-</table>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> <code>Bash(npm test)</code> sans <code>:*</code> n'autorise que la commande exacte. Un <code>npm test --coverage</code> déclencherait quand même une demande. Pour CI, utilisez systématiquement <code>:*</code> après le verbe.
-</div>
-
-<h3>Les modes de permission (<code>defaultMode</code>)</h3>
-<table>
-<tr><th>Mode</th><th>Comportement</th><th>Quand l'utiliser</th></tr>
-<tr><td><code>"default"</code></td><td>Demande pour chaque outil non explicitement autorisé</td><td>Développement local interactif</td></tr>
-<tr><td><code>"acceptEdits"</code></td><td>Auto-accepte les editions de fichiers, demande pour Bash et reseau</td><td>Refactor sur un dossier connu</td></tr>
-<tr><td><code>"plan"</code></td><td>Mode planification : aucune modification, lecture seule</td><td>Investigation, audit</td></tr>
-<tr><td><code>"bypassPermissions"</code></td><td>Aucune demande — DANGEREUX</td><td>Sandbox isolé uniquement (<strong>jamais en CI sur prod</strong>)</td></tr>
-</table>
-
-<h3>Le bloc <code>env</code> et les variables d'environnement</h3>
-<pre>// .claude/settings.json
-{
-  "env": {
-    "API_BASE_URL": "https://staging.example.com",
-    "NODE_ENV": "development"
-  }
-}</pre>
-<p>Les variables ici sont injectées dans toutes les commandes <code>Bash</code> exécutées par Claude Code. Pour les <strong>secrets</strong>, utilisez <code>settings.local.json</code> (non versionné) plutôt que d'écrire la valeur en clair dans <code>env</code> — la syntaxe d'expansion <code>${VAR}</code> n'est pas documentée pour ce bloc <code>env</code> de <code>settings.json</code> (elle l'est en revanche pour <code>.mcp.json</code>, cf. §6c).</p>
-
-<div class="exam-tip">
-<strong>Scénario d'examen :</strong> un développeur a configuré des autorisations dans <code>.claude/settings.local.json</code> et constate qu'elles ne s'appliquent pas sur la machine de son collègue. Cause : <code>settings.local.json</code> est explicitement <strong>non versionné</strong>. Solution : déplacer les règles partagées dans <code>.claude/settings.json</code>.
-</div>
-
-<!-- ================================================================== -->
 <div class="section-header"><h2 id="s2">2. Les slash commands et les skills (Task 3.2)</h2></div>
 
 <h3>Le problème que cela résout</h3>
@@ -228,6 +138,7 @@ Quand tu rédiges une description de PR :
 <tr><td><code>allowed-tools</code></td><td>Non</td><td><strong>Pré-approbation de permissions</strong> : liste les outils utilisables sans demande de confirmation quand ce skill est actif (les autres outils restent disponibles, mais soumis au flux de permission normal). Pour retirer un outil du pool disponible, utiliser <code>disallowed-tools</code>. <em>Pour l'examen, le guide parle de « restrict tool access » ; la doc actuelle distingue pré-approbation (<code>allowed-tools</code>) et retrait (<code>disallowed-tools</code>).</em></td></tr>
 <tr><td><code>disallowed-tools</code></td><td>Non</td><td>Retire des outils du pool disponible pour ce skill (ex. : bloquer <code>AskUserQuestion</code> dans un skill destiné à tourner en arrière-plan sans interaction).</td></tr>
 <tr><td><code>argument-hint</code></td><td>Non</td><td>Indice affiché à l'autocomplétion pour suggérer le paramètre attendu quand le skill est invoqué en slash command.</td></tr>
+<tr><td><code>variants</code></td><td>Non</td><td>Permet de définir plusieurs variantes d'un même skill avec des paramétrages ou des comportements légèrement différents (ex. : <code>/review --strict</code> vs <code>/review --relaxed</code>). Chaque variante hérite des paramètres du skill de base sauf surcharge explicite.</td></tr>
 </table>
 
 <div class="exam-tip">
@@ -249,30 +160,6 @@ Hiérarchie complète : <strong>Enterprise</strong> (la plus haute) &gt; <strong
 
 <h3>Skills et subagents</h3>
 <p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents intégrés (Explore subagent, Plan) ne peuvent pas y accéder ; un subagent disposant du Skill tool peut en revanche invoquer les skills (projet, user, plugin) à la demande.</p>
-
-<h3>Permissions par tool avec patterns</h3>
-<p>En complément des allowlists Bash vues en §1 (settings.json), les permissions s'appliquent aussi aux outils <code>Read</code>, <code>Edit</code>, <code>Write</code>, <code>WebFetch</code> avec des glob patterns :</p>
-
-<pre>{
-  "permissions": {
-    "allow": [
-      "Read(./src/**)",          // Lire src/, mais pas les autres dossiers
-      "Edit(./src/**)",
-      "Write(./tests/**)",       // N'écrire QUE des tests
-      "WebFetch(domain:docs.anthropic.com)",
-      "WebFetch(domain:github.com)"
-    ],
-    "deny": [
-      "Read(./.env)",            // Ne JAMAIS lire .env même si dans src/
-      "Read(./secrets/**)",
-      "Edit(./.github/workflows/**)"  // Pas de modif des workflows CI
-    ]
-  }
-}</pre>
-
-<div class="key-concept">
-<strong>Précédence :</strong> <code>deny</code> &gt; <code>allow</code> (defense en profondeur). Une règle <code>deny</code> sur un sous-chemin l'emporte sur une règle <code>allow</code> plus large. Cela permet d'ouvrir <code>Read(./src/**)</code> tout en bloquant explicitement <code>Read(./src/secrets/**)</code>.
-</div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s3">3. Les regles conditionnelles par chemin (Task 3.3)</h2></div>
@@ -477,152 +364,6 @@ jobs:
 </div>
 
 <!-- ================================================================== -->
-<div class="subsection"><h3 id="s6b">Les hooks Claude Code (au niveau config)</h3></div>
-
-<p><strong>Distinction critique à retenir pour l'examen :</strong></p>
-<table>
-<tr><th>Type de hook</th><th>Défini où ?</th><th>Quand l'utiliser</th></tr>
-<tr><td><strong>Hooks Agent SDK</strong> (D1 §6)</td><td>Code Python/TS, dans la configuration de l'agent</td><td>Quand vous construisez un agent via le SDK</td></tr>
-<tr><td><strong>Hooks Claude Code (config)</strong></td><td>Bloc <code>"hooks"</code> dans <code>settings.json</code></td><td>Pour la CLI Claude Code, sans coder un agent</td></tr>
-</table>
-
-<h3>Les événements déclencheurs des hooks Claude Code</h3>
-<table>
-<tr><th>Événement</th><th>Quand il se déclenche</th><th>Cas d'usage typiques</th></tr>
-<tr><td><code>UserPromptSubmit</code></td><td>Avant l'envoi du prompt utilisateur à Claude</td><td>Injecter du contexte (date, branche Git), rédacter des secrets, bloquer des prompts interdits</td></tr>
-<tr><td><code>PreToolUse</code></td><td>Avant l'exécution d'un outil par Claude</td><td>Validation supplémentaire d'un <code>Bash</code> dangereux, audit log</td></tr>
-<tr><td><code>PostToolUse</code></td><td>Après l'exécution d'un outil</td><td>Lint automatique après <code>Edit</code>, formatage, vérification de schéma</td></tr>
-<tr><td><code>Stop</code></td><td>Quand Claude termine son tour</td><td>Notification de fin, sauvegarde de transcript, déclenchement de tests</td></tr>
-</table>
-
-<h3>Anatomie d'un hook</h3>
-<pre>// .claude/settings.json
-{
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "jq -r '.tool_input.file_path' | xargs npm run lint -- --fix",
-            "timeout": 30
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "echo \"Branche actuelle : $(git branch --show-current)\"",
-            "timeout": 5
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./scripts/notify-done.sh"
-          }
-        ]
-      }
-    ]
-  }
-}</pre>
-
-<table>
-<tr><th>Champ</th><th>Role</th></tr>
-<tr><td><code>matcher</code></td><td>Filtre regex sur le nom de l'outil (PreToolUse / PostToolUse) ou <code>"*"</code> pour tous. Ignoré pour <code>UserPromptSubmit</code> et <code>Stop</code>, qui ne supportent pas de matcher</td></tr>
-<tr><td><code>type</code></td><td>Cinq types possibles : <code>"command"</code> (shell, le plus courant — utilisé dans tous les exemples ci-dessus), <code>"http"</code> (requête HTTP sortante), <code>"mcp_tool"</code> (appel d'un tool exposé par un serveur MCP), <code>"prompt"</code> (soumet un prompt à Claude), <code>"agent"</code> (invoque un subagent)</td></tr>
-<tr><td><code>command</code></td><td>Commande shell exécutée. Les hooks reçoivent les données en JSON sur stdin avec <code>tool_name</code> et <code>tool_input</code>. Variable d'env disponible : <code>CLAUDE_PROJECT_DIR</code></td></tr>
-<tr><td><code>timeout</code></td><td>Secondes avant kill (défaut : 600 s pour les hooks command, 30 s pour <code>UserPromptSubmit</code>). Important pour éviter de bloquer la session</td></tr>
-</table>
-
-<div class="key-concept">
-<strong>Code de retour du hook :</strong>
-<ul>
-<li><strong>0</strong> — succès, Claude continue normalement</li>
-<li><strong>2</strong> — erreur "blocking" : <code>stderr</code> est renvoyé à Claude qui peut réagir (auto-correction, ajustement)</li>
-<li><strong>autre code non-zero</strong> — erreur "non-blocking" : log mais Claude continue</li>
-</ul>
-Pour PreToolUse, un code 2 <strong>annule l'appel d'outil</strong> et permet de forcer Claude à reformuler.
-</div>
-
-<div class="exam-tip">
-<strong>Scénario d'examen :</strong> votre équipe veut que tous les fichiers TypeScript soient automatiquement reformatés après édition par Claude. Solution : un hook <code>PostToolUse</code> avec <code>matcher: "Edit|Write"</code> qui lit le JSON reçu sur stdin et exécute <code>jq -r '.tool_input.file_path' | xargs prettier --write</code>. Pas besoin d'instructions dans <code>CLAUDE.md</code> ni de skill — le hook est <strong>déterministe</strong> (toujours exécuté), contrairement aux instructions textuelles que Claude peut oublier.
-</div>
-
-<h3>Hooks vs. instructions vs. skills : quand utiliser quoi</h3>
-<table>
-<tr><th>Besoin</th><th>Solution</th><th>Pourquoi</th></tr>
-<tr><td>"Toujours formater après edition"</td><td><strong>Hook</strong> PostToolUse</td><td>Déterministe, pas dépendant du raisonnement de Claude</td></tr>
-<tr><td>"Suivre nos conventions de style"</td><td><strong>CLAUDE.md</strong></td><td>Guidance souple appliquée par le modèle</td></tr>
-<tr><td>"Générer un changelog selon notre format"</td><td><strong>Skill</strong></td><td>Workflow structuré, invocation à la demande</td></tr>
-<tr><td>"Bloquer <code>rm -rf</code> sur des chemins critiques"</td><td><strong>Permissions deny</strong> + <strong>hook PreToolUse</strong></td><td>Défense en profondeur</td></tr>
-</table>
-
-<!-- ================================================================== -->
-<div class="subsection"><h3 id="s6c">Configuration des serveurs MCP via la CLI</h3></div>
-
-<p>Les serveurs MCP peuvent être déclarés de trois manières, selon le <strong>scope</strong> : <code>local</code> (défaut de <code>claude mcp add</code>, privé au projet, stocké dans <code>~/.claude.json</code> sous le chemin du projet), <code>project</code> (fichier <code>.mcp.json</code> à la racine du projet, versionné, partagé équipe), ou <code>user</code> (<code>--scope user</code>, disponible dans tous les projets, stocké dans <code>~/.claude.json</code>).</p>
-
-<h3>La commande <code>claude mcp add</code></h3>
-<pre># Ajout d'un serveur stdio (transport local par sous-processus)
-# Scope par défaut : local (privé à ce projet)
-claude mcp add github -- npx -y @modelcontextprotocol/server-github
-
-# Ajout avec variables d'env (token API, URL de base)
-claude mcp add postgres \
-  -e DATABASE_URL=postgres://... \
-  -- npx -y @modelcontextprotocol/server-postgres
-
-# Ajout d'un serveur HTTP distant
-claude mcp add my-api --transport http https://api.example.com/mcp
-
-# Ajout en scope user (disponible dans tous les projets)
-claude mcp add github --scope user -- npx -y @modelcontextprotocol/server-github
-
-# Lister les serveurs enregistrés
-claude mcp list
-
-# Supprimer
-claude mcp remove github</pre>
-
-<h3>Structure du fichier <code>.mcp.json</code> (projet)</h3>
-<pre>// .mcp.json à la racine du projet — versionné avec Git
-{
-  "mcpServers": {
-    "github": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
-      }
-    },
-    "internal-docs": {
-      "type": "http",
-      "url": "https://docs.internal/mcp",
-      "headers": {
-        "Authorization": "Bearer ${DOCS_TOKEN}"
-      }
-    }
-  }
-}</pre>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> les <strong>secrets</strong> ne doivent jamais être écrits en clair dans <code>.mcp.json</code> (versionné). Utilisez la syntaxe <code>${VAR}</code> pour référencer des variables d'environnement, ou définissez le serveur en scope <code>local</code> ou <code>user</code> (non versionnés, dans <code>~/.claude.json</code>) via <code>claude mcp add -e</code>.
-</div>
-
-<div class="key-concept">
-<strong>Hiérarchie de résolution MCP :</strong> pour un même nom de serveur, la précédence des scopes est <strong>local &gt; project &gt; user</strong> — sans fusion des champs : l'entrée entière du scope gagnant est utilisée, celles des autres scopes sont ignorées.
-</div>
-
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. Arbre de décision : quelle fonctionnalité utiliser</h2></div>
 
@@ -683,32 +424,6 @@ claude mcp remove github</pre>
 <li><code>ANTHROPIC_API_KEY</code> dans les secrets, jamais en clair dans le YAML.</li>
 </ul>
 
-<h3>Configuration JSON et permissions</h3>
-<ul>
-<li><strong>Trois niveaux</strong> : <code>~/.claude/settings.json</code> (user) / <code>.claude/settings.json</code> (projet, versionné) / <code>.claude/settings.local.json</code> (local, dans <code>.gitignore</code>).</li>
-<li>Précédence : managed/enterprise &gt; <code>settings.local.json</code> &gt; <code>settings.json</code> projet &gt; user &gt; défauts.</li>
-<li><code>permissions.allow</code> : allowlist explicite nécessaire en CI pour éviter les blocages.</li>
-<li>Syntaxe Bash : <code>Bash(npm test)</code> = exact ; <code>Bash(npm test:*)</code> = avec arguments libres.</li>
-<li><code>defaultMode</code> : <code>"default"</code> / <code>"acceptEdits"</code> / <code>"plan"</code> / <code>"bypassPermissions"</code> (dangereux).</li>
-<li><code>permissions.deny</code> a précédence sur <code>allow</code> (défense en profondeur).</li>
-</ul>
-
-<h3>Hooks Claude Code (config-level)</h3>
-<ul>
-<li>Définis dans le bloc <code>"hooks"</code> de <code>settings.json</code> — distincts des hooks Agent SDK (D1).</li>
-<li>Événements : <code>UserPromptSubmit</code>, <code>PreToolUse</code>, <code>PostToolUse</code>, <code>Stop</code>.</li>
-<li>Code de retour : 0 = OK, 2 = blocking (Claude réagit), autre = non-blocking.</li>
-<li>Données transmises au hook en JSON sur stdin (<code>tool_name</code>, <code>tool_input.file_path</code>, …). Variable d'env disponible : <code>CLAUDE_PROJECT_DIR</code>.</li>
-<li>Hook = déterministe (toujours exécuté) ; CLAUDE.md = instruction souple ; skill = workflow invocable.</li>
-</ul>
-
-<h3>MCP dans Claude Code</h3>
-<ul>
-<li>Scopes : <code>local</code> (défaut, privé au projet), <code>project</code> (<code>.mcp.json</code>, versionné), <code>user</code> (<code>--scope user</code>) — tous via <code>~/.claude.json</code> sauf <code>project</code>. Précédence : local &gt; project &gt; user.</li>
-<li>Transports : <code>stdio</code> (sous-processus local) ou <code>http</code> (distant).</li>
-<li>Secrets via <code>${VAR}</code> ou via flag <code>-e</code> de <code>claude mcp add</code>.</li>
-</ul>
-
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s9">9. Auto-évaluation</h2></div>
 
@@ -749,34 +464,7 @@ D) Setter <code>CLAUDE_HEADLESS=true</code>.</summary>
 </details>
 
 <details>
-<summary>Q5 : Une developpeuse a ajoute des autorisations dans <code>.claude/settings.local.json</code>. Son collegue clone le repo mais les autorisations ne s'appliquent pas. Cause ?
-A) Il faut redemarrer Claude Code pour recharger la config.
-B) <code>settings.local.json</code> est dans <code>.gitignore</code>, il n'est pas versionne ni partage.
-C) Les permissions sont stockees par utilisateur dans une base locale.
-D) Le collegue doit lancer <code>claude --sync-permissions</code>.</summary>
-<p><strong>Réponse : B.</strong> Par convention (et habituellement par <code>.gitignore</code>), <code>.claude/settings.local.json</code> n'est pas versionné. Il sert aux surcharges <strong>locales</strong> par développeur (chemins absolus, secrets, autorisations dangereuses). Pour partager des autorisations avec l'équipe, elles doivent être dans <code>.claude/settings.json</code> (versionné). A est faux (la config est rechargée), C et D ne correspondent pas à des fonctionnalités Claude Code.</p>
-</details>
-
-<details>
-<summary>Q6 : Vous voulez autoriser <code>npm test</code> avec n'importe quels arguments en CI, mais bloquer toute autre commande npm. Quelle entree dans <code>permissions.allow</code> ?
-A) <code>"Bash(npm test)"</code>.
-B) <code>"Bash(npm test:*)"</code>.
-C) <code>"Bash(npm:*)"</code>.
-D) <code>"Bash(npm test --*)"</code>.</summary>
-<p><strong>Réponse : B.</strong> <code>"Bash(npm test:*)"</code> autorise <code>npm test</code> suivi de n'importe quels arguments (<code>npm test --watch</code>, <code>npm test src/foo</code>). A est trop restrictif : seul <code>npm test</code> exact passerait. C autoriserait toute commande npm (<code>npm publish</code>, <code>npm install</code>) — trop large. D n'est pas la syntaxe valide des allowlists Claude Code (<code>:*</code> est le suffixe officiel).</p>
-</details>
-
-<details>
-<summary>Q7 : Votre équipe veut que tous les fichiers TypeScript soient automatiquement formates par Prettier après edition par Claude. Quelle approche est la plus fiable ?
-A) Ajouter "Always run prettier after editing" dans <code>CLAUDE.md</code>.
-B) Creer un skill <code>/format</code> que les développeurs invoquent.
-C) Configurer un hook <code>PostToolUse</code> avec <code>matcher: "Edit|Write"</code> qui execute <code>prettier --write</code>.
-D) Demander a Claude d'inclure <code>prettier</code> dans chaque commit.</summary>
-<p><strong>Réponse : C.</strong> Un hook <code>PostToolUse</code> est <strong>déterministe</strong> : il s'exécute après chaque <code>Edit</code> ou <code>Write</code>, sans dépendre du raisonnement du modèle. A repose sur la conformité du modèle aux instructions textuelles, qui peut être oubliée dans des contextes longs. B est manuel et fragile. D mélange les responsabilités (formatage en commit). Le hook est l'option choisie pour les actions automatiques garanties — c'est précisément leur raison d'être.</p>
-</details>
-
-<details>
-<summary>Q8 : Votre workflow GitHub Actions execute <code>claude -p</code> mais Claude entre parfois dans une boucle qui consomme 50+ iterations agentiques avant de s'arreter. Comment limiter cela proprement ?
+<summary>Q5 : Votre workflow GitHub Actions execute <code>claude -p</code> mais Claude entre parfois dans une boucle qui consomme 50+ iterations agentiques avant de s'arreter. Comment limiter cela proprement ?
 A) Ajouter <code>--max-turns 10</code> a la commande.
 B) Mettre un <code>timeout-minutes: 5</code> sur le job GitHub Actions.
 C) Reduire le contexte initial.
@@ -785,12 +473,13 @@ D) Utiliser <code>--output-format json</code>.</summary>
 </details>
 
 <details>
-<summary>Q9 : Vous configurez un serveur MCP <code>github</code> qui nécessite un <code>GITHUB_TOKEN</code>. Vous voulez le partager avec l'équipe sans exposer le token. Approche correcte ?
-A) Mettre <code>GITHUB_TOKEN: "ghp_xxx"</code> dans <code>.mcp.json</code>.
-B) Mettre <code>GITHUB_TOKEN: "${GITHUB_TOKEN}"</code> dans <code>.mcp.json</code> et chacun definit la variable d'env localement.
-C) Stocker le token dans <code>.claude/settings.json</code>.
-D) Encoder le token en base64 dans <code>.mcp.json</code>.</summary>
-<p><strong>Réponse : B.</strong> La syntaxe <code>${VAR}</code> dans <code>.mcp.json</code> est résolue au runtime depuis l'environnement. Le fichier reste versionné sans secret exposé ; chaque développeur fournit son propre token via son shell (<code>export GITHUB_TOKEN=...</code>) ou via un gestionnaire de secrets local. A et D exposent le secret dans Git. C mélange les responsabilités et expose toujours le secret si <code>settings.json</code> est versionné. Alternative légitime : utiliser <code>claude mcp add github -e GITHUB_TOKEN=...</code> en scope <code>local</code> (défaut) ou <code>user</code>, qui écrit dans <code>~/.claude.json</code> (non versionné).</p>
+<summary>Q6 (Domaine 3) : Vous avez un workflow que votre équipe doit répéter régulièrement (analyse de performance, génération de rapport technique, revue de sécurité). Ce workflow doit être réutilisable, configurable via l'équipe, invocable en local ET en CI/CD. Quelles deux approches vous permettent cela ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) Créer un skill avec <code>context: fork</code>, le partager via <code>.claude/skills/</code>, et le documenter dans <code>CLAUDE.md</code>.
+B) Mettre uniquement un slash command dans <code>.claude/commands/</code>, c'est suffisant pour la réutilisabilité équipe.
+C) Invoquer le skill en local par matching sémantique, ou en CI via <code>claude -p</code> avec <code>--max-turns</code> pour limiter les itérations.
+D) Stocker l'instruction du workflow dans <code>~/.claude/CLAUDE.md</code> pour que les développeurs la voient automatiquement.
+E) Utiliser un hook <code>PostToolUse</code> pour déclencher le workflow automatiquement après chaque édition.</summary>
+<p class="correct"><strong>Réponses : A, C.</strong> Un skill isolé via <code>context: fork</code> peut être partagé avec l'équipe via VCS (.claude/skills/), documenté dans CLAUDE.md, et invoqué aussi bien en local (matching sémantique ou slash command) qu'en CI via « claude -p /skill-name » avec un --max-turns raisonnable. B ignore le répertoire structuré des skills (le format actuel supérieur aux slash commands). D place l'instruction au user-level (personnel, non partagé) au lieu du project-level. E confond le rôle des hooks : ils automatisent les actions post-événement d'outil, pas les workflows métier invocables.</p>
 </details>
 
 <nav class="doc-nav">

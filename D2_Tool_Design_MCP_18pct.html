@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -38,12 +38,8 @@
 <ol>
 <li><a href="#s1">Concevoir des interfaces d'outils claires</a></li>
 <li><a href="#s2">Les réponses d'erreur structurées en MCP</a></li>
-<li><a href="#s3">Distribuer les outils entre agents et configurer <code>tool_choice</code></a></li>
-<li><a href="#s4">Intégrer des MCP servers dans Claude Code</a>
-  <ul>
-    <li><a href="#s4b">JSON Schema en profondeur (input_schema)</a></li>
-  </ul>
-</li>
+<li><a href="#s3">Distribuer les outils entre agents et restreindre l'accès</a></li>
+<li><a href="#s4">MCP Integration — primitives et configuration</a></li>
 <li><a href="#s5">Les outils intégrés de Claude Code</a></li>
 <li><a href="#s6">Synthèse — les points clés</a></li>
 <li><a href="#s7">Questions d'auto-évaluation</a></li>
@@ -91,7 +87,7 @@
 <tr><th>Problème</th><th>Solution</th></tr>
 <tr><td>Deux outils aux descriptions similaires (chevauchement sémantique)</td><td><strong>Renommer</strong> pour lever l'ambiguïté : <code>analyze_content</code> → <code>extract_web_results</code>, et mettre à jour la <code>description</code></td></tr>
 <tr><td>Un outil générique utilisé hors de son périmètre</td><td><strong>Remplacer</strong> par un outil contraint : <code>fetch_url</code> → <code>load_document</code> (qui valide le format de l'URL)</td></tr>
-<tr><td>Un outil « fourre-tout » trop large</td><td><strong>Diviser</strong> en outils spécialisés : <code>analyze_document</code> → <code>extract_data_points</code> + <code>summarize_content</code></td></tr>
+<tr><td>Un outil « fourre-tout » trop large</td><td><strong>Diviser</strong> en outils spécialisés : <code>analyze_document</code> → <code>extract_data_points</code> + <code>summarize_content</code> + <code>verify_claim_against_source</code></td></tr>
 </table>
 
 <div class="exam-tip">
@@ -141,7 +137,7 @@
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s3">3. Distribuer les outils entre agents et configurer <code>tool_choice</code> (Task 2.3)</h2></div>
+<div class="section-header"><h2 id="s3">3. tool_choice, distribution et restriction des outils (Tasks 2.3 &amp; 2.4)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Si vous donnez 18 outils à un seul agent, sa capacité à choisir le bon outil chute significativement. Pire : un agent disposant d'outils hors de sa spécialisation aura tendance à les utiliser à mauvais escient. Le principe est simple : chaque agent ne reçoit que les outils <strong>pertinents pour son rôle</strong>, idéalement <strong>4 à 5 maximum</strong>, plus un ensemble restreint d'utilitaires transversaux si nécessaire.</p>
@@ -160,26 +156,35 @@
 <tr><td><code>{"type": "auto"}</code></td><td>Claude décide librement : texte ou appel d'outil</td><td>Mode par défaut, convient à la majorité des cas</td></tr>
 <tr><td><code>{"type": "any"}</code></td><td>Claude <em>doit</em> appeler un outil (mais choisit lequel)</td><td>Pour garantir un appel d'outil quand plusieurs schémas existent</td></tr>
 <tr><td><code>{"type": "tool", "name": "..."}</code></td><td>Claude <em>doit</em> appeler un outil précis (forced selection)</td><td>Pour forcer un ordre d'exécution (ex. : <code>extract_metadata</code> avant l'enrichissement)</td></tr>
-<tr><td><code>{"type": "none"}</code></td><td>Claude ne peut appeler aucun outil, réponse texte uniquement</td><td>Pour désactiver temporairement l'usage d'outils sans retirer leur définition</td></tr>
 </table>
-<p><code>disable_parallel_tool_use: true</code> (au sein de l'objet <code>tool_choice</code>) force Claude à n'appeler qu'un seul outil à la fois, quel que soit le <code>type</code> choisi.</p>
 
 <div class="exam-tip">
-<strong>Pour l'examen :</strong> <code>tool_choice</code> avec <code>{"type": "any"}</code> garantit qu'un outil sera appelé, pas que sa sortie respecte le schéma (il faut <code>strict: true</code> pour ça, cf. §4b). La forced selection (<code>{"type": "tool", "name": "..."}</code>) garantit une première action spécifique avant le reste du workflow — utile pour imposer un ordre d'exécution.
+<strong>Pour l'examen :</strong> <code>tool_choice</code> avec <code>{"type": "any"}</code> garantit qu'un outil sera appelé, pas que sa sortie respecte le schéma. La forced selection (<code>{"type": "tool", "name": "..."}</code>) garantit une première action spécifique avant le reste du workflow — utile pour imposer un ordre d'exécution.
 </div>
 
+<h3>Outils cross-role scoped : l'exemple de <code>verify_fact</code></h3>
+<p>Certains outils sont pertinents pour <strong>plusieurs agents</strong> mais doivent rester <strong>restreints</strong> en capacité. Exemple : un outil <code>verify_fact</code> qui vérifie une affirmation contre une source documentaire. Un research agent et un document analysis agent ont tous deux besoin de cet outil — mais avec des restrictions différentes (ex. : le research agent y accède toujours, le document analysis agent seulement s'il la requête inclut explicitement la vérification). La solution : un <strong>outil partagé restreint</strong>, fourni aux deux via leur <code>tools</code> respectif avec une description précise du contexte d'utilisation.</p>
+<pre>{
+  "name": "verify_fact",
+  "description": "Verifies a claim against source documents or references. Returns confidence level (high/medium/low) and the source excerpt. Use this cross-role tool only when a specific claim needs verification, not for general information retrieval.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "claim": {"type": "string", "description": "The specific claim to verify"},
+      "source_id": {"type": "string", "description": "ID of the source document to check against"}
+    },
+    "required": ["claim", "source_id"]
+  }
+}</pre>
+
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s4">4. Intégrer des MCP servers dans Claude Code (Task 2.4)</h2></div>
+<div class="section-header page-break"><h2 id="s4">4. MCP Integration — primitives et configuration</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>L'approche traditionnelle d'intégration d'outils oblige les développeurs à écrire manuellement des schémas et des fonctions pour chaque outil. Le <strong>Model Context Protocol (MCP)</strong> résout ce problème en déplaçant la définition et l'exécution des outils vers des serveurs dédiés. Quelqu'un d'autre crée les outils, les empaquète dans un MCP server, et votre application s'y connecte automatiquement.</p>
 
 <h3>La portée des MCP servers</h3>
-<table>
-<tr><th>Portée</th><th>Fichier de configuration</th><th>Partage</th><th>Usage</th></tr>
-<tr><td><strong>Projet</strong></td><td><code>.mcp.json</code> (à la racine du projet)</td><td>Versionné dans le VCS, partagé avec l'équipe</td><td>Intégrations standards du projet</td></tr>
-<tr><td><strong>Utilisateur</strong></td><td><code>~/.claude.json</code></td><td>Personnel, non versionné</td><td>Expérimentations, serveurs personnels</td></tr>
-</table>
+<p>Les MCP servers sont configurés au niveau du <strong>projet</strong> dans <code>.mcp.json</code> à la racine du projet. Ce fichier est versionné dans le VCS et partagé avec l'équipe pour les intégrations standards.</p>
 
 <h3>La gestion des secrets par substitution de variables d'environnement</h3>
 <p>Les tokens d'accès ne doivent jamais être commités dans le dépôt. Utilisez la substitution de variables d'environnement dans <code>.mcp.json</code> :</p>
@@ -213,104 +218,6 @@
 
 <h3>Choix entre community servers et custom servers</h3>
 <p>Pour les intégrations standards (Jira, GitHub, Slack), préférez les <strong>community servers</strong> existants. Ne construisez un custom server que pour les workflows spécifiques à votre équipe que personne d'autre n'a implémentés. Tous les <code>tools</code> de tous les serveurs connectés sont découverts à la connexion et disponibles simultanément.</p>
-
-<!-- ================================================================== -->
-<div class="subsection"><h3 id="s4b">JSON Schema en profondeur (<code>input_schema</code>)</h3></div>
-
-<p>Le <code>input_schema</code> d'un outil utilise un sous-ensemble standard de JSON Schema — la documentation Anthropic ne s'engage sur <strong>aucun draft par défaut précis</strong> (elle ne mentionne ni 2020-12 ni draft-07, seulement « standard JSON Schema with limitations »). Au-delà de <code>type</code>, <code>properties</code> et <code>required</code> déjà vus en D0, plusieurs constructions avancées apparaissent dans les questions d'examen.</p>
-
-<h3>Types complexes (<code>oneOf</code>, <code>anyOf</code>, <code>allOf</code>)</h3>
-<table>
-<tr><th>Opérateur</th><th>Sémantique</th><th>Cas d'usage</th></tr>
-<tr><td><code>oneOf</code></td><td>Doit valider <strong>exactement un</strong> sous-schéma</td><td>Discriminated union : email OU id_client, jamais les deux</td></tr>
-<tr><td><code>anyOf</code></td><td>Doit valider <strong>au moins un</strong> sous-schéma</td><td>Acceptation flexible : string OU array de strings</td></tr>
-<tr><td><code>allOf</code></td><td>Doit valider <strong>tous</strong> les sous-schémas</td><td>Composition de contraintes (extension de schéma de base)</td></tr>
-</table>
-
-<pre>// Exemple oneOf : recherche par email OU par ID, pas les deux
-{
-  "name": "find_customer",
-  "description": "Find a customer by email or numeric ID. Provide exactly one.",
-  "input_schema": {
-    "type": "object",
-    "oneOf": [
-      {
-        "properties": { "email": { "type": "string", "format": "email" } },
-        "required": ["email"]
-      },
-      {
-        "properties": { "customer_id": { "type": "integer", "minimum": 1 } },
-        "required": ["customer_id"]
-      }
-    ]
-  }
-}</pre>
-
-<h3>Validation conditionnelle (<code>if</code>/<code>then</code>/<code>else</code>)</h3>
-<pre>// Si type == "refund", alors amount et reason sont obligatoires
-{
-  "type": "object",
-  "properties": {
-    "type": { "enum": ["refund", "info_only"] },
-    "amount": { "type": "number" },
-    "reason": { "type": "string" }
-  },
-  "required": ["type"],
-  "if":   { "properties": { "type": { "const": "refund" } } },
-  "then": { "required": ["amount", "reason"] }
-}</pre>
-
-<h3>Contraintes par type</h3>
-<table>
-<tr><th>Type</th><th>Contraintes</th><th>Exemple</th></tr>
-<tr><td><code>string</code></td><td><code>minLength</code>, <code>maxLength</code>, <code>pattern</code> (regex), <code>format</code> (email, uri, date, date-time, uuid)</td><td><code>"format": "email"</code> rejette les strings invalides</td></tr>
-<tr><td><code>number</code> / <code>integer</code></td><td><code>minimum</code>, <code>maximum</code>, <code>exclusiveMinimum</code>, <code>multipleOf</code></td><td><code>"minimum": 0, "maximum": 1000</code></td></tr>
-<tr><td><code>array</code></td><td><code>items</code> (schéma des éléments), <code>minItems</code>, <code>maxItems</code>, <code>uniqueItems</code></td><td>Liste non vide d'IDs uniques</td></tr>
-<tr><td><code>object</code></td><td><code>required</code>, <code>additionalProperties</code> (false pour rejeter champs inconnus)</td><td><code>"additionalProperties": false</code> = strict</td></tr>
-</table>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> <code>"additionalProperties": false</code> sur un objet rejette tout champ non déclaré dans <code>properties</code> — mais seulement si le tool est déclaré avec <code>strict: true</code> (top-level). <code>strict: true</code> exige <code>additionalProperties: false</code> sur chaque objet, mais <strong>pas</strong> que toutes les propriétés soient listées dans <code>required</code> — les propriétés optionnelles restent autorisées. En revanche, plusieurs contraintes du tableau ci-dessus sont <strong>incompatibles avec <code>strict: true</code></strong> (erreur 400 si présentes) : <code>minLength</code>, <code>maxLength</code>, <code>minimum</code>, <code>maximum</code>, <code>multipleOf</code>, ainsi que <code>maxItems</code> (seul <code>minItems</code> avec la valeur 0 ou 1 est supporté) ; <code>pattern</code> n'est que partiellement supporté (regex simple, sans lookahead ni backreference). Sans <code>strict: true</code>, l'API Claude ne garantit <strong>pas</strong> la conformité au JSON Schema : le modèle peut techniquement produire des champs hallucinés. Pour du JSON structuré fiable, préférer <code>output_config: {"format": {"type": "json_schema", ...}}</code>.
-</div>
-
-<h3>Champs nullable et enums avec fallback (rappel D0 + extension)</h3>
-<pre>{
-  "company_name": {
-    "type": ["string", "null"],
-    "description": "Company name if mentioned, null otherwise"
-  },
-  "category": {
-    "type": "string",
-    "enum": ["billing", "technical", "account", "other"]
-  },
-  "category_detail": {
-    "type": ["string", "null"],
-    "description": "Free-text detail when category is 'other'"
-  },
-  "sentiment": {
-    "type": "string",
-    "enum": ["positive", "negative", "neutral", "unclear"]
-  }
-}</pre>
-
-<div class="key-concept">
-<strong>3 piliers d'un input_schema robuste :</strong>
-<ol>
-<li><strong>Nullable</strong> sur les champs non garantis (au lieu de required) — évite l'hallucination</li>
-<li><strong>Enum avec "other" + champ détail</strong> — capture les cas inattendus sans perte d'information</li>
-<li><strong>Enum avec "unclear"</strong> — permet au modèle d'exprimer son incertitude honnêtement</li>
-</ol>
-Ces 3 patterns transforment un schéma rigide en interface tolérante à l'incertitude.
-</div>
-
-<h3>Validation côté application (après réception)</h3>
-<p>Sans <code>strict: true</code>, l'API Claude ne garantit même pas la conformité <strong>syntaxique</strong> stricte au JSON Schema (respect d'<code>additionalProperties: false</code> compris) — encore moins la cohérence sémantique. Après réception, valider dans tous les cas :</p>
-<ul>
-<li><strong>Cohérence inter-champs :</strong> totaux qui s'additionnent, dates dans l'ordre chronologique</li>
-<li><strong>Existence des références :</strong> les IDs pointent vers des entités réelles</li>
-<li><strong>Plages métier :</strong> un montant négatif est syntaxiquement valide mais business-invalide</li>
-</ul>
-<p>Voir D4 §4 pour le pattern <em>retry-with-feedback</em> : en cas d'échec de validation, renvoyer l'erreur à Claude pour qu'il corrige.</p>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s5">5. Les outils intégrés de Claude Code (Task 2.5)</h2></div>
@@ -377,37 +284,21 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li>Les erreurs génériques (<em>"Operation failed"</em>) empêchent toute récupération intelligente — c'est l'anti-pattern principal.</li>
 </ul>
 
-<h3>Distribution et <code>tool_choice</code></h3>
+<h3>Distribution des outils et restrictions d'accès</h3>
 <ul>
 <li>4 à 5 outils max par agent, pas 18. Chaque agent ne reçoit que les outils pertinents pour son rôle (scoped tool access).</li>
 <li>Remplacer les outils génériques par des alternatives contraintes (<code>fetch_url</code> → <code>load_document</code>).</li>
-<li><code>auto</code> (par défaut) / <code>any</code> (garantir un appel d'outil) / forced selection (imposer un outil précis).</li>
+<li>Outils cross-role scoped : partager des outils (ex. <code>verify_fact</code>) entre agents avec des descriptions précises du contexte d'utilisation.</li>
+<li><code>tool_choice</code> : <code>auto</code> (par défaut) / <code>any</code> (garantir un appel) / forced selection (imposer un outil précis).</li>
 </ul>
 
-<h3>MCP</h3>
+<h3>MCP — primitives et configuration</h3>
 <ul>
-<li><code>.mcp.json</code> pour le projet (versionne dans le VCS), <code>~/.claude.json</code> pour l'utilisateur (personnel).</li>
-<li>Substitution de variables d'environnement (<code>${GITHUB_TOKEN}</code>) pour les secrets.</li>
-<li>Trois primitives : <code>tools</code> (modèle), <code>resources</code> (application), <code>prompts</code> (utilisateur).</li>
-<li><code>resources</code> = « content catalogs » qui réduisent les appels exploratoires.</li>
-<li>Préférer les community servers pour les intégrations standards ; custom servers pour les workflows spécifiques.</li>
-</ul>
-
-<h3>JSON Schema (input_schema)</h3>
-<ul>
-<li><code>oneOf</code> (exactement un sous-schéma) / <code>anyOf</code> (au moins un) / <code>allOf</code> (tous).</li>
-<li>Validation conditionnelle <code>if</code>/<code>then</code>/<code>else</code> pour les exigences contextuelles.</li>
-<li>Contraintes : <code>format</code> (email, uri, uuid), <code>minLength</code>/<code>maxLength</code>, <code>minimum</code>/<code>maximum</code>, <code>pattern</code> (regex).</li>
-<li><code>"additionalProperties": false</code> pour rejeter les champs hallucinés.</li>
-<li>Sous <code>strict: true</code> : <code>additionalProperties: false</code> obligatoire, propriétés optionnelles permises (pas besoin que tout soit dans <code>required</code>) — mais <code>minLength</code>/<code>maxLength</code>/<code>minimum</code>/<code>maximum</code>/<code>multipleOf</code>/<code>maxItems</code> non supportés (400), seul <code>minItems</code> (0/1) l'est.</li>
-<li>3 piliers anti-hallucination : nullable, enum + "other"/détail, enum + "unclear".</li>
-<li>Sans <code>strict: true</code>, le tool_use ne garantit ni la conformité syntaxique stricte au schéma ni la sémantique ; valider les deux côté app (retry-with-feedback, voir D4).</li>
-</ul>
-
-<h3>Authentification MCP</h3>
-<ul>
-<li><strong>In-scope</strong> : variables d'env (<code>${VAR}</code> dans <code>env</code>, stdio) — seul pattern couvert par le guide.</li>
-<li>Anti-pattern absolu (in-scope) : token en clair dans <code>.mcp.json</code> versionné (l'historique Git le retient).</li>
+<li><code>.mcp.json</code> à la racine du projet, versionné dans le VCS, partagé avec l'équipe.</li>
+<li>Substitution de variables d'environnement (<code>${GITHUB_TOKEN}</code>) pour les secrets — jamais de tokens en clair dans le dépôt.</li>
+<li>Trois primitives : <code>tools</code> (modèle exécute), <code>resources</code> (application expose), <code>prompts</code> (utilisateur déclenche).</li>
+<li><code>resources</code> = « content catalogs » qui réduisent les appels exploratoires en fournissant directement les données de contexte.</li>
+<li>Préférer les community servers pour les intégrations standards (Jira, GitHub, Slack) ; custom servers pour les workflows spécifiques à l'équipe.</li>
 </ul>
 
 <h3>Outils intégrés</h3>
@@ -461,21 +352,14 @@ D) Ajouter <em>"always call this first"</em> dans la <code>description</code>.</
 </details>
 
 <details>
-<summary>Q5 : Vous concevez un outil <code>create_refund</code>. La logique metier exige que <code>amount</code> et <code>reason</code> soient obligatoires <em>seulement si</em> <code>type == "refund"</code>. Si <code>type == "info_only"</code>, ces champs ne servent a rien. Comment exprimer cela proprement dans le <code>input_schema</code> ?<br>
-A) Mettre tous les champs dans <code>required</code>.<br>
-B) Utiliser <code>if</code>/<code>then</code> : si <code>type == "refund"</code>, alors <code>required: ["amount", "reason"]</code>.<br>
-C) Documenter la regle uniquement dans la <code>description</code>.<br>
-D) Creer deux outils séparés.</summary>
-<p><strong>Réponse : B.</strong> JSON Schema supporte <code>if</code>/<code>then</code>/<code>else</code> pour la validation conditionnelle (introduit en draft-07, disponible dans les drafts suivants). C'est le pattern propre quand des champs deviennent obligatoires selon une autre valeur. A force le modèle à fournir <code>amount</code> même pour <code>info_only</code> (et il l'inventera). C déplace la responsabilité sur le modèle (peu fiable). D est correct mais ajoute de la complexité et du <code>misrouting</code> potentiel — préférer <code>if</code>/<code>then</code> si la logique est simple.</p>
-</details>
-
-<details>
-<summary>Q6 : Votre extracteur de métadonnées produit un JSON valide mais Claude ajoute parfois des champs inattendus comme <code>"notes": "..."</code> qui ne sont pas dans votre schéma. Comment empêcher cela côté schéma ?<br>
-A) Ajouter "notes" dans <code>properties</code>.<br>
-B) Mettre <code>"additionalProperties": false</code> au niveau de l'objet.<br>
-C) Lister les champs interdits dans une enum.<br>
-D) Utiliser <code>tool_choice: any</code>.</summary>
-<p><strong>Réponse : B.</strong> <code>"additionalProperties": false</code> rejette tout champ non declare dans <code>properties</code> — à condition d'activer <code>strict: true</code> sur la définition du tool, sans quoi l'API Claude ne garantit pas la conformité au schéma. A le rendrait acceptable mais ne résout pas la question (le modèle continuerait à inventer d'autres champs). C n'a pas de sens sémantique. D ne contraint pas la structure du résultat.</p>
+<summary>Q5 (Domaine 2) : Un API qui retourne une erreur doit inclure certaines informations pour permettre à l'agent de prendre une bonne décision. Quelles affirmations sont correctes ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) Une erreur <code>{"isError": true, "content": "Operation failed"}</code> permet à l'agent de décider s'il faut faire un retry.
+B) Une erreur transient (timeout, 503) doit avoir <code>isRetryable: true</code> encodé dans le bloc <code>text</code> du content.
+C) Une erreur de permission doit être escaladée à un humain sans retry, indépendamment du nombre de tentatives.
+D) Les catégories d'erreur (<code>transient</code>, <code>validation</code>, <code>business</code>, <code>permission</code>) font partie de la spécification MCP officielle.
+E) Un résultat vide valide (zéro correspondance) doit être distingué d'un échec d'accès (timeout) dans la réponse.</summary>
+<p class="correct"><strong>Réponses : B, E.</strong> (B) est correct : une erreur transient doit inclure <code>errorCategory</code> et <code>isRetryable</code> encodés dans le texte du bloc content pour que l'agent sache qu'il faut retry. (E) est correct : cette distinction est fondamentale — zéro résultat valide est une information utile, tandis qu'un timeout exige une décision de récupération différente.<br>
+(A) est faux : une erreur générique "Operation failed" empêche l'agent de prendre une décision intelligente — c'est le point central de l'anti-pattern. (C) est incomplet : une erreur permission doit être escaladée, mais pas « indépendamment du nombre de tentatives » — c'est une décision métier qui dépend du contexte ; la règle générale est <code>isRetryable: false</code>. (D) est faux : les catégories d'erreur ne sont pas formelles dans la spec MCP — c'est une convention de conception applicative encodée dans le texte du bloc content.</p>
 </details>
 
 

@@ -88,15 +88,25 @@
     return { questionHtml: questionPart, choices };
   };
 
-  const findCorrectLetter = (detailsEl) => {
-    // Scopé à p.correct : le seul marqueur officiel de réponse (voir convention du
-    // corpus). Scanner tout le textContent du <details> ferait aussi matcher un
-    // "Réponse : X" mentionné dans une situation/narration, pas seulement le marqueur.
-    const correctP = detailsEl.querySelector('p.correct');
-    if (!correctP) return null;
+  // Retourne { letters: ['A', ...], multi: bool }.
+  // Marqueur prioritaire : <p class="correct"> (Practice_Questions + nouvelles
+  // questions multi). Fallback pour les fiches de domaine : le premier <p> dont le
+  // texte commence par « Réponse(s) » (format <strong>Réponse : X.</strong> sans
+  // classe). Le multi est détecté quand plusieurs lettres suivent le marqueur
+  // (« Réponses : A, C »). Scopé au marqueur pour ne pas matcher un « Réponse : X »
+  // cité dans une narration.
+  const findCorrect = (detailsEl) => {
+    let correctP = detailsEl.querySelector('p.correct');
+    if (!correctP) {
+      correctP = [...detailsEl.querySelectorAll(':scope > p, :scope > div > p')]
+        .find((p) => /^\s*R[ée]ponses?\s*[:.]/i.test(p.textContent || ''));
+    }
+    if (!correctP) return { letters: [], multi: false };
     const text = (correctP.textContent || '').replace(/\s+/g, ' ');
-    const m = text.match(/R[ée]ponse\s*:?\s*([A-E])\)/i);
-    return m ? m[1].toUpperCase() : null;
+    const seg = text.match(/R[ée]ponses?\s*:?\s*([A-E](?:\s*(?:,|et|&|\/|ou)\s*[A-E])*)/i);
+    if (!seg) return { letters: [], multi: false };
+    const letters = [...new Set((seg[1].match(/[A-E]/gi) || []).map((c) => c.toUpperCase()))];
+    return { letters, multi: letters.length > 1 };
   };
 
   const extractCategory = (summaryText) => {
@@ -136,7 +146,7 @@
     reveal.appendChild(revBody);
 
     const firstP = revBody.querySelector('p');
-    if (firstP && /^R[ée]ponse\s*[:.]/i.test((firstP.textContent || '').trim())) {
+    if (firstP && /^R[ée]ponses?\s*[:.]/i.test((firstP.textContent || '').trim())) {
       firstP.classList.add('answer-correct');
     }
 
@@ -145,7 +155,7 @@
   };
 
   // ---------- Interaction : clic sur un choix ----------
-  const attachChoiceHandlers = (detailsEl, correctLetter, revealEl, qid) => {
+  const attachChoiceHandlers = (detailsEl, correct, revealEl, qid) => {
     const ul = detailsEl.querySelector('.choices');
     if (!ul) return;
 
@@ -156,7 +166,68 @@
       if (revSummary) revSummary.innerHTML = 'Voir la réponse complète';
     };
 
-    for (const li of ul.querySelectorAll('li')) {
+    const persist = (picked, isCorrect) => {
+      const state = loadState();
+      const key = pageKey();
+      (state[key] ??= {})[qid] = { picked, correct: isCorrect, multi: correct.multi, ts: Date.now() };
+      saveState(state);
+      renderProgressWidget();
+    };
+
+    const lis = [...ul.querySelectorAll('li')];
+
+    // ---- Mode multi-réponses : cases à cocher + bouton « Vérifier » ----
+    if (correct.multi) {
+      const answers = new Set(correct.letters);
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'quiz-check';
+      btn.textContent = `Vérifier (${answers.size} réponses attendues)`;
+      ul.insertAdjacentElement('afterend', btn);
+
+      const grade = () => {
+        if (ul.classList.contains('is-answered')) return;
+        const picked = lis.filter((li) => li.classList.contains('is-checked'))
+          .map((li) => li.dataset.letter);
+        if (picked.length === 0) return;
+        ul.classList.add('is-answered');
+        let allCorrect = picked.length === answers.size;
+        for (const li of lis) {
+          const l = li.dataset.letter;
+          const chosen = li.classList.contains('is-checked');
+          const good = answers.has(l);
+          li.classList.remove('is-checked');
+          li.setAttribute('aria-checked', chosen ? 'true' : 'false');
+          if (chosen && good) li.classList.add('is-selected', 'is-correct-pick');
+          else if (chosen && !good) { li.classList.add('is-selected', 'is-wrong'); allCorrect = false; }
+          else if (!chosen && good) { li.classList.add('is-correct'); allCorrect = false; }
+        }
+        btn.disabled = true;
+        unlockReveal();
+        persist([...picked].sort().join(''), allCorrect);
+      };
+
+      for (const li of lis) {
+        li.setAttribute('role', 'checkbox');
+        li.setAttribute('aria-checked', 'false');
+        li.setAttribute('tabindex', '0');
+        const toggle = () => {
+          if (ul.classList.contains('is-answered')) return;
+          const on = li.classList.toggle('is-checked');
+          li.setAttribute('aria-checked', on ? 'true' : 'false');
+        };
+        li.addEventListener('click', toggle);
+        li.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); toggle(); }
+        });
+      }
+      btn.addEventListener('click', grade);
+      return;
+    }
+
+    // ---- Mode réponse unique ----
+    const correctLetter = correct.letters[0] || null;
+    for (const li of lis) {
       li.setAttribute('role', 'button');
       li.setAttribute('tabindex', '0');
 
@@ -171,12 +242,7 @@
           if (correctLi && correctLi !== li) correctLi.classList.add('is-correct');
         }
         unlockReveal();
-
-        const state = loadState();
-        const key = pageKey();
-        (state[key] ??= {})[qid] = { picked, correct: isCorrect, ts: Date.now() };
-        saveState(state);
-        renderProgressWidget();
+        persist(picked, isCorrect);
       };
 
       li.addEventListener('click', onPick);
@@ -244,7 +310,7 @@
     detailsEl.dataset.category = extractCategory(summary.textContent);
 
     // 1) Réponse correcte AVANT de wrapper (pour ne pas perdre le texte)
-    const correctLetter = findCorrectLetter(detailsEl);
+    const correct = findCorrect(detailsEl);
 
     // 2) Choix depuis le summary, sinon depuis le body
     const split = splitChoicesInSummary(summary);
@@ -282,7 +348,7 @@
     decorateQTag(summary);
 
     const revealEl = wrapAnswerInReveal(detailsEl);
-    attachChoiceHandlers(detailsEl, correctLetter, revealEl, qid);
+    attachChoiceHandlers(detailsEl, correct, revealEl, qid);
 
     // Restaurer l'état si déjà répondu
     const prev = (loadState()[pageKey()] || {})[qid];
@@ -291,10 +357,27 @@
     const ulCur = detailsEl.querySelector('.choices');
     if (ulCur) {
       ulCur.classList.add('is-answered');
-      const pickedLi = ulCur.querySelector(`li[data-letter="${prev.picked}"]`);
-      if (pickedLi) pickedLi.classList.add('is-selected', prev.correct ? 'is-correct-pick' : 'is-wrong');
-      if (correctLetter && correctLetter !== prev.picked) {
-        ulCur.querySelector(`li[data-letter="${correctLetter}"]`)?.classList.add('is-correct');
+      if (correct.multi) {
+        const pickedSet = new Set((prev.picked || '').split(''));
+        const answers = new Set(correct.letters);
+        for (const li of ulCur.querySelectorAll('li')) {
+          const l = li.dataset.letter;
+          const chosen = pickedSet.has(l);
+          const good = answers.has(l);
+          li.setAttribute('aria-checked', chosen ? 'true' : 'false');
+          if (chosen && good) li.classList.add('is-selected', 'is-correct-pick');
+          else if (chosen && !good) li.classList.add('is-selected', 'is-wrong');
+          else if (!chosen && good) li.classList.add('is-correct');
+        }
+        const b = detailsEl.querySelector('.quiz-check');
+        if (b) b.disabled = true;
+      } else {
+        const pickedLi = ulCur.querySelector(`li[data-letter="${prev.picked}"]`);
+        if (pickedLi) pickedLi.classList.add('is-selected', prev.correct ? 'is-correct-pick' : 'is-wrong');
+        const correctLetter = correct.letters[0];
+        if (correctLetter && correctLetter !== prev.picked) {
+          ulCur.querySelector(`li[data-letter="${correctLetter}"]`)?.classList.add('is-correct');
+        }
       }
     }
     if (revealEl) {

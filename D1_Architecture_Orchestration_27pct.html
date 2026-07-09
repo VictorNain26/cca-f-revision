@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -100,24 +100,24 @@
 
 <p>C'est exactement ce que fait l'<strong>agentic loop</strong> : un cycle <code>request → response → tool execution → new request</code> piloté par le modèle lui-même.</p>
 
-<h3>Le cycle <em>observe — think — act — respond</em></h3>
+<h3>Les phases d'une itération de la boucle</h3>
 
-<div class="anti-pattern">
-<strong>Statut de l'acronyme OTAR :</strong> "observe-think-act-respond" est une <em>mnémonique pédagogique communautaire</em>, pas un terme officiel Anthropic. La doc officielle parle d'<code>agentic loop lifecycle</code> centré sur <code>stop_reason</code> et de phases <em>gather context → take action → verify results</em>. Connais le concept, mais ne cherche pas "OTAR" dans la doc Anthropic — tu ne le trouveras pas. C'est une grille de lecture utile pour raisonner autour des hooks et de l'API.
+<div class="key-concept">
+<strong>Cadre officiel :</strong> le guide décrit l'<code>agentic loop lifecycle</code> piloté par <code>stop_reason</code> — envoyer une requête à Claude, exécuter les outils demandés, renvoyer les <code>tool_result</code>, itérer jusqu'à <code>"end_turn"</code>. Le découpage ci-dessous décrit ce qui se passe à chaque tour.
 </div>
 
 <p>Chaque itération de la boucle se décompose en quatre phases conceptuelles, exposées au modèle de manière implicite :</p>
 
 <table>
 <tr><th>Phase</th><th>Ce que fait le modèle</th><th>Element de l'API</th></tr>
-<tr><td><strong>Observe</strong></td><td>Lit le contexte courant : messages historiques, tool results recents, system prompt</td><td>Tableau <code>messages</code> (avec <code>tool_result</code> blocks)</td></tr>
-<tr><td><strong>Think</strong></td><td>Raisonne sur l'état (éventuellement via extended thinking, voir D4)</td><td><code>thinking</code> blocks (si actives) ou raisonnement implicite</td></tr>
-<tr><td><strong>Act</strong></td><td>Décide d'appeler un outil ou de produire une réponse finale</td><td><code>tool_use</code> block ou <code>text</code> block</td></tr>
-<tr><td><strong>Respond</strong></td><td>Soit attend le <code>tool_result</code> (boucle continue), soit termine</td><td><code>stop_reason</code> : <code>"tool_use"</code> ou <code>"end_turn"</code></td></tr>
+<tr><td><strong>Lecture du contexte</strong></td><td>Lit le contexte courant : messages historiques, tool results récents, system prompt</td><td>Tableau <code>messages</code> (avec <code>tool_result</code> blocks)</td></tr>
+<tr><td><strong>Raisonnement</strong></td><td>Raisonne sur l'état courant avant de décider de l'action suivante</td><td>raisonnement produit dans la génération</td></tr>
+<tr><td><strong>Action</strong></td><td>Décide d'appeler un outil ou de produire une réponse finale</td><td><code>tool_use</code> block ou <code>text</code> block</td></tr>
+<tr><td><strong>Boucle ou fin</strong></td><td>Soit attend le <code>tool_result</code> (la boucle continue), soit termine</td><td><code>stop_reason</code> : <code>"tool_use"</code> ou <code>"end_turn"</code></td></tr>
 </table>
 
 <div class="key-concept">
-<strong>OTAR n'est pas un protocole de l'API</strong> — c'est une grille de lecture pour décrire le comportement de la boucle, pas le vocabulaire de l'examen. L'examen cadre ce domaine via <code>stop_reason</code> (<code>"tool_use"</code> vs <code>"end_turn"</code>), jamais via OTAR. Comprendre la grille reste utile pour raisonner sur les hooks : un hook <code>PreToolUse</code> intercepte entre la décision d'appel (le bloc <code>tool_use</code> est émis) et l'exécution de l'outil par ton code ; un hook <code>PostToolUse</code> intercepte au début du prochain <em>observe</em>, une fois le tool result obtenu.
+<strong>Le cadrage d'examen passe par <code>stop_reason</code></strong> (<code>"tool_use"</code> vs <code>"end_turn"</code>), pas par un découpage en phases nommées. Ce découpage reste utile pour situer les hooks : un hook <code>PreToolUse</code> intercepte entre la décision d'appel (le bloc <code>tool_use</code> est émis) et l'exécution de l'outil par ton code ; un hook <code>PostToolUse</code> intercepte une fois le <code>tool_result</code> obtenu, avant le tour suivant.
 </div>
 
 <h3>Comment ça fonctionne</h3>
@@ -138,7 +138,7 @@
 <h3>Exemple de code</h3>
 <pre>while True:
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-sonnet-5",
         messages=messages,
         tools=tools
     )
@@ -215,7 +215,7 @@
 </ul>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s4">4. Les stratégies de décomposition (Task 1.6)</h2></div>
+<div class="section-header"><h2 id="s4">4. Les stratégies de décomposition (Task 1.5)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Toutes les tâches ne se décomposent pas de la même manière. Une code review suit toujours les mêmes étapes (lire, analyser, reporter), tandis qu'une investigation dans un codebase inconnu révèle ses sous-tâches au fur et à mesure. Choisir la mauvaise stratégie entraîne soit de la rigidité inutile, soit du chaos.</p>
@@ -260,7 +260,7 @@
 <h3>Comment ça fonctionne</h3>
 <p>Pour qu'un coordinateur puisse créer des subagents, son <code>allowedTools</code> doit inclure <code>"Task"</code>. Chaque appel à Task crée un subagent avec son propre contexte isolé.</p>
 
-<p><em>Note : depuis Claude Code v2.1.63, cet outil a été renommé <code>Task</code> → <code>Agent</code> dans le produit (les deux noms coexistent dans la documentation actuelle). Pour l'examen, retenez <code>"Task"</code> — c'est le terme utilisé par le guide officiel.</em></p>
+<p><em>Note : dans la CLI récente, l'outil peut apparaître sous le nom <code>Agent</code>, mais le référentiel et l'examen emploient le nom <code>Task</code>. Pour l'examen, retenez <code>"Task"</code> — c'est le terme utilisé par le guide officiel.</em></p>
 
 <p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>coordinator = AgentDefinition(
@@ -315,7 +315,7 @@ Task 3 : "Rechercher des articles sur Z"
 <p><em>Voir aussi : D2, section 3 pour le paramètre <code>tool_choice</code> et D2, section 5 pour la référence complète des outils intégrés.</em></p>
 
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Tasks 1.4 &amp; 1.5)</h2></div>
+<div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Task 1.4 &amp; 1.6)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Dans un workflow de support client, il est critique de vérifier l'identité du client <em>avant</em> de traiter un remboursement. On peut l'écrire dans le prompt… mais les instructions dans le prompt ont un taux de conformité élevé, jamais garanti à 100 % — le guide officiel parle seulement d'un <em>non-zero failure rate</em> (le « 90-95 % » parfois cité en formation est illustratif, pas un chiffre officiel). Sur des milliers d'interactions, même un faible taux d'échec peut causer des remboursements versés au mauvais client.</p>
@@ -431,7 +431,7 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 
 <h3>L'agentic loop</h3>
 <ul>
-<li>Cycle <strong>observe-think-act-respond</strong> (OTAR) — grille de lecture conceptuelle de chaque itération.</li>
+<li>Boucle agentique pilotée par <code>stop_reason</code> : <code>"tool_use"</code> → exécuter l'outil et itérer ; <code>"end_turn"</code> → terminer.</li>
 <li><code>stop_reason == "tool_use"</code> → continuer. <code>"pause_turn"</code> → re-envoyer pour continuer (server tool interrompu). <code>"end_turn"</code>, <code>"refusal"</code> ou <code>"model_context_window_exceeded"</code> → terminer. C'est le signal fiable pour piloter la boucle.</li>
 <li>Ne jamais parser le texte de l'assistant, utiliser des limites d'itérations arbitraires ou vérifier la présence de texte comme signal de fin.</li>
 <li>Hooks <code>PreToolUse</code> = entre la décision d'appel (bloc <code>tool_use</code> émis) et l'exécution de l'outil ; <code>PostToolUse</code> = au début de l'observe suivant.</li>
@@ -504,6 +504,16 @@ B) Option 1 — Claude est très fiable sur le suivi d'instructions.
 C) Option 2 — un approval gate via hook PreToolUse offre une garantie déterministe ; les instructions textuelles restent probabilistes (non-zero failure rate selon le guide, jamais 100 %), insuffisantes pour des décisions financières.
 D) Les deux donnent le même résultat.</summary>
 <p><strong>Réponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement). Pour toute action à conséquence financière, légale ou de sécurité, l'enforcement doit être <strong>déterministe</strong> via un hook. Une instruction prompt peut être contournée, mal interprétée, ou oubliée dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable à 1 % d'échec sur des milliers de transactions.</p>
+</details>
+
+<details>
+<summary>Q7 (Domaine 1) : Vous concevez une architecture multi-agents pour orchestrer des tâches complexes. Quels éléments sont CRITIQUES pour que le coordinateur puisse créer des subagents et garantir la transmission correcte du contexte ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) Le coordinateur doit inclure <code>"Task"</code> dans son <code>allowedTools</code> pour créer des subagents.
+B) Chaque subagent hérite automatiquement de l'historique complet de conversation du coordinateur.
+C) Le coordinateur doit passer explicitement le contexte nécessaire à chaque subagent via le prompt de délégation, car les subagents n'héritent rien automatiquement.
+D) Les subagents peuvent communiquer directement entre eux pour optimiser les performances et éviter les redondances.
+E) Le coordinateur doit confier tous ses outils à chaque subagent pour maximiser leur flexibilité.</summary>
+<p class="correct"><strong>Réponses : A, C.</strong> A est correct : le <code>"Task"</code> doit être inclus dans <code>allowedTools</code> pour que le coordinateur puisse créer des subagents (section 5). C est correct : les subagents ont un contexte isolé et ne reçoivent rien automatiquement ; tout contexte pertinent doit être explicitement transmis dans le prompt (section 5, « Les subagents ne reçoivent rien automatiquement du coordinateur »). B est incorrect : c'est l'inverse — l'isolation du contexte est un principe fondamental (section 3). D est incorrect : toute communication entre subagents doit transiter par le coordinateur (section 3, « Toute communication entre subagents transite par le coordinateur — jamais en direct »). E est incorrect : les outils doivent être limités au strict nécessaire pour améliorer la fiabilité de sélection (section 5, tableau des quatre caractéristiques).</p>
 </details>
 
 <nav class="doc-nav">

@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a class="current" href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 87 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -42,12 +42,7 @@
 <li><a href="#s4">Validation, retry-with-feedback et self-correction</a></li>
 <li><a href="#s5">Le traitement par lots — Message Batches API</a></li>
 <li><a href="#s6">La revue multi-instance et multi-pass review</a></li>
-<li><a href="#s7">Les techniques fondamentales</a>
-  <ul>
-    <li><a href="#s7b">Le framework PRECISE</a></li>
-    <li><a href="#s7c">Chain-of-thought et extended thinking</a></li>
-  </ul>
-</li>
+<li><a href="#s7">Fondamentaux d'API — note de structure</a></li>
 <li><a href="#s8">Synthèse — les points clés</a></li>
 <li><a href="#s9">Auto-évaluation (6 questions)</a></li>
 </ol>
@@ -289,7 +284,7 @@ def extract_invoice(document_text: str, max_retries: int = 3) -&gt; Invoice:
 
     for attempt in range(max_retries):
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-sonnet-5",
             max_tokens=2048,
             tools=[{
                 "name": "submit_invoice",
@@ -419,118 +414,9 @@ En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 
 <p><em>Voir aussi : D1, section 6 pour le détail de la multi-pass review dans le contexte de la décomposition de tâches.</em></p>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s7">7. Les techniques fondamentales</h2></div>
+<div class="section-header"><h2 id="s7">7. Fondamentaux d'API — note de structure</h2></div>
 
-<h3>Les principes de base du prompting</h3>
-<ul>
-<li><strong>Être clair et direct :</strong> la première ligne est la plus importante. Structure : verbe d'action + tâche + spécifications de sortie.</li>
-<li><strong>Être spécifique :</strong> attributs souhaités (longueur, format) + étapes de raisonnement.</li>
-<li><strong>Structurer avec des balises XML :</strong> des noms descriptifs (<code>&lt;sales_records&gt;</code>) plutôt que génériques (<code>&lt;data&gt;</code>).</li>
-<li><strong>Fournir des few-shot examples</strong> après les instructions, avec le raisonnement pour les cas limites.</li>
-</ul>
-
-<h3>Le system prompt</h3>
-<p>Le system prompt n'est pas un message dans le tableau <code>messages</code> : il est passé séparément dans le champ <code>system</code>. Il a priorité sur les messages utilisateur, est défini une fois côté code mais renvoyé à chaque appel (l'API est stateless), et s'applique tout au long de la conversation. Il définit le rôle, les contraintes et le format de sortie attendu.</p>
-
-<h3>La temperature</h3>
-<table>
-<tr><th>Valeur</th><th>Comportement</th><th>Usage</th></tr>
-<tr><td><strong>0</strong></td><td>Quasi-déterministe (toujours le token le plus probable, mais jamais garanti identique d'un appel à l'autre)</td><td>Extraction de données, tâches factuelles</td></tr>
-<tr><td><strong>Proche de 1</strong></td><td>Plus créatif (tokens moins probables sélectionnés)</td><td>Brainstorming, rédaction créative</td></tr>
-</table>
-
-<h3>Autres techniques de contrôle</h3>
-<ul>
-<li><strong>Stop sequences :</strong> forcer l'arrêt de la génération quand une chaîne spécifique apparaît.</li>
-<li><strong>Prompt chaining :</strong> décomposer une tâche complexe en étapes séquentielles focalisées, chacune avec son propre prompt.</li>
-</ul>
-
-<!-- ================================================================== -->
-<div class="subsection"><h3 id="s7b">Le framework PRECISE</h3></div>
-
-<div class="anti-pattern">
-<strong>Statut de PRECISE :</strong> mnémonique pédagogique <em>communautaire</em>, pas un terme officiel Anthropic. La doc officielle Anthropic ne parle pas de "PRECISE" — elle parle des mêmes leviers (be clear and direct, structure with XML, give examples, etc.) sans les regrouper sous cet acronyme. Garde la checklist comme garde-fou mental, mais ne la cite pas comme source officielle.
-</div>
-
-<p>PRECISE regroupe les leviers vus dans les sections précédentes en une checklist :</p>
-
-<table>
-<tr><th>Lettre</th><th>Composante</th><th>Section de référence</th></tr>
-<tr><td><strong>P</strong></td><td><strong>P</strong>ersona / Role : "Tu es un assistant juridique spécialisé..."</td><td>§7 (system prompt)</td></tr>
-<tr><td><strong>R</strong></td><td><strong>R</strong>equest : la tâche concrète à accomplir, en verbe d'action</td><td>§7 (être clair et direct)</td></tr>
-<tr><td><strong>E</strong></td><td><strong>E</strong>xplicit criteria : les règles précises de décision</td><td>§1 (critères explicites)</td></tr>
-<tr><td><strong>C</strong></td><td><strong>C</strong>ontext : documents, données, historique pertinent (avec balises XML)</td><td>§7 (structurer avec XML)</td></tr>
-<tr><td><strong>I</strong></td><td><strong>I</strong>nstructions / Steps : les étapes du raisonnement attendu</td><td>§7 (CoT) (chain-of-thought)</td></tr>
-<tr><td><strong>S</strong></td><td><strong>S</strong>chema : le format de sortie (Structured Outputs / JSON Schema via tool_use, balises XML)</td><td>§3 (structured output)</td></tr>
-<tr><td><strong>E</strong></td><td><strong>E</strong>xamples : few-shot examples sur les cas ambigus</td><td>§2 (few-shot)</td></tr>
-</table>
-
-<div class="key-concept">
-<strong>Usage pratique :</strong> avant d'envoyer un prompt en production, dérouler la checklist PRECISE. Si une lettre manque, le prompt sera moins fiable. Le framework n'est pas un dogme — c'est un garde-fou contre les omissions.
-</div>
-
-<pre>// Exemple de prompt complet découpé par PRECISE
-&lt;persona&gt;Tu es un analyste de support client expert en e-commerce.&lt;/persona&gt;
-
-&lt;request&gt;Categorise ce ticket et détermine s'il faut escalader.&lt;/request&gt;
-
-&lt;explicit_criteria&gt;
-- Categories : billing | technical | account | other
-- Escalader si : (a) demande explicite d'humain, (b) montant &gt; 500$, (c) policy gap
-- NE PAS escalader sur sentiment seul
-&lt;/explicit_criteria&gt;
-
-&lt;context&gt;
-Politique de remboursement : ...
-Historique du ticket : ...
-&lt;/context&gt;
-
-&lt;instructions&gt;
-1. Lire le ticket
-2. Identifier la catégorie principale
-3. Vérifier les critères d'escalation un par un
-4. Produire la réponse au format défini
-&lt;/instructions&gt;
-
-&lt;schema&gt;
-Output JSON : { category, severity, escalate (bool), escalate_reason }
-&lt;/schema&gt;
-
-&lt;examples&gt;
-Ticket: "I want a manager"
-Output: { category: "other", severity: "medium", escalate: true,
-         escalate_reason: "Explicit human request" }
-...
-&lt;/examples&gt;</pre>
-
-<!-- ================================================================== -->
-<div class="subsection"><h3 id="s7c">Chain-of-thought et extended thinking</h3></div>
-
-<p>Le <strong>chain-of-thought (CoT)</strong> est la technique consistant à faire <em>raisonner</em> Claude étape par étape avant de produire la réponse finale. Cela améliore la qualité sur les tâches qui requièrent du raisonnement (math, logique, décisions multi-critères).</p>
-
-<h3>Trois variantes de CoT</h3>
-<table>
-<tr><th>Variante</th><th>Mécanisme</th><th>Quand l'utiliser</th></tr>
-<tr><td><strong>CoT inline (basic)</strong></td><td>Demander dans le prompt : "Réfléchis étape par étape avant de répondre"</td><td>Tâches simples ou modèles plus anciens</td></tr>
-<tr><td><strong>CoT structure</strong></td><td>Demander un raisonnement dans des balises (<code>&lt;thinking&gt;...&lt;/thinking&gt;</code>) puis la réponse dans <code>&lt;answer&gt;</code></td><td>Quand on veut auditer le raisonnement séparément</td></tr>
-<tr><td><strong>Extended thinking</strong></td><td>Paramètre API <code>thinking</code> : Claude génère un <em>reasoning trace</em> dédié avant la réponse</td><td>Tâches complexes, modèles Claude 4.x avec extended thinking</td></tr>
-</table>
-
-<p>Le paramètre API <code>thinking</code> active l'extended thinking et améliore la qualité du raisonnement sur les tâches complexes.</p>
-
-<h3>Quand utiliser CoT vs ne pas l'utiliser</h3>
-<table>
-<tr><th>Situation</th><th>CoT recommandé ?</th><th>Pourquoi</th></tr>
-<tr><td>Calcul multi-étapes, logique conditionnelle</td><td>Oui</td><td>Réduit les erreurs arithmétiques et logiques</td></tr>
-<tr><td>Décisions avec critères multiples pondérés</td><td>Oui</td><td>Force l'examen explicite de chaque critère</td></tr>
-<tr><td>Extraction de données simple</td><td>Non</td><td>Surcoût de tokens sans gain de qualité</td></tr>
-<tr><td>Réponse format-strict (JSON)</td><td>Avec balises (<code>thinking</code>+<code>answer</code>)</td><td>Le raisonnement ne doit pas polluer la sortie structurée</td></tr>
-<tr><td>Latence critique (chat user-facing)</td><td>Non, ou inline minimal</td><td>Le reasoning trace ajoute de la latence visible</td></tr>
-</table>
-
-<div class="exam-tip">
-<strong>EXAM TIP :</strong> sur les questions de revue de code complexe ou de décision multi-critères, l'option <strong>"activer extended thinking"</strong> ou <strong>"demander un raisonnement étape par étape"</strong> est typiquement la bonne réponse. Sur des questions d'extraction simple, c'est typiquement un distracteur.
-</div>
+<p>Les fondamentaux de l'API Claude (system prompt, temperature, stop sequences, prompt chaining, balises XML) sont traités en détail dans le domaine <a href="D0_API_Fundamentals.html">D0 — Fondamentaux de l'API</a>. D4 se concentre sur les techniques de prompt engineering de haut niveau (critères explicites, few-shot, sorties structurées, validation, Batches API, revue multi-pass) plutôt que sur les paramètres élémentaires de l'API.</p>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s8">8. Synthèse — les points clés</h2></div>
@@ -579,20 +465,6 @@ Output: { category: "other", severity: "medium", escalate: true,
 <li>Verification pass : le modèle auto-reporte une <code>confidence</code> par finding, pour router/calibrer la revue.</li>
 </ul>
 
-<h3>PRECISE — checklist de prompt</h3>
-<ul>
-<li><strong>P</strong>ersona / <strong>R</strong>equest / <strong>E</strong>xplicit criteria / <strong>C</strong>ontext / <strong>I</strong>nstructions / <strong>S</strong>chema / <strong>E</strong>xamples.</li>
-<li>Avant la mise en production : vérifier qu'aucune lettre n'est manquante.</li>
-<li>Combiner avec balises XML pour structurer chaque section.</li>
-</ul>
-
-<h3>Chain-of-thought et extended thinking</h3>
-<ul>
-<li>3 variantes : CoT inline ("think step by step"), CoT structure (balises <code>&lt;thinking&gt;</code>), extended thinking API (paramètre <code>thinking</code>).</li>
-<li>Recommandé pour : raisonnement multi-étapes, décisions multi-critères, code review complexe.</li>
-<li>Déconseillé pour : extraction simple, latence critique user-facing.</li>
-<li>Compatible tool_use : Claude peut réfléchir avant chaque tool call dans la boucle agentique.</li>
-</ul>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s9">9. Auto-évaluation (6 questions)</h2></div>
@@ -626,7 +498,7 @@ Output: { category: "other", severity: "medium", escalate: true,
 <summary><strong>Q3.</strong> Situation : Claude génère du code, mais des problèmes subtils ne sont détectés que quand un autre membre fait la review. Le reasoning de Claude montre qu'il a considéré ces cas mais a conclu que son approche était correcte. Quel fix ?</summary>
 <div>
 <p>A) Lancer une seconde instance indépendante de Claude pour review sans accès au reasoning du générateur.</p>
-<p>B) Activer extended thinking.</p>
+<p>B) Baisser la température lors de la génération.</p>
 <p>C) Ajouter plus de tests en contexte.</p>
 <p>D) Ajouter des examples d'erreurs subtiles au prompt.</p>
 <p class="answer-block"><strong>Réponse : A.</strong> Le problème est le biais de confirmation : le modèle retient son reasoning et ne remet pas en cause ses propres décisions. Une instance indépendante, sans accès au contexte de génération, reproduit le principe de la peer review et détecte les problèmes que le générateur a rationalisés.</p>
@@ -645,25 +517,23 @@ Output: { category: "other", severity: "medium", escalate: true,
 </details>
 
 <details>
-<summary><strong>Q5.</strong> Situation : vous demandez à Claude d'analyser 5 propositions techniques complexes et de recommander la meilleure selon 8 critères pondérés. Les recommandations sont incohérentes d'une exécution à l'autre. Quelle technique appliquer en priorité ?</summary>
-<div>
-<p>A) Augmenter <code>max_tokens</code>.</p>
-<p>B) Activer extended thinking (paramètre API <code>thinking</code>) pour allouer un raisonnement explicite avant la réponse.</p>
-<p>C) Réduire le nombre de critères à 3.</p>
-<p>D) Utiliser un modèle plus rapide.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> Une décision multi-critères pondérés est typiquement une tâche de raisonnement où le chain-of-thought améliore significativement la qualité. Extended thinking alloue des ressources dédiées au raisonnement avant la réponse finale. A ne traite pas la cause. C dégrade le problème au lieu de le résoudre. D va dans la mauvaise direction (les modèles plus capables et le thinking sont préférables ici).</p>
-</div>
+<summary><strong>Q5 (Domaine 4) :</strong> Une extraction de facture retourne <code>{"stated_total": 150, "line_items": [...]}</code>, mais la somme des line_items est 145. Quel type d'erreur et comment la traiter ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
+A) C'est une syntax error JSON — utiliser <code>strict: true</code> sur la définition de l'outil pour forcer la conformité au schéma.
+B) C'est une semantic error — implémenter une boucle validate-retry : valider avec Pydantic, et en cas d'écart, renvoyer le message d'erreur détaillé à Claude avec le document original.
+C) C'est une syntax error — ajouter plus de few-shot examples pour éviter les calculs incorrects.
+D) C'est une semantic error — ajouter un champ <code>conflict_detected: bool</code> et un champ <code>calculated_total</code> pour enregistrer l'incohérence, et laisser la logique aval décider quoi faire.
+E) C'est une syntax error — augmenter <code>max_tokens</code> pour allouer plus d'espace au raisonnement.</summary>
+<p class="correct"><strong>Réponses : B, D.</strong> B décrit le pattern canonical validate-retry : Pydantic détecte l'écart arithmétique (semantic), génère un message d'erreur précis, et Claude retry avec ce feedback. D décrit le pattern de self-correction : enregistrer l'incohérence via des champs dédiés plutôt que de lever une exception, ce qui laisse l'aval prendre la décision sur la divergence. A, C, E confondent syntax (JSON invalide) avec semantic (logique métier incorrecte) : le JSON de la sortie est syntaxiquement valide, c'est le contenu qui ne satisfait pas les règles métier. Few-shot et max_tokens n'adressent pas la cause d'une incohérence arithmétique systématique.</p>
 </details>
 
 <details>
-<summary><strong>Q6.</strong> Situation : vous structurez un nouveau prompt pour un cas critique et voulez vérifier qu'aucun levier de fiabilité n'est oublié avant la mise en production. Quelle démarche est la plus appropriée ?</summary>
-<div>
-<p>A) Compter le nombre de mots.</p>
-<p>B) Vérifier explicitement la présence de : un rôle/persona clair, des critères de décision explicites, le contexte pertinent structuré (balises XML), les étapes de raisonnement attendues, un format de sortie défini (schema), et des few-shot examples sur les cas ambigus.</p>
-<p>C) Tester le prompt sur 100 cas avant de valider.</p>
-<p>D) Demander a Claude de critiquer son propre prompt.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> Ce sont les leviers couverts dans les sections précédentes (critères explicites §1, few-shot §2, schéma §3, XML et CoT §7) : vérifier qu'aucun n'a été oublié garantit un prompt robuste. Une checklist mnémotechnique comme PRECISE peut aider à s'en souvenir, mais ce sont les leviers eux-mêmes qui comptent, pas le fait de réciter un acronyme. A et D sont des heuristiques superficielles. C est utile mais c'est une étape de validation empirique, pas une checklist de conception. Note : B et C sont complémentaires (concevoir avec ces leviers, valider en testant).</p>
-</div>
+<summary><strong>Q6 (Domaine 4) :</strong> Vous devez extraire 10 000 commandes e-commerce pour un rapport hebdomadaire (résultat attendu demain matin). <strong>(Sélectionne les 2 affirmations correctes sur l'utilisation de la Message Batches API.)</strong>
+A) Utiliser le Batches API pour 50% d'économies ; la latence jusqu'à 24 h est acceptable pour un rapport overnight.
+B) Utiliser le Batches API avec une boucle d'outils interactive multi-turn : chaque requête peut escalader vers un service de validation client.
+C) Utiliser l'API synchrone car le délai de 24 h du batch empêcherait de livrer demain matin.
+D) Utiliser le Batches API avec un <code>custom_id</code> unique par commande pour corréler résultats et documents source, et re-soumettre uniquement les échecs.
+E) Utiliser le Batches API car c'est 50% plus rapide que l'API synchrone.</summary>
+<p class="correct"><strong>Réponses : A, D.</strong> A est exact : le batch convient pour un overnight (résultat demain matin, dans la fenêtre de 24 h), et l'économie de 50% est significative sur un volume de 10 000 requêtes. D décrit la best practice pour gérer les erreurs : correlation via custom_id, re-soumission sélective. B est un piège : la Message Batches API n'a pas de multi-turn tool calling (pas de boucles itératives, une réponse par requête). C est faux : une latence de 24 h s'inscrit dans la fenêtre "livraison demain matin". E confond prix (50% moins cher) et latence (pas plus rapide, pas de SLA).</p>
 </details>
 
 </div>
