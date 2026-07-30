@@ -24,6 +24,10 @@
   --border:        #e3ddd2;
   --border-soft:   #efebe2;
 
+  /* Statut de maîtrise (badges de cartes + profil par domaine) */
+  --status-ok:     #15803d;
+  --status-weak:   #c0392b;
+
   /* Couleurs callouts (saturation reduite pour lisibilité) */
   --tip-bg:        #fff8e6;
   --tip-border:    #e8a317;
@@ -1457,6 +1461,7 @@ footer,
     /* --navy sert AUSSI de couleur de texte (titres de cartes…) → clair en dark ;
        les fonds qui l'utilisaient sont réaffirmés en sombre ci-dessous */
     --navy:#cdd9e6; --navy-soft:#b3c2d4; --border:#353b42; --border-soft:#2a3036;
+    --status-ok:#1a9553; --status-weak:#d0503f;
     --tip-bg:#2c2410; --tip-border:#e8a317; --tip-ink:#f0d58f;
     --concept-bg:#142434; --concept-border:#4a93d6; --concept-ink:#bcd9f5;
     --anti-bg:#2f1714; --anti-border:#d9614f; --anti-ink:#f3bdb4;
@@ -1597,8 +1602,69 @@ footer,
   padding: 3px 9px; border-radius: 999px; line-height: 1.25; white-space: nowrap;
 }
 .card-status.is-progress { background: var(--bg-soft); color: var(--ink-mute); border: 1px solid var(--border); }
-.card-status.is-done { background: #15803d; color: #fff; }
-.card-status.is-fail { background: #c0392b; color: #fff; }
+.card-status.is-done { background: var(--status-ok); color: #fff; }
+.card-status.is-fail { background: var(--status-weak); color: #fff; }
+
+/* =============================================================
+   PROFIL PAR DOMAINE (accueil) — ordre de révision = poids × faiblesse
+   ============================================================= */
+.profil-list {
+  list-style: none; margin: 0 0 0.9rem; padding: 0;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.profil-row {
+  display: grid; align-items: center; gap: 6px 12px;
+  grid-template-columns: minmax(0, 1fr) auto minmax(90px, 150px) auto auto;
+  padding: 9px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 7px;
+}
+.profil-row.is-ok     { border-left-color: var(--status-ok); }
+.profil-row.is-weak   { border-left-color: var(--status-weak); }
+.profil-row.is-partial{ border-left-color: var(--primary); }
+.profil-row.is-todo   { border-left-color: var(--ink-faint); }
+
+.profil-name { color: var(--navy); text-decoration: none; min-width: 0; }
+.profil-name strong { color: var(--primary); margin-right: 6px; }
+.profil-name:hover, .profil-name:focus-visible { text-decoration: underline; }
+.profil-name:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; border-radius: 3px; }
+
+.profil-weight { font-size: 8pt; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+
+.profil-bar {
+  height: 7px; border-radius: 999px; overflow: hidden;
+  background: var(--bg-soft); border: 1px solid var(--border-soft);
+}
+.profil-fill { display: block; height: 100%; background: var(--primary); border-radius: 999px; }
+.profil-row.is-ok .profil-fill { background: var(--status-ok); }
+
+.profil-score {
+  font-size: 8.2pt; font-weight: 700; color: var(--ink-soft);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.profil-tag {
+  font-size: 7.6pt; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap;
+  padding: 2px 8px; border-radius: 999px;
+  background: var(--bg-soft); color: var(--ink-mute); border: 1px solid var(--border);
+}
+.profil-row.is-ok   .profil-tag { background: var(--status-ok); color: #fff; border-color: transparent; }
+.profil-row.is-weak .profil-tag { background: var(--status-weak); color: #fff; border-color: transparent; }
+
+.profil-hint, .profil-empty { font-size: 8.6pt; color: var(--ink-mute); margin: 0; }
+
+@media (max-width: 640px) {
+  .profil-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "name weight" "bar bar" "score tag";
+  }
+  .profil-name  { grid-area: name; }
+  .profil-weight{ grid-area: weight; }
+  .profil-bar   { grid-area: bar; }
+  .profil-score { grid-area: score; }
+  .profil-tag   { grid-area: tag; justify-self: end; }
+}
 
 /* =============================================================
    BOUTONS FLOTTANTS — empilement mobile sans collision
