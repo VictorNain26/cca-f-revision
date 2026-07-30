@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a class="current" href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
+  <a class="current" href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>Questions d'entraînement CCA-F</h1>
-<p>85 QCM corrigés : 12 questions expliquées (issues du guide officiel) + 73 questions d'entraînement écrites par l'auteur (imitations du style d'examen), dont 4 questions multi-réponses (couvrant D1, D2, D4, D5) · Active recall = technique #1 pour la certification</p>
+<p>101 QCM corrigés : 12 questions expliquées (issues du guide officiel) + 89 questions d'entraînement écrites par l'auteur (imitations du style d'examen), dont 4 questions multi-réponses (couvrant D1, D2, D4, D5) · Active recall = technique #1 pour la certification</p>
 </div>
 
 <div class="toc">
@@ -42,9 +42,9 @@
 <li><a href="#scénario-ci">Practice Test — Claude Code for CI (Q28-Q40)</a></li>
 <li><a href="#scénario-codegen">Practice Test — Code Generation with Claude Code (Q41-Q52)</a></li>
 <li><a href="#scénario-support">Practice Test — Customer Support Agent (Q53-Q63)</a></li>
-<li><a href="#scénario-devtools">Practice Test — Developer Productivity Tools (Q63-Q66)</a></li>
-<li><a href="#scénario-extraction">Practice Test — Structured Data Extraction (Q68-Q72)</a></li>
-<li><a href="#questions-transversales">Practice Test — Questions transversales et multi-réponses (Q68-Q79)</a></li>
+<li><a href="#scénario-devtools">Practice Test — Developer Productivity Tools (Q64-Q76)</a></li>
+<li><a href="#scénario-extraction">Practice Test — Structured Data Extraction (Q77-Q88)</a></li>
+<li><a href="#questions-transversales">Practice Test — Questions transversales et multi-réponses (Q89-Q101)</a></li>
 </ol>
 </div>
 
@@ -72,7 +72,7 @@
 </div>
 
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="explained">2. Questions expliquées (Guide officiel)</h2></div>
+<div class="section-header"><h2 id="explained">2. Questions expliquées (Guide officiel) (Q1-Q12)</h2></div>
 <p class="exam-tip"><strong>Note de fidélité :</strong> les 12 premières questions reproduisent à l'identique les exemples du guide officiel (énoncés, options et bonnes réponses), où les bonnes réponses sont en majorité « A ». C'est le guide lui-même, pas un biais de conception — ne devine jamais par la lettre, travaille le raisonnement.</p>
 <!-- ============================================================ -->
 
@@ -1416,7 +1416,7 @@
 </details>
 
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="scénario-devtools" class="page-break">7. Practice Test — Developer Productivity Tools (Q63-Q66)</h2></div>
+<div class="section-header"><h2 id="scénario-devtools" class="page-break">7. Practice Test — Developer Productivity Tools (Q64-Q76)</h2></div>
 <!-- ============================================================ -->
 
 <div class="key-concept">
@@ -1503,8 +1503,189 @@
 </div>
 </details>
 
+
+<details>
+<summary>Q68 (Developer Productivity Tools) — Edit échoue sur un texte non unique</summary>
+<div>
+<p><strong>Situation :</strong> l'agent doit modifier la ligne <code>const timeout = 30;</code> dans <code>config/api.ts</code>. L'appel <code>Edit</code> échoue : la chaîne apparaît trois fois dans le fichier. L'agent relance <code>Edit</code> deux fois avec la même chaîne, échoue encore. Quelle est la bonne suite ?</p>
+<p>A) Relancer <code>Edit</code> en ajoutant du contexte autour de la chaîne jusqu'à ce qu'elle devienne unique, autant de fois que nécessaire</p>
+<p>B) <code>Read</code> le fichier entier, puis <code>Write</code> la version modifiée</p>
+<p>C) Utiliser <code>Bash</code> avec <code>sed -i</code> pour remplacer la troisième occurrence</p>
+<p>D) Demander au développeur de faire la modification à la main</p>
+<hr>
+<p class="correct">Réponse : B) Read le fichier entier, puis Write la version modifiée</p>
+<p><strong>Explication :</strong> quand <code>Edit</code> ne trouve pas d'ancre unique, le fallback documenté est <code>Read</code> + <code>Write</code> : l'agent charge le contenu complet, applique la modification dans son raisonnement et réécrit le fichier. C'est fiable parce que ça ne dépend plus de l'unicité d'une sous-chaîne.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Peut fonctionner, mais l'agent a déjà échoué deux fois — persister sur le même mécanisme est exactement l'anti-pattern que le fallback existe pour éviter.</li>
+<li>C) <code>sed -i</code> contourne les outils de fichier et leurs garde-fous ; le comptage d'occurrences est fragile.</li>
+<li>D) Annule l'intérêt de l'outil de productivité alors qu'un chemin fiable existe.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q69 (Developer Productivity Tools) — Trop d'outils dégradent la sélection</summary>
+<div>
+<p><strong>Situation :</strong> votre agent d'exploration de codebase dispose de 18 outils : les 6 built-in, plus Jira, GitHub, Slack, Confluence, la base de données, le monitoring et le CI. Les développeurs signalent qu'il appelle souvent l'outil Jira pour des questions de code, ou le monitoring pour retrouver une définition de fonction. Que faire ?</p>
+<p>A) Améliorer le system prompt en listant, pour chaque outil, les cas où il ne faut pas l'utiliser</p>
+<p>B) Restreindre l'agent d'exploration aux 4-5 outils utiles à son rôle et déplacer les autres vers des agents dédiés</p>
+<p>C) Passer à un modèle plus puissant, capable de gérer un catalogue d'outils plus large</p>
+<p>D) Ajouter une couche de routage qui pré-sélectionne l'outil en fonction de mots-clés dans la requête</p>
+<hr>
+<p class="correct">Réponse : B) Restreindre à 4-5 outils pertinents pour le rôle</p>
+<p><strong>Explication :</strong> donner accès à un trop grand nombre d'outils (18 au lieu de 4-5) dégrade la fiabilité de sélection en augmentant la complexité de décision. Un agent qui dispose d'outils hors de sa spécialisation tend à les mal employer. Le <em>scoped tool access</em> — chaque agent ne reçoit que les outils de son rôle — traite la cause.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Allonge le system prompt sans réduire l'espace de décision ; la mauvaise sélection reste possible.</li>
+<li>C) Le problème est la complexité de décision, pas la capacité du modèle.</li>
+<li>D) Sur-ingénierie : on remplace la compréhension du langage naturel par du matching de mots-clés fragile.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q70 (Developer Productivity Tools) — Portée d'un serveur MCP expérimental</summary>
+<div>
+<p><strong>Situation :</strong> un développeur teste un serveur MCP expérimental qui interroge son environnement local. Il l'ajoute au <code>.mcp.json</code> du projet. Le lendemain, trois collègues voient des erreurs de connexion à un serveur qu'ils n'ont pas. Où aurait-il dû le configurer, et pourquoi ?</p>
+<p>A) Dans <code>.mcp.json</code> mais commenté, pour que les collègues puissent l'activer s'ils le veulent</p>
+<p>B) Dans le <code>CLAUDE.md</code> du projet, sous forme d'instruction de configuration</p>
+<p>C) Dans <code>.mcp.json</code> avec un drapeau <code>optional: true</code></p>
+<p>D) Dans <code>~/.claude.json</code> — la portée utilisateur est faite pour les serveurs personnels ou expérimentaux</p>
+<hr>
+<p class="correct">Réponse : D) Dans ~/.claude.json (portée utilisateur)</p>
+<p><strong>Explication :</strong> la portée projet (<code>.mcp.json</code>, versionnée) est destinée aux serveurs partagés dont toute l'équipe a besoin. La portée utilisateur (<code>~/.claude.json</code>) est destinée aux serveurs personnels ou expérimentaux, qui ne partent pas dans le dépôt. Les deux portées coexistent : les outils de tous les serveurs configurés sont découverts à la connexion et disponibles simultanément.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Un serveur commenté n'est pas configuré ; ça ne répond pas au besoin et laisse du bruit dans un fichier partagé.</li>
+<li>B) <code>CLAUDE.md</code> porte du contexte projet, pas des définitions de serveurs MCP.</li>
+<li>C) Décrit un mécanisme qui n'existe pas — la séparation se fait par portée de fichier.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q71 (Developer Productivity Tools) — Secrets dans la configuration MCP</summary>
+<div>
+<p><strong>Situation :</strong> le serveur MCP GitHub de l'équipe a besoin d'un token d'accès. Le <code>.mcp.json</code> est versionné dans le dépôt et partagé avec toute l'équipe. Comment fournir le token ?</p>
+<p>A) Committer le token dans <code>.mcp.json</code> et restreindre l'accès au dépôt aux seuls membres de l'équipe</p>
+<p>B) Utiliser l'expansion de variable d'environnement : <code>"GITHUB_TOKEN": "${GITHUB_TOKEN}"</code></p>
+<p>C) Mettre <code>.mcp.json</code> dans le <code>.gitignore</code> et demander à chacun de le recréer</p>
+<p>D) Stocker le token dans <code>CLAUDE.md</code>, que Claude lit au démarrage</p>
+<hr>
+<p class="correct">Réponse : B) Expansion de variable d'environnement ${GITHUB_TOKEN}</p>
+<p><strong>Explication :</strong> <code>.mcp.json</code> supporte l'expansion de variables d'environnement, ce qui permet de versionner la <em>configuration</em> du serveur sans jamais committer le <em>secret</em>. Chaque développeur fournit sa propre valeur via son environnement.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Un secret committé reste dans l'historique Git même après suppression ; la restriction du dépôt n'y change rien.</li>
+<li>C) On perd le bénéfice du partage de configuration, qui est la raison d'être de la portée projet.</li>
+<li>D) <code>CLAUDE.md</code> est versionné aussi — même problème, avec en plus le secret injecté dans le contexte du modèle.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q72 (Developer Productivity Tools) — Resources MCP comme catalogue de contenu</summary>
+<div>
+<p><strong>Situation :</strong> avant chaque question sur les données, l'agent enchaîne cinq à six appels d'outils exploratoires pour reconstituer le schéma de la base : lister les tables, décrire chaque table, retrouver les clés étrangères. Ces appels consomment du contexte et de la latence à chaque session. Quelle est la bonne conception MCP ?</p>
+<p>A) Ajouter un outil <code>get_full_schema</code> qui renvoie tout le schéma en un appel</p>
+<p>B) Mettre le schéma complet dans le <code>CLAUDE.md</code> du projet</p>
+<p>C) Exposer le schéma comme une <code>resource</code> MCP, que l'application fournit directement à l'agent</p>
+<p>D) Demander à l'agent de mémoriser le schéma entre les sessions</p>
+<hr>
+<p class="correct">Réponse : C) Exposer le schéma comme une resource MCP</p>
+<p><strong>Explication :</strong> les <code>resources</code> servent précisément à exposer des <em>catalogues de contenu</em> — schémas de base, hiérarchies de documentation, listes de tickets — que l'application met à disposition de l'agent. Elles réduisent les appels d'outils exploratoires en fournissant directement les données de contexte, là où les <code>tools</code> sont faits pour agir.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Réduit six appels à un, mais reste un appel exploratoire là où la primitive adaptée existe.</li>
+<li>B) Un schéma de base évolue ; le figer dans <code>CLAUDE.md</code> crée une dérive silencieuse et charge le contexte en permanence.</li>
+<li>D) Les sessions ne partagent pas de mémoire implicite — le contexte doit être fourni explicitement.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q73 (Developer Productivity Tools) — Serveur community ou serveur custom</summary>
+<div>
+<p><strong>Situation :</strong> votre équipe veut que l'agent puisse lire et commenter les tickets Jira. Un serveur MCP Jira communautaire existe et couvre ces opérations. Par ailleurs, vous avez un workflow interne de triage propriétaire que personne d'autre n'implémente. Quelle stratégie ?</p>
+<p>A) Écrire un serveur custom pour les deux, afin de garder une base de code homogène</p>
+<p>B) Utiliser le serveur communautaire pour Jira, et n'écrire un serveur custom que pour le workflow de triage interne</p>
+<p>C) Utiliser uniquement le serveur communautaire et adapter le workflow de triage à ce qu'il propose</p>
+<p>D) Écrire un serveur custom pour Jira, plus fiable qu'un serveur communautaire, et scripter le triage à part</p>
+<hr>
+<p class="correct">Réponse : B) Community pour Jira, custom pour le workflow interne</p>
+<p><strong>Explication :</strong> pour les intégrations standards (Jira, GitHub, Slack), les serveurs communautaires existants évitent de réimplémenter et de maintenir du code déjà écrit. Les serveurs custom se justifient pour les workflows spécifiques à l'équipe, que personne d'autre n'a implémentés.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Homogénéité payée par une dette de maintenance sur une intégration standard.</li>
+<li>C) Fait plier le métier pour s'adapter à l'outillage, alors que c'est justement le cas où le custom se justifie.</li>
+<li>D) Inverse exactement la règle : custom là où le communautaire suffit, rien de structuré là où le custom apporte de la valeur.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q74 (Developer Productivity Tools) — Plan mode ou exécution directe</summary>
+<div>
+<p><strong>Situation :</strong> un ticket signale une <code>NullPointerException</code> avec une stack trace pointant une ligne précise : une date n'est pas vérifiée avant d'être formatée. Le correctif tient en une condition, dans un seul fichier. Le développeur hésite à passer en plan mode « par sécurité ». Que recommandez-vous ?</p>
+<p>A) Exécution directe — le périmètre est clair et circonscrit à un fichier</p>
+<p>B) Plan mode, systématiquement : il ne coûte rien et documente l'intention</p>
+<p>C) Plan mode, parce que toute modification touchant les dates a des effets de bord potentiels</p>
+<p>D) Exécution directe, puis plan mode pour valider le correctif après coup</p>
+<hr>
+<p class="correct">Réponse : A) Exécution directe</p>
+<p><strong>Explication :</strong> le plan mode est fait pour les changements de grande ampleur, les situations à plusieurs approches valables, les décisions d'architecture et les modifications multi-fichiers. Un correctif mono-fichier bien cadré, avec une stack trace qui désigne la ligne, est le cas typique d'exécution directe.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) « Systématiquement » ignore le critère de complexité qui définit l'usage du plan mode.</li>
+<li>C) Suppose un risque non étayé par l'énoncé, qui décrit un correctif localisé.</li>
+<li>D) Le plan mode sert à concevoir avant d'agir, pas à valider après.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q75 (Developer Productivity Tools) — Génération de boilerplate incohérente</summary>
+<div>
+<p><strong>Situation :</strong> vous demandez à l'agent de générer les handlers CRUD à partir des modèles de données. Vous avez décrit la convention en prose dans le prompt, mais le résultat varie : nommage instable, gestion d'erreur tantôt présente tantôt absente, structure de réponse différente d'un handler à l'autre. Quelle correction est la plus efficace ?</p>
+<p>A) Reformuler la description en prose de façon plus détaillée et plus impérative</p>
+<p>B) Générer les handlers un par un plutôt qu'en lot</p>
+<p>C) Ajouter une étape de relecture qui reformate le code après génération</p>
+<p>D) Fournir 2-3 exemples concrets d'entrée/sortie montrant la transformation attendue</p>
+<hr>
+<p class="correct">Réponse : D) Fournir 2-3 exemples concrets d'entrée/sortie</p>
+<p><strong>Explication :</strong> quand une description en prose est interprétée de façon inconsistante, des exemples concrets d'entrée/sortie sont le moyen le plus efficace de communiquer la transformation attendue. Le modèle a alors une cible observable au lieu d'une consigne à interpréter.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Plus de prose sur une prose déjà mal interprétée : on reproduit la cause du problème.</li>
+<li>B) Peut réduire la variance entre handlers mais ne définit toujours pas la convention attendue.</li>
+<li>C) Rattrape la forme après coup et ne corrige ni le nommage ni la gestion d'erreur manquante.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q76 (Developer Productivity Tools) — Le pattern interview sur un domaine mal connu</summary>
+<div>
+<p><strong>Situation :</strong> on vous demande d'ajouter une couche de cache devant un service que vous ne connaissez pas. Vous ne savez pas encore quelles sont les bonnes questions : stratégie d'invalidation, cohérence, modes de défaillance. Comment engager le travail avec l'agent ?</p>
+<p>A) Lui demander de poser des questions pour faire émerger les considérations que vous n'avez pas anticipées, avant d'implémenter</p>
+<p>B) Lui demander d'implémenter une première version, puis itérer sur ce qui casse</p>
+<p>C) Lui demander de produire un comparatif exhaustif des bibliothèques de cache disponibles</p>
+<p>D) Rédiger vous-même une spécification complète avant toute interaction</p>
+<hr>
+<p class="correct">Réponse : A) Faire poser les questions par l'agent avant d'implémenter</p>
+<p><strong>Explication :</strong> c'est le <em>interview pattern</em> : sur un domaine peu familier, faire poser les questions par le modèle fait apparaître les décisions que vous n'auriez pas su formuler — invalidation, cohérence, comportement en cas de panne. On conçoit avec les bonnes questions plutôt que de découvrir les mauvaises réponses en production.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Itérer sur les pannes est coûteux quand les décisions structurantes sont prises implicitement dès la première version.</li>
+<li>C) Le choix d'une bibliothèque n'est pas le point dur ; les décisions de conception le sont.</li>
+<li>D) Vous rédigeriez la spécification avec les angles morts que vous cherchez précisément à lever.</li>
+</ul>
+</div>
+</details>
+
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="scénario-extraction" class="page-break">8. Practice Test — Structured Data Extraction (Q68-Q72)</h2></div>
+<div class="section-header"><h2 id="scénario-extraction" class="page-break">8. Practice Test — Structured Data Extraction (Q77-Q88)</h2></div>
 <!-- ============================================================ -->
 
 <div class="key-concept">
@@ -1512,7 +1693,7 @@
 </div>
 
 <details>
-<summary>Q68 (Structured Data Extraction) — Champs nullable contre l'hallucination</summary>
+<summary>Q77 (Structured Data Extraction) — Champs nullable contre l'hallucination</summary>
 <div>
 <p><strong>Situation :</strong> votre schéma a <code>"company_name"</code> en <code>required</code>. Pour 8% des documents (factures de freelancers), aucune entreprise n'est mentionnée. Le modèle invente un nom plausible. Comment fixer ?</p>
 <p>A) Ajouter des few-shot examples</p>
@@ -1532,7 +1713,7 @@
 </details>
 
 <details>
-<summary>Q69 (Structured Data Extraction) — Enum avec "other" + champ détail</summary>
+<summary>Q78 (Structured Data Extraction) — Enum avec "other" + champ détail</summary>
 <div>
 <p><strong>Situation :</strong> votre schéma catégorise les dépenses : <code>enum: ["travel", "meals", "supplies", "software"]</code>. Mais 12% des factures ne rentrent dans aucune catégorie (gym, formation, sponsoring). Comment faire sans casser la structure ?</p>
 <p>A) Ajouter chaque nouvelle catégorie à l'enum au fil du temps</p>
@@ -1546,13 +1727,13 @@
 <ul>
 <li>A) Étendre l'enum à chaque nouveau cas est ingérable à long terme.</li>
 <li>B) Sans enum, perte totale de la structure contrôlée.</li>
-<li>D) Même erreur que Q68D — modifier le métier pour contourner.</li>
+<li>D) Même erreur que Q77D — modifier le métier pour contourner.</li>
 </ul>
 </div>
 </details>
 
 <details>
-<summary>Q70 (Structured Data Extraction) — Batch API pour traitement nocturne</summary>
+<summary>Q79 (Structured Data Extraction) — Batch API pour traitement nocturne</summary>
 <div>
 <p><strong>Situation :</strong> vous traitez 50 000 factures par jour. Le SLA accepte une latence de 24h. Vous cherchez à réduire le coût. Quelle approche ?</p>
 <p>A) Utiliser la Message Batches API pour ce traitement nocturne</p>
@@ -1572,7 +1753,7 @@
 </details>
 
 <details>
-<summary>Q71 (Structured Data Extraction) — Retry-with-feedback sur erreur de validation</summary>
+<summary>Q80 (Structured Data Extraction) — Retry-with-feedback sur erreur de validation</summary>
 <div>
 <p><strong>Situation :</strong> votre extraction sort un JSON valide syntaxiquement, mais la somme des <code>line_items</code> ne correspond pas au <code>total</code> annoncé sur la facture. Que faire ?</p>
 <p>A) Accepter le JSON et corriger en aval</p>
@@ -1592,7 +1773,7 @@
 </details>
 
 <details>
-<summary>Q72 (Structured Data Extraction) — Stratified sampling pour mesurer l'accuracy</summary>
+<summary>Q81 (Structured Data Extraction) — Stratified sampling pour mesurer l'accuracy</summary>
 <div>
 <p><strong>Situation :</strong> votre rapport mensuel indique 97% d'accuracy globale. La direction veut déployer en production. Quelle précaution prendre avant ?</p>
 <p>A) 97% est suffisant, déployer</p>
@@ -1611,12 +1792,153 @@
 </div>
 </details>
 
+
+<details>
+<summary>Q82 (Structured Data Extraction) — Garantir une sortie conforme au schéma</summary>
+<div>
+<p><strong>Situation :</strong> votre prompt se termine par « Réponds uniquement avec un objet JSON conforme au schéma ci-dessous ». Environ 4 % des réponses sont inexploitables : JSON tronqué, virgule finale, texte d'introduction avant l'accolade. Le parser en aval lève une exception. Quelle est l'approche la plus fiable ?</p>
+<p>A) Définir un outil d'extraction dont le schéma JSON est le paramètre d'entrée, et lire les données dans la réponse <code>tool_use</code></p>
+<p>B) Ajouter au prompt « ne produis aucun texte hors du JSON », et pré-remplir la réponse avec une accolade ouvrante</p>
+<p>C) Écrire un parser tolérant qui répare les JSON malformés avant validation</p>
+<p>D) Découper l'extraction en plusieurs appels ne renvoyant qu'un champ chacun</p>
+<hr>
+<p class="correct">Réponse : A) Définir un outil d'extraction avec le schéma JSON en paramètre d'entrée</p>
+<p><strong>Explication :</strong> le <code>tool_use</code> avec schéma JSON est l'approche la plus fiable pour obtenir une sortie structurée garantie conforme : les erreurs de syntaxe JSON disparaissent, puisque la structure est imposée par le schéma de l'outil et non produite librement par le modèle.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Reste de la conformité probabiliste — c'est ce qui échoue déjà 4 % du temps.</li>
+<li>C) Traite le symptôme et déplace la fragilité dans votre code, sans garantir la structure.</li>
+<li>D) Multiplie les appels et le coût sans supprimer le risque de syntaxe sur chacun.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q83 (Structured Data Extraction) — Type de document inconnu à l'arrivée</summary>
+<div>
+<p><strong>Situation :</strong> votre pipeline reçoit des factures, des contrats et des formulaires mélangés, sans indication de type. Vous avez défini trois outils d'extraction, un par type. Vous constatez que le modèle répond parfois par du texte descriptif (« Ce document semble être un contrat de prestation… ») au lieu d'appeler un outil. Quel réglage corrige cela ?</p>
+<p>A) <code>tool_choice: "auto"</code>, le défaut, en améliorant les descriptions des trois outils</p>
+<p>B) <code>tool_choice: "any"</code> — le modèle doit appeler un outil, mais choisit lequel</p>
+<p>C) <code>tool_choice: {"type": "tool", "name": "extract_invoice"}</code> puis reclassement en aval si le type ne correspond pas</p>
+<p>D) Un appel de classification préalable, puis un second appel avec l'outil forcé correspondant</p>
+<hr>
+<p class="correct">Réponse : B) tool_choice: "any"</p>
+<p><strong>Explication :</strong> <code>"any"</code> garantit que le modèle appelle un outil plutôt que de renvoyer du texte conversationnel, tout en le laissant choisir lequel — exactement ce qu'il faut quand plusieurs schémas d'extraction coexistent et que le type de document n'est pas connu à l'avance.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) <code>"auto"</code> autorise précisément le retour en texte que vous cherchez à éliminer.</li>
+<li>C) Force un schéma de facture sur des contrats et des formulaires, puis rattrape en aval.</li>
+<li>D) Fonctionne mais double les appels et le coût là où un paramètre suffit.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q84 (Structured Data Extraction) — Le schéma strict ne protège pas de tout</summary>
+<div>
+<p><strong>Situation :</strong> depuis le passage au <code>tool_use</code> avec schéma strict, plus aucune erreur de syntaxe JSON. Pourtant la comptabilité remonte des factures où la somme des lignes ne correspond pas au total extrait, et des cas où le montant de TVA s'est retrouvé dans le champ du total. Comment concevoir la détection ?</p>
+<p>A) Durcir encore le schéma en ajoutant des contraintes de type et de format sur chaque champ</p>
+<p>B) Extraire un <code>calculated_total</code> à côté du <code>stated_total</code> et signaler l'écart, avec un booléen <code>conflict_detected</code> pour les sources incohérentes</p>
+<p>C) Rejeter automatiquement toute facture dont le total dépasse un seuil</p>
+<p>D) Repasser en validation humaine sur l'ensemble du flux</p>
+<hr>
+<p class="correct">Réponse : B) calculated_total à côté de stated_total, plus un booléen conflict_detected</p>
+<p><strong>Explication :</strong> un schéma strict via <code>tool_use</code> élimine les erreurs de <em>syntaxe</em>, pas les erreurs <em>sémantiques</em> : des lignes qui ne somment pas au total, une valeur placée dans le mauvais champ. La parade est un flux d'auto-vérification — faire produire la valeur recalculée à côté de la valeur déclarée, et matérialiser l'incohérence dans la sortie.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Aucune contrainte de type n'exprime « la somme des lignes égale le total » ni « cette valeur est au bon endroit ».</li>
+<li>C) Un seuil arbitraire ne détecte pas une incohérence interne et rejette des factures légitimes.</li>
+<li>D) Abandonne l'automatisation au lieu de cibler les cas réellement douteux.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q85 (Structured Data Extraction) — Quand le retry ne sert à rien</summary>
+<div>
+<p><strong>Situation :</strong> votre boucle de validation-retry renvoie au modèle le document, l'extraction ratée et l'erreur précise. Elle résout bien les problèmes de format. Mais sur un lot de bons de commande, elle épuise ses trois tentatives sur le champ <code>delivery_address</code> : cette adresse ne figure que dans un contrat-cadre annexe, non fourni au modèle. Que faut-il faire ?</p>
+<p>A) Porter le nombre de tentatives de trois à dix pour laisser au modèle plus de chances d'aboutir</p>
+<p>B) Reconnaître que l'information est absente de la source : rendre le champ nullable et router ces documents vers un traitement qui apporte le contrat-cadre</p>
+<p>C) Enrichir le message d'erreur pour mieux guider le modèle vers l'adresse</p>
+<p>D) Ajouter des few-shot examples montrant des extractions d'adresses réussies</p>
+<hr>
+<p class="correct">Réponse : B) Reconnaître l'absence de l'information à la source</p>
+<p><strong>Explication :</strong> le retry avec feedback d'erreur corrige les problèmes de format et de structure. Il est inopérant quand l'information demandée est simplement absente du document fourni : aucune reformulation ne fera apparaître une donnée qui n'y est pas. Savoir distinguer ces deux situations évite de brûler des tentatives — et empêche le modèle de fabriquer une valeur pour satisfaire le schéma.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Multiplie le coût sur un cas structurellement insoluble, et pousse le modèle à fabriquer une valeur pour satisfaire le schéma.</li>
+<li>C) Un meilleur message ne crée pas la donnée manquante.</li>
+<li>D) Les few-shot traitent la variété des formats, pas l'absence d'information.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q86 (Structured Data Extraction) — Reprise après échecs dans un batch</summary>
+<div>
+<p><strong>Situation :</strong> vous soumettez 5 000 documents via la Message Batches API. Au retour, 3 % ont échoué : la plupart dépassaient la limite de contexte, quelques-uns ont échoué sur une erreur transitoire. Comment reprendre ?</p>
+<p>A) Resoumettre le batch complet après avoir découpé tous les documents</p>
+<p>B) Identifier les échecs par leur <code>custom_id</code>, découper ceux qui dépassaient la limite et resoumettre uniquement ces documents</p>
+<p>C) Rejouer les 5 000 documents en API synchrone pour maîtriser les erreurs</p>
+<p>D) Considérer 97 % comme un taux acceptable et ignorer les échecs</p>
+<hr>
+<p class="correct">Réponse : B) Reprendre par custom_id, avec découpage des documents trop longs</p>
+<p><strong>Explication :</strong> le <code>custom_id</code> sert précisément à corréler chaque requête à sa réponse dans un batch. Il permet d'isoler les documents en échec et de ne resoumettre qu'eux, avec la modification adaptée à la cause — découpage pour ceux qui dépassaient la fenêtre de contexte.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Repaye 97 % de traitements déjà réussis, et découpe des documents qui n'en avaient pas besoin.</li>
+<li>C) Perd les 50 % d'économie du batch sur l'intégralité du volume pour traiter 150 documents.</li>
+<li>D) 150 documents non traités par jour, dans un flux qui alimente l'ERP et la comptabilité.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q87 (Structured Data Extraction) — Cadencer les soumissions sous contrainte de SLA</summary>
+<div>
+<p><strong>Situation :</strong> votre engagement client garantit qu'un document déposé est traité sous 30 heures. Vous voulez utiliser la Message Batches API, dont la fenêtre de traitement peut atteindre 24 heures sans SLA de latence garanti. À quelle fréquence soumettre les batchs ?</p>
+<p>A) Une soumission par jour : 24 h de traitement, ça tient dans les 30 h</p>
+<p>B) Une soumission toutes les 6 heures, pour lisser la charge</p>
+<p>C) Une soumission toutes les 4 heures au plus : un document déposé juste après une soumission attend au pire 4 h, puis 24 h de traitement, soit 28 h</p>
+<p>D) Une soumission à chaque document déposé, pour minimiser l'attente</p>
+<hr>
+<p class="correct">Réponse : C) Une soumission toutes les 4 heures au plus</p>
+<p><strong>Explication :</strong> il faut raisonner sur le pire cas, pas sur le cas moyen. Un document déposé juste après le départ d'un batch attend la fenêtre de soumission complète, puis la durée de traitement. Avec des fenêtres de 4 h : 4 + 24 = 28 h, sous les 30 h promises, avec une marge. C'est le calcul de fréquence de soumission à partir de la contrainte de SLA.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Ignore le temps d'attente avant soumission : au pire 24 + 24 = 48 h.</li>
+<li>B) 6 + 24 = 30 h au pire — on atteint la limite sans aucune marge.</li>
+<li>D) Un batch par document annule l'intérêt du traitement par lot.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q88 (Structured Data Extraction) — Documents de structures hétérogènes</summary>
+<div>
+<p><strong>Situation :</strong> vos fournisseurs présentent leurs conditions de paiement de façons très différentes : certains dans un tableau dédié, d'autres dans une phrase au milieu des conditions générales, d'autres en note de bas de page. Le champ <code>payment_terms</code> ressort vide ou faux sur les formats les moins standards. Le schéma est correct et les champs bien nommés. Que faire ?</p>
+<p>A) Ajouter des few-shot examples montrant l'extraction correcte depuis chacune de ces structures</p>
+<p>B) Rendre <code>payment_terms</code> obligatoire pour forcer le modèle à le remplir</p>
+<p>C) Normaliser tous les documents dans un format pivot avant l'extraction</p>
+<p>D) Router vers un modèle différent selon le fournisseur</p>
+<hr>
+<p class="correct">Réponse : A) Few-shot examples couvrant les différentes structures</p>
+<p><strong>Explication :</strong> les few-shot examples sont l'outil adapté à la variété structurelle : montrer l'extraction réussie depuis un tableau, depuis une phrase noyée dans le texte et depuis une note de bas de page apprend au modèle à généraliser à des mises en forme qu'il n'a pas vues, plutôt qu'à ne reconnaître qu'un gabarit.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Rendre le champ obligatoire pousse à l'invention quand l'information est mal repérée — on remplace un vide par une valeur fausse.</li>
+<li>C) Construire un normaliseur en amont revient à résoudre à la main le problème que l'extraction doit traiter.</li>
+<li>D) Le problème est la variété des mises en forme, pas la capacité du modèle.</li>
+</ul>
+</div>
+</details>
+
 <!-- ============================================================ -->
-<div class="section-header"><h2 id="questions-transversales" class="page-break">9. Practice Test — Questions transversales et multi-réponses (Q68-Q79)</h2></div>
+<div class="section-header"><h2 id="questions-transversales" class="page-break">9. Practice Test — Questions transversales et multi-réponses (Q89-Q101)</h2></div>
 <!-- ============================================================ -->
 
 <details>
-<summary>Q73 (D1) — Task tool, allowedTools et context passing</summary>
+<summary>Q89 (D1) — Task tool, allowedTools et context passing</summary>
 <div>
 <p><strong>Situation :</strong> le coordinateur d'un système multi-agents doit lancer trois recherches en parallèle sur des sujets différents, chacune confiée à un subagent de recherche isolé.</p>
 <p><strong>Question :</strong> quelle configuration respecte les bonnes pratiques du <code>Task</code> tool pour ce besoin ?</p>
@@ -1637,7 +1959,7 @@
 </details>
 
 <details>
-<summary>Q74 (D1) — Prompt chaining vs dynamic decomposition</summary>
+<summary>Q90 (D1) — Prompt chaining vs dynamic decomposition</summary>
 <div>
 <p><strong>Situation :</strong> vous devez concevoir un agent qui explore un codebase legacy inconnu pour identifier les modules sans tests et proposer un plan de couverture, sans savoir à l'avance combien de modules existent ni leurs dépendances.</p>
 <p><strong>Question :</strong> quelle stratégie de décomposition est la mieux adaptée ?</p>
@@ -1658,7 +1980,7 @@
 </details>
 
 <details>
-<summary>Q75 (D1) — --resume vs fork_session vs nouvelle session</summary>
+<summary>Q91 (D1) — --resume vs fork_session vs nouvelle session</summary>
 <div>
 <p><strong>Situation :</strong> vous reprenez une investigation démarrée hier. Depuis, exactement deux fichiers du module concerné ont été modifiés, le reste du codebase est inchangé.</p>
 <p><strong>Question :</strong> quelle est l'approche recommandée ?</p>
@@ -1679,7 +2001,7 @@
 </details>
 
 <details>
-<summary>Q76 (D2) — tool_choice : auto, any, forced selection</summary>
+<summary>Q92 (D2) — tool_choice : auto, any, forced selection</summary>
 <div>
 <p><strong>Situation :</strong> un pipeline d'extraction doit toujours appeler <code>extract_metadata</code> en premier, avant tout autre traitement, quel que soit le document.</p>
 <p><strong>Question :</strong> quelle configuration de <code>tool_choice</code> impose ce comportement ?</p>
@@ -1700,7 +2022,7 @@
 </details>
 
 <details>
-<summary>Q77 (D2) — MCP resources vs tools vs prompts</summary>
+<summary>Q93 (D2) — MCP resources vs tools vs prompts</summary>
 <div>
 <p><strong>Situation :</strong> votre application a besoin d'afficher dans l'interface la liste des tables d'une base de données pour que l'utilisateur choisisse la bonne avant de lancer une requête. Cette liste ne doit pas nécessiter d'action de la part du modèle.</p>
 <p><strong>Question :</strong> quelle primitive MCP est adaptée à ce besoin ?</p>
@@ -1721,7 +2043,7 @@
 </details>
 
 <details>
-<summary>Q78 (D2) — Glob vs Grep pour tracer des appelants ré-exportés</summary>
+<summary>Q94 (D2) — Glob vs Grep pour tracer des appelants ré-exportés</summary>
 <div>
 <p><strong>Situation :</strong> vous devez retrouver tous les appelants d'une fonction <code>analyzeDocument</code> qui est ré-exportée sous plusieurs alias à travers le codebase.</p>
 <p><strong>Question :</strong> quelle méthode est correcte ?</p>
@@ -1742,7 +2064,7 @@
 </details>
 
 <details>
-<summary>Q79 (D5) — Structured handoff vers un opérateur humain</summary>
+<summary>Q95 (D5) — Structured handoff vers un opérateur humain</summary>
 <div>
 <p><strong>Situation :</strong> un agent de support client escalade un cas vers un opérateur humain qui n'a pas accès au transcript complet de la conversation.</p>
 <p><strong>Question :</strong> que doit contenir le message transmis à l'opérateur ?</p>
@@ -1763,7 +2085,7 @@
 </details>
 
 <details>
-<summary>Q80 (D5) — scratchpad, /compact et manifest.json</summary>
+<summary>Q96 (D5) — scratchpad, /compact et manifest.json</summary>
 <div>
 <p><strong>Situation :</strong> un système multi-agents tourne depuis plusieurs heures. Chaque subagent maintient son propre état, et vous voulez pouvoir reprendre le workflow exactement là où il s'est arrêté en cas de crash, sans relancer les tâches déjà terminées.</p>
 <p><strong>Question :</strong> quel mécanisme est spécifiquement conçu pour ce besoin de crash recovery ?</p>
@@ -1784,7 +2106,7 @@
 </details>
 
 <details>
-<summary>Q81 (D5) — Données temporelles dans le claim-source mapping</summary>
+<summary>Q97 (D5) — Données temporelles dans le claim-source mapping</summary>
 <div>
 <p><strong>Situation :</strong> un agent de synthèse multi-sources rapporte : « Source A dit que la part de musique générée par IA sur le streaming est de 10%. Source B dit 15%. Contradiction. » Source A date de 2023, Source B de 2024, mais ces dates n'apparaissent pas dans le rapport.</p>
 <p><strong>Question :</strong> quel est le problème et comment le corriger ?</p>
@@ -1805,7 +2127,7 @@
 </details>
 
 <details>
-<summary>Q82 (D1) — Context passing vers subagents <strong>(Sélectionne les 2 réponses correctes.)</strong>
+<summary>Q98 (D1) — Context passing vers subagents <strong>(Sélectionne les 2 réponses correctes.)</strong>
 A) Inclure l'historique complet de la conversation du coordinateur pour que le subagent comprenne le contexte
 B) Utiliser un format structuré séparant les données métier des métadonnées techniques
 C) Laisser le subagent hériter implicitement du contexte du coordinateur sans passage explicite
@@ -1815,7 +2137,7 @@ E) Redéfinir complètement l'objectif pour chaque subagent sans rappel du conte
 </details>
 
 <details>
-<summary>Q83 (D2) — Amélioration de la sélection d'outils ambigus <strong>(Sélectionne les 2 réponses correctes.)</strong>
+<summary>Q99 (D2) — Amélioration de la sélection d'outils ambigus <strong>(Sélectionne les 2 réponses correctes.)</strong>
 A) Renommer les outils pour rendre les noms distincts et auto-explicatifs
 B) Enrichir chaque description avec des exemples input/output concrets et des boundaries clairs
 C) Ajouter un pre-routing classifier placé après les outils pour re-router les mauvaises sélections
@@ -1825,7 +2147,7 @@ E) Augmenter simplement le nombre d'outils disponibles pour offrir plus d'option
 </details>
 
 <details>
-<summary>Q84 (D4) — Extraction structurée et gestion des cas ambigus <strong>(Sélectionne les 2 réponses correctes.)</strong>
+<summary>Q100 (D4) — Extraction structurée et gestion des cas ambigus <strong>(Sélectionne les 2 réponses correctes.)</strong>
 A) Rendre tous les champs obligatoires dans le schéma pour forcer une valeur du modèle
 B) Utiliser des champs nullable (type: ["string", "null"]) et retirer du required quand l'information peut manquer
 C) Ajouter une option "other" dans les enums avec un champ détail texte libre pour capturer les cas inattendus
@@ -1835,7 +2157,7 @@ E) Augmenter la temperature pour plus de variation dans les réponses du modèle
 </details>
 
 <details>
-<summary>Q85 (D5) — Synthèse multi-sources avec données contradictoires <strong>(Sélectionne les 2 réponses correctes.)</strong>
+<summary>Q101 (D5) — Synthèse multi-sources avec données contradictoires <strong>(Sélectionne les 2 réponses correctes.)</strong>
 A) Présenter uniquement la source la plus probable et ignorer les autres pour éviter la confusion
 B) Annoter les conflits détectés et laisser la décision au coordinateur ou au lecteur
 C) Inclure les métadonnées temporelles (dates de publication) dans le claim-source mapping pour distinguer évolution vs contradiction
