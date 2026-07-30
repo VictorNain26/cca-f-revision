@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a class="current" href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -416,7 +416,7 @@ En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. Fondamentaux d'API — note de structure</h2></div>
 
-<p>Les fondamentaux de l'API Claude (system prompt, temperature, stop sequences, prompt chaining, balises XML) sont traités en détail dans le domaine <a href="D0_API_Fundamentals.html">D0 — Fondamentaux de l'API</a>. D4 se concentre sur les techniques de prompt engineering de haut niveau (critères explicites, few-shot, sorties structurées, validation, Batches API, revue multi-pass) plutôt que sur les paramètres élémentaires de l'API.</p>
+<p>Les fondamentaux de l'API Claude retenus par le référentiel (structure de requête, rôles de messages, <code>system prompt</code>, <code>max_tokens</code>, <code>stop_reason</code>, <code>tool_use</code> et <code>tool_choice</code>) sont traités dans le domaine <a href="D0_API_Fundamentals.html">D0 — Fondamentaux de l'API</a>. D4 se concentre sur les techniques de prompt engineering (critères explicites, few-shot, sorties structurées, validation, Batches API, revue multi-pass).</p>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s8">8. Synthèse — les points clés</h2></div>
@@ -473,67 +473,125 @@ En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 
 <h3>Questions de révision — Domain 4</h3>
 
 <details>
-<summary><strong>Q1.</strong> Situation : le prompt actuel dit "Check code comments for accuracy. Be conservative." Les résultats sont inconsistants. Quel changement ?</summary>
+<summary>Q1 (D4) — Instruction vague contre critères explicites</summary>
 <div>
+<p><strong>Situation :</strong> le prompt de revue dit « Check code comments for accuracy. Be conservative. » Les résultats sont inconsistants : un même pattern est signalé dans une PR et ignoré dans la suivante. Quel changement ?</p>
 <p>A) Ajouter des few-shot examples de commentaires problématiques.</p>
-<p>B) Filtrer les TODO/FIXME avant analyse.</p>
-<p>C) Ajouter git blame pour identifier les commentaires anciens.</p>
-<p>D) Spécifier des critères explicites : signaler uniquement quand le commentaire contredit le comportement du code.</p>
-<p class="answer-block"><strong>Réponse : D.</strong> Les critères explicites remplacent une instruction vague ("be conservative") par une définition précise de ce qui constitue un problème. Les few-shot (A) aideraient, mais le problème fondamental est l'absence de critères clairs.</p>
+<p>B) Filtrer les TODO/FIXME avant l'analyse.</p>
+<p>C) Ajouter <code>git blame</code> pour identifier les commentaires anciens.</p>
+<p>D) Définir des critères explicites : ne signaler que lorsque le commentaire contredit le comportement réel du code.</p>
+<hr>
+<p class="correct">Réponse : D) Définir des critères explicites</p>
+<p><strong>Explication :</strong> « be conservative » ne dit rien d'opérationnel — chaque exécution réinterprète le seuil. Un critère catégoriel (« le commentaire contredit le code ») définit précisément ce qui constitue un problème, et la classification devient stable.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Les few-shot aideraient, mais ils illustrent une règle qui n'est toujours pas définie — on traite le symptôme.</li>
+<li>B) Filtrer en amont réduit le volume sans rendre les décisions restantes plus cohérentes.</li>
+<li>C) L'ancienneté d'un commentaire ne dit rien de son exactitude.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q2.</strong> Situation : votre équipe veut réduire les coûts API. Deux workflows : (1) pre-merge check bloquant, (2) rapport tech-debt généré overnight. Le manager propose de passer les deux au Message Batches API (50 % savings). Comment évaluer ?</summary>
+<summary>Q2 (D4) — Batch API et workflow bloquant</summary>
 <div>
-<p>A) Batch pour le tech-debt uniquement ; garder synchrone pour le pre-merge.</p>
-<p>B) Passer les deux en batch avec polling.</p>
-<p>C) Garder synchrone pour les deux.</p>
-<p>D) Passer les deux en batch avec fallback synchrone.</p>
-<p class="answer-block"><strong>Réponse : A.</strong> La Message Batches API a un délai de traitement pouvant aller jusqu'à 24 h, ce qui est inacceptable pour un pre-merge check bloquant. Le rapport tech-debt overnight est un candidat idéal pour le batch (économies de 50 %, résultat attendu le lendemain).</p>
+<p><strong>Situation :</strong> votre équipe veut réduire les coûts API. Deux workflows : un pre-merge check bloquant, et un rapport de dette technique généré la nuit. Le manager propose de passer les deux à la Message Batches API pour ses 50 % d'économies. Comment évaluer ?</p>
+<p>A) Batch pour le rapport de dette technique uniquement ; garder l'API synchrone pour le pre-merge.</p>
+<p>B) Passer les deux en batch avec du polling pour détecter la complétion.</p>
+<p>C) Garder l'API synchrone pour les deux, pour éviter les problèmes d'ordre des résultats.</p>
+<p>D) Passer les deux en batch avec un repli synchrone si le batch tarde trop.</p>
+<hr>
+<p class="correct">Réponse : A) Batch pour le rapport nocturne, synchrone pour le pre-merge</p>
+<p><strong>Explication :</strong> la Message Batches API offre 50 % d'économies mais avec une fenêtre de traitement pouvant atteindre 24 heures et aucun SLA de latence garanti. Inacceptable quand un développeur attend le résultat pour merger ; idéal pour un rapport consulté le lendemain matin.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Compter sur un traitement « souvent plus rapide » n'est pas acceptable pour un workflow bloquant.</li>
+<li>C) Repose sur une idée fausse : les résultats se corrèlent par <code>custom_id</code>.</li>
+<li>D) Ajoute de la complexité là où faire correspondre chaque API à son usage suffit.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q3.</strong> Situation : Claude génère du code, mais des problèmes subtils ne sont détectés que quand un autre membre fait la review. Le reasoning de Claude montre qu'il a considéré ces cas mais a conclu que son approche était correcte. Quel fix ?</summary>
+<summary>Q3 (D4) — Le biais de l'auto-revue</summary>
 <div>
-<p>A) Lancer une seconde instance indépendante de Claude pour review sans accès au reasoning du générateur.</p>
-<p>B) Baisser la température lors de la génération.</p>
-<p>C) Ajouter plus de tests en contexte.</p>
-<p>D) Ajouter des examples d'erreurs subtiles au prompt.</p>
-<p class="answer-block"><strong>Réponse : A.</strong> Le problème est le biais de confirmation : le modèle retient son reasoning et ne remet pas en cause ses propres décisions. Une instance indépendante, sans accès au contexte de génération, reproduit le principe de la peer review et détecte les problèmes que le générateur a rationalisés.</p>
+<p><strong>Situation :</strong> Claude génère du code, mais des problèmes subtils ne sont détectés que lorsqu'un collègue relit. Le raisonnement de Claude montre qu'il avait envisagé ces cas puis conclu que son approche était correcte. Quel correctif ?</p>
+<p>A) Lancer une seconde instance indépendante de Claude pour la revue, sans accès au raisonnement du générateur.</p>
+<p>B) Demander au modèle de relire son propre code avec une consigne d'esprit critique.</p>
+<p>C) Ajouter davantage de tests dans le contexte de génération.</p>
+<p>D) Ajouter des exemples d'erreurs subtiles au prompt de génération.</p>
+<hr>
+<p class="correct">Réponse : A) Une seconde instance indépendante, sans le contexte de génération</p>
+<p><strong>Explication :</strong> dans la même session, le modèle conserve le raisonnement qui l'a conduit à ses choix et remet donc peu en cause ses propres décisions. Une instance indépendante aborde le code sans cet ancrage — c'est le principe de la revue par les pairs.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Une consigne d'auto-revue ne supprime pas l'ancrage : le raisonnement d'origine est toujours en contexte.</li>
+<li>C) Plus de tests aide à la génération, mais ne fait pas réexaminer les décisions déjà rationalisées.</li>
+<li>D) Agit en amont sur la génération, alors que le manque est du côté de la détection.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q4.</strong> Situation : un outil d'extraction a un champ <code>required</code> <code>company_name</code>, mais certains documents ne mentionnent pas d'entreprise. Le modèle invente un nom. Comment fixer ?</summary>
+<summary>Q4 (D4) — Champ required et hallucination</summary>
 <div>
-<p>A) Ajouter des few-shot examples.</p>
-<p>B) Rendre le champ <code>nullable</code> : <code>"type": ["string", "null"]</code>.</p>
-<p>C) Ajouter une validation post-extraction.</p>
-<p>D) Augmenter le contexte avec plus de documents.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> Un champ <code>nullable</code> permet au modèle de retourner <code>null</code> au lieu d'halluciner une valeur. C'est un principe fondamental de la conception de schéma : ne marquer comme <code>required</code> que les champs dont l'information est toujours disponible.</p>
+<p><strong>Situation :</strong> un outil d'extraction déclare <code>company_name</code> dans <code>required</code>, mais certains documents ne mentionnent aucune entreprise. Le modèle invente un nom plausible. Comment corriger ?</p>
+<p>A) Ajouter des few-shot examples montrant des documents sans entreprise.</p>
+<p>B) Rendre le champ nullable (<code>"type": ["string", "null"]</code>) et le retirer de <code>required</code>.</p>
+<p>C) Ajouter une validation post-extraction qui rejette les noms suspects.</p>
+<p>D) Fournir davantage de documents en contexte pour désambiguïser.</p>
+<hr>
+<p class="correct">Réponse : B) Rendre le champ nullable et le retirer de required</p>
+<p><strong>Explication :</strong> tant que le champ est obligatoire, le modèle doit choisir entre violer le schéma et inventer. Le rendre nullable lui ouvre une troisième voie honnête. Règle de conception : ne marquer <code>required</code> que les champs dont l'information est toujours présente dans la source.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Les few-shot peuvent aider, mais la contrainte de schéma qui force l'invention reste en place.</li>
+<li>C) Détecter des « noms suspects » est arbitraire et fragile.</li>
+<li>D) Le problème n'est pas l'ambiguïté : l'information est simplement absente.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q5 (Domaine 4) :</strong> Une extraction de facture retourne <code>{"stated_total": 150, "line_items": [...]}</code>, mais la somme des line_items est 145. Quel type d'erreur et comment la traiter ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
-A) C'est une syntax error JSON — utiliser <code>strict: true</code> sur la définition de l'outil pour forcer la conformité au schéma.
-B) C'est une semantic error — implémenter une boucle validate-retry : valider avec Pydantic, et en cas d'écart, renvoyer le message d'erreur détaillé à Claude avec le document original.
-C) C'est une syntax error — ajouter plus de few-shot examples pour éviter les calculs incorrects.
-D) C'est une semantic error — ajouter un champ <code>conflict_detected: bool</code> et un champ <code>calculated_total</code> pour enregistrer l'incohérence, et laisser la logique aval décider quoi faire.
-E) C'est une syntax error — augmenter <code>max_tokens</code> pour allouer plus d'espace au raisonnement.</summary>
-<p class="correct"><strong>Réponses : B, D.</strong> B décrit le pattern canonical validate-retry : Pydantic détecte l'écart arithmétique (semantic), génère un message d'erreur précis, et Claude retry avec ce feedback. D décrit le pattern de self-correction : enregistrer l'incohérence via des champs dédiés plutôt que de lever une exception, ce qui laisse l'aval prendre la décision sur la divergence. A, C, E confondent syntax (JSON invalide) avec semantic (logique métier incorrecte) : le JSON de la sortie est syntaxiquement valide, c'est le contenu qui ne satisfait pas les règles métier. Few-shot et max_tokens n'adressent pas la cause d'une incohérence arithmétique systématique.</p>
+<summary>Q5 (D4) — Erreur sémantique sur une facture <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<div>
+<p><strong>Situation :</strong> une extraction de facture retourne <code>{"stated_total": 150, "line_items": [...]}</code>, mais la somme des <code>line_items</code> vaut 145. De quel type d'erreur s'agit-il et comment la traiter ?</p>
+<p>A) C'est une erreur de syntaxe — utiliser <code>strict: true</code> sur la définition de l'outil pour forcer la conformité au schéma.</p>
+<p>B) C'est une erreur sémantique — implémenter une boucle validate-retry : valider avec Pydantic et, en cas d'écart, renvoyer le message d'erreur détaillé à Claude avec le document original.</p>
+<p>C) C'est une erreur de syntaxe — ajouter des few-shot examples pour éviter les calculs incorrects.</p>
+<p>D) C'est une erreur sémantique — ajouter un champ <code>calculated_total</code> et un booléen <code>conflict_detected</code> pour matérialiser l'incohérence, et laisser la logique aval décider.</p>
+<p>E) C'est une erreur de syntaxe — augmenter <code>max_tokens</code> pour laisser plus de place au raisonnement.</p>
+<hr>
+<p class="correct">Réponses : B, D.</p>
+<p><strong>Explication :</strong> le JSON est syntaxiquement valide — c'est son contenu qui viole une règle métier. Deux traitements complémentaires : la boucle validate-retry, qui renvoie l'erreur précise au modèle pour auto-correction, et la conception d'un flux d'auto-vérification qui expose l'écart au lieu de le masquer.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) <code>strict: true</code> élimine les erreurs de syntaxe, jamais les erreurs de cohérence entre champs.</li>
+<li>C) Confond syntaxe et sémantique ; les few-shot ne corrigent pas une incohérence arithmétique systématique.</li>
+<li>E) <code>max_tokens</code> borne la longueur de sortie et n'a aucun rapport avec la justesse du calcul.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary><strong>Q6 (Domaine 4) :</strong> Vous devez extraire 10 000 commandes e-commerce pour un rapport hebdomadaire (résultat attendu demain matin). <strong>(Sélectionne les 2 affirmations correctes sur l'utilisation de la Message Batches API.)</strong>
-A) Utiliser le Batches API pour 50% d'économies ; la latence jusqu'à 24 h est acceptable pour un rapport overnight.
-B) Utiliser le Batches API avec une boucle d'outils interactive multi-turn : chaque requête peut escalader vers un service de validation client.
-C) Utiliser l'API synchrone car le délai de 24 h du batch empêcherait de livrer demain matin.
-D) Utiliser le Batches API avec un <code>custom_id</code> unique par commande pour corréler résultats et documents source, et re-soumettre uniquement les échecs.
-E) Utiliser le Batches API car c'est 50% plus rapide que l'API synchrone.</summary>
-<p class="correct"><strong>Réponses : A, D.</strong> A est exact : le batch convient pour un overnight (résultat demain matin, dans la fenêtre de 24 h), et l'économie de 50% est significative sur un volume de 10 000 requêtes. D décrit la best practice pour gérer les erreurs : correlation via custom_id, re-soumission sélective. B est un piège : la Message Batches API n'a pas de multi-turn tool calling (pas de boucles itératives, une réponse par requête). C est faux : une latence de 24 h s'inscrit dans la fenêtre "livraison demain matin". E confond prix (50% moins cher) et latence (pas plus rapide, pas de SLA).</p>
+<summary>Q6 (D4) — Extraction en volume sous contrainte de délai <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<div>
+<p><strong>Situation :</strong> vous devez extraire 10 000 commandes e-commerce pour un rapport hebdomadaire attendu demain matin. Quelles affirmations sur l'usage de la Message Batches API sont correctes ?</p>
+<p>A) Utiliser le Batches API pour ses 50 % d'économies ; une latence jusqu'à 24 h est acceptable pour un rapport consulté demain matin.</p>
+<p>B) Utiliser le Batches API avec une boucle d'outils multi-tour, chaque requête pouvant escalader vers un service de validation client.</p>
+<p>C) Utiliser l'API synchrone, car la fenêtre de 24 h du batch empêcherait de livrer demain matin.</p>
+<p>D) Utiliser un <code>custom_id</code> unique par commande pour corréler résultats et documents source, et ne resoumettre que les échecs.</p>
+<p>E) Utiliser le Batches API parce qu'il est 50 % plus rapide que l'API synchrone.</p>
+<hr>
+<p class="correct">Réponses : A, D.</p>
+<p><strong>Explication :</strong> le profil correspond exactement au batch — non bloquant, tolérant à la latence, gros volume. Et le <code>custom_id</code> est le mécanisme prévu pour rattacher chaque réponse à sa requête, ce qui permet une reprise ciblée des seuls échecs.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Le Batches API ne supporte pas le tool calling multi-tour au sein d'une requête.</li>
+<li>C) Une fenêtre de 24 h tient dans un délai « demain matin ».</li>
+<li>E) Confond prix et latence : 50 % moins cher, et sans SLA de latence garanti.</li>
+</ul>
+</div>
 </details>
 
 </div>

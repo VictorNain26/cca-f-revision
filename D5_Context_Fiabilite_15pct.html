@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a class="current" href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -382,6 +382,20 @@ Note : la couverture de cette section est limitée.
 <strong>À retenir :</strong> 10% en 2023 + 15% en 2024 = growth, pas contradiction. Les dates transforment un conflit apparent en tendance. Toujours inclure les dates dans les <code>claim-source mapping</code>s.
 </div>
 
+<h3>Rendre chaque type de contenu dans sa forme naturelle</h3>
+<p>Un agent de synthèse reçoit des matériaux hétérogènes : des séries chiffrées, des dépêches, des résultats techniques. La tentation est de tout couler dans un format unique — souvent des paragraphes de prose, parce que c'est ce que le modèle produit par défaut. Le rapport devient alors illisible là où il devrait être le plus précis : douze valeurs trimestrielles noyées dans une phrase, personne ne peut les comparer.</p>
+
+<table>
+<tr><th>Type de contenu</th><th>Forme de rendu</th><th>Pourquoi</th></tr>
+<tr><td>Données financières, séries chiffrées</td><td><strong>Tableaux</strong></td><td>La comparaison colonne par colonne est le geste de lecture attendu ; la prose la rend impossible</td></tr>
+<tr><td>Actualités, événements, contexte</td><td><strong>Prose</strong></td><td>La chronologie et la causalité se disent en phrases, pas en cellules</td></tr>
+<tr><td>Résultats techniques, findings</td><td><strong>Listes structurées</strong></td><td>Chaque élément est indépendant et doit rester citable et vérifiable isolément</td></tr>
+</table>
+
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> si un scénario reproche à un rapport de synthèse d'être difficile à exploiter alors que le contenu est juste et bien sourcé, ne cherchez pas du côté des subagents en amont — ils ont fait leur travail. Le problème est le rendu uniforme en sortie de synthèse. La correction est d'instruire l'agent de synthèse de rendre chaque type de contenu dans sa forme propre.
+</div>
+
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s7">7. Synthèse — les points clés</h2></div>
 
@@ -420,6 +434,7 @@ Note : la couverture de cette section est limitée.
 <li>Préserver les <code>claim-source mapping</code>s (URL, nom, quotes) à travers la synthèse.</li>
 <li>Annoter les conflits avec <code>attribution</code> ; ne jamais choisir arbitrairement une valeur.</li>
 <li>Inclure les dates pour le contexte temporel (éviter les faux conflits).</li>
+<li>Rendre chaque type de contenu dans sa forme propre : tableaux pour les séries chiffrées, prose pour l'actualité et le contexte, listes structurées pour les findings techniques. Un rapport juste mais illisible est un défaut de <em>rendu</em>, pas de collecte.</li>
 </ul>
 
 <!-- ================================================================== -->
@@ -429,79 +444,144 @@ Note : la couverture de cette section est limitée.
 <h3>7 questions pour tester votre compréhension</h3>
 
 <details>
-<summary><strong>Q1.</strong> Situation : un remboursement de $89.99 discuté 20 turns plus tôt est devenu « a promotional pricing was discussed » dans le résumé. Comment prévenir cette perte ?</summary>
+<summary>Q1 (D5) — Un montant perdu dans la summarization</summary>
 <div>
-<p>A) Augmenter le context window.<br>
-B) Extraire les faits transactionnels dans un <code>case facts</code> block inclus dans chaque prompt, en dehors du summarized history.<br>
-C) Utiliser <code>/compact</code> moins souvent.<br>
-D) Ajouter des few-shot examples.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> Le <code>case facts</code> block persiste les informations critiques (montants, dates, IDs) en dehors de l'historique résumé. Même après un <code>/compact</code>, ces faits restent intacts dans le prompt. Augmenter le context window (A) ne fait que retarder le problème ; utiliser <code>/compact</code> moins souvent (C) aussi. Les few-shot examples (D) ne concernent pas la préservation des faits.</p>
+<p><strong>Situation :</strong> un remboursement de 89,99 $ discuté 20 tours plus tôt est devenu « a promotional pricing was discussed » dans le résumé. Comment prévenir cette perte ?</p>
+<p>A) Augmenter la taille du context window.</p>
+<p>B) Extraire les faits transactionnels dans un bloc <code>case facts</code> inclus dans chaque prompt, en dehors de l'historique résumé.</p>
+<p>C) Utiliser <code>/compact</code> moins souvent.</p>
+<p>D) Ajouter des few-shot examples montrant des résumés qui conservent les montants.</p>
+<hr>
+<p class="correct">Réponse : B) Un bloc case facts en dehors de l'historique résumé</p>
+<p><strong>Explication :</strong> la summarization progressive condense par nature — montants, pourcentages, dates et attentes exprimées par le client sont exactement ce qu'elle dilue. Extraire ces faits dans un bloc persistant, hors de l'historique compressé, les met à l'abri : même après un <code>/compact</code>, ils restent dans le prompt.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Repousse l'échéance sans traiter la cause ; la conversation finira par dépasser la nouvelle limite.</li>
+<li>C) Même logique : on retarde la compression au lieu de protéger les faits.</li>
+<li>D) Les few-shot agissent sur le format de sortie, pas sur la préservation de l'information en contexte.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q2.</strong> Situation : le client dit « This is outrageous, I'm very unhappy! » L'agent doit-il escalader immédiatement ?</summary>
+<summary>Q2 (D5) — Client mécontent : escalader ou résoudre ?</summary>
 <div>
-<p>A) Oui, le sentiment négatif indique une <code>escalation</code> nécessaire.<br>
-B) Non — acknowledge l'émotion, proposer une résolution, et escalader seulement si le client réitère sa demande de parler à un humain.<br>
-C) Oui, utiliser <code>sentiment analysis</code> pour détecter la frustration.<br>
-D) Non, ignorer l'émotion et se concentrer sur le problème technique.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> Le pattern nuanced : acknowledge → resolve → escalate only on reiteration. La <code>sentiment analysis</code> n'est <strong>pas</strong> un déclencheur fiable d'<code>escalation</code> (A et C sont des pièges). Ignorer l'émotion (D) est une mauvaise pratique — il faut reconnaître la frustration avant de proposer une solution.</p>
+<p><strong>Situation :</strong> le client écrit « This is outrageous, I'm very unhappy! ». Son problème est par ailleurs simple et dans les capacités de l'agent. Faut-il escalader immédiatement ?</p>
+<p>A) Oui, un sentiment négatif marqué justifie une escalade immédiate.</p>
+<p>B) Non — reconnaître l'émotion, proposer une résolution, et n'escalader que si le client réitère sa demande de parler à un humain.</p>
+<p>C) Oui, en s'appuyant sur une analyse de sentiment pour calibrer le seuil de déclenchement.</p>
+<p>D) Non — ignorer la charge émotionnelle et traiter uniquement le problème technique.</p>
+<hr>
+<p class="correct">Réponse : B) Reconnaître, proposer une résolution, escalader si le client réitère</p>
+<p><strong>Explication :</strong> le sentiment ne corrèle pas avec la complexité du dossier. Le pattern nuancé — reconnaître la frustration, proposer la résolution puisqu'elle est à portée, escalader si le client insiste — respecte à la fois la préférence du client et l'objectif de résolution au premier contact.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Escalader sur le ton conduit à transférer des cas simples et fait chuter la résolution au premier contact.</li>
+<li>C) L'analyse de sentiment est un proxy non fiable de la complexité réelle.</li>
+<li>D) Ignorer l'émotion dégrade l'interaction, même quand la réponse technique est juste.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q3.</strong> Situation : trois catégories de sources retournent des résultats différents : academic databases = 15 papers, industry reports = « 0 results », patent databases = « Connection timeout ». Comment propager au coordinateur ?</summary>
+<summary>Q3 (D5) — Échec d'accès contre résultat vide légitime</summary>
 <div>
-<p>A) Agréger en « 67% source coverage ».<br>
-B) Reporter timeout et 0 results comme des failures.<br>
-C) Retry automatiquement les failures transitoires.<br>
-D) Distinguer les access failures (timeout = retry décision) des valid empty results (0 results = successful query).</p>
-<p class="answer-block"><strong>Réponse : D.</strong> Un timeout est un access failure — la requête n'a pas abouti et un retry peut être pertinent. Des résultats vides (0 results) signifient que la requête a réussi mais n'a rien trouvé — c'est un résultat légitime. Les traiter de la même manière (B) ou les agréger en un pourcentage générique (A) masque cette distinction sémantique critique.</p>
+<p><strong>Situation :</strong> trois catégories de sources renvoient des retours différents : bases académiques = 15 articles, rapports sectoriels = « 0 results », bases de brevets = « Connection timeout ». Comment propager cela au coordinateur ?</p>
+<p>A) Agréger en un indicateur unique de type « 67 % de couverture des sources ».</p>
+<p>B) Reporter le timeout et les 0 results comme deux échecs.</p>
+<p>C) Relancer automatiquement les défaillances transitoires jusqu'à obtenir un résultat.</p>
+<p>D) Distinguer l'échec d'accès (timeout, appelle une décision de reprise) du résultat vide valide (requête réussie, aucune correspondance).</p>
+<hr>
+<p class="correct">Réponse : D) Distinguer échec d'accès et résultat vide valide</p>
+<p><strong>Explication :</strong> un timeout signifie que la requête n'a pas abouti — le coordinateur peut vouloir réessayer ou changer d'approche. Zéro résultat signifie que la requête a abouti et qu'il n'y a rien à trouver : c'est une information de couverture, pas une panne. Confondre les deux fait soit relancer inutilement, soit croire à une lacune inexistante.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Un pourcentage agrégé détruit précisément la distinction dont le coordinateur a besoin.</li>
+<li>B) Traiter un résultat vide comme un échec fait passer une réponse valide pour une panne.</li>
+<li>C) Le retry aveugle ignore les cas non rejouables et consomme du budget sans décision.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q4.</strong> Situation : l'accuracy globale de votre système d'extraction est 97%. Faut-il s'en satisfaire ?</summary>
+<summary>Q4 (D5) — Ce que masque une accuracy globale de 97 %</summary>
 <div>
-<p>A) Oui, 97% est excellent.<br>
-B) Non — l'accuracy agrégée peut masquer 40% d'erreurs sur un document type spécifique. Analyser par document type et par field.<br>
-C) Oui, si les tests unitaires passent.<br>
-D) Non, implémenter un classifier pour détecter les erreurs.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> L'analyse par <code>stratified random sampling</code> — par document type ET par field — peut révéler que certains types de documents (factures scannées, formulaires manuscrits) ou certains champs (numéros de TVA, adresses) ont des taux d'erreur bien plus élevés que la moyenne. 97% en agrégé ne garantit rien sur les sous-catégories.</p>
+<p><strong>Situation :</strong> l'accuracy globale de votre système d'extraction est de 97 %. Faut-il s'en satisfaire avant d'automatiser ?</p>
+<p>A) Oui, 97 % est un excellent niveau pour passer en automatique.</p>
+<p>B) Non — une accuracy agrégée peut masquer 40 % d'erreurs sur un type de document précis. Analyser par type de document et par champ.</p>
+<p>C) Oui, à condition que les tests unitaires du pipeline passent.</p>
+<p>D) Non — entraîner un classifieur dédié à la détection des erreurs.</p>
+<hr>
+<p class="correct">Réponse : B) Analyser par type de document et par champ</p>
+<p><strong>Explication :</strong> une moyenne globale peut recouvrir des segments très dégradés — factures scannées, formulaires manuscrits, ou des champs précis comme les numéros de TVA. Un échantillonnage aléatoire stratifié révèle ces poches d'erreur avant qu'elles ne partent en production.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) C'est exactement le raisonnement que le scénario invite à remettre en cause.</li>
+<li>C) Les tests unitaires valident le pipeline, pas la justesse des extractions.</li>
+<li>D) Ajoute de l'infrastructure avant même d'avoir mesuré où sont les erreurs.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q5.</strong> Situation : deux sources crédibles rapportent des chiffres différents sur la part de musique générée par IA sur le streaming : 12 % (Spotify Annual Report, mars 2024) et 8 % (enquête sectorielle, juillet 2024), avec des méthodologies différentes. Comment traiter cette divergence dans la synthèse ?</summary>
+<summary>Q5 (D5) — Deux sources crédibles qui se contredisent</summary>
 <div>
-<p>A) Choisir la source la plus récente et ignorer l'autre.<br>
-B) Faire la moyenne des deux valeurs.<br>
-C) Préserver les deux valeurs avec leur <code>attribution</code> complète (source, date, méthodologie), marquer <code>conflict_detected: true</code>, et laisser le coordinateur ou l'utilisateur trancher.<br>
-D) Retirer la statistique du rapport pour éviter toute ambiguïté.</p>
-<p class="answer-block"><strong>Réponse : C.</strong> Quand deux sources crédibles divergent, il ne faut jamais choisir arbitrairement une valeur (A, B) ni supprimer l'information (D). Le <code>claim-source mapping</code> doit préserver les deux valeurs avec leur <code>attribution</code>, annoter le conflit, et inclure les dates : ici, la différence de méthodologie et de période explique probablement l'écart, ce qui est une information utile pour la décision en aval.</p>
+<p><strong>Situation :</strong> deux sources crédibles donnent des chiffres différents sur la part de musique générée par IA sur le streaming : 12 % (Spotify Annual Report, mars 2024) et 8 % (enquête sectorielle, juillet 2024), avec des méthodologies distinctes. Comment traiter cette divergence dans la synthèse ?</p>
+<p>A) Retenir la source la plus récente et écarter l'autre.</p>
+<p>B) Faire la moyenne des deux valeurs.</p>
+<p>C) Conserver les deux valeurs avec leur attribution complète (source, date, méthodologie), signaler le conflit, et laisser le coordinateur ou l'utilisateur trancher.</p>
+<p>D) Retirer la statistique du rapport pour éviter toute ambiguïté.</p>
+<hr>
+<p class="correct">Réponse : C) Conserver les deux valeurs avec attribution et signaler le conflit</p>
+<p><strong>Explication :</strong> face à des statistiques contradictoires issues de sources crédibles, on annote le conflit avec son attribution plutôt que de choisir arbitrairement. Les dates et méthodologies transforment souvent le conflit apparent en information réelle — deux mesures différentes, à deux moments, par deux méthodes.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Choisir sur le seul critère de récence est arbitraire et efface une donnée valide.</li>
+<li>B) Une moyenne fabrique un chiffre qu'aucune source n'avance.</li>
+<li>D) Supprimer l'information appauvrit le rapport au lieu de qualifier l'incertitude.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q6.</strong> Votre agent multi-turn approche de la limite du context window après 80 turns d'investigation. Les premiers turns contiennent des décisions architecturales importantes que vous ne voulez pas perdre. Quelle est la meilleure stratégie ?</summary>
+<summary>Q6 (D5) — Contexte saturé, décisions anciennes à préserver</summary>
 <div>
-<p>A) Lancer <code>/compact</code> immédiatement et continuer.<br>
-B) Combiner progressive summarization (résumé structuré des turns anciens) avec un <code>case facts</code> block extérieur qui contient les décisions architecturales clés.<br>
-C) Augmenter <code>max_tokens</code>.<br>
-D) Démarrer une nouvelle session et oublier l'historique.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> La progressive summarization compresse l'historique long (libère du budget), tandis que le <code>case facts</code> block protège les informations critiques en dehors du résumé. C'est la combinaison qui garantit à la fois longévité de session et préservation des faits. A seule risque de perdre les décisions architecturales (la summarization dilue les détails). C confond <code>max_tokens</code> (budget de réponse) et limite de contexte. D perd tout l'historique utile.</p>
+<p><strong>Situation :</strong> votre agent multi-tour approche de la limite du context window après 80 tours d'investigation. Les premiers tours contiennent des décisions architecturales que vous ne voulez pas perdre. Quelle stratégie ?</p>
+<p>A) Lancer <code>/compact</code> immédiatement et poursuivre.</p>
+<p>B) Combiner une summarization progressive des tours anciens avec un bloc <code>case facts</code> extérieur contenant les décisions architecturales clés.</p>
+<p>C) Augmenter <code>max_tokens</code>.</p>
+<p>D) Démarrer une nouvelle session en repartant de zéro.</p>
+<hr>
+<p class="correct">Réponse : B) Summarization progressive plus un bloc case facts extérieur</p>
+<p><strong>Explication :</strong> la summarization libère du budget de contexte, le bloc <code>case facts</code> protège ce qui ne doit pas être dilué. C'est la combinaison des deux qui donne à la fois la longévité de session et la préservation des décisions structurantes.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) <code>/compact</code> seul dilue précisément les détails que vous cherchez à conserver.</li>
+<li>C) <code>max_tokens</code> borne la longueur de la réponse, pas la fenêtre de contexte.</li>
+<li>D) Repartir de zéro sans résumé injecté jette tout le travail d'investigation.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary><strong>Q7 (Domaine 5) :</strong> Situation : après 50 turns d'investigation, votre agent approche du context limit. Le policy gap a été identifié, et l'agent découvre qu'il y a 3 correspondances client possibles pour le même ID de dossier. Quels sont les deux bons patterns d'escalation à appliquer immédiatement ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
-A) Escalader immédiatement à cause du context limit qui approche
-B) Demander des identifiants supplémentaires pour clarifier les 3 correspondances client
-C) Lancer <code>/compact</code> pour libérer du contexte avant de continuer
-D) Escalader à cause du policy gap identifié
-E) Utiliser sentiment analysis pour évaluer si l'escalade est nécessaire</summary>
-<p class="correct"><strong>Réponses : B, D.</strong> B est correcte : quand il y a plusieurs correspondances client, l'agent doit demander des identifiants supplémentaires pour clarifier, c'est un déclencheur fiable. D est correcte : le policy gap est un déclencheur fiable d'escalation. A confond une limite technique (context) avec un déclencheur d'escalade — libérer du contexte via <code>/compact</code> ou subagents n'est pas une raison d'escalader à un humain. C est une technique valide de gestion contextuelle, mais ce n'est pas un pattern d'escalade. E est un anti-pattern : la sentiment analysis n'est pas un déclencheur fiable d'escalade.</p>
+<summary>Q7 (D5) — Deux déclencheurs d'escalade fiables <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<div>
+<p><strong>Situation :</strong> après 50 tours d'investigation, votre agent approche de la limite de contexte. Un policy gap a été identifié, et l'agent découvre 3 correspondances client possibles pour le même numéro de dossier. Quels deux patterns d'escalade appliquer immédiatement ?</p>
+<p>A) Escalader à cause de la limite de contexte qui approche.</p>
+<p>B) Demander des identifiants supplémentaires pour lever l'ambiguïté entre les 3 correspondances client.</p>
+<p>C) Lancer <code>/compact</code> pour libérer du contexte avant de continuer.</p>
+<p>D) Escalader à cause du policy gap identifié.</p>
+<p>E) Utiliser une analyse de sentiment pour décider si l'escalade est nécessaire.</p>
+<hr>
+<p class="correct">Réponses : B, D.</p>
+<p><strong>Explication :</strong> plusieurs correspondances imposent de demander un identifiant discriminant plutôt que de choisir par heuristique — se tromper de client a des conséquences réelles. Et un policy gap, c'est-à-dire une politique muette ou ambiguë sur le cas soumis, est un déclencheur d'escalade fiable.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) La limite de contexte est une contrainte technique, pas un motif d'escalade métier.</li>
+<li>C) <code>/compact</code> gère le contexte mais ne répond ni à l'ambiguïté client ni au policy gap.</li>
+<li>E) Le sentiment est un proxy non fiable, et rien ici ne relève de l'émotion du client.</li>
+</ul>
+</div>
 </details>
 
 </div>

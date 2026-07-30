@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -468,52 +468,144 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <h3>Questions d'auto-evaluation</h3>
 
 <details>
-<summary>Q1 : Situation : les logs montrent que dans 12% des cas, l'agent saute <code>get_customer</code> et appelle directement <code>lookup_order</code>, causant des remboursements incorrects. Quel changement est le plus efficace ? A) Ajouter un programmatic precondition qui bloque <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourné un ID vérifié. B) Améliorer le system prompt. C) Ajouter des few-shot examples. D) Implémenter un routing classifier.</summary>
-<p><strong>Réponse : A</strong></p>
-<p>Les conséquences financières (remboursements incorrects) exigent un programmatic enforcement déterministe, pas une amélioration probabiliste du prompt. B et C améliorent la conformité mais ne la garantissent pas (toujours un risque résiduel sur des milliers d'interactions). D (routing classifier) résout un problème de dispatch, pas un problème de séquençage obligatoire d'outils. Seul un precondition programmatique rend la violation <em>impossible</em>.</p>
+<summary>Q1 (D1) — Séquencement d'outils à conséquence financière</summary>
+<div>
+<p><strong>Situation :</strong> les logs montrent que dans 12 % des cas, l'agent saute <code>get_customer</code> et appelle directement <code>lookup_order</code>, causant des remboursements incorrects. Quel changement est le plus efficace ?</p>
+<p>A) Ajouter un prérequis programmatique qui bloque <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourné un ID vérifié.</p>
+<p>B) Renforcer le system prompt en indiquant que la vérification client est obligatoire avant toute opération sur les commandes.</p>
+<p>C) Ajouter des few-shot examples montrant l'agent appelant systématiquement <code>get_customer</code> en premier.</p>
+<p>D) Implémenter un routing classifier qui n'active que le sous-ensemble d'outils adapté à chaque type de requête.</p>
+<hr>
+<p class="correct">Réponse : A) Un prérequis programmatique qui bloque les appels en aval</p>
+<p><strong>Explication :</strong> quand une séquence d'outils est requise pour une logique métier critique, seul l'enforcement programmatique offre une garantie déterministe. Des conséquences financières ne s'accommodent pas d'un taux d'échec résiduel.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Une instruction prompt améliore la conformité sans la garantir — le taux d'échec reste non nul sur des milliers d'interactions.</li>
+<li>C) Même limite que B : les few-shot orientent le comportement, ils ne le contraignent pas.</li>
+<li>D) Le routing classifier traite la <em>disponibilité</em> des outils, pas leur <em>ordre</em> — ce n'est pas le problème posé.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q2 : Situation : le système de recherche sur 'AI impact on creative industries' ne couvre que l'art visuel. Le coordinateur a décomposé en : 'AI in digital art', 'AI in graphic design', 'AI in photography'. Quelle est la cause ? A) Le synthesis agent ne détecte pas les lacunes. B) Le coordinateur a décomposé trop étroitement. C) Le web search agent ne cherche pas assez. D) Le document analysis agent filtre les sources non-visuelles.</summary>
-<p><strong>Réponse : B</strong></p>
-<p>Le coordinateur a décomposé la tâche en sous-tâches toutes centrées sur l'art visuel, excluant la musique, la littérature et le cinéma. Chaque subagent a correctement exécuté sa mission — le problème est en amont, dans la décomposition trop étroite. A est incorrect car le synthesis agent ne peut synthétiser que ce qu'il reçoit. C et D sont incorrects car les subagents ont bien fait leur travail dans le périmètre qu'on leur a donné.</p>
+<summary>Q2 (D1) — Décomposition trop étroite du coordinateur</summary>
+<div>
+<p><strong>Situation :</strong> le système de recherche sur « AI impact on creative industries » ne couvre que l'art visuel. Les logs montrent que le coordinateur a décomposé en « AI in digital art », « AI in graphic design » et « AI in photography ». Quelle est la cause racine ?</p>
+<p>A) Le synthesis agent ne détecte pas les lacunes de couverture dans ce qu'il reçoit.</p>
+<p>B) Le coordinateur a décomposé la tâche trop étroitement.</p>
+<p>C) Les requêtes du web search agent ne sont pas assez larges.</p>
+<p>D) Le document analysis agent filtre les sources non visuelles par des critères de pertinence trop stricts.</p>
+<hr>
+<p class="correct">Réponse : B) Le coordinateur a décomposé la tâche trop étroitement</p>
+<p><strong>Explication :</strong> les logs livrent la réponse directement — les trois sous-tâches sont toutes des arts visuels, la musique, l'écriture et le cinéma n'ont jamais été assignés. Les subagents ont correctement exécuté ce qu'on leur a demandé ; le défaut est en amont.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Le synthesis agent ne peut synthétiser que ce qu'il reçoit ; rien ne lui est parvenu sur les autres secteurs.</li>
+<li>C) Le web search agent a trouvé des articles pertinents pour le périmètre qui lui a été donné.</li>
+<li>D) Rien n'indique un filtrage ; le document analysis agent n'a jamais reçu de sources non visuelles à traiter.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q3 : Situation : un web-search subagent timeout. Comment propager l'erreur au coordinateur ? A) Retourner structured error context (failure type, query, partial results, alternatives). B) Retry automatique + status générique 'search unavailable'. C) Retourner un empty result set marqué success. D) Propager l'exception au top-level handler qui termine tout le workflow.</summary>
-<p><strong>Réponse : A</strong></p>
-<p>Un structured error context permet au coordinateur de prendre une décision intelligente : relancer avec une requête différente, utiliser les résultats partiels, ou déléguer à un autre subagent. B masque l'information utile derrière un retry aveugle et un message générique. C est dangereux car il fait croire que la recherche a réussi alors qu'elle a échoué. D est disproportionné — un timeout d'un subagent ne devrait pas tuer tout le workflow.</p>
+<summary>Q3 (D1) — Propager un timeout de subagent</summary>
+<div>
+<p><strong>Situation :</strong> un web search subagent part en timeout pendant une recherche complexe. Comment cette information doit-elle remonter au coordinateur pour permettre une reprise intelligente ?</p>
+<p>A) Retourner un contexte d'erreur structuré : type de défaillance, requête tentée, résultats partiels, approches alternatives.</p>
+<p>B) Retry automatique avec backoff dans le subagent, puis un statut générique « search unavailable » une fois les tentatives épuisées.</p>
+<p>C) Capturer le timeout dans le subagent et retourner un jeu de résultats vide marqué comme succès.</p>
+<p>D) Propager l'exception à un handler de plus haut niveau qui termine l'ensemble du workflow de recherche.</p>
+<hr>
+<p class="correct">Réponse : A) Un contexte d'erreur structuré</p>
+<p><strong>Explication :</strong> le contexte structuré donne au coordinateur de quoi décider — relancer avec une requête modifiée, tenter une autre approche, ou continuer avec des résultats partiels annotés.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Un statut générique masque au coordinateur l'information dont il a besoin pour décider.</li>
+<li>C) Marquer un échec comme un succès supprime toute possibilité de reprise et fausse le rapport final.</li>
+<li>D) Terminer tout le workflow sur une défaillance unique est disproportionné quand des stratégies de reprise existent.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q4 : Comment votre code détermine-t-il si l'agentic loop doit continuer ou s'arrêter ? A) Vérifier <code>stop_reason</code> : continuer si <code>tool_use</code>, arrêter si <code>end_turn</code>. B) Parser le texte de l'assistant pour des phrases comme 'I'm done'. C) Utiliser une limite d'itérations (<code>max_iterations=5</code>). D) Vérifier si la réponse contient du texte.</summary>
-<p><strong>Réponse : A</strong></p>
-<p><code>stop_reason</code> est le SEUL signal fiable pour déterminer si la boucle doit continuer. B est fragile car Claude peut écrire « done » tout en ayant un tool call en attente dans la même réponse. C peut interrompre prématurément une tâche légitime. D est trompeur car Claude peut générer du texte explicatif ET un <code>tool_use</code> block simultanément.</p>
+<summary>Q4 (D1) — Condition d'arrêt de l'agentic loop</summary>
+<div>
+<p><strong>Situation :</strong> vous implémentez la boucle agentique. Comment votre code détermine-t-il qu'il faut continuer à exécuter des outils ou présenter la réponse finale ?</p>
+<p>A) Vérifier <code>stop_reason</code> : continuer si <code>"tool_use"</code>, s'arrêter si <code>"end_turn"</code>.</p>
+<p>B) Analyser le texte de l'assistant à la recherche de formulations de fin comme « I'm done ».</p>
+<p>C) Fixer un plafond d'itérations (<code>max_iterations=5</code>) comme mécanisme d'arrêt principal.</p>
+<p>D) Vérifier si la réponse contient un bloc de texte : sa présence signale que le modèle a terminé.</p>
+<hr>
+<p class="correct">Réponse : A) Vérifier stop_reason</p>
+<p><strong>Explication :</strong> <code>stop_reason</code> est le signal explicite prévu pour ça. Le modèle décide de la suite à partir du contexte, et la boucle suit sa décision — c'est ce qui distingue un agent d'un arbre de décision pré-câblé.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Analyser le langage naturel pour détecter la fin est un anti-pattern : le modèle peut écrire « done » tout en émettant un <code>tool_use</code> dans la même réponse.</li>
+<li>C) Un plafond d'itérations est un garde-fou, jamais le mécanisme d'arrêt principal — il coupe des tâches légitimes.</li>
+<li>D) Le modèle émet fréquemment du texte explicatif <em>et</em> un bloc <code>tool_use</code> dans la même réponse.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q5 : Situation : une investigation complexe s'étale sur plusieurs jours. Les fichiers ont changé depuis la dernière session. Comment reprendre ? A) <code>--resume</code> pour continuer la session. B) <code>fork_session</code> pour explorer deux pistes. C) Nouvelle session avec un résumé structuré injecté. D) Relancer la même commande.</summary>
-<p><strong>Réponse : C</strong></p>
-<p>Les fichiers ayant changé, les tool results de la session précédente sont obsolètes (stale). <code>--resume</code> (A) chargerait ces résultats périmés, ce qui peut induire Claude en erreur. <code>fork_session</code> (B) sert à comparer deux approches, pas à gérer des données obsolètes. Relancer la même commande (D) perd tout le contexte accumulé. Une nouvelle session avec un résumé structuré préserve les conclusions importantes tout en offrant un contexte frais basé sur l'état actuel des fichiers.</p>
+<summary>Q5 (D1) — Reprendre une investigation sur des fichiers modifiés</summary>
+<div>
+<p><strong>Situation :</strong> une investigation complexe s'étale sur plusieurs jours. Depuis la dernière session, de nombreux fichiers ont été modifiés de façon étendue. Comment reprendre ?</p>
+<p>A) <code>--resume</code> avec le nom de la session pour continuer là où vous vous étiez arrêté.</p>
+<p>B) <code>fork_session</code> pour repartir de la ligne de base d'analyse.</p>
+<p>C) Une nouvelle session avec un résumé structuré des conclusions injecté en contexte.</p>
+<p>D) Relancer la commande d'origine pour refaire l'exploration à l'identique.</p>
+<hr>
+<p class="correct">Réponse : C) Une nouvelle session avec un résumé structuré injecté</p>
+<p><strong>Explication :</strong> les fichiers ayant changé, les tool results de la session précédente sont périmés. Démarrer une session neuve en injectant un résumé structuré est plus fiable que de reprendre avec des résultats obsolètes : on garde les conclusions, on repart sur l'état réel du code.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) <code>--resume</code> convient quand le contexte reste valide ; ici il rechargerait des lectures de fichiers qui ne correspondent plus.</li>
+<li>B) <code>fork_session</code> sert à explorer deux approches divergentes depuis une base commune, pas à traiter des données périmées.</li>
+<li>D) Tout réexplorer à zéro jette les conclusions déjà acquises.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q6 : Situation : votre agent de support client peut émettre des remboursements jusqu'à 5000$. La direction veut une approbation humaine au-delà de 500$. Vous avez le choix entre : (1) ajouter "always ask for approval if amount &gt; 500" dans le system prompt, (2) implémenter un hook PreToolUse qui intercepte <code>process_refund</code>, ouvre une demande d'approbation et bloque jusqu'à réponse. Lequel et pourquoi ?
-A) Option 1 — c'est plus rapide à implémenter.
-B) Option 1 — Claude est très fiable sur le suivi d'instructions.
-C) Option 2 — un approval gate via hook PreToolUse offre une garantie déterministe ; les instructions textuelles restent probabilistes (non-zero failure rate selon le guide, jamais 100 %), insuffisantes pour des décisions financières.
-D) Les deux donnent le même résultat.</summary>
-<p><strong>Réponse : C.</strong> C'est l'application directe du principe vu en §6 (programmatic enforcement). Pour toute action à conséquence financière, légale ou de sécurité, l'enforcement doit être <strong>déterministe</strong> via un hook. Une instruction prompt peut être contournée, mal interprétée, ou oubliée dans un contexte long. Un hook PreToolUse rend la violation <strong>impossible</strong>. A et B reposent sur un raisonnement de risque inacceptable à 1 % d'échec sur des milliers de transactions.</p>
+<summary>Q6 (D1) — Seuil d'approbation humaine sur un remboursement</summary>
+<div>
+<p><strong>Situation :</strong> votre agent de support peut émettre des remboursements jusqu'à 5 000 $. La direction exige une approbation humaine au-delà de 500 $. Quelle mise en œuvre choisir ?</p>
+<p>A) Une instruction dans le system prompt : « always ask for approval if amount &gt; 500 » — plus rapide à mettre en place.</p>
+<p>B) Une instruction dans le system prompt, en s'appuyant sur la fiabilité du modèle à suivre des consignes explicites.</p>
+<p>C) Un hook d'interception sur <code>process_refund</code> qui bloque l'appel au-delà du seuil et le redirige vers un workflow d'escalade.</p>
+<p>D) Les deux approches sont équivalentes en pratique, le choix relève de la préférence d'équipe.</p>
+<hr>
+<p class="correct">Réponse : C) Un hook d'interception sur process_refund</p>
+<p><strong>Explication :</strong> les hooks servent précisément à intercepter les appels d'outils sortants pour faire respecter une règle métier — bloquer les remboursements au-dessus d'un seuil et rediriger vers l'escalade. C'est une garantie déterministe, là où le prompt reste probabiliste.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) La rapidité de mise en œuvre ne compense pas un taux d'échec non nul sur des mouvements d'argent.</li>
+<li>B) Aucune instruction textuelle n'atteint 100 % de conformité, surtout en contexte long.</li>
+<li>D) Elles diffèrent sur le seul point qui compte ici : la garantie.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q7 (Domaine 1) : Vous concevez une architecture multi-agents pour orchestrer des tâches complexes. Quels éléments sont CRITIQUES pour que le coordinateur puisse créer des subagents et garantir la transmission correcte du contexte ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
-A) Le coordinateur doit inclure <code>"Task"</code> dans son <code>allowedTools</code> pour créer des subagents.
-B) Chaque subagent hérite automatiquement de l'historique complet de conversation du coordinateur.
-C) Le coordinateur doit passer explicitement le contexte nécessaire à chaque subagent via le prompt de délégation, car les subagents n'héritent rien automatiquement.
-D) Les subagents peuvent communiquer directement entre eux pour optimiser les performances et éviter les redondances.
-E) Le coordinateur doit confier tous ses outils à chaque subagent pour maximiser leur flexibilité.</summary>
-<p class="correct"><strong>Réponses : A, C.</strong> A est correct : le <code>"Task"</code> doit être inclus dans <code>allowedTools</code> pour que le coordinateur puisse créer des subagents (section 5). C est correct : les subagents ont un contexte isolé et ne reçoivent rien automatiquement ; tout contexte pertinent doit être explicitement transmis dans le prompt (section 5, « Les subagents ne reçoivent rien automatiquement du coordinateur »). B est incorrect : c'est l'inverse — l'isolation du contexte est un principe fondamental (section 3). D est incorrect : toute communication entre subagents doit transiter par le coordinateur (section 3, « Toute communication entre subagents transite par le coordinateur — jamais en direct »). E est incorrect : les outils doivent être limités au strict nécessaire pour améliorer la fiabilité de sélection (section 5, tableau des quatre caractéristiques).</p>
+<summary>Q7 (D1) — Spawn de subagents et passage de contexte <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<div>
+<p><strong>Situation :</strong> vous concevez une architecture multi-agents. Quels éléments sont critiques pour que le coordinateur puisse créer des subagents et leur transmettre correctement le contexte ?</p>
+<p>A) Le coordinateur doit inclure <code>"Task"</code> dans son <code>allowedTools</code> pour pouvoir invoquer des subagents.</p>
+<p>B) Chaque subagent hérite automatiquement de l'historique de conversation complet du coordinateur.</p>
+<p>C) Le coordinateur doit passer explicitement le contexte nécessaire dans le prompt de délégation, car les subagents n'héritent de rien.</p>
+<p>D) Les subagents peuvent communiquer directement entre eux pour réduire les allers-retours.</p>
+<p>E) Le coordinateur doit confier tous ses outils à chaque subagent pour maximiser leur flexibilité.</p>
+<hr>
+<p class="correct">Réponses : A, C.</p>
+<p><strong>Explication :</strong> l'outil <code>Task</code> est le mécanisme de spawn, et <code>allowedTools</code> doit le contenir. Le contexte, lui, ne circule jamais implicitement : les subagents opèrent en contexte isolé et ne reçoivent que ce que le prompt de délégation contient.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) C'est l'inverse : l'isolation du contexte est le principe de base des subagents.</li>
+<li>D) Toute communication transite par le coordinateur — c'est ce qui donne l'observabilité et un traitement d'erreur cohérent.</li>
+<li>E) Élargir le jeu d'outils dégrade la fiabilité de sélection ; chaque subagent ne reçoit que les outils de son rôle.</li>
+</ul>
+</div>
 </details>
 
 <nav class="doc-nav">

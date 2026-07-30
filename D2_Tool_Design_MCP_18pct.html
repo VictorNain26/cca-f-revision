@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -137,7 +137,7 @@
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s3">3. tool_choice, distribution et restriction des outils (Tasks 2.3 &amp; 2.4)</h2></div>
+<div class="section-header"><h2 id="s3">3. tool_choice, distribution et restriction des outils (Task 2.3)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Si vous donnez 18 outils à un seul agent, sa capacité à choisir le bon outil chute significativement. Pire : un agent disposant d'outils hors de sa spécialisation aura tendance à les utiliser à mauvais escient. Le principe est simple : chaque agent ne reçoit que les outils <strong>pertinents pour son rôle</strong>, idéalement <strong>4 à 5 maximum</strong>, plus un ensemble restreint d'utilitaires transversaux si nécessaire.</p>
@@ -178,7 +178,7 @@
 }</pre>
 
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s4">4. MCP Integration — primitives et configuration</h2></div>
+<div class="section-header page-break"><h2 id="s4">4. MCP Integration — primitives et configuration (Task 2.4)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>L'approche traditionnelle d'intégration d'outils oblige les développeurs à écrire manuellement des schémas et des fonctions pour chaque outil. Le <strong>Model Context Protocol (MCP)</strong> résout ce problème en déplaçant la définition et l'exécution des outils vers des serveurs dédiés. Quelqu'un d'autre crée les outils, les empaquète dans un MCP server, et votre application s'y connecte automatiquement.</p>
@@ -215,6 +215,17 @@
 <div class="key-concept">
 <strong><code>resources</code> comme « content catalogs » :</strong> les <code>resources</code> sont particulièrement utiles pour exposer des catalogues de contenu (schémas de base de données, listes de tâches, hiérarchies de navigation). Elles réduisent le nombre d'appels de <code>tools</code> exploratoires en fournissant directement les données de contexte dont l'application a besoin.
 </div>
+
+<h3>Quand l'agent ignore votre outil MCP au profit d'un outil intégré</h3>
+<p>Vous branchez un serveur MCP qui expose un outil de recherche bien plus capable que <code>Grep</code> — il comprend la structure du code, suit les imports, renvoie du contexte. Et pourtant l'agent continue d'appeler <code>Grep</code>. Le serveur fonctionne, l'outil est bien connecté : ce n'est pas un problème de configuration.</p>
+
+<p>La cause est la même qu'en section 1 : <strong>l'agent choisit sur la foi des descriptions</strong>. Les outils intégrés arrivent avec des descriptions détaillées et éprouvées. Beaucoup d'outils MCP, eux, se contentent d'une ligne générée à partir du nom de la fonction. Face à « Search files » d'un côté et à la description complète de <code>Grep</code> de l'autre, le modèle prend celle qu'il comprend.</p>
+
+<div class="key-concept">
+<strong>Le correctif :</strong> enrichir la description de l'outil MCP pour qu'elle explique ce qu'il sait faire <em>et ce qu'il renvoie</em> — types d'entrée acceptés, forme exacte de la sortie, et surtout ce qu'il apporte que l'outil intégré n'a pas. Pas « recherche dans les fichiers », mais « recherche sémantique dans le code indexé : renvoie la définition, tous les appelants et la chaîne d'imports, là où une recherche textuelle ne renvoie que les lignes correspondantes ».
+</div>
+
+<p>Réflexe d'examen : quand un scénario décrit un agent qui <em>préfère un outil intégré à un outil MCP plus capable</em>, la réponse n'est ni de retirer l'outil intégré, ni d'ajouter des instructions dans le system prompt, ni de construire une couche de routage. C'est de réparer la description — c'est le levier le moins coûteux et celui qui traite la cause.</p>
 
 <h3>Choix entre community servers et custom servers</h3>
 <p>Pour les intégrations standards (Jira, GitHub, Slack), préférez les <strong>community servers</strong> existants. Ne construisez un custom server que pour les workflows spécifiques à votre équipe que personne d'autre n'a implémentés. Tous les <code>tools</code> de tous les serveurs connectés sont découverts à la connexion et disponibles simultanément.</p>
@@ -299,6 +310,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li>Trois primitives : <code>tools</code> (modèle exécute), <code>resources</code> (application expose), <code>prompts</code> (utilisateur déclenche).</li>
 <li><code>resources</code> = « content catalogs » qui réduisent les appels exploratoires en fournissant directement les données de contexte.</li>
 <li>Préférer les community servers pour les intégrations standards (Jira, GitHub, Slack) ; custom servers pour les workflows spécifiques à l'équipe.</li>
+<li>Agent qui préfère un outil intégré à un outil MCP plus capable → enrichir la <code>description</code> du serveur MCP (ce qu'il fait, ce qu'il renvoie, ce que l'outil intégré n'a pas). Ni retrait de l'outil intégré, ni couche de routage.</li>
 </ul>
 
 <h3>Outils intégrés</h3>
@@ -312,56 +324,105 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <div class="section-header"><h2 id="s7">7. Questions d'auto-evaluation</h2></div>
 
 <details>
-<summary>Q1 : Les logs montrent que les requêtes <em>"analyze the uploaded quarterly report"</em> sont routées vers le web-search agent 45 % du temps au lieu du document analysis agent. Les outils disponibles sont <code>analyze_content</code> (agent web-search) et <code>analyze_document</code> (agent document analysis). Leurs descriptions sont <em>"analyzes content and extracts key information"</em> et <em>"analyzes documents and extracts key information"</em>. Comment corriger ?<br>
-A) Ajouter un pre-routing classifier.<br>
-B) Renommer le web-search tool en <code>extract_web_results</code> et mettre à jour sa <code>description</code>.<br>
-C) Ajouter des few-shot examples au coordinateur.<br>
-D) Enrichir seulement la <code>description</code> du document analysis tool.</summary>
-<p><strong>Réponse : B</strong></p>
-<p>Le problème est un chevauchement sémantique entre les deux descriptions. Renommer le web-search tool en <code>extract_web_results</code> avec une description différenciée élimine l'ambiguïté à la racine. Les options A et C ajoutent de la complexité sans traiter la cause. L'option D n'élimine pas le chevauchement côté web-search.</p>
+<summary>Q1 (D2) — Chevauchement sémantique entre deux descriptions</summary>
+<div>
+<p><strong>Situation :</strong> les requêtes « analyze the uploaded quarterly report » partent vers le web search agent 45 % du temps au lieu du document analysis agent. Les outils sont <code>analyze_content</code> (« analyzes content and extracts key information ») et <code>analyze_document</code> (« analyzes documents and extracts key information »). Comment corriger ?</p>
+<p>A) Ajouter un classifieur de pré-routage qui analyse la requête avant chaque tour.</p>
+<p>B) Renommer l'outil web search en <code>extract_web_results</code> et réécrire sa <code>description</code> pour la rendre spécifique au web.</p>
+<p>C) Ajouter des few-shot examples au coordinateur pour illustrer le bon routage.</p>
+<p>D) Enrichir uniquement la <code>description</code> de l'outil document analysis.</p>
+<hr>
+<p class="correct">Réponse : B) Renommer en extract_web_results et différencier la description</p>
+<p><strong>Explication :</strong> les deux descriptions sont quasi identiques — le modèle n'a aucun élément pour trancher. Renommer et redécrire élimine le chevauchement fonctionnel à sa source, là où le modèle prend effectivement sa décision.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Sur-ingénierie : on court-circuite la compréhension du langage naturel au lieu de réparer l'ambiguïté.</li>
+<li>C) Les few-shot ajoutent du coût en tokens sans supprimer la cause, qui est la description.</li>
+<li>D) Améliorer un seul côté laisse l'autre description toujours aussi attirante pour les mêmes requêtes.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q2 : Un document analysis <code>subagent</code> a un outil générique <code>fetch_url</code>. Les logs montrent qu'il télécharge des pages de moteurs de recherche au lieu de documents. Quel fix appliquer ?<br>
-A) Remplacer <code>fetch_url</code> par <code>load_document</code> qui valide les URLs vers des formats document.<br>
-B) Retirer <code>fetch_url</code> et router via le coordinateur.<br>
-C) Filtrer les domaines de moteurs de recherche.<br>
-D) Ajouter des instructions dans le prompt.</summary>
-<p><strong>Réponse : A</strong></p>
-<p>C'est le principe du moindre privilège appliqué au niveau de l'interface : contraindre l'outil lui-même plutôt que de compter sur des instructions textuelles (option D, peu fiable) ou d'ajouter de la complexité architecturale (option B). L'option C est un filtre fragile qui ne couvre pas tous les cas.</p>
+<summary>Q2 (D2) — Outil générique mal employé</summary>
+<div>
+<p><strong>Situation :</strong> un document analysis subagent dispose d'un outil générique <code>fetch_url</code>. Les logs montrent qu'il télécharge des pages de résultats de moteurs de recherche au lieu de documents. Quel correctif appliquer ?</p>
+<p>A) Remplacer <code>fetch_url</code> par <code>load_document</code>, qui valide que l'URL pointe vers un format document.</p>
+<p>B) Retirer <code>fetch_url</code> et faire transiter toutes les récupérations par le coordinateur.</p>
+<p>C) Ajouter un filtre sur les domaines de moteurs de recherche.</p>
+<p>D) Ajouter dans le prompt du subagent l'instruction de ne récupérer que des documents.</p>
+<hr>
+<p class="correct">Réponse : A) Remplacer fetch_url par load_document, plus contraint</p>
+<p><strong>Explication :</strong> remplacer un outil générique par une alternative contrainte applique le moindre privilège au niveau de l'interface : l'usage incorrect devient impossible plutôt que déconseillé.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Ajoute un aller-retour de coordination pour un besoin fréquent et légitime du subagent.</li>
+<li>C) Une liste de domaines est fragile et ne couvrira jamais tous les cas.</li>
+<li>D) Une instruction textuelle reste probabiliste, alors que le contrat d'outil est déterministe.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q3 : Un outil MCP echoue avec <code>{"isError": true, "content": "Operation failed"}</code>. Pourquoi c'est un anti-pattern ?<br>
-A) L'agent ne peut pas décider s'il faut faire un retry, modifier la requête, ou escalader.<br>
-B) Le format JSON est incorrect.<br>
-C) <code>isError</code> devrait être <code>false</code>.<br>
-D) Le message est trop court.</summary>
-<p><strong>Réponse : A</strong></p>
-<p>Une erreur générique ne fournit aucune information pour la prise de décision. Sans <code>errorCategory</code> ni <code>isRetryable</code> encodés dans le texte du bloc <code>content</code>, l'agent ne sait pas si l'erreur est <code>transient</code> (retry), <code>validation</code> (corriger l'entrée), <code>business</code> (expliquer à l'utilisateur) ou <code>permission</code> (escalader). <code>isError: true</code> est correct (C est faux), et la longueur du message n'est pas le problème central (D est faux). Sur B : <code>content</code> devrait être un <strong>tableau</strong> de content blocks (cf. §2), donc cet exemple est en réalité non conforme sur la forme — mais ce n'est pas le point testé : même reformaté en <code>[{"type": "text", "text": "Operation failed"}]</code>, le message resterait trop générique pour permettre une récupération intelligente. C'est cette généricité, pas la validité de forme, qui fait l'anti-pattern.</p>
+<summary>Q3 (D2) — Pourquoi une erreur générique est un anti-pattern</summary>
+<div>
+<p><strong>Situation :</strong> un outil MCP échoue avec <code>{"isError": true, "content": "Operation failed"}</code>. Pourquoi est-ce un anti-pattern ?</p>
+<p>A) L'agent ne peut pas décider s'il faut réessayer, corriger la requête, ou escalader.</p>
+<p>B) Le format JSON de la réponse est invalide.</p>
+<p>C) <code>isError</code> devrait valoir <code>false</code> puisque l'outil a répondu.</p>
+<p>D) Le message est trop court pour être affiché à l'utilisateur.</p>
+<hr>
+<p class="correct">Réponse : A) L'agent ne peut pas décider de la suite</p>
+<p><strong>Explication :</strong> une réponse d'erreur uniforme prive l'agent de toute base de décision. Sans catégorie ni indication de caractère rejouable, il ne sait pas distinguer un <code>transient</code> (réessayer), un <code>validation</code> (corriger l'entrée), un <code>business</code> (expliquer au client) et un <code>permission</code> (escalader).</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) La forme est effectivement perfectible — <code>content</code> attend un tableau de content blocks — mais reformater ne rendrait pas le message plus exploitable ; ce n'est pas le point testé.</li>
+<li>C) <code>isError: true</code> est correct : l'opération a bien échoué.</li>
+<li>D) La longueur n'est pas le problème ; c'est l'absence de métadonnées de décision.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q4 : Vous voulez que Claude appelle toujours <code>extract_metadata</code> en premier avant tout autre traitement. Quelle valeur de <code>tool_choice</code> utiliser ?<br>
-A) <code>{"type": "auto"}</code><br>
-B) <code>{"type": "any"}</code><br>
-C) <code>{"type": "tool", "name": "extract_metadata"}</code><br>
-D) Ajouter <em>"always call this first"</em> dans la <code>description</code>.</summary>
-<p><strong>Réponse : C</strong></p>
-<p>La forced selection (<code>{"type": "tool", "name": "extract_metadata"}</code>) garantit que Claude appellera exactement cet outil. <code>auto</code> (A) laisse Claude libre de ne pas appeler d'outil. <code>any</code> (B) force un appel mais sans garantir lequel. L'option D repose sur une instruction textuelle dans la <code>description</code>, ce qui est moins fiable qu'une contrainte programmatique.</p>
+<summary>Q4 (D2) — Imposer un outil précis en premier</summary>
+<div>
+<p><strong>Situation :</strong> vous voulez que Claude appelle toujours <code>extract_metadata</code> avant tout autre traitement d'enrichissement. Quelle valeur de <code>tool_choice</code> utiliser ?</p>
+<p>A) <code>{"type": "auto"}</code></p>
+<p>B) <code>{"type": "any"}</code></p>
+<p>C) <code>{"type": "tool", "name": "extract_metadata"}</code></p>
+<p>D) Ajouter « always call this first » dans la <code>description</code> de l'outil.</p>
+<hr>
+<p class="correct">Réponse : C) {"type": "tool", "name": "extract_metadata"}</p>
+<p><strong>Explication :</strong> la forced selection impose exactement cet outil sur ce tour. Les étapes suivantes s'enchaînent ensuite dans les tours ultérieurs, une fois les métadonnées disponibles.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) <code>"auto"</code> autorise Claude à n'appeler aucun outil.</li>
+<li>B) <code>"any"</code> force un appel mais laisse le choix de l'outil — l'ordre n'est pas garanti.</li>
+<li>D) Une instruction dans la description reste probabiliste là où un paramètre est déterministe.</li>
+</ul>
+</div>
 </details>
 
 <details>
-<summary>Q5 (Domaine 2) : Un API qui retourne une erreur doit inclure certaines informations pour permettre à l'agent de prendre une bonne décision. Quelles affirmations sont correctes ? <strong>(Sélectionne les 2 réponses correctes.)</strong>
-A) Une erreur <code>{"isError": true, "content": "Operation failed"}</code> permet à l'agent de décider s'il faut faire un retry.
-B) Une erreur transient (timeout, 503) doit avoir <code>isRetryable: true</code> encodé dans le bloc <code>text</code> du content.
-C) Une erreur de permission doit être escaladée à un humain sans retry, indépendamment du nombre de tentatives.
-D) Les catégories d'erreur (<code>transient</code>, <code>validation</code>, <code>business</code>, <code>permission</code>) font partie de la spécification MCP officielle.
-E) Un résultat vide valide (zéro correspondance) doit être distingué d'un échec d'accès (timeout) dans la réponse.</summary>
-<p class="correct"><strong>Réponses : B, E.</strong> (B) est correct : une erreur transient doit inclure <code>errorCategory</code> et <code>isRetryable</code> encodés dans le texte du bloc content pour que l'agent sache qu'il faut retry. (E) est correct : cette distinction est fondamentale — zéro résultat valide est une information utile, tandis qu'un timeout exige une décision de récupération différente.<br>
-(A) est faux : une erreur générique "Operation failed" empêche l'agent de prendre une décision intelligente — c'est le point central de l'anti-pattern. (C) est incomplet : une erreur permission doit être escaladée, mais pas « indépendamment du nombre de tentatives » — c'est une décision métier qui dépend du contexte ; la règle générale est <code>isRetryable: false</code>. (D) est faux : les catégories d'erreur ne sont pas formelles dans la spec MCP — c'est une convention de conception applicative encodée dans le texte du bloc content.</p>
+<summary>Q5 (D2) — Contenu d'une réponse d'erreur exploitable <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<div>
+<p><strong>Situation :</strong> vous concevez les réponses d'erreur de vos outils MCP pour que l'agent puisse décider correctement de la suite. Quelles affirmations sont exactes ?</p>
+<p>A) Une erreur <code>{"isError": true, "content": "Operation failed"}</code> suffit à l'agent pour décider d'un retry.</p>
+<p>B) Une erreur transitoire (timeout, 503) doit porter <code>isRetryable: true</code> encodé dans le bloc <code>text</code> du content.</p>
+<p>C) Une erreur de permission doit être escaladée à un humain sans retry, quel que soit le contexte.</p>
+<p>D) Les catégories <code>transient</code>, <code>validation</code>, <code>business</code> et <code>permission</code> font partie de la spécification MCP officielle.</p>
+<p>E) Un résultat vide valide (zéro correspondance) doit être distingué d'un échec d'accès (timeout) dans la réponse.</p>
+<hr>
+<p class="correct">Réponses : B, E.</p>
+<p><strong>Explication :</strong> l'agent a besoin de deux informations pour décider — le caractère rejouable de l'erreur, et la nature de ce qu'il a obtenu. Une requête valide sans résultat est un succès légitime ; un timeout appelle une décision de reprise. Les confondre conduit soit à des retries inutiles, soit à des lacunes silencieuses dans le rapport final.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) C'est exactement l'anti-pattern : une erreur uniforme ne porte aucune base de décision.</li>
+<li>C) L'escalade est la bonne règle générale (<code>isRetryable: false</code>), mais « quel que soit le contexte » en fait un absolu que la conception ne pose pas.</li>
+<li>D) Ces catégories sont une convention de conception applicative, encodée dans le texte du content — pas un élément formel de la spec MCP.</li>
+</ul>
+</div>
 </details>
-
 
 <nav class="doc-nav">
   <a class="prev" href="D1_Architecture_Orchestration_27pct.html"><span class="label">Précédent</span><span class="title">D1 — Architecture et orchestration</span></a>

@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -332,46 +332,82 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-évaluation</h2></div>
 
 <details>
-<summary>Q1 : Votre pipeline CI appelle l'API Claude. Entre deux requêtes, un tool result de l'appel précédent est perdu. Quelle est la cause la plus probable ?</summary>
+<summary>Q1 (D0) — API stateless et perte de tool_result</summary>
 <div>
+<p><strong>Situation :</strong> votre pipeline CI appelle l'API Claude. Entre deux requêtes, un <code>tool_result</code> de l'appel précédent est perdu. Quelle est la cause la plus probable ?</p>
 <p>A) L'API est stateless : le développeur n'a pas renvoyé l'historique complet (avec les <code>tool_result</code>) dans la requête suivante.</p>
 <p>B) Le <code>tool_result</code> expire côté serveur Anthropic après quelques secondes.</p>
 <p>C) Le <code>max_tokens</code> est trop bas pour conserver le <code>tool_result</code>.</p>
 <p>D) Il manque un paramètre <code>session_id</code> pour persister l'état entre requêtes.</p>
-<p class="answer-block"><strong>Réponse : A.</strong> L'API Claude est <strong>stateless</strong> : elle ne conserve aucun état entre les requêtes. À chaque appel, le tableau <code>messages</code> doit contenir l'intégralité de l'historique, y compris les <code>tool_result</code> précédents. B/C/D sont faux : rien n'expire côté serveur (l'API ne stocke rien), <code>max_tokens</code> borne la sortie pas l'historique, et il n'existe pas de <code>session_id</code> — c'est au client de renvoyer l'historique.</p>
+<hr>
+<p class="correct">Réponse : A) L'API est stateless, l'historique complet n'a pas été renvoyé</p>
+<p><strong>Explication :</strong> l'API Claude ne conserve aucun état entre les requêtes. À chaque appel, le tableau <code>messages</code> doit contenir l'intégralité de l'historique, <code>tool_result</code> compris. C'est au client de le reconstituer.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) Rien n'expire côté serveur, puisque l'API ne stocke rien.</li>
+<li>C) <code>max_tokens</code> borne la longueur de la <em>sortie</em>, pas la taille de l'historique envoyé.</li>
+<li>D) Il n'existe pas de paramètre <code>session_id</code> sur l'API Messages.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary>Q2 : Le system prompt dit "always verify the customer's identity". Vous constatez que <code>get_customer</code> est appelé même quand ce n'est pas nécessaire. Quelle est la cause racine ?</summary>
+<summary>Q2 (D0) — System prompt keyword-sensitive</summary>
 <div>
+<p><strong>Situation :</strong> le system prompt dit « always verify the customer's identity ». Vous constatez que <code>get_customer</code> est appelé même quand ce n'est pas nécessaire. Quelle est la cause racine ?</p>
 <p>A) La description de <code>get_customer</code> est trop large.</p>
-<p>B) La formulation du system prompt ("always verify") crée une association non intentionnelle avec le tool <code>get_customer</code>.</p>
+<p>B) La formulation du system prompt (« always verify ») crée une association non intentionnelle avec le tool <code>get_customer</code>.</p>
 <p>C) <code>tool_choice</code> est réglé sur <code>"any"</code>, forçant un appel d'outil.</p>
 <p>D) Le modèle appelle <code>get_customer</code> par défaut au premier tour.</p>
-<p class="answer-block"><strong>Réponse : B.</strong> Le modèle interprète "always verify the customer" comme une instruction déclenchant systématiquement le tool le plus sémantiquement proche — ici <code>get_customer</code> : c'est une instruction <em>keyword-sensitive</em>. La solution : reformuler le system prompt en spécifiant <em>quand</em> la vérification est nécessaire plutôt que "always". (A est un symptôme, pas la cause racine : rien n'indique une description trop large ; le déclencheur est le mot <em>always</em> du system prompt. C est faux : aucun <code>tool_choice</code> n'est forcé ici.)</p>
+<hr>
+<p class="correct">Réponse : B) La formulation du system prompt crée une association non intentionnelle</p>
+<p><strong>Explication :</strong> le modèle interprète « always verify the customer » comme une instruction déclenchant systématiquement le tool sémantiquement le plus proche — ici <code>get_customer</code>. C'est une instruction <em>keyword-sensitive</em> : elle prend le pas sur des descriptions d'outils pourtant bien écrites. La correction est de dire <em>quand</em> la vérification est nécessaire plutôt que « always ».</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) C'est un symptôme plausible, pas la cause : rien dans l'énoncé n'indique une description trop large, et le déclencheur identifié est le mot <em>always</em>.</li>
+<li>C) Aucun <code>tool_choice</code> forcé n'est mentionné ; par défaut il vaut <code>"auto"</code>.</li>
+<li>D) Le modèle n'a pas de tool par défaut au premier tour — il choisit sur la base des descriptions et du system prompt.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary>Q3 : Vous avez besoin d'un structured output garanti de Claude. Quelle valeur de <code>tool_choice</code> garantit qu'un tool est toujours appelé (sans en imposer un précis) ?</summary>
+<summary>Q3 (D0) — Garantir qu'un tool soit appelé</summary>
 <div>
+<p><strong>Situation :</strong> vous avez besoin d'une sortie structurée garantie de Claude. Quelle valeur de <code>tool_choice</code> garantit qu'un tool est toujours appelé, sans en imposer un précis ?</p>
 <p>A) <code>{"type": "auto"}</code></p>
 <p>B) <code>{"type": "any"}</code></p>
 <p>C) Omettre <code>tool_choice</code></p>
-<p>D) <code>temperature: 0</code></p>
-<p class="answer-block"><strong>Réponse : B.</strong> <code>{"type": "any"}</code> force le modèle à appeler au moins un tool, mais le laisse choisir lequel → output structuré garanti. <code>"auto"</code> (A, et le défaut quand on omet le champ — C) laisse le modèle répondre en texte libre. <code>temperature</code> (D) n'a aucun rapport. Pour forcer un tool <em>spécifique</em> : <code>{"type": "tool", "name": "..."}</code> (plus restrictif que <code>"any"</code>).</p>
+<p>D) <code>{"type": "none"}</code></p>
+<hr>
+<p class="correct">Réponse : B) {"type": "any"}</p>
+<p><strong>Explication :</strong> <code>"any"</code> oblige le modèle à appeler au moins un tool tout en le laissant choisir lequel — c'est exactement le réglage quand plusieurs schémas d'extraction coexistent et que le type d'entrée n'est pas connu à l'avance. Pour imposer un outil <em>précis</em>, on utilise <code>{"type": "tool", "name": "..."}</code>.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) <code>"auto"</code> laisse le modèle répondre en texte libre sans appeler d'outil.</li>
+<li>C) Omettre le champ revient à <code>"auto"</code>, qui est le défaut dès que des <code>tools</code> sont fournis.</li>
+<li>D) <code>"none"</code> fait l'inverse : il interdit tout appel d'outil.</li>
+</ul>
 </div>
 </details>
 
 <details>
-<summary>Q4 : Un tool d'extraction a un champ <code>required</code> "company_name", mais certains documents ne mentionnent aucune entreprise. Que se passe-t-il le plus souvent ?</summary>
+<summary>Q4 (D0) — Champ required et fabrication de valeur</summary>
 <div>
+<p><strong>Situation :</strong> un tool d'extraction déclare <code>company_name</code> dans <code>required</code>, mais certains documents ne mentionnent aucune entreprise. Que se passe-t-il le plus souvent ?</p>
 <p>A) L'API renvoie une erreur 400 de validation.</p>
 <p>B) Le champ est automatiquement renvoyé à <code>null</code>.</p>
-<p>C) Le modèle fabrique une valeur (hallucination) pour satisfaire la contrainte <code>required</code>.</p>
+<p>C) Le modèle fabrique une valeur pour satisfaire la contrainte <code>required</code>.</p>
 <p>D) Le tool n'est pas appelé du tout.</p>
-<p class="answer-block"><strong>Réponse : C.</strong> Un champ <code>required</code> pousse le modèle à <strong>inventer une valeur</strong> plutôt que de violer le schéma (l'API ne valide pas la véracité, donc pas d'erreur 400). Correction : rendre le champ <strong>nullable</strong> avec <code>"type": ["string", "null"]</code> et le retirer de <code>required</code> → le modèle renvoie <code>null</code> quand l'information est absente au lieu d'inventer un nom.</p>
+<hr>
+<p class="correct">Réponse : C) Le modèle fabrique une valeur pour satisfaire la contrainte</p>
+<p><strong>Explication :</strong> un champ <code>required</code> place le modèle devant un choix entre violer le schéma et inventer — il invente. La correction est de rendre le champ <strong>nullable</strong> (<code>"type": ["string", "null"]</code>) et de le retirer de <code>required</code> : le modèle renvoie alors <code>null</code> honnêtement quand l'information est absente.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) L'API valide la <em>conformité au schéma</em>, jamais la véracité du contenu — une valeur inventée est conforme.</li>
+<li>B) Rien ne renvoie automatiquement <code>null</code> tant que le champ reste <code>required</code>.</li>
+<li>D) Le tool est bien appelé ; c'est son contenu qui est faux.</li>
+</ul>
 </div>
 </details>
 
