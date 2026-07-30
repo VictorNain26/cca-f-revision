@@ -23,7 +23,7 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 85 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
@@ -31,7 +31,7 @@
 <div class="header-bar">
   <h1>Corpus de révision CCA-F</h1>
   <p>Claude Certified Architect — Foundations (code <strong>CCAR-F</strong>) · <strong>60</strong> QCM · <strong>120 min</strong> · score de passage <strong>720/1000</strong> · <strong>125 $ US</strong> · proctored via Pearson VUE (test center ou OnVUE)</p>
-  <span class="weight">5 domaines · 6 scénarios (4 tirés au sort) · 85 questions d’entraînement corrigées + auto-évaluations par domaine</span>
+  <span class="weight">5 domaines · 6 scénarios (4 tirés au sort) · 101 questions d’entraînement corrigées + auto-évaluations par domaine</span>
 </div>
 
 <h2 id="overview">Vue d'ensemble</h2>
@@ -41,13 +41,19 @@
 <div class="key-concept">
 <strong>Comment réviser — méthode evidence-based :</strong>
 <ol>
-<li><strong>Diagnostic :</strong> ~25-30 <a href="Practice_Questions.html">QCM</a> tous scénarios confondus, fiches fermées → repère tes domaines faibles.</li>
-<li><strong>Par domaine</strong> (ordre poids × faiblesse, D1 27 % d'abord) : teste-toi d'abord, puis lis pour combler, débriefe chaque distracteur.</li>
-<li><strong>Mocks :</strong> examens blancs en conditions + la <strong>Practice Exam officielle</strong> (vise &gt; 900/1000, meilleur prédicteur de réussite).</li>
-<li><strong>Dernière ligne droite :</strong> relis seulement ton journal d'erreurs + les <a href="Exam_Strategy.html">cheat sheets &amp; arbres de décision</a>.</li>
+<li><strong>Diagnostic :</strong> réponds aux auto-évaluations des 5 fiches de domaine, fiches fermées → ton profil ci-dessous se remplit et te donne l'ordre de révision.</li>
+<li><strong>Par domaine</strong> (ordre poids × faiblesse) : teste-toi d'abord, puis lis pour combler, débriefe chaque distracteur — dis à voix haute pourquoi chacun est faux.</li>
+<li><strong>Volume :</strong> les 101 <a href="Practice_Questions.html">QCM corrigés</a>, dont les 12 exemples officiels du guide. Vise &ge; 85 % au 2<sup>e</sup> passage, aucun domaine sous 75 %.</li>
+<li><strong>Dernière ligne droite :</strong> relis seulement tes erreurs + les <a href="Exam_Strategy.html">cheat sheets &amp; arbres de décision</a>.</li>
 </ol>
 <p>Méthode complète (5 règles sourcées, journal d'erreurs) → <a href="Exam_Strategy.html">Stratégie d'examen</a>.</p>
 </div>
+
+<h2 id="profil">Ton profil par domaine</h2>
+
+<p>Le score de tes auto-évaluations, pondéré par le poids réel de chaque domaine à l'examen. Le premier de la liste est celui où réviser rapporte le plus de points.</p>
+
+<div id="cca-profil"></div>
 
 <h2 id="domains">Les 5 domaines (avec poids)</h2>
 
@@ -115,7 +121,7 @@
 <div class="cards-grid">
 
   <a class="card" href="Practice_Questions.html">
-    <span class="card-tag">Active recall · 85 QCM</span>
+    <span class="card-tag">Active recall · 101 QCM</span>
     <h3 class="card-title">Practice Questions</h3>
     <p class="card-desc">Questions expliquées en détail + questions couvrant les 6 scénarios officiels. Chaque QCM corrigé avec explication et raison d'écarter chaque distracteur.</p>
     <p class="card-meta">Couverture 6/6 scénarios</p>
@@ -129,6 +135,45 @@
   </a>
 
 </div>
+
+<h2 id="ressources">Ressources officielles — quoi suivre, quoi sauter</h2>
+
+<p>Le <strong>guide d'examen</strong> est la seule source qui définit ce qui est testé. Téléchargez-le depuis la <a href="https://anthropic-partners.skilljar.com/claude-certified-architect-foundations-certification/486716" rel="noopener">page de certification sur l'Anthropic Partner Academy</a> et lisez-le en entier avant de programmer votre examen.</p>
+
+<div class="key-concept">
+<strong>Les 7 « prep courses » ne sont pas le référentiel.</strong> Ce sont des cours d'apprentissage qui débordent largement du périmètre de l'examen. Les suivre intégralement, c'est passer des heures sur du hors-scope. Voici ce qu'ils valent réellement pour le CCA-F.
+</div>
+
+<table>
+<tr><th>Cours</th><th>Utile pour</th><th>À sauter</th></tr>
+<tr>
+  <td><strong>Introduction to Model Context Protocol</strong></td>
+  <td><strong>D2</strong> — les trois primitives (tools, resources, prompts) sont exactement au programme</td>
+  <td>Rien d'essentiel. Le hands-on Python va plus loin que nécessaire, mais construire un serveur aide à comprendre.</td>
+</tr>
+<tr>
+  <td><strong>Claude Code in Action</strong></td>
+  <td><strong>D3</strong> — CLAUDE.md, skills, hooks, mode headless, code review en CI</td>
+  <td><strong>Plugins, routines, permission modes, rewind</strong> : absents du référentiel, ajoutés à l'outil après le guide.</td>
+</tr>
+<tr>
+  <td><strong>Building with the Claude API</strong></td>
+  <td><strong>D0, D4</strong> — Tool use, Structured data, Prompt engineering, Agents and workflows</td>
+  <td>Les chapitres <em>RAG and Agentic Search</em> et <em>Features of Claude</em> en entier (embeddings, chunking, BM25, extended thinking, images, PDF, citations, prompt caching), plus <em>Response streaming</em> et <em>Temperature</em>. Tous hors scope.</td>
+</tr>
+<tr>
+  <td><strong>Claude on Google Cloud</strong><br><strong>Claude with Amazon Bedrock</strong></td>
+  <td>Rien.</td>
+  <td><strong>Tout</strong> — le guide exclut explicitement les configurations de fournisseurs cloud.</td>
+</tr>
+<tr>
+  <td><strong>AI Fluency</strong><br><strong>Claude 101</strong></td>
+  <td>Rien de testé.</td>
+  <td><strong>Tout</strong> pour la préparation à l'examen. Culture générale et usage quotidien de Claude.</td>
+</tr>
+</table>
+
+<p>La liste complète de ce qui ne tombera pas est reprise dans <a href="Scenarios_Exam.html#hors-scope">Hors-scope — ne révise pas ça</a>. Et les quatre points sur lesquels la documentation actuelle contredit le guide sont détaillés dans <a href="Exam_Strategy.html#guide-vs-doc">Le guide fait loi</a>.</p>
 
 <h2 id="référentiel">Le référentiel officiel</h2>
 
@@ -166,7 +211,6 @@
 <tr><td>Tentatives</td><td>Jusqu'à <strong>4 tentatives par période glissante de 12 mois</strong>, délais de repassage <strong>14 / 30 / 90 jours</strong> après échecs successifs</td></tr>
 <tr><td>Recertification</td><td>Validité <strong>12 mois</strong> — renouvellement gratuit via une évaluation non proctorée sur l'Anthropic Partner Academy</td></tr>
 <tr><td>Report du score</td><td>Pass/fail + score sur 100–1000 + pourcentage de réussite par domaine</td></tr>
-<tr><td>Practice Exam</td><td>Officielle — viser <strong>&gt; 900/1000</strong> = meilleur prédicteur de réussite</td></tr>
 </table>
 
 <nav class="doc-nav">

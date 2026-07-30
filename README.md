@@ -18,7 +18,6 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | Plateforme | Proctored via **Pearson VUE** — test center ou OnVUE |
 | Tentatives | Jusqu'à **4 tentatives par période glissante de 12 mois**, délais de repassage **14 / 30 / 90 jours** après échecs successifs |
 | Recertification | Validité **12 mois** — renouvellement gratuit (évaluation non proctorée, Anthropic Partner Academy) |
-| Practice Exam | Officielle — **viser > 900/1000** = meilleur prédicteur de réussite |
 
 ## Couverture du corpus — 100 % du référentiel officiel
 
@@ -48,12 +47,25 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 
 ## Méthode d'utilisation
 
-1. **Diagnostic** — QCM tous scénarios confondus, fiches fermées → repère tes domaines faibles.
-2. **Par domaine** (ordre poids × faiblesse) — teste-toi d'abord, puis lis pour combler, explique chaque distracteur.
-3. **Simulation** — examens blancs en conditions + la Practice Exam officielle (vise > 900/1000).
+1. **Diagnostic** — réponds aux auto-évaluations des 5 fiches de domaine, fiches fermées. Le **profil par domaine** sur l'accueil se remplit et classe les domaines par rentabilité (poids à l'examen × ce qu'il te reste à combler).
+2. **Par domaine**, dans l'ordre donné par le profil — teste-toi d'abord, puis lis pour combler, explique chaque distracteur.
+3. **Volume** — les 101 QCM corrigés, dont les 12 exemples officiels du guide. Go/no-go : ≥ 85 % au 2e passage, aucun domaine sous 75 %.
 4. **Dernière ligne droite** — relis seulement ton journal d'erreurs + le Cheat Sheet.
 
 > **Principe** : active recall > relecture passive. Faire les QCM, expliquer pourquoi chaque distracteur est faux. La compréhension émerge de la formulation, pas de la lecture.
+
+## Le guide fait loi
+
+Le **guide d'examen** (CCAR-F v1.0, juillet 2026) définit le périmètre ; la **doc Anthropic** fait autorité sur l'exactitude technique. Les **prep courses** de l'Anthropic Partner Academy ne sont ni l'un ni l'autre — ils débordent largement du programme (RAG, embeddings, streaming, prompt caching, Bedrock, Vertex sont tous hors scope). L'accueil détaille quoi suivre et quoi sauter dans chacun.
+
+Le guide fige l'état de l'outillage en juillet 2026 et la doc a bougé depuis. Sur quatre points, réviser sur la doc à jour conduit à répondre faux — voir [Le guide fait loi](Exam_Strategy.html#guide-vs-doc) :
+
+| Sujet | À répondre (guide) | Doc actuelle |
+|---|---|---|
+| Slash commands / skills | Deux mécanismes distincts, `.claude/commands/` pour l'équipe | Fusionnés : les deux produisent la même commande |
+| Spawn de subagents | Outil `Task`, `allowedTools` doit contenir `"Task"` | Renommé `Agent` en Claude Code v2.1.63 |
+| `allowed-tools` dans un skill | Restreint l'accès aux outils | Décrit comme une pré-approbation de permissions |
+| Sortie structurée | `tool_use` + JSON Schema | Structured Outputs natifs (`output_config.format`) |
 
 ## Déploiement
 
@@ -72,7 +84,9 @@ git push
 
 ## Sources
 
-Ce corpus est basé sur le guide officiel CCA-F d'Anthropic et complété par les ressources publiques de la communauté (AI.cc, DEV Community, Medium, Claude Certified Architects). Il couvre 100 % du référentiel des 5 domaines et des 6 scénarios.
+Le corpus est aligné sur le **guide officiel CCA-F d'Anthropic** (CCAR-F v1.0), qui définit seul le périmètre testé. Les faits techniques (flags CLI, champs de frontmatter, portées de configuration, Message Batches API) sont vérifiés contre la **documentation Anthropic officielle** — `code.claude.com/docs` et `platform.claude.com/docs`.
+
+Couverture : les **30 task statements** des 5 domaines et les **6 scénarios**. Aucun sujet listé hors-scope par le guide n'est enseigné comme matière ; les rares mentions servent de distracteurs corrigés ou figurent dans la liste explicite « ne révise pas ça ».
 
 ---
 
