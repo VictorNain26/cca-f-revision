@@ -4,7 +4,7 @@
 
 **Objectif :** amener les six fiches de domaine au contrat de section en quatre garanties, sans toucher à l'alignement au guide déjà validé.
 
-**Architecture :** `tools/check-chapters.mjs` matérialise le contrat et sert de test. Il échoue sur le corpus actuel avec **33 violations**. Chaque tâche en éteint un lot, fiche par fiche, et se termine sur un contrôle qui ne signale plus rien pour cette fiche. Chaque fiche est un commit.
+**Architecture :** `tools/check-chapters.mjs` matérialise le contrat et sert de test. Il échoue sur le corpus actuel avec **37 violations**. Chaque tâche en éteint un lot, fiche par fiche, et se termine sur un contrôle qui ne signale plus rien pour cette fiche. Chaque fiche est un commit.
 
 **Stack :** Node.js sans dépendance, HTML statique. Suite jsdom existante en filet final sur les quiz.
 
@@ -12,7 +12,7 @@
 
 ## Historique de révision
 
-Le périmètre initial ne couvrait que 11 des 33 violations. Le contrat, écrit après le cadrage du chantier, s'est révélé plus exigeant que le chantier lui-même — notamment sur D2, que le spec excluait au motif que chaque section portait déjà un exemple, ce qui ne répond qu'à une garantie sur quatre. Périmètre élargi aux 33 violations sur décision de l'utilisateur.
+Le périmètre initial ne couvrait que 11 des 33 violations alors détectées. Le contrat, écrit après le cadrage du chantier, s'est révélé plus exigeant que le chantier lui-même — notamment sur D2, que le spec excluait au motif que chaque section portait déjà un exemple, ce qui ne répond qu'à une garantie sur quatre. Périmètre élargi sur décision de l'utilisateur. La revue de la tâche 1 a ensuite fait resserrer la détection des distracteurs — un simple mot « anti-pattern » dans la prose suffisait à passer le contrôle — ce qui a porté le total de 33 à **37**.
 
 ## Contraintes globales
 
@@ -123,7 +123,7 @@ git commit -m "docs(cca-revision): complete the section contract across D3"
 
 **Fichiers :** modifier `D4_Prompt_Engineering_20pct.html`
 
-**Violations :** §1 exemple ; §2 réflexe + distracteurs ; §3 exemple + distracteurs ; §5 exemple ; §6 exemple + réflexe.
+**Violations :** §1 exemple ; §2 réflexe + distracteurs ; §3 exemple + distracteurs ; §5 exemple + distracteurs ; §6 exemple + réflexe.
 
 - [ ] **Étape 1 : §3 — l'exemple travaillé (Task 4.3)**
 
@@ -170,7 +170,7 @@ Distracteurs à ajouter : `output_config.format` (méthode de la doc actuelle, a
 |---|---|---|
 | §1 (Task 4.1) | exemple | Un `<pre>` opposant le prompt vague (« Check code comments for accuracy. Be conservative. ») au prompt à critères explicites déjà rédigé dans l'encadré, sous forme de texte de prompt copiable |
 | §2 (Task 4.2) | réflexe + distracteurs | Le few-shot est la réponse quand des instructions déjà détaillées produisent une sortie inconsistante, et quand le modèle doit généraliser à des cas non listés. Distracteurs : réécrire les instructions plus fermement, maintenir une liste blanche (ne couvre que ce qui y figure), post-traiter la sortie (ne reconstruit pas ce qui n'a pas été produit), baisser la sensibilité (supprime les vrais positifs au même rythme) |
-| §5 (Task 4.5) | exemple | Une requête batch avec `custom_id`, et le calcul de SLA : fenêtre de traitement 24 h, engagement 30 h → soumission toutes les 6 h au maximum |
+| §5 (Task 4.5) | exemple + distracteurs | Une requête batch avec `custom_id`, et le calcul de SLA : fenêtre de traitement 24 h, engagement 30 h → soumission toutes les 6 h au maximum. Distracteurs : basculer un contrôle bloquant pré-merge sur le Batches API (séduit par les 50 % d'économie, mais aucune garantie de latence) ; le rendre acceptable par du polling (« souvent plus rapide » n'est pas une garantie) ; tout garder en synchrone pour éviter les problèmes d'ordre (méprise — `custom_id` corrèle les réponses) ; batch avec repli temporisé vers le synchrone (double chemin de code pour un problème qui disparaît en appariant chaque API à sa charge) |
 | §6 (Task 4.6) | exemple + réflexe | Un `<pre>` montrant le découpage en passes (par fichier, puis intégration). Réflexe : l'incohérence entre fichiers vient de la dilution d'attention, pas d'un manque de contexte. Distracteurs : un modèle à fenêtre plus large (confond capacité et attention), le vote de consensus sur trois passes (supprime les vrais bugs détectés une seule fois), demander aux développeurs de découper leurs PR (déplace la charge sans améliorer le système) |
 
 - [ ] **Étape 3 : supprimer §7, renvoi en tête**
@@ -324,7 +324,7 @@ git commit -m "docs(cca-revision): add a worked example to every D0 section"
 
 **Fichiers :** modifier `D5_Context_Fiabilite_15pct.html`
 
-**Violations :** §1 distracteurs ; §4 distracteurs.
+**Violations :** §1 distracteurs ; §3 distracteurs ; §4 distracteurs ; §5 distracteurs.
 
 - [ ] **Étape 1 : dédupliquer §1 avec D0 §5**
 
@@ -341,7 +341,9 @@ Conserver intégralement les solutions sous leurs sous-titres : bloc `case facts
 | Section | Substance |
 |---|---|
 | §1 (Task 5.1) | Contre le bloc `case facts` : agrandir la fenêtre de contexte et espacer les `/compact` séduisent parce qu'ils repoussent l'échéance, mais la conversation finit par dépasser la nouvelle limite ; demander au résumeur de préserver les nombres repose sur une conformité probabiliste, à chaque résumé et pour chaque fait |
+| §3 (Task 5.3) | Contre le contexte d'erreur structuré : un statut générique après retries internes cache au coordinateur ce dont il a besoin pour décider ; un résultat vide marqué comme succès est une suppression silencieuse ; terminer tout le workflow sur une branche perd les résultats déjà obtenus ; agréger en un pourcentage de couverture détruit la distinction entre échec d'accès et résultat vide valide |
 | §4 (Task 5.4) | Contre scratchpad et délégation : repartir de zéro jette le travail valide et reproduira la dégradation ; augmenter `max_tokens` borne la réponse, pas ce que l'agent a retenu ; demander à l'agent de « mieux se concentrer » ne restaure aucune information devenue inexploitable |
+| §5 (Task 5.5) | Contre la confiance par champ calibrée : un score global par document agrège les champs sûrs et douteux ; l'échantillonnage aléatoire est le bon outil pour *mesurer* un taux d'erreur, pas pour *allouer* une capacité de relecture ; l'auto-notation de 1 à 10 est non calibrée ; ne relire que les types de documents ayant généré des réclamations est un signal retardé et biaisé |
 
 - [ ] **Étape 3 : contrôler puis commiter**
 
@@ -358,19 +360,23 @@ git commit -m "docs(cca-revision): dedupe context window section and name distra
 
 **Fichiers :** modifier `D2_Tool_Design_MCP_18pct.html`
 
-**Violations :** §3 distracteurs ; §5 distracteurs.
+**Violations :** §1 distracteurs ; §3 distracteurs ; §5 distracteurs.
 
 D2 était hors périmètre du spec initial au motif que chaque section portait déjà un exemple. Le contrat en demande quatre.
 
-- [ ] **Étape 1 : §3 (Task 2.3)**
+- [ ] **Étape 1 : §1 (Task 2.1)**
+
+Ajouter les distracteurs de la conception de descriptions : ajouter des few-shot examples au system prompt (coûte des tokens sans lever l'ambiguïté des descriptions) ; construire une couche de routage qui analyse l'entrée avant chaque tour (sur-ingénierie, court-circuite la compréhension du langage naturel) ; fusionner les deux outils en un `lookup_entity` générique (choix d'architecture défendable, mais bien plus lourd qu'un « premier pas » quand le problème immédiat est la pauvreté des descriptions) ; n'enrichir que l'une des deux descriptions (l'autre reste aussi attirante pour les mêmes requêtes).
+
+- [ ] **Étape 2 : §3 (Task 2.3)**
 
 Ajouter les distracteurs de la distribution d'outils et de `tool_choice` : fusionner les outils en un outil générique à paramètre `mode` (déplace la décision dans un argument, où la description ne peut plus la guider) ; régler `tool_choice: "any"` pour corriger un mauvais choix d'outil (garantit qu'un outil est appelé, pas que ce soit le bon) ; réécrire les descriptions encore une fois quand le vrai problème est le **nombre** d'outils ; donner tous les outils à un agent « au cas où », alors qu'un agent doté d'outils hors de sa spécialité les emploie à mauvais escient.
 
-- [ ] **Étape 2 : §5 (Task 2.5)**
+- [ ] **Étape 3 : §5 (Task 2.5)**
 
 Ajouter les distracteurs des outils built-in : confondre `Grep` (contenu) et `Glob` (chemins) — le piège tient à ce que les deux « cherchent » ; relancer `Edit` avec la même ancre ambiguë, alors que l'outil est déterministe et échouera à l'identique ; lire tous les fichiers d'emblée au lieu d'explorer par `Grep` puis `Read` ; passer par `Bash` et `find` là où `Glob` répond directement.
 
-- [ ] **Étape 3 : contrôler puis commiter**
+- [ ] **Étape 4 : contrôler puis commiter**
 
 `node tools/check-chapters.mjs` — attendu : **`Contrat de section : OK`**, code de sortie 0.
 
@@ -391,7 +397,7 @@ git commit -m "docs(cca-revision): name the distractors in D2 tool distribution 
 
 ## Auto-revue du plan
 
-**Couverture.** Les 33 violations sont réparties : D0 5 (Task 5), D1 7 (Task 4), D2 2 (Task 7), D3 9 (Task 2), D4 8 (Task 3), D5 2 (Task 6). Total 33. Les deux coupes structurelles (D3 §7 replié, D4 §7 supprimé) et les deux déduplications (D0 §3 ↔ D1 §2, D0 §5 ↔ D5 §1) sont chacune rattachées à une tâche.
+**Couverture.** Les 37 violations sont réparties : D0 5 (Task 5), D1 7 (Task 4), D2 3 (Task 7), D3 9 (Task 2), D4 9 (Task 3), D5 4 (Task 6). Total 37. Les deux coupes structurelles (D3 §7 replié, D4 §7 supprimé) et les deux déduplications (D0 §3 ↔ D1 §2, D0 §5 ↔ D5 §1) sont chacune rattachées à une tâche.
 
 **Ordre.** D1 §2 et D5 §1 renvoient vers D0 §3 et D0 §5, qui existent déjà et ne changent pas d'`id` en Task 5 — l'ordre des tâches est donc sans contrainte. Les renumérotations d'ancres sont internes à D3 et D4.
 
