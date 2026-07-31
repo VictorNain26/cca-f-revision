@@ -460,11 +460,15 @@ Batch avec repli temporisé vers le synchrone — deux chemins de code pour un p
 
 <h3>Planification du SLA avec la Message Batches API</h3>
 <div class="key-concept">
-<strong>Exemple de calcul SLA :</strong><br>
-Deadline pour le livrable : <strong>30 heures</strong>.<br>
-Fenêtre de traitement batch : jusqu'à <strong>24 heures</strong>.<br>
-→ Fenêtre de soumission : deadline − traitement batch = 30 h − 24 h = <strong>6 heures</strong> pour soumettre le batch.<br><br>
-En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 3 fenêtres de 2 h) pour avoir le temps de re-soumettre les documents échoués si nécessaire.
+<strong>La borne arithmétique.</strong> Dans le pire cas, le délai total vu par le livrable est <em>temps d'attente en file</em> + <em>temps de traitement</em>. Avec un plafond de traitement de <strong>24 heures</strong> et un engagement de <strong>30 heures</strong> :<br>
+30 h − 24 h = <strong>6 heures</strong> de file au maximum.<br>
+Ces 6 h sont le <strong>maximum théorique</strong> : une soumission qui tomberait pile à 6 h épuise exactement le budget et ne laisse rien pour un batch qui traite au plafond, ni pour re-soumettre un document échoué.<br><br>
+<strong>Le chiffre du guide.</strong> Sur ce même couple 30 h / 24 h, l'exemple officiel du référentiel (Task 4.5) retient des <strong>fenêtres de 4 heures</strong> — soit 2 h de marge sous la borne. <strong>C'est ce chiffre qu'il faut retenir pour l'examen</strong> : on soumet un batch au moins toutes les 4 heures pour tenir un engagement de 30 heures.
+</div>
+
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> sur une question de cadence de soumission, ne rendez jamais la borne théorique — on garde une marge sous l'engagement. Posez le calcul (engagement − plafond de traitement) pour obtenir le maximum, puis descendez en dessous.<br><br>
+<strong>Distracteur :</strong> la valeur qui <em>épuise exactement</em> le budget — ici <strong>6 heures</strong> pour un SLA de 30 h. Elle est arithmétiquement juste et c'est ce qui la rend séduisante, mais elle ne laisse aucune marge pour un batch traité au plafond ni pour une re-soumission. Le guide répond <strong>4 heures</strong>.
 </div>
 
 <h3>La gestion des échecs</h3>
@@ -554,7 +558,7 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <li>50 % d'économies, jusqu'à 24 h de traitement, pas de SLA de latence.</li>
 <li><strong>Pas de multi-turn tool calling</strong> : une requête = une réponse.</li>
 <li>Batch pour les traitements overnight et hebdomadaires. Synchrone pour tout ce qui bloque un développeur.</li>
-<li>Planification SLA : deadline - 24 h = fenêtre de soumission (ex. : 30 h - 24 h = 6 h).</li>
+<li>Planification SLA : engagement − plafond de traitement = borne maximale (30 h − 24 h = 6 h), mais on garde une marge — l'exemple du guide retient des <strong>fenêtres de 4 h</strong> pour un SLA de 30 h.</li>
 <li>Correlation via <code>custom_id</code>. Re-soumettre uniquement les documents échoués.</li>
 </ul>
 
