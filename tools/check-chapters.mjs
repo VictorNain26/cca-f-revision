@@ -22,7 +22,7 @@ for (const file of files) {
   const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
 
   // Découpage en sections sur les en-têtes <h2 id="sN">
-  const parts = html.split(/<div class="section-header[^"]*"><h2 id="s\d+"/).slice(1);
+  const parts = html.split(/<div class="section-header[^"]*"><h2 id="s\d+"[^>]*>/).slice(1);
   let contentWords = 0;
 
   for (const part of parts) {
