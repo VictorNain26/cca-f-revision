@@ -25,3 +25,6 @@ TODO.local.md
 # Sources de référence (non commitées dans le repo public Pages)
 *.pdf
 docs/
+
+# Espace de travail des plans (subagent-driven development)
+.superpowers/
