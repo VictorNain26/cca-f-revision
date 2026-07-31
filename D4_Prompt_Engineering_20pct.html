@@ -23,20 +23,20 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a class="current" href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>D4 — Prompt engineering et sorties structurées (20 %)</h1>
-<p>6 Task Statements · Sources : guide officiel, chapitres 1, 6 et 7</p>
+<p>6 Task Statements (4.1 à 4.6) · Source : guide officiel CCAR-F v1.0, domaine 4 · exactitude technique vérifiée sur la doc Anthropic</p>
 </div>
 
 <div class="toc">
 <strong>Sommaire</strong>
 <ol>
-<li><a href="#s1">Des critères explicites plutot que des instructions vagues</a></li>
+<li><a href="#s1">Des critères explicites plutôt que des instructions vagues</a></li>
 <li><a href="#s2">Le few-shot prompting</a></li>
 <li><a href="#s3">Les sorties structurées avec tool_use et JSON Schema</a></li>
 <li><a href="#s4">Validation, retry-with-feedback et self-correction</a></li>
@@ -44,12 +44,12 @@
 <li><a href="#s6">La revue multi-instance et multi-pass review</a></li>
 <li><a href="#s7">Fondamentaux d'API — note de structure</a></li>
 <li><a href="#s8">Synthèse — les points clés</a></li>
-<li><a href="#s9">Auto-évaluation (6 questions)</a></li>
+<li><a href="#s9">Auto-évaluation (7 questions)</a></li>
 </ol>
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s1">1. Des critères explicites plutot que des instructions vagues (Task 4.1)</h2></div>
+<div class="section-header"><h2 id="s1">1. Des critères explicites plutôt que des instructions vagues (Task 4.1)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Quand vous demandez à Claude de "vérifier la précision des commentaires de code" ou d'"être conservateur dans ses signalements", il interprète ces instructions vagues de manière inconsistante. Un même pattern sera signalé dans une pull request mais ignoré dans la suivante. Les critères explicites éliminent cette ambiguïté en définissant précisément ce qui constitue un problème.</p>
@@ -146,17 +146,16 @@ Les few-shot examples sont particulièrement efficaces pour l'extraction de mesu
 <div class="section-header"><h2 id="s3">3. Les sorties structurées avec tool_use et JSON Schema (Task 4.3)</h2></div>
 
 <h3>Le problème que cela résout</h3>
-<p>Quand vous avez besoin que Claude retourne des données dans un format précis (pour alimenter un pipeline, une API, ou un système d'automatisation), le texte libre est insuffisant. La méthode recommandée aujourd'hui est celle des <strong>Structured Outputs</strong> natifs : <code>output_config: {"format": {"type": "json_schema", "schema": {...}}}</code> (ou, côté SDK, <code>client.messages.parse()</code> avec un modèle Pydantic, dont le résultat est exposé dans <code>response.parsed_output</code>). Le mécanisme <code>tool_use</code> combiné à un JSON Schema reste un pattern valable pour obtenir une sortie structurée.</p>
+<p>Quand vous avez besoin que Claude retourne des données dans un format précis — pour alimenter un pipeline, une API ou un système d'automatisation — le texte libre est insuffisant : il faut un mécanisme qui contraigne la <em>forme</em> de la sortie.</p>
 
 <div class="key-concept">
-<strong>Structured Outputs natifs = la méthode recommandée pour obtenir une sortie structurée.</strong><br>
-Avec <code>output_config.format.type = "json_schema"</code> (ou <code>client.messages.parse()</code>), la conformité au schéma et la présence des champs <code>required</code> sont garanties.<br>
-Le <code>tool_use</code> forcé reste un pattern valable, mais <strong>sans <code>strict: true</code></strong> sur la définition d'outil, il ne garantit <strong>ni</strong> la conformité au schéma <strong>ni</strong> la présence des champs <code>required</code> — le modèle peut produire un JSON valide mais qui s'écarte du schéma.<br>
-Dans tous les cas, ce qui n'est <strong>jamais</strong> garanti : la correction sémantique (les valeurs peuvent être fausses, les totaux peuvent ne pas correspondre).
+<strong><code>tool_use</code> + JSON Schema est la réponse du référentiel.</strong> On définit un outil dont l'<code>input_schema</code> est le schéma de sortie voulu, on force son appel avec <code>tool_choice</code>, et on lit le résultat dans le bloc <code>tool_use</code>. Le guide l'énonce sans réserve : c'est l'approche la plus fiable pour une sortie conforme au schéma, et elle <strong>élimine les erreurs de syntaxe JSON</strong>.
+<br><br>
+Ce qu'elle ne garantit <strong>pas</strong>, et que le guide souligne : la <strong>correction sémantique</strong>. Les valeurs peuvent être fausses, les totaux peuvent ne pas s'additionner, une donnée peut atterrir dans le mauvais champ. C'est l'objet de la section 4 (validation programmatique).
 </div>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> à l'examen, le cadrage attendu est <strong>« tool_use + JSON Schema élimine les erreurs de syntaxe »</strong> — c'est le pattern du guide officiel. Les Structured Outputs natifs (<code>output_config.format</code>, <code>strict: true</code>) sont la nuance de la documentation actuelle, pas le cadrage testé.
+<strong>Le guide fait loi ici.</strong> La documentation Anthropic recommande aujourd'hui les <strong>Structured Outputs natifs</strong> — <code>output_config: {"format": {"type": "json_schema", ...}}</code>, ou <code>client.messages.parse()</code> côté SDK Python. Ce mécanisme n'existe pas dans le guide CCAR-F v1.0 : <strong>ne le proposez pas comme réponse à l'examen</strong>. Si une option mentionne <code>output_config.format</code>, ce n'est pas celle attendue.
 </div>
 
 <h3>Le paramètre <code>tool_choice</code></h3>
@@ -180,7 +179,7 @@ Dans tous les cas, ce qui n'est <strong>jamais</strong> garanti : la correction 
 <h3>Erreurs syntaxiques vs erreurs sémantiques</h3>
 <table>
 <tr><th>Type</th><th>Exemple</th><th>Comment les traiter</th></tr>
-<tr><td><strong>Syntax errors</strong></td><td>JSON invalide, mauvais type de champ</td><td>Éliminées par les Structured Outputs natifs (ou <code>tool_use</code> avec <code>strict: true</code>)</td></tr>
+<tr><td><strong>Syntax errors</strong></td><td>JSON invalide, mauvais type de champ</td><td>Éliminées par <code>tool_use</code> + JSON Schema</td></tr>
 <tr><td><strong>Semantic errors</strong></td><td>Totaux incohérents, valeur dans le mauvais champ</td><td>Validation programmatique + retry-with-feedback</td></tr>
 </table>
 
@@ -235,7 +234,7 @@ Ajouter un champ <code>detected_pattern</code> dans les résultats structurés p
 <li><strong>Structural validation :</strong> types, champs <code>required</code>, contraintes d'<code>enum</code>.</li>
 <li><strong>Semantic validation :</strong> validateurs personnalisés (somme des lignes = total, date de début &lt; date de fin).</li>
 <li><strong>Boucles validate-retry :</strong> Pydantic valide → en cas d'échec, le message d'erreur est renvoyé au modèle → nouvelle tentative. Ce cycle se répète jusqu'à validation ou limite de retries.</li>
-<li><strong>Generation de JSON Schema :</strong> Pydantic peut générer le schéma utilisé pour <code>tool_use</code>, ce qui crée une source de vérité unique entre la validation et la définition du schéma.</li>
+<li><strong>Génération de JSON Schema :</strong> Pydantic peut générer le schéma utilisé pour <code>tool_use</code>, ce qui crée une source de vérité unique entre la validation et la définition du schéma.</li>
 </ul>
 
 <h3>Cookbook : boucle validate-retry production-ready</h3>
@@ -467,7 +466,7 @@ En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 
 
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s9">9. Auto-évaluation (6 questions)</h2></div>
+<div class="section-header"><h2 id="s9">9. Auto-évaluation (7 questions)</h2></div>
 
 <div class="quiz-section">
 <h3>Questions de révision — Domain 4</h3>
@@ -595,6 +594,27 @@ En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 
 </details>
 
 </div>
+
+<details>
+<summary>Q7 (D4) — Du code idiomatique signalé comme défaut</summary>
+<div>
+<p><strong>Situation :</strong> votre revue automatisée signale comme problèmes des patterns délibérés de votre codebase : le helper maison d'encapsulation d'erreurs, l'usage assumé d'un builder mutable dans les chemins critiques, la convention de retour anticipé des validateurs. Vous ne pouvez pas énumérer à l'avance tous les patterns acceptés — de nouveaux apparaissent régulièrement.</p>
+<p><strong>Question :</strong> quelle correction ?</p>
+<p>A) Baisser la sensibilité de la revue pour qu'elle signale moins de choses en général.</p>
+<p>B) Fournir des few-shot examples opposant les patterns acceptés aux vrais défauts, pour que le modèle généralise la distinction aux patterns non listés.</p>
+<p>C) Maintenir une liste blanche explicite des patterns acceptés, mise à jour à chaque nouveau cas.</p>
+<p>D) Exclure de la revue les fichiers où ces patterns apparaissent.</p>
+<hr>
+<p class="correct">Réponse : B) Des few-shot examples qui enseignent la distinction</p>
+<p><strong>Explication :</strong> les few-shot examples réduisent les faux positifs <em>tout en permettant la généralisation</em> : le modèle apprend le principe qui sépare un pattern intentionnel d'un défaut, au lieu d'apparier une liste figée. La contrainte de l'énoncé — de nouveaux patterns apparaissent sans cesse — est précisément ce qui rend la généralisation nécessaire.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Supprime les vrais défauts au même rythme que les faux positifs.</li>
+<li>C) Une liste blanche ne couvre que ce qui y figure déjà, et l'énoncé dit qu'elle ne sera jamais complète.</li>
+<li>D) Retire des fichiers entiers de la revue pour contourner un problème de classification.</li>
+</ul>
+</div>
+</details>
 
 <nav class="doc-nav">
   <a class="prev" href="D3_Claude_Code_Config_20pct.html"><span class="label">Précédent</span><span class="title">D3 — Configuration Claude Code</span></a>

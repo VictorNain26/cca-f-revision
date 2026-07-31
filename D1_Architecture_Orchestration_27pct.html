@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>D1 — Architecture et orchestration des agents (27 %)</h1>
-<p>Le domaine le plus lourd de l'examen · 7 Task Statements · Sources : guide officiel, chapitres 3, 8 et 9</p>
+<p>Le domaine le plus lourd de l'examen · 7 Task Statements (1.1 à 1.7) · Source : guide officiel CCAR-F v1.0, domaine 1 · exactitude technique vérifiée sur la doc Anthropic</p>
 </div>
 
 <div class="toc">
@@ -43,12 +43,12 @@
 <li><a href="#s5">Le Task tool, context passing et spawning</a></li>
 <li><a href="#s6">Programmatic enforcement et hooks</a></li>
 <li><a href="#s7">La gestion des sessions</a></li>
-<li><a href="#s8">Synthese + questions d'auto-evaluation</a></li>
+<li><a href="#s8">Synthèse + questions d'auto-évaluation</a></li>
 </ol>
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s1">1. Workflows vs. agents : le choix fondamental (Task 1.6 complement)</h2></div>
+<div class="section-header"><h2 id="s1">1. Workflows vs. agents : le cadrage (hors task statements)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Quand on conçoit un système basé sur Claude, il faut choisir entre un <strong>workflow</strong> (séquence d'étapes prédéfinies, orchestrée par le code) et un <strong>agent</strong> (séquence d'étapes décidées dynamiquement par le modèle). Le mauvais choix entraîne soit un système rigide qui ne s'adapte pas, soit un système imprévisible difficile à tester.</p>
@@ -66,7 +66,12 @@
 </div>
 
 <h3>Les cinq workflow patterns</h3>
-<p>L'essai Anthropic <em>« Building effective agents »</em> distingue <strong>cinq</strong> workflow patterns.</p>
+
+<div class="exam-tip">
+<strong>Hors périmètre testé — à lire une fois, pas à mémoriser.</strong> Cette taxonomie vient de l'essai Anthropic <em>« Building effective agents »</em>, pas du guide d'examen. Le référentiel ne retient que deux stratégies de décomposition (<strong>prompt chaining</strong> et <strong>décomposition dynamique</strong>, section 4) et un pattern d'orchestration (<strong>coordinateur-subagents</strong>, section 3). Les trois autres — routing, parallelization, evaluator-optimizer — vous aident à situer le paysage ; aucune question ne portera sur leurs noms.
+</div>
+
+<p>L'essai distingue <strong>cinq</strong> workflow patterns.</p>
 <table>
 <tr><th>Pattern</th><th>Principe</th><th>Cas d'usage typique</th></tr>
 <tr><td><strong>Prompt chaining</strong></td><td>Étapes séquentielles distinctes</td><td>Claude ignore des contraintes dans les prompts longs → découper en étapes</td></tr>
@@ -84,7 +89,7 @@
 </ul>
 
 <div class="anti-pattern">
-<strong>Trois anti-patterns de subagents à connaître :</strong>
+<strong>Trois anti-patterns de subagents à connaître</strong> <em>(matière de cours, absente du guide — utile en pratique, pas testée telle quelle)</em> <strong>:</strong>
 <ul>
 <li><strong>Les « expert claims » :</strong> « You are a Python expert » n'ajoute aucune capacité réelle. Claude possède déjà ces connaissances. Préférer une description factuelle du rôle et du périmètre.</li>
 <li><strong>Les sequential pipelines :</strong> quand chaque étape dépend des découvertes de la précédente (reproduire → debugger → corriger), l'information se perd dans les transferts entre agents. Garder dans le thread principal.</li>
@@ -109,7 +114,7 @@
 <p>Chaque itération de la boucle se décompose en quatre phases conceptuelles, exposées au modèle de manière implicite :</p>
 
 <table>
-<tr><th>Phase</th><th>Ce que fait le modèle</th><th>Element de l'API</th></tr>
+<tr><th>Phase</th><th>Ce que fait le modèle</th><th>Élément de l'API</th></tr>
 <tr><td><strong>Lecture du contexte</strong></td><td>Lit le contexte courant : messages historiques, tool results récents, system prompt</td><td>Tableau <code>messages</code> (avec <code>tool_result</code> blocks)</td></tr>
 <tr><td><strong>Raisonnement</strong></td><td>Raisonne sur l'état courant avant de décider de l'action suivante</td><td>raisonnement produit dans la génération</td></tr>
 <tr><td><strong>Action</strong></td><td>Décide d'appeler un outil ou de produire une réponse finale</td><td><code>tool_use</code> block ou <code>text</code> block</td></tr>
@@ -164,7 +169,7 @@
 <li><strong>Utiliser une limite d'itérations arbitraire</strong> (<code>max_iterations=5</code>) comme condition d'arrêt principale. Cela peut interrompre une tâche légitime en cours d'exécution.</li>
 <li><strong>Vérifier la présence de texte</strong> dans la réponse comme signal de fin. Claude peut générer du texte explicatif ET un <code>tool_use</code> block dans la même réponse.</li>
 </ul>
-<p><strong>Le signal fiable reste <code>stop_reason</code></strong> — mais il ne se résume pas à <code>"end_turn"</code> : il faut aussi gérer <code>"pause_turn"</code> (server tool interrompu, à relancer sans sortir de la boucle), <code>"refusal"</code> (refus de sécurité) et <code>"model_context_window_exceeded"</code> (fenêtre de contexte dépassée pendant la génération, modèles 4.5+).</p>
+<p><strong>Le signal fiable reste <code>stop_reason</code>.</strong> À l'examen, deux valeurs suffisent : <code>"tool_use"</code> pour continuer, <code>"end_turn"</code> pour sortir — ce sont les seules que le guide nomme. En production vous rencontrerez aussi <code>"pause_turn"</code> (server tool interrompu, à relancer sans sortir de la boucle), <code>"refusal"</code> et <code>"model_context_window_exceeded"</code> ; utile à savoir, jamais demandé.</p>
 </div>
 
 <div class="exam-tip">
@@ -215,7 +220,7 @@
 </ul>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s4">4. Les stratégies de décomposition (Task 1.5)</h2></div>
+<div class="section-header"><h2 id="s4">4. Les stratégies de décomposition (Task 1.6)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Toutes les tâches ne se décomposent pas de la même manière. Une code review suit toujours les mêmes étapes (lire, analyser, reporter), tandis qu'une investigation dans un codebase inconnu révèle ses sous-tâches au fur et à mesure. Choisir la mauvaise stratégie entraîne soit de la rigidité inutile, soit du chaos.</p>
@@ -315,7 +320,7 @@ Task 3 : "Rechercher des articles sur Z"
 <p><em>Voir aussi : D2, section 3 pour le paramètre <code>tool_choice</code> et D2, section 5 pour la référence complète des outils intégrés.</em></p>
 
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Task 1.4 &amp; 1.6)</h2></div>
+<div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Task 1.4 &amp; 1.5)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Dans un workflow de support client, il est critique de vérifier l'identité du client <em>avant</em> de traiter un remboursement. On peut l'écrire dans le prompt… mais les instructions dans le prompt ont un taux de conformité élevé, jamais garanti à 100 % — le guide officiel parle seulement d'un <em>non-zero failure rate</em> (le « 90-95 % » parfois cité en formation est illustratif, pas un chiffre officiel). Sur des milliers d'interactions, même un faible taux d'échec peut causer des remboursements versés au mauvais client.</p>
@@ -419,7 +424,7 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s8">8. Synthese + questions d'auto-evaluation</h2></div>
+<div class="section-header page-break"><h2 id="s8">8. Synthèse + questions d'auto-évaluation</h2></div>
 
 <p>Si vous ne deviez retenir que l'essentiel de ce domaine :</p>
 
@@ -432,7 +437,7 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <h3>L'agentic loop</h3>
 <ul>
 <li>Boucle agentique pilotée par <code>stop_reason</code> : <code>"tool_use"</code> → exécuter l'outil et itérer ; <code>"end_turn"</code> → terminer.</li>
-<li><code>stop_reason == "tool_use"</code> → continuer. <code>"pause_turn"</code> → re-envoyer pour continuer (server tool interrompu). <code>"end_turn"</code>, <code>"refusal"</code> ou <code>"model_context_window_exceeded"</code> → terminer. C'est le signal fiable pour piloter la boucle.</li>
+<li>Les deux valeurs testées : <code>"tool_use"</code> → continuer, <code>"end_turn"</code> → terminer. Les autres (<code>"pause_turn"</code>, <code>"refusal"</code>, <code>"model_context_window_exceeded"</code>) existent en production mais ne sont pas matière d'examen.</li>
 <li>Ne jamais parser le texte de l'assistant, utiliser des limites d'itérations arbitraires ou vérifier la présence de texte comme signal de fin.</li>
 <li>Hooks <code>PreToolUse</code> = entre la décision d'appel (bloc <code>tool_use</code> émis) et l'exécution de l'outil ; <code>PostToolUse</code> = au début de l'observe suivant.</li>
 </ul>
@@ -465,7 +470,7 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <li>4-5 outils maximum par subagent ; un structured output format est l'amélioration n° 1.</li>
 </ul>
 
-<h3>Questions d'auto-evaluation</h3>
+<h3>Questions d'auto-évaluation</h3>
 
 <details>
 <summary>Q1 (D1) — Séquencement d'outils à conséquence financière</summary>
@@ -508,21 +513,22 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </details>
 
 <details>
-<summary>Q3 (D1) — Propager un timeout de subagent</summary>
+<summary>Q3 (D1) — Choisir une stratégie de décomposition</summary>
 <div>
-<p><strong>Situation :</strong> un web search subagent part en timeout pendant une recherche complexe. Comment cette information doit-elle remonter au coordinateur pour permettre une reprise intelligente ?</p>
-<p>A) Retourner un contexte d'erreur structuré : type de défaillance, requête tentée, résultats partiels, approches alternatives.</p>
-<p>B) Retry automatique avec backoff dans le subagent, puis un statut générique « search unavailable » une fois les tentatives épuisées.</p>
-<p>C) Capturer le timeout dans le subagent et retourner un jeu de résultats vide marqué comme succès.</p>
-<p>D) Propager l'exception à un handler de plus haut niveau qui termine l'ensemble du workflow de recherche.</p>
+<p><strong>Situation :</strong> deux tâches sur votre backlog. La première : réviser chaque mois les mêmes huit modules de service sur les mêmes quatre axes (sécurité, gestion d'erreurs, logs, conformité des contrats d'API). La seconde : « ajouter une couverture de tests complète à ce codebase legacy », dont vous ignorez le nombre de modules et les dépendances.</p>
+<p><strong>Question :</strong> quelle stratégie pour chacune ?</p>
+<p>A) Décomposition dynamique pour la revue mensuelle, prompt chaining pour la couverture de tests.</p>
+<p>B) Prompt chaining pour la revue mensuelle, décomposition dynamique adaptative pour la couverture de tests.</p>
+<p>C) Prompt chaining pour les deux : un pipeline fixe est toujours plus reproductible.</p>
+<p>D) Décomposition dynamique pour les deux : laisser le modèle adapter son plan est toujours préférable.</p>
 <hr>
-<p class="correct">Réponse : A) Un contexte d'erreur structuré</p>
-<p><strong>Explication :</strong> le contexte structuré donne au coordinateur de quoi décider — relancer avec une requête modifiée, tenter une autre approche, ou continuer avec des résultats partiels annotés.</p>
+<p class="correct">Réponse : B) Prompt chaining pour la revue, décomposition dynamique pour les tests</p>
+<p><strong>Explication :</strong> le critère est la <em>prévisibilité du périmètre</em>. La revue mensuelle a des étapes connues d'avance et répétées à l'identique : un enchaînement fixe de passes ciblées donne de la profondeur constante et des résultats comparables d'un mois sur l'autre. La couverture de tests est une investigation ouverte où chaque découverte change la suite — mapper la structure, repérer les zones à fort impact, puis prioriser en s'adaptant aux dépendances rencontrées.</p>
 <p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
 <ul>
-<li>B) Un statut générique masque au coordinateur l'information dont il a besoin pour décider.</li>
-<li>C) Marquer un échec comme un succès supprime toute possibilité de reprise et fausse le rapport final.</li>
-<li>D) Terminer tout le workflow sur une défaillance unique est disproportionné quand des stratégies de reprise existent.</li>
+<li>A) Inverse exactement le critère : le pipeline fixe va sur la tâche dont on ne connaît pas les étapes, l'adaptatif sur celle qui ne varie jamais.</li>
+<li>C) Un pipeline fixe suppose de connaître la liste des modules et le bon ordre — précisément ce qui manque sur la seconde tâche.</li>
+<li>D) L'adaptativité n'apporte rien quand les axes et les modules sont figés, et rend les revues moins comparables entre elles.</li>
 </ul>
 </div>
 </details>
@@ -604,6 +610,26 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <li>B) C'est l'inverse : l'isolation du contexte est le principe de base des subagents.</li>
 <li>D) Toute communication transite par le coordinateur — c'est ce qui donne l'observabilité et un traitement d'erreur cohérent.</li>
 <li>E) Élargir le jeu d'outils dégrade la fiabilité de sélection ; chaque subagent ne reçoit que les outils de son rôle.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q8 (D1) — Trois outils MCP, trois formats de date</summary>
+<div>
+<p><strong>Situation :</strong> vos outils MCP renvoient les dates différemment : <code>get_customer</code> en timestamps Unix, <code>lookup_order</code> en ISO 8601, et l'outil de facturation legacy en codes de statut numériques. L'agent se trompe régulièrement en calculant si une commande est encore dans la fenêtre de retour de 30 jours.</p>
+<p><strong>Question :</strong> quelle correction traite la cause ?</p>
+<p>A) Une section du system prompt expliquant le format de chaque outil et demandant au modèle de convertir avec soin.</p>
+<p>B) Un hook <code>PostToolUse</code> qui normalise les résultats dans une représentation unique avant que le modèle ne les voie.</p>
+<p>C) Des few-shot examples montrant une conversion correcte depuis chacun des trois formats.</p>
+<p>D) Un hook <code>PreToolUse</code> qui réécrit les paramètres d'appel avant l'exécution de l'outil.</p>
+<hr>
+<p class="correct">Réponse : B) Un hook PostToolUse de normalisation</p>
+<p><strong>Explication :</strong> la normalisation de données est une transformation déterministe. Elle appartient à du code qui s'exécute sur chaque résultat, pas à une instruction que le modèle appliquera la plupart du temps. Le hook <code>PostToolUse</code> intercepte le résultat après l'exécution de l'outil et avant que le modèle ne le traite : c'est exactement son rôle dans le référentiel.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) et C) rendent probabiliste un problème qui a une réponse exacte, et coûtent du contexte à chaque requête.</li>
+<li>D) <code>PreToolUse</code> agit sur l'appel sortant, pas sur le résultat entrant — il ne voit jamais les dates à normaliser.</li>
 </ul>
 </div>
 </details>

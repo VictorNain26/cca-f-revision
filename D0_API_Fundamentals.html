@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>D0 — API Fundamentals</h1>
-<p>Prérequis pour tous les domaines · Sources : guide officiel, chapitres 1 et 2</p>
+<p>Prérequis pour tous les domaines · Source : guide officiel CCAR-F v1.0, appendice « Claude API » · exactitude technique vérifiée sur la doc Anthropic</p>
 </div>
 
 <div class="toc">
@@ -139,6 +139,10 @@
 
 <p>Chaque réponse de l'API contient un champ <code>stop_reason</code> qui indique pourquoi le modèle a arrêté de générer. Ce champ est essentiel pour contrôler le flux de votre application.</p>
 
+<div class="exam-tip">
+<strong>Ce qui est testé :</strong> le guide ne nomme que <strong>deux</strong> valeurs, <code>"tool_use"</code> et <code>"end_turn"</code> — celles qui pilotent la boucle agentique. Les quatre autres lignes du tableau sont là pour que vous les reconnaissiez sans les confondre ; ne passez pas de temps à les mémoriser.
+</div>
+
 <table>
 <tr><th>Valeur</th><th>Signification</th><th>Action typique</th></tr>
 <tr><td><code>"end_turn"</code></td><td>Le modèle a terminé naturellement sa réponse</td><td>Afficher la réponse à l'utilisateur</td></tr>
@@ -151,7 +155,7 @@
 </table>
 
 <div class="key-concept">
-<strong>Pour les systèmes agentiques :</strong> Les deux valeurs les plus importantes sont <code>"tool_use"</code> et <code>"end_turn"</code>. Elles controlent la boucle agentique :
+<strong>Pour les systèmes agentiques :</strong> Les deux valeurs les plus importantes sont <code>"tool_use"</code> et <code>"end_turn"</code>. Elles contrôlent la boucle agentique :
 <ul>
 <li><code>"tool_use"</code> → exécuter le tool, renvoyer le résultat, re-appeler l'API</li>
 <li><code>"end_turn"</code> → le modèle a fini, sortir de la boucle</li>
@@ -224,7 +228,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <tr><td><code>input_schema</code></td><td>Schéma JSON Schema définissant les paramètres attendus</td></tr>
 </table>
 
-<h3>Ecrire une bonne description</h3>
+<h3>Écrire une bonne description</h3>
 
 <p>La <code>description</code> est le <strong>mécanisme principal de sélection</strong>. Un LLM choisit ses tools en se basant sur leurs descriptions. Une bonne description répond à <strong>4 questions</strong> :</p>
 
@@ -253,7 +257,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Cas d'usage</th></tr>
 <tr><td><code>{"type": "auto"}</code></td><td>Le modèle décide librement s'il appelle un tool ou non (valeur par <strong>défaut</strong>)</td><td>Conversations générales avec tools optionnels</td></tr>
-<tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel) — un tool est toujours appelé, mais la conformité au schéma n'est garantie que si le tool utilise <code>strict: true</code></td><td>Quand vous voulez forcer un output structuré sans imposer un tool spécifique</td></tr>
+<tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel)</td><td>Quand vous voulez forcer un output structuré sans imposer un tool spécifique</td></tr>
 <tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution précis dans un pipeline</td></tr>
 <tr><td><code>{"type": "none"}</code></td><td>Aucun tool n'est autorisé, même s'il y en a de disponibles</td><td>Forcer une réponse texte pure malgré la présence de tools dans la requête</td></tr>
 </table>
@@ -261,7 +265,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <p>L'option <code>disable_parallel_tool_use: true</code> peut être combinée à <code>tool_choice</code> pour empêcher le modèle d'appeler plusieurs tools en parallèle dans une même réponse.</p>
 
 <div class="key-concept">
-<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent. C'est le pattern historique du <strong>tool_use forcé</strong> pour obtenir du structured output ; la méthode <strong>recommandée</strong> aujourd'hui est <code>output_config.format</code> (Structured Outputs natifs, voir section 8).
+<strong>Concept clé :</strong> <code>tool_choice: {"type": "any"}</code> avec plusieurs tools disponibles → le modèle choisit le tool le plus pertinent, mais il <em>doit</em> en appeler un. C'est le mécanisme du <strong>tool_use forcé</strong>, la réponse attendue à l'examen dès qu'une question demande un output structuré garanti (voir section 8).
 </div>
 
 <p>Voir <strong>D2 section 3</strong> pour les stratégies avancées de <code>tool_choice</code>.</p>
@@ -270,13 +274,26 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div class="section-header"><h2 id="s8" class="page-break">8. JSON Schemas pour structured output</h2></div>
 
 <div class="key-concept">
-<strong>Point essentiel :</strong> La méthode <strong>recommandée</strong> pour obtenir du structured output de Claude est désormais les <strong>Structured Outputs natifs</strong> : passer <code>output_config: {"format": {"type": "json_schema", "schema": {...}}}</code> à <code>messages.create</code> (ou, côté SDK Python, utiliser <code>client.messages.parse()</code> avec un modèle Pydantic). Ce mécanisme garantit un JSON syntaxiquement valide <strong>et</strong> conforme au schéma.
+<strong>Point essentiel — la réponse d'examen :</strong> le structured output garanti s'obtient avec <strong><code>tool_use</code> + JSON Schema</strong>. On définit un tool dont l'<code>input_schema</code> est le schéma de sortie voulu, on force son appel avec <code>tool_choice</code> (section 7), et on lit le résultat dans le bloc <code>tool_use</code> de la réponse. Le guide le formule sans réserve : c'est l'approche la plus fiable pour un output conforme au schéma, et elle <strong>élimine les erreurs de syntaxe JSON</strong>.
 </div>
 
-<p>Le pattern <strong>« tool_use forcé »</strong> (<code>tool_choice: {"type": "any"}</code> ou <code>{"type": "tool", "name": "..."}</code>, voir section 7) reste valable et fonctionne, mais c'est le pattern <strong>historique</strong>. Sans <code>strict: true</code> sur la définition du tool — qui impose <code>additionalProperties: false</code> et la liste <code>required</code> — la conformité au schéma <strong>n'est pas garantie</strong> : le modèle peut omettre des champs requis ou ajouter des champs non prévus.</p>
+<pre><code>"tools": [{
+  "name": "extract_invoice",
+  "description": "Records the fields extracted from an invoice document.",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "invoice_number": { "type": "string" },
+      "total":          { "type": "number" },
+      "company_name":   { "type": ["string", "null"] }
+    },
+    "required": ["invoice_number", "total"]
+  }
+}],
+"tool_choice": { "type": "tool", "name": "extract_invoice" }</code></pre>
 
 <div class="exam-tip">
-<strong>Pour l'examen :</strong> la bonne réponse pour le structured output est le pattern <strong>tool_use forcé</strong> (<code>tool_choice</code>) — c'est le mécanisme couvert par le guide officiel CCA-F. Les <strong>Structured Outputs natifs</strong> (<code>output_config.format</code>) sont la méthode actuelle recommandée par la documentation Anthropic, mais n'apparaissent pas dans le guide : ne les proposez pas comme réponse à l'examen. Dans les deux cas, la garantie de conformité au schéma suppose <code>strict: true</code> sur la définition du tool (ou l'équivalent natif) — sans quoi le modèle peut omettre ou ajouter des champs.
+<strong>Le guide fait loi ici.</strong> La documentation Anthropic recommande aujourd'hui les <strong>Structured Outputs natifs</strong> (<code>output_config: {"format": {"type": "json_schema", ...}}</code>, ou <code>client.messages.parse()</code> côté SDK Python). Ce mécanisme n'existe pas dans le guide CCAR-F v1.0 : <strong>ne le choisissez pas comme réponse à l'examen</strong>. À connaître pour votre travail, pas pour la certification.
 </div>
 
 <h3>Ce qui est garanti vs ce qui ne l'est pas</h3>
@@ -284,7 +301,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <table>
 <tr><th>Garanti</th><th>NON garanti</th></tr>
 <tr><td>JSON syntaxiquement valide</td><td>Exactitude sémantique des valeurs</td></tr>
-<tr><td>Respect de la structure du schéma (Structured Outputs natifs, ou <code>tool_use</code> avec <code>strict: true</code>)</td><td>Cohérence entre les champs (ex: totaux qui s'additionnent)</td></tr>
+<tr><td>Respect de la structure du schéma (types, champs, enums)</td><td>Cohérence entre les champs (ex: totaux qui s'additionnent)</td></tr>
 <tr><td>Types de données corrects</td><td>Absence de valeurs fabriquées (hallucinations)</td></tr>
 </table>
 
@@ -332,7 +349,49 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-évaluation</h2></div>
 
 <details>
-<summary>Q1 (D0) — API stateless et perte de tool_result</summary>
+<summary>Q1 (D0) — Terminer la boucle agentique</summary>
+<div>
+<p><strong>Situation :</strong> vous implémentez la boucle agentique d'un agent de support. À chaque tour, vous devez décider s'il faut exécuter un outil et rappeler l'API, ou sortir de la boucle et afficher la réponse.</p>
+<p><strong>Question :</strong> sur quoi fondez-vous cette décision ?</p>
+<p>A) Sur la présence d'un bloc <code>tool_use</code> dans <code>content</code>, en sortant dès que le modèle produit du texte.</p>
+<p>B) Sur le champ <code>stop_reason</code> : continuer tant qu'il vaut <code>"tool_use"</code>, sortir quand il vaut <code>"end_turn"</code>.</p>
+<p>C) Sur un plafond d'itérations fixé à l'avance (par exemple 10 tours).</p>
+<p>D) Sur la détection de formules de clôture dans le texte du modèle (« voilà », « en résumé »).</p>
+<hr>
+<p class="correct">Réponse : B) Le champ stop_reason</p>
+<p><strong>Explication :</strong> <code>stop_reason</code> est le signal explicite prévu pour cela. <code>"tool_use"</code> signifie que le modèle attend un résultat d'outil : on exécute, on renvoie le <code>tool_result</code>, on rappelle l'API. <code>"end_turn"</code> signifie que le modèle a terminé : on sort. C'est la seule valeur de ce champ qui pilote la boucle, et c'est aussi la base du domaine D1.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Vérifier le contenu textuel comme indicateur de complétion est un anti-pattern nommé par le guide : le modèle peut produire du texte <em>et</em> demander un outil dans la même réponse.</li>
+<li>C) Un plafond d'itérations est un garde-fou utile, jamais le mécanisme d'arrêt principal — il coupe des tâches légitimes et laisse tourner les boucles cassées jusqu'au plafond.</li>
+<li>D) Interpréter des signaux en langage naturel pour décider de la terminaison est l'anti-pattern le plus explicitement écarté par le guide.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q2 (D0) — Deux outils, une même description</summary>
+<div>
+<p><strong>Situation :</strong> vos deux outils s'appellent <code>get_customer</code> (« Retrieves customer information ») et <code>lookup_order</code> (« Retrieves order details »). Ils acceptent des identifiants de format voisin. En production, le modèle appelle régulièrement le mauvais.</p>
+<p><strong>Question :</strong> quel élément de la définition d'un tool détermine ce choix ?</p>
+<p>A) L'ordre des tools dans le tableau <code>tools</code> de la requête.</p>
+<p>B) Le nom du tool, qui prime sur le reste de la définition.</p>
+<p>C) La <code>description</code> — c'est le mécanisme principal de sélection.</p>
+<p>D) La complexité de l'<code>input_schema</code> : le modèle préfère le schéma le plus simple.</p>
+<hr>
+<p class="correct">Réponse : C) La description</p>
+<p><strong>Explication :</strong> le modèle choisit ses outils en lisant leurs descriptions. Quand elles sont minimales, il n'a pas de quoi les distinguer et le misrouting devient structurel. La correction consiste à enrichir chaque description avec les formats d'entrée, des exemples de requêtes, les cas limites et la frontière avec les outils voisins. C'est le point de départ de tout D2.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) L'ordre de déclaration n'est pas un critère de sélection.</li>
+<li>B) Le nom aide, mais il ne porte pas les formats d'entrée, les cas limites ni les frontières d'usage — c'est la description qui les porte.</li>
+<li>D) Le schéma décrit les paramètres attendus une fois le tool choisi ; il n'entre pas dans la décision de choisir ce tool-là.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q3 (D0) — API stateless et perte de tool_result</summary>
 <div>
 <p><strong>Situation :</strong> votre pipeline CI appelle l'API Claude. Entre deux requêtes, un <code>tool_result</code> de l'appel précédent est perdu. Quelle est la cause la plus probable ?</p>
 <p>A) L'API est stateless : le développeur n'a pas renvoyé l'historique complet (avec les <code>tool_result</code>) dans la requête suivante.</p>
@@ -352,7 +411,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </details>
 
 <details>
-<summary>Q2 (D0) — System prompt keyword-sensitive</summary>
+<summary>Q4 (D0) — System prompt keyword-sensitive</summary>
 <div>
 <p><strong>Situation :</strong> le system prompt dit « always verify the customer's identity ». Vous constatez que <code>get_customer</code> est appelé même quand ce n'est pas nécessaire. Quelle est la cause racine ?</p>
 <p>A) La description de <code>get_customer</code> est trop large.</p>
@@ -372,7 +431,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </details>
 
 <details>
-<summary>Q3 (D0) — Garantir qu'un tool soit appelé</summary>
+<summary>Q5 (D0) — Garantir qu'un tool soit appelé</summary>
 <div>
 <p><strong>Situation :</strong> vous avez besoin d'une sortie structurée garantie de Claude. Quelle valeur de <code>tool_choice</code> garantit qu'un tool est toujours appelé, sans en imposer un précis ?</p>
 <p>A) <code>{"type": "auto"}</code></p>
@@ -392,7 +451,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </details>
 
 <details>
-<summary>Q4 (D0) — Champ required et fabrication de valeur</summary>
+<summary>Q6 (D0) — Champ required et fabrication de valeur</summary>
 <div>
 <p><strong>Situation :</strong> un tool d'extraction déclare <code>company_name</code> dans <code>required</code>, mais certains documents ne mentionnent aucune entreprise. Que se passe-t-il le plus souvent ?</p>
 <p>A) L'API renvoie une erreur 400 de validation.</p>
@@ -418,7 +477,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — D0 API Fundamentals · Sources : guide officiel CCA (chapitres 1, 2) · 2026
+CCA Révision — D0 API Fundamentals · Source : guide officiel CCAR-F v1.0, appendice « Claude API » · 2026
 </p>
 
 

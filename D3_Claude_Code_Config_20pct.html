@@ -23,14 +23,14 @@
   <a class="current" href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>D3 — Configuration et workflows de Claude Code (20 %)</h1>
-<p>6 Task Statements · Sources : guide officiel, chapitre 5</p>
+<p>6 Task Statements (3.1 à 3.6) · Source : guide officiel CCAR-F v1.0, domaine 3 · exactitude technique vérifiée sur code.claude.com/docs</p>
 </div>
 
 <div class="toc">
@@ -107,16 +107,21 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 <p>Si vous répétez régulièrement les mêmes instructions ("fais une revue en suivant ce format", "génère des tests selon nos conventions"), il est plus efficace de les encapsuler dans une commande réutilisable.</p>
 
 <h3>Les slash commands</h3>
-<p>Les slash commands sont stockées dans <code>.claude/commands/</code> (partagées via VCS) et restent un mécanisme pleinement valide, non déprécié. Skills et slash commands coexistent ; le skill est simplement mieux outillé pour les workflows complexes (isolation de contexte, matching sémantique).</p>
+
+<div class="exam-tip">
+<strong>Le guide fait loi sur ce point.</strong> Le référentiel traite slash commands et skills comme <strong>deux mécanismes distincts</strong>, et désigne <code>.claude/commands/</code> comme l'emplacement d'une commande partagée avec l'équipe — c'est la réponse attendue à la question officielle « où créer un <code>/review</code> que tout le monde obtient au clone ? ». La documentation actuelle a depuis <em>fusionné</em> les deux : un fichier <code>.claude/commands/deploy.md</code> et un skill <code>.claude/skills/deploy/SKILL.md</code> produisent la même commande <code>/deploy</code>. Révisez le découpage du guide ; gardez la fusion pour votre travail quotidien.
+</div>
+
+<p>Les slash commands sont stockées dans <code>.claude/commands/</code> (partagées via VCS). Le nom du fichier donne le nom de la commande, et le contenu est le prompt exécuté.</p>
 <table>
-<tr><th>Portee</th><th>Emplacement</th><th>Partage</th></tr>
+<tr><th>Portée</th><th>Emplacement</th><th>Partage</th></tr>
 <tr><td><strong>Projet</strong></td><td><code>.claude/commands/</code></td><td>Versionne via VCS, disponible après clonage</td></tr>
 <tr><td><strong>Personnel</strong></td><td><code>~/.claude/commands/</code></td><td>Personnel, non partagé</td></tr>
 </table>
 <p>Le nom du fichier détermine le nom de la commande : <code>review.md</code> devient <code>/review</code>. Le placeholder <code>$ARGUMENTS</code> accepte des paramètres positionnels 0-based : <code>$0</code> = 1er argument, <code>$1</code> = 2e, etc.</p>
 
-<h3>Les skills (format actuel)</h3>
-<p>Les skills sont le format actuel et recommandé, plus puissant que les slash commands. Chaque skill vit dans un repertoire contenant un fichier <code>SKILL.md</code> avec un YAML frontmatter :</p>
+<h3>Les skills</h3>
+<p>Le skill est l'autre mécanisme : il porte un workflow invoqué à la demande, et il est mieux outillé que la slash command pour les cas complexes — isolation de contexte, restriction d'outils, indice d'argument. Chaque skill vit dans un répertoire contenant un fichier <code>SKILL.md</code> avec un YAML frontmatter :</p>
 <pre>---
 name: pr-description
 description: Writes pull request descriptions. Use when creating
@@ -145,7 +150,7 @@ Quand tu rédiges une description de PR :
 
 <h3>Skills personnels vs. skills projet</h3>
 <table>
-<tr><th>Portee</th><th>Emplacement</th><th>Partage</th></tr>
+<tr><th>Portée</th><th>Emplacement</th><th>Partage</th></tr>
 <tr><td><strong>Projet</strong></td><td><code>.claude/skills/</code></td><td>Versionné via VCS, partagé avec l'équipe</td></tr>
 <tr><td><strong>Personnel</strong></td><td><code>~/.claude/skills/</code></td><td>Local, non partagé</td></tr>
 </table>
@@ -160,7 +165,7 @@ C'est exactement pour cette raison que le référentiel recommande de <strong>do
 <p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents intégrés (Explore subagent, Plan) ne peuvent pas y accéder ; un subagent disposant du Skill tool peut en revanche invoquer les skills (projet, user, plugin) à la demande.</p>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s3">3. Les regles conditionnelles par chemin (Task 3.3)</h2></div>
+<div class="section-header"><h2 id="s3">3. Les règles conditionnelles par chemin (Task 3.3)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Les conventions de test s'appliquent à des fichiers dispersés dans tout le codebase (co-localisés avec le code source). Un <code>CLAUDE.md</code> par sous-répertoire serait fastidieux ; un <code>CLAUDE.md</code> unique chargerait des règles non pertinentes en permanence. Les fichiers <code>.claude/rules/</code> avec glob patterns résolvent ce problème.</p>
@@ -206,7 +211,7 @@ Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de dé
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s5">5. Le raffinement iteratif (Task 3.5)</h2></div>
+<div class="section-header"><h2 id="s5">5. Le raffinement itératif (Task 3.5)</h2></div>
 
 <h3>Le problème que cela résout</h3>
 <p>Même avec des instructions détaillées en prose, Claude peut interpréter différemment vos attentes à chaque itération. Il faut des méthodes plus précises pour converger.</p>
@@ -216,7 +221,7 @@ Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de dé
 
 <h3>L'iteration guidee par les tests (TDD iteration)</h3>
 <ol>
-<li>Ecrire les tests d'abord (cas attendus, cas limites, exigences de performance).</li>
+<li>Écrire les tests d'abord (cas attendus, cas limites, exigences de performance).</li>
 <li>Demander à Claude d'implémenter le code.</li>
 <li>Itérer sur les échecs jusqu'à ce que tous les tests passent.</li>
 </ol>
@@ -265,7 +270,7 @@ La même session Claude qui a généré le code est moins efficace pour le revie
 
 <h3>Bonnes pratiques CI/CD</h3>
 <ul>
-<li><strong>Eviter les commentaires dupliqués :</strong> quand vous relancez une revue après de nouveaux commits, incluez les résultats de la revue précédente dans le contexte et demandez à Claude de ne signaler que les problèmes nouveaux ou non résolus.</li>
+<li><strong>Éviter les commentaires dupliqués :</strong> quand vous relancez une revue après de nouveaux commits, incluez les résultats de la revue précédente dans le contexte et demandez à Claude de ne signaler que les problèmes nouveaux ou non résolus.</li>
 <li><strong>Améliorer la génération de tests :</strong> documentez les standards de test et les fixtures dans <code>CLAUDE.md</code>, et incluez les fichiers de test existants en contexte pour garder un style cohérent.</li>
 </ul>
 
@@ -528,6 +533,48 @@ jobs:
 <li>B) Un slash command reste valide, mais n'offre ni l'isolation de contexte ni le déclenchement sémantique dont ce workflow multi-étapes a besoin.</li>
 <li>D) <code>~/.claude/CLAUDE.md</code> est au niveau utilisateur : non partagé, et destiné aux standards permanents plutôt qu'aux workflows invocables.</li>
 <li>E) Un hook réagit à un événement d'outil ; il n'encapsule pas un workflow métier que l'on invoque à la demande.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q7 (D3) — Plan mode ou exécution directe</summary>
+<div>
+<p><strong>Situation :</strong> deux tickets. Le premier : une stack trace de production pointe une déréférence null dans <code>formatInvoiceDate()</code> quand la colonne <code>issued_at</code> est nulle — le correctif est une garde dans une fonction, dans un fichier. Le second : restructurer le monolithe en microservices, avec des décisions sur les frontières de service et des changements sur des dizaines de fichiers.</p>
+<p><strong>Question :</strong> quel mode pour chacun ?</p>
+<p>A) Plan mode pour les deux : toute modification de production mérite une revue de conception préalable.</p>
+<p>B) Plan mode pour le correctif afin de documenter le postmortem, exécution directe pour la restructuration.</p>
+<p>C) Exécution directe pour le correctif, plan mode pour la restructuration.</p>
+<p>D) Exécution directe pour les deux, en découpant la restructuration en petites étapes.</p>
+<hr>
+<p class="correct">Réponse : C) Exécution directe pour le correctif, plan mode pour la restructuration</p>
+<p><strong>Explication :</strong> le plan mode rentabilise son coût sur les changements de grande ampleur, les approches concurrentes et les décisions d'architecture — ce que la restructuration réunit. Un correctif d'un fichier avec une stack trace claire n'a aucune décision de conception à instruire : le périmètre est déjà établi.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Applique un processus lourd à un changement qui ne contient aucun arbitrage.</li>
+<li>B) Inverse les deux critères.</li>
+<li>D) Avancer par petits pas sans plan fait découvrir les dépendances tard, quand les reprendre coûte cher.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q8 (D3) — Une transformation interprétée différemment à chaque fois</summary>
+<div>
+<p><strong>Situation :</strong> vous demandez de « normaliser les enregistrements clients legacy vers le nouveau schéma ». Chaque exécution interprète « normaliser » autrement : l'une aplatit les adresses imbriquées, l'autre les conserve ; l'une met les codes pays en majuscules, l'autre non. Vous avez déjà réécrit la consigne deux fois sans converger.</p>
+<p><strong>Question :</strong> quelle technique applique-t-on ?</p>
+<p>A) Réécrire la consigne une troisième fois, plus longue et plus précise.</p>
+<p>B) Découper la normalisation en une commande par champ.</p>
+<p>C) Demander au modèle d'expliquer son interprétation avant chaque exécution et la corriger à chaque fois.</p>
+<p>D) Fournir deux ou trois paires entrée/sortie concrètes montrant exactement à quoi ressemble un enregistrement normalisé.</p>
+<hr>
+<p class="correct">Réponse : D) Des exemples entrée/sortie concrets</p>
+<p><strong>Explication :</strong> quand une description en prose est interprétée de façon inconsistante, des exemples travaillés sont le moyen le plus efficace de communiquer la transformation attendue. Ils tranchent les cas que la prose laissait ouverts, au lieu de les décrire à nouveau.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) C'est la démarche qui a déjà échoué deux fois ; plus de mots sur une ambiguïté ne la lèvent pas.</li>
+<li>B) Multiplie les invocations sans jamais définir ce que « normalisé » signifie.</li>
+<li>C) Transforme chaque exécution en négociation au lieu de corriger la spécification.</li>
 </ul>
 </div>
 </details>

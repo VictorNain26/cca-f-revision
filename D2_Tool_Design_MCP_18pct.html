@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>D2 — Conception d'outils et intégration MCP (18 %)</h1>
-<p>5 Task Statements · Sources : guide officiel, chapitres 2 et 4</p>
+<p>5 Task Statements (2.1 à 2.5) · Source : guide officiel CCAR-F v1.0, domaine 2 · exactitude technique vérifiée sur la doc Anthropic</p>
 </div>
 
 <div class="toc">
@@ -183,8 +183,22 @@
 <h3>Le problème que cela résout</h3>
 <p>L'approche traditionnelle d'intégration d'outils oblige les développeurs à écrire manuellement des schémas et des fonctions pour chaque outil. Le <strong>Model Context Protocol (MCP)</strong> résout ce problème en déplaçant la définition et l'exécution des outils vers des serveurs dédiés. Quelqu'un d'autre crée les outils, les empaquète dans un MCP server, et votre application s'y connecte automatiquement.</p>
 
-<h3>La portée des MCP servers</h3>
-<p>Les MCP servers sont configurés au niveau du <strong>projet</strong> dans <code>.mcp.json</code> à la racine du projet. Ce fichier est versionné dans le VCS et partagé avec l'équipe pour les intégrations standards.</p>
+<h3>Les deux portées de configuration MCP</h3>
+<p>Un serveur MCP se déclare à l'une de deux portées, et le choix dépend d'une seule question : <strong>est-ce que toute l'équipe doit l'avoir ?</strong></p>
+
+<table>
+<tr><th>Portée</th><th>Fichier</th><th>Partagé ?</th><th>Pour quoi</th></tr>
+<tr><td><strong>Projet</strong></td><td><code>.mcp.json</code> à la racine du dépôt</td><td>Oui — versionné dans le VCS, disponible après un clone</td><td>Outillage d'équipe : Jira, GitHub, la base de connaissances interne</td></tr>
+<tr><td><strong>Utilisateur</strong></td><td><code>~/.claude.json</code></td><td>Non — local à la machine</td><td>Serveurs personnels ou expérimentaux : vos notes, un prototype, un serveur que vous testez</td></tr>
+</table>
+
+<div class="key-concept">
+<strong>Les deux coexistent.</strong> Les outils de <em>tous</em> les serveurs configurés, quelle que soit leur portée, sont découverts à la connexion et disponibles simultanément à l'agent. Déclarer un serveur personnel dans <code>~/.claude.json</code> ne vous prive pas des serveurs projet — vous avez l'union des deux.
+</div>
+
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> « tout le monde doit l'avoir » → <code>.mcp.json</code> projet. « moi seul, et je ne veux pas l'imposer à l'équipe » → <code>~/.claude.json</code> utilisateur. Le distracteur classique consiste à proposer de mettre le serveur expérimental dans le fichier projet en le désactivant, ou à demander à chaque coéquipier d'ajouter le serveur d'équipe à la main : les deux inversent la logique des portées.
+</div>
 
 <h3>La gestion des secrets par substitution de variables d'environnement</h3>
 <p>Les tokens d'accès ne doivent jamais être commités dans le dépôt. Utilisez la substitution de variables d'environnement dans <code>.mcp.json</code> :</p>
@@ -200,11 +214,11 @@
 <p>La syntaxe <code>${VARIABLE_NAME}</code> est résolue au lancement. Chaque développeur fournit ses propres credentials via ses variables d'environnement locales, ce qui permet de versionner <code>.mcp.json</code> sans exposer de secrets.</p>
 
 <div class="anti-pattern">
-<strong>Anti-pattern (in-scope) :</strong> stocker un token en clair dans <code>.mcp.json</code> versionne. Même si vous le supprimez plus tard, l'historique Git le conserve indéfiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code> non versionne.
+<strong>Anti-pattern (in-scope) :</strong> stocker un token en clair dans un <code>.mcp.json</code> versionné. Même si vous le supprimez plus tard, l'historique Git le conserve indéfiniment. <strong>Toujours</strong> passer par <code>${VAR}</code> ou par le user-level <code>~/.claude.json</code>, non versionné.
 </div>
 
-<h3>Les trois primitives MCP</h3>
-<p>MCP expose trois types de primitives, chacune contrôlée par un acteur différent :</p>
+<h3>Les primitives MCP</h3>
+<p>MCP expose trois types de primitives, chacune contrôlée par un acteur différent. <strong>Deux seulement sont au programme :</strong> l'appendice du guide cite les <code>tools</code> et les <code>resources</code> (avec <code>isError</code> et la configuration <code>.mcp.json</code>), et l'in-scope parle de « MCP tool and resource design ». Les <code>prompts</code> figurent ici pour que le tableau soit complet et que vous les reconnaissiez comme distracteur — aucune question ne portera dessus.</p>
 <table>
 <tr><th>Primitive</th><th>Contrôlée par</th><th>Objectif</th><th>Quand l'utiliser</th></tr>
 <tr><td><strong><code>tools</code></strong></td><td>Le modèle (Claude)</td><td>Ajouter des capacités d'action</td><td>Claude doit exécuter une opération (CRUD, appel API)</td></tr>
@@ -242,7 +256,7 @@
 <tr><td>Trouver des fichiers par nom ou pattern</td><td><strong><code>Glob</code></strong></td><td><code>**/*.test.tsx</code>, <code>src/components/**/*.ts</code></td></tr>
 <tr><td>Chercher dans le contenu des fichiers</td><td><strong><code>Grep</code></strong></td><td>Un nom de fonction, un message d'erreur, un import</td></tr>
 <tr><td>Lire un fichier en entier</td><td><strong><code>Read</code></strong></td><td>Charger un fichier pour l'analyser</td></tr>
-<tr><td>Créer un nouveau fichier</td><td><strong><code>Write</code></strong></td><td>Ecrire un fichier depuis zéro</td></tr>
+<tr><td>Créer un nouveau fichier</td><td><strong><code>Write</code></strong></td><td>Écrire un fichier depuis zéro</td></tr>
 <tr><td>Modifier précisément un fichier existant</td><td><strong><code>Edit</code></strong></td><td>Remplacer un extrait via une correspondance de texte unique</td></tr>
 <tr><td>Exécuter une commande shell</td><td><strong><code>Bash</code></strong></td><td><code>git</code>, <code>npm</code>, tests, build</td></tr>
 </table>
@@ -305,9 +319,9 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 
 <h3>MCP — primitives et configuration</h3>
 <ul>
-<li><code>.mcp.json</code> à la racine du projet, versionné dans le VCS, partagé avec l'équipe.</li>
+<li>Deux portées : <code>.mcp.json</code> projet (versionné, partagé) pour l'outillage d'équipe ; <code>~/.claude.json</code> utilisateur (local) pour les serveurs personnels ou expérimentaux. Les deux coexistent, tous les outils sont disponibles simultanément.</li>
 <li>Substitution de variables d'environnement (<code>${GITHUB_TOKEN}</code>) pour les secrets — jamais de tokens en clair dans le dépôt.</li>
-<li>Trois primitives : <code>tools</code> (modèle exécute), <code>resources</code> (application expose), <code>prompts</code> (utilisateur déclenche).</li>
+<li>Primitives au programme : <code>tools</code> (le modèle exécute une action) et <code>resources</code> (l'application expose des données). Les <code>prompts</code> existent mais ne sont pas testés.</li>
 <li><code>resources</code> = « content catalogs » qui réduisent les appels exploratoires en fournissant directement les données de contexte.</li>
 <li>Préférer les community servers pour les intégrations standards (Jira, GitHub, Slack) ; custom servers pour les workflows spécifiques à l'équipe.</li>
 <li>Agent qui préfère un outil intégré à un outil MCP plus capable → enrichir la <code>description</code> du serveur MCP (ce qu'il fait, ce qu'il renvoie, ce que l'outil intégré n'a pas). Ni retrait de l'outil intégré, ni couche de routage.</li>
@@ -321,7 +335,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 </ul>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s7">7. Questions d'auto-evaluation</h2></div>
+<div class="section-header"><h2 id="s7">7. Questions d'auto-évaluation</h2></div>
 
 <details>
 <summary>Q1 (D2) — Chevauchement sémantique entre deux descriptions</summary>
@@ -420,6 +434,48 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <li>A) C'est exactement l'anti-pattern : une erreur uniforme ne porte aucune base de décision.</li>
 <li>C) L'escalade est la bonne règle générale (<code>isRetryable: false</code>), mais « quel que soit le contexte » en fait un absolu que la conception ne pose pas.</li>
 <li>D) Ces catégories sont une convention de conception applicative, encodée dans le texte du content — pas un élément formel de la spec MCP.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q6 (D2) — Où déclarer deux serveurs MCP</summary>
+<div>
+<p><strong>Situation :</strong> votre équipe a besoin d'un serveur MCP Jira disponible pour tous les développeurs du projet. Par ailleurs, vous voulez tester chez vous un serveur expérimental qui indexe vos notes personnelles — personne d'autre ne doit l'avoir.</p>
+<p><strong>Question :</strong> où configurez-vous chacun ?</p>
+<p>A) Les deux dans <code>.mcp.json</code>, l'expérimental étant commenté pour les coéquipiers.</p>
+<p>B) Les deux dans <code>~/.claude.json</code>, en demandant à chaque coéquipier d'ajouter l'entrée Jira lui-même.</p>
+<p>C) Jira documenté dans <code>CLAUDE.md</code> ; l'expérimental dans <code>.mcp.json</code>.</p>
+<p>D) Jira dans <code>.mcp.json</code> à la racine du projet ; l'expérimental dans <code>~/.claude.json</code> au niveau utilisateur.</p>
+<hr>
+<p class="correct">Réponse : D) Portée projet pour l'outillage partagé, portée utilisateur pour le personnel</p>
+<p><strong>Explication :</strong> <code>.mcp.json</code> est la portée projet, versionnée, que tout le monde obtient au clone ; <code>~/.claude.json</code> est la portée utilisateur, locale à votre machine. Les deux coexistent : les outils de tous les serveurs configurés sont découverts à la connexion et disponibles simultanément.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Une entrée commentée dans un fichier partagé est une modification qui finira par être décommentée par accident.</li>
+<li>B) Fait dépendre l'outillage d'équipe d'une configuration manuelle par chacun — exactement ce que la portée projet évite.</li>
+<li>C) <code>CLAUDE.md</code> ne configure aucun serveur, et les deux portées sont inversées.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q7 (D2) — Edit échoue faute d'ancre unique</summary>
+<div>
+<p><strong>Situation :</strong> l'agent doit modifier une instruction <code>return null;</code> dans un fichier de 400 lignes. <code>Edit</code> échoue : la chaîne <code>return null;</code> apparaît onze fois dans ce fichier.</p>
+<p><strong>Question :</strong> quelle est la solution de repli correcte ?</p>
+<p>A) <code>Read</code> le fichier complet, modifier le contenu, puis <code>Write</code> pour le réécrire entièrement.</p>
+<p>B) Relancer <code>Edit</code> avec la même ancre jusqu'à ce qu'il tombe sur la bonne occurrence.</p>
+<p>C) Utiliser <code>Glob</code> pour localiser la ligne, puis <code>Edit</code> à nouveau.</p>
+<p>D) Supprimer le fichier et le recréer depuis zéro avec <code>Write</code>.</p>
+<hr>
+<p class="correct">Réponse : A) Read puis Write</p>
+<p><strong>Explication :</strong> quand <code>Edit</code> ne trouve pas de texte d'ancrage unique, charger le fichier entier et le réécrire est le repli documenté. Le contenu complet lève l'ambiguïté que l'ancre ne pouvait pas lever.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>B) <code>Edit</code> est déterministe : la même ancre ambiguë échoue à l'identique à chaque tentative.</li>
+<li>C) <code>Glob</code> apparie des chemins de fichiers ; il ne voit pas le contenu et ne localise aucune ligne.</li>
+<li>D) Supprimer d'abord fait courir le risque de perdre le contenu si l'écriture échoue, sans aucun avantage sur une réécriture en place.</li>
 </ul>
 </div>
 </details>

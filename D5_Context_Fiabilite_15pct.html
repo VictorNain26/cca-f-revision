@@ -23,14 +23,14 @@
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a class="current" href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
-  <a href="Practice_Questions.html" title="Practice Questions — 101 QCM corrigés">QCM</a>
+  <a href="Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
   <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
 </nav>
 
 <div class="header-bar">
 <h1>D5 — Gestion du contexte et fiabilité (15 %)</h1>
-<p>6 Task Statements · Sources : guide officiel, chapitres 9, 10, 11 et 12</p>
+<p>6 Task Statements (5.1 à 5.6) · Source : guide officiel CCAR-F v1.0, domaine 5 · exactitude technique vérifiée sur la doc Anthropic</p>
 </div>
 
 <div class="toc">
@@ -40,10 +40,10 @@
 <li><a href="#s2">Les patterns d'escalation</a></li>
 <li><a href="#s3">La propagation d'erreurs dans les systèmes multi-agents</a></li>
 <li><a href="#s4">Gérer le contexte dans les grandes codebases</a></li>
-<li><a href="#s5">Le contrôle humain et la confidence calibration</a></li>
+<li><a href="#s5">Revue humaine et calibration de la confiance</a></li>
 <li><a href="#s6">La provenance et la synthèse multi-sources</a></li>
 <li><a href="#s7">Synthèse — les points clés</a></li>
-<li><a href="#s8">Auto-évaluation (7 questions)</a></li>
+<li><a href="#s8">Auto-évaluation (9 questions)</a></li>
 </ol>
 </div>
 
@@ -239,19 +239,7 @@ Note : la couverture de cette section est limitée.
 ### Littérature (FULL COVERAGE)
 [résultats de recherche]</pre>
 
-<h3>Persistance des findings au-delà des limites de contexte : fichiers <code>scratchpad</code></h3>
-<p>Quand un <code>subagent</code> rencontre des erreurs ou des résultats partiels, les findings et les métadonnées doivent être sauvegardés dans un fichier <code>scratchpad</code> pour que le coordinateur puisse les consulter ultérieurement, même après que le contexte du <code>subagent</code> soit perdu. Ce pattern est crucial pour le crash recovery et la synthèse finale :</p>
-<pre>// agent-findings-scratchpad.md
-## Recherche « AI music 2024 » — Status: Partial
-- Queries exécutées : 2/3 (timeout sur requête #3)
-- Résultats obtenus : 12 articles
-- Clés trouvées : AI-generated music grew 300% on streaming
-- Lacune identifiée : impact sur la production musicale
-- Retry strategy : requête #3 à reformuler plus tard</pre>
-
-<div class="key-concept">
-<strong>Fichiers <code>scratchpad</code> et propagation d'erreur :</strong> Chaque <code>subagent</code> exporte ses findings critiques dans un fichier scratchpad nommé de manière stable. En cas d'erreur ou de timeout, le coordinateur a accès aux résultats partiels via ce fichier, évitant ainsi de perdre les découvertes au-delà des limites de contexte du <code>subagent</code>.
-</div>
+<p class="exam-tip">Les résultats partiels obtenus avant l'échec ne doivent pas mourir avec le contexte du <code>subagent</code> : ils se persistent dans un fichier <code>scratchpad</code>, traité en <a href="#s4">section 4</a>.</p>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s4">4. Gérer le contexte dans les grandes codebases (Task 5.4)</h2></div>
@@ -269,12 +257,25 @@ Note : la couverture de cette section est limitée.
 - refund() est appelé depuis 3 endroits : OrderController, AdminPanel, CronJob
 - L'API PaymentGateway externe a une limite de 100 req/min
 - La migration n° 47 a ajouté refund_reason (NOT NULL) — 2024-12-01</pre>
+<p>Le même fichier sert de filet quand un <code>subagent</code> échoue en cours de route : ce qu'il avait déjà trouvé survit à la perte de son contexte, et le coordinateur peut le relire pour la synthèse finale (voir <a href="#s3">section 3</a>).</p>
+<pre>// agent-findings-scratchpad.md
+## Recherche « AI music 2024 » — Status: Partial
+- Queries exécutées : 2/3 (timeout sur requête #3)
+- Résultats obtenus : 12 articles
+- Clé trouvée : AI-generated music grew 300% on streaming
+- Lacune identifiée : impact sur la production musicale</pre>
 
 <h4>2. Délégation aux <code>subagent</code>s</h4>
 <p>L'agent principal demande à un <code>subagent</code> <code>Explore</code> d'investiguer les dépendances d'un module. Le <code>subagent</code> lit 15 fichiers dans son propre contexte et retourne un résumé concis au thread principal. Le contexte principal garde une ligne au lieu de 15 fichiers :</p>
 <pre>// Résultat du subagent Explore → résumé retourné au coordinateur
 "Le module Payments dépend de AuthService, OrderModel
  et de l'API externe PaymentGateway."</pre>
+
+<p>Sur une exploration en plusieurs phases, on ne se contente pas d'isoler chaque phase : <strong>on résume les découvertes d'une phase avant de lancer les <code>subagent</code>s de la suivante</strong>, et on injecte ce résumé dans leur contexte initial. Sans ce relais, la phase 2 redécouvre ce que la phase 1 savait déjà, ou pire, travaille sans le savoir.</p>
+
+<div class="exam-tip">
+<strong>À retenir :</strong> délégation = isoler le <em>verbeux</em> ; résumé de phase = transmettre l'<em>acquis</em>. Les deux vont ensemble, une question peut tester l'un ou l'autre.
+</div>
 
 <h4>3. <code>/compact</code></h4>
 <p>La commande <code>/compact</code> compresse le contexte en résumant l'historique de la conversation. Utile quand le contexte approche de sa limite, mais les faits critiques doivent être protégés par un <code>case facts</code> block ou un fichier <code>scratchpad</code>.</p>
@@ -317,22 +318,47 @@ Note : la couverture de cette section est limitée.
 <p>Quand les agents en aval ont des budgets de contexte limités, les agents en amont doivent retourner des <strong>données structurées</strong> (faits clés, citations, scores de pertinence) plutôt que du contenu verbeux et des chaînes de raisonnement.</p>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s5">5. Le contrôle humain et la <code>confidence calibration</code> (Task 5.5)</h2></div>
+<div class="section-header"><h2 id="s5">5. Revue humaine et calibration de la confiance (Task 5.5)</h2></div>
 
 <h3>Le problème que cela résout</h3>
-<p>Un système d'extraction de données affiche une accuracy globale de 97 %. En apparence, tout va bien. Mais en creusant, on découvre que l'accuracy sur un type de document spécifique (les factures scannées) est de 60 %, et que certains champs (les numéros de TVA) ont un taux d'erreur de 40 %. <strong>Les métriques agrégées masquent des problèmes localisés.</strong></p>
+<p>Un système d'extraction affiche une accuracy globale de 97 %. En apparence, tout va bien, et la tentation est de réduire la relecture humaine. Mais en creusant, on découvre que l'accuracy sur les factures scannées est de 60 %, et que le champ « numéro de TVA » a 40 % d'erreurs. <strong>Les métriques agrégées masquent des poches d'erreur localisées.</strong> La question de ce task est double : comment mesurer réellement, et où diriger une capacité de relecture qui est toujours limitée.</p>
 
 <div class="key-concept">
-<strong>Exemple concret :</strong> 97% aggregate accuracy peut masquer 40% d'erreurs sur un type de document spécifique. C'est pourquoi l'analyse doit toujours se faire <strong>par document type ET par field</strong>, pas en agrégé.
+<strong>Exemple concret :</strong> 97 % d'accuracy agrégée peut masquer 40 % d'erreurs sur un type de document précis. L'analyse doit toujours se faire <strong>par document type ET par field</strong>, jamais en agrégé — et <em>avant</em> d'automatiser, pas après.
 </div>
 
-<h3>Le <code>stratified random sampling</code></h3>
-<p>Même pour les extractions à haute confiance, il faut maintenir un <strong><code>stratified random sampling</code></strong> régulier pour mesurer les taux d'erreur réels et détecter de nouveaux patterns d'erreur. L'analyse doit se faire :</p>
+<h3>1. Mesurer : le <code>stratified random sampling</code></h3>
+<p>Même sur les extractions que le système déclare à haute confiance, il faut échantillonner en continu pour mesurer le taux d'erreur réel et détecter les <strong>nouveaux</strong> patterns d'erreur — ceux qu'aucune règle existante n'attrape. L'échantillonnage est <em>stratifié</em> : on tire un échantillon dans chaque segment plutôt qu'un échantillon global, sans quoi les segments rares (ceux qui échouent le plus souvent) sont invisibles.</p>
 <ul>
-<li><strong>Par document type</strong> (factures, contrats, formulaires...)</li>
-<li><strong>Par field</strong> (montants, dates, noms, numéros de TVA...)</li>
-<li>Pas seulement en agrégé</li>
+<li><strong>Par document type</strong> — factures scannées, contrats, formulaires manuscrits…</li>
+<li><strong>Par field</strong> — montants, dates, noms, numéros de TVA…</li>
+<li>Objectif : vérifier la <strong>constance</strong> de la performance entre segments avant de réduire la relecture.</li>
 </ul>
+
+<h3>2. Router : les <code>field-level confidence scores</code></h3>
+<p>Le modèle produit, <strong>pour chaque champ</strong> et non pour l'extraction entière, un score de confiance. Ce signal ne sert pas à décider si l'extraction est bonne — il sert à <strong>router la relecture</strong> : les champs sous le seuil partent en revue humaine, les autres passent en automatique.</p>
+<pre>{
+  "invoice_number": { "value": "INV-2024-0912", "confidence": 0.98 },
+  "total":          { "value": 1249.90,         "confidence": 0.95 },
+  "vat_number":     { "value": "FR32-XXXXX",    "confidence": 0.41 }
+}
+// → seul vat_number part en revue humaine</pre>
+
+<div class="key-concept">
+<strong>Le seuil se calibre sur un <code>labeled validation set</code>.</strong> Un score de confiance brut ne veut rien dire tant qu'on ne l'a pas confronté à la vérité terrain : on prend un jeu de documents annotés à la main, on regarde le taux d'erreur réel à chaque niveau de confiance, et on place le seuil là où le risque résiduel devient acceptable. Sans ce calage, « confidence &gt; 0,9 » est un chiffre arbitraire.
+</div>
+
+<h3>3. Prioriser une capacité de relecture limitée</h3>
+<p>Les relecteurs humains sont la ressource rare. On leur envoie en priorité :</p>
+<ul>
+<li>les extractions dont la <strong>confiance modèle est basse</strong> ;</li>
+<li>les documents <strong>ambigus ou contradictoires</strong> à la source — deux totaux différents, une date illisible, un champ raturé ;</li>
+<li>les segments dont la mesure par type et par champ montre qu'ils sont dégradés.</li>
+</ul>
+
+<div class="exam-tip">
+<strong>Le piège du domaine — les deux visages de la confidence.</strong> La section 2 dit que le <code>self-rated confidence</code> est un déclencheur d'escalade non fiable, et c'est vrai : un agent qui s'auto-note « 8/10 » pour décider d'escalader est déjà confiant à tort sur les cas difficiles. Mais ici, le <strong>score de confiance par champ, calibré sur un jeu de validation étiqueté</strong>, est la bonne réponse pour router la relecture. La différence tient en trois points : granularité (par champ, pas par cas), calage (sur des données annotées, pas sur l'introspection du modèle), et usage (prioriser une file de relecture, pas prendre la décision à la place de l'humain). Une option qui parle de confiance n'est donc <em>ni</em> automatiquement fausse <em>ni</em> automatiquement juste — lisez laquelle des deux on vous propose.
+</div>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s6">6. La <code>provenance</code> et la synthèse multi-sources (Task 5.6)</h2></div>
@@ -382,6 +408,19 @@ Note : la couverture de cette section est limitée.
 <strong>À retenir :</strong> 10% en 2023 + 15% en 2024 = growth, pas contradiction. Les dates transforment un conflit apparent en tendance. Toujours inclure les dates dans les <code>claim-source mapping</code>s.
 </div>
 
+<h3>Séparer l'établi du contesté dans la structure du rapport</h3>
+<p>Annoter un conflit ne suffit pas si le rapport final noie l'annotation au milieu du reste. Le rapport doit avoir des <strong>sections explicites</strong> qui distinguent ce qui est solidement établi de ce qui est disputé, en conservant la formulation d'origine de chaque source et son contexte méthodologique — plutôt que de reformuler tout le monde dans une voix unique qui gomme les nuances.</p>
+<pre>## Findings bien établis (convergence de sources)
+- L'IA générative est utilisée en production dans les 4 majors — 3 sources concordantes
+
+## Findings contestés (sources divergentes)
+- Part de la musique générée par IA sur le streaming : 12 % (Spotify, mesure
+  automatisée, 03/2024) contre 8 % (MIA, enquête déclarative, 07/2024).
+  Méthodologies non comparables — les deux valeurs sont conservées.
+
+## Lacunes de couverture
+- Distribution et licensing : non couverts (timeout du subagent de recherche)</pre>
+
 <h3>Rendre chaque type de contenu dans sa forme naturelle</h3>
 <p>Un agent de synthèse reçoit des matériaux hétérogènes : des séries chiffrées, des dépêches, des résultats techniques. La tentation est de tout couler dans un format unique — souvent des paragraphes de prose, parce que c'est ce que le modèle produit par défaut. Le rapport devient alors illisible là où il devrait être le plus précis : douze valeurs trimestrielles noyées dans une phrase, personne ne peut les comparer.</p>
 
@@ -430,18 +469,29 @@ Note : la couverture de cette section est limitée.
 <h3>Confidence et <code>provenance</code></h3>
 <ul>
 <li>97% aggregate accuracy peut masquer 40% d'erreurs sur certains document types.</li>
-<li>Analyser par document type et par field via <code>stratified random sampling</code>.</li>
+<li>Analyser par document type et par field via <code>stratified random sampling</code>, <strong>avant</strong> d'automatiser.</li>
+<li><code>Field-level confidence scores</code> calibrés sur un <code>labeled validation set</code> pour router la relecture ; prioriser les extractions à faible confiance et les sources ambiguës.</li>
+<li>Confidence auto-déclarée pour décider d'escalader = distracteur ; confidence par champ calibrée pour router la relecture = bonne réponse.</li>
 <li>Préserver les <code>claim-source mapping</code>s (URL, nom, quotes) à travers la synthèse.</li>
 <li>Annoter les conflits avec <code>attribution</code> ; ne jamais choisir arbitrairement une valeur.</li>
 <li>Inclure les dates pour le contexte temporel (éviter les faux conflits).</li>
+<li>Structurer le rapport en sections distinctes : findings établis, findings contestés, lacunes de couverture.</li>
 <li>Rendre chaque type de contenu dans sa forme propre : tableaux pour les séries chiffrées, prose pour l'actualité et le contexte, listes structurées pour les findings techniques. Un rapport juste mais illisible est un défaut de <em>rendu</em>, pas de collecte.</li>
 </ul>
 
+<h3>Grandes codebases (Task 5.4)</h3>
+<ul>
+<li>Symptôme de <code>context degradation</code> : le modèle invoque des « patterns typiques » au lieu de citer les classes qu'il a lues.</li>
+<li><code>Scratchpad</code> pour persister, <code>subagent</code> Explore pour isoler le verbeux, <code>/compact</code> pour compresser.</li>
+<li>Résumer chaque phase avant de lancer les <code>subagent</code>s de la suivante, et injecter le résumé dans leur contexte initial.</li>
+<li><code>manifest.json</code> + export d'état par agent pour le crash recovery.</li>
+</ul>
+
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s8">8. Auto-évaluation (7 questions)</h2></div>
+<div class="section-header"><h2 id="s8">8. Auto-évaluation (9 questions)</h2></div>
 
 <div class="quiz-section">
-<h3>7 questions pour tester votre compréhension</h3>
+<h3>9 questions pour tester votre compréhension</h3>
 
 <details>
 <summary>Q1 (D5) — Un montant perdu dans la summarization</summary>
@@ -584,6 +634,48 @@ Note : la couverture de cette section est limitée.
 </div>
 </details>
 
+<details>
+<summary>Q8 (D5) — Une session d'exploration qui se dégrade</summary>
+<div>
+<p><strong>Situation :</strong> après trois heures d'exploration d'un monolithe legacy, votre agent répond « les services de paiement suivent en général le pattern Strategy » alors qu'il avait identifié <code>PaymentProcessor</code> et ses trois appelants deux heures plus tôt. Vous devez continuer l'investigation sur les mêmes fichiers.</p>
+<p><strong>Question :</strong> quelle combinaison traite la cause ?</p>
+<p>A) Relancer l'exploration depuis le début dans une session neuve, sans rien conserver.</p>
+<p>B) Faire écrire à l'agent ses découvertes dans un fichier scratchpad qu'il relit ensuite, et déléguer les phases de découverte verbeuses à un subagent qui ne remonte qu'un résumé.</p>
+<p>C) Augmenter <code>max_tokens</code> pour que les réponses soient plus détaillées.</p>
+<p>D) Demander à l'agent de mieux se concentrer et de citer ses sources.</p>
+<hr>
+<p class="correct">Réponse : B) Scratchpad relu + délégation à un subagent</p>
+<p><strong>Explication :</strong> le symptôme décrit — invoquer des « patterns typiques » au lieu des classes réellement découvertes — est la signature de la <code>context degradation</code>. Les deux parades sont complémentaires : le scratchpad rend les découvertes relisibles indépendamment du contexte, et la délégation empêche le contexte principal de se remplir de sorties de découverte verbeuses.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Repartir de zéro sans injecter de résumé jette trois heures de travail et reproduira la même dégradation.</li>
+<li>C) <code>max_tokens</code> borne la longueur de la réponse ; il n'a aucun effet sur ce que l'agent a retenu.</li>
+<li>D) Une consigne de comportement ne restaure pas une information qui n'est plus exploitable dans le contexte.</li>
+</ul>
+</div>
+</details>
+
+<details>
+<summary>Q9 (D5) — Où envoyer les relecteurs humains</summary>
+<div>
+<p><strong>Situation :</strong> votre pipeline d'extraction traite 5 000 documents par jour. Vous disposez de deux relecteurs humains, capables de traiter environ 200 documents quotidiens. Vous voulez que cette capacité serve à quelque chose.</p>
+<p><strong>Question :</strong> comment router la relecture ?</p>
+<p>A) Faire produire au modèle un score de confiance global par document et relire les 200 plus bas.</p>
+<p>B) Relire 200 documents tirés au hasard chaque jour, pour un échantillon non biaisé.</p>
+<p>C) Faire produire des scores de confiance <strong>par champ</strong>, calibrer le seuil sur un jeu de validation étiqueté, et router en priorité les champs sous le seuil ainsi que les documents ambigus ou contradictoires à la source.</p>
+<p>D) Demander au modèle de s'auto-évaluer de 1 à 10 sur la qualité de son extraction et relire tout ce qui est sous 7.</p>
+<hr>
+<p class="correct">Réponse : C) Scores par champ, seuil calibré sur un jeu étiqueté, routage des cas faibles et ambigus</p>
+<p><strong>Explication :</strong> la granularité par champ concentre l'effort là où il est utile — un document dont seul le numéro de TVA est douteux ne mérite pas une relecture intégrale. Et un seuil n'a de sens qu'après confrontation à une vérité terrain : c'est le jeu de validation étiqueté qui dit à quel niveau de confiance le taux d'erreur réel devient acceptable.</p>
+<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<ul>
+<li>A) Un score global agrège les champs sûrs et les champs douteux ; il envoie en relecture des documents à 95 % corrects et laisse passer un champ critique isolé.</li>
+<li>B) Le tirage aléatoire est le bon outil pour <em>mesurer</em> un taux d'erreur (échantillonnage stratifié), pas pour <em>allouer</em> une capacité de relecture : il consacre l'essentiel des 200 relectures à des extractions correctes.</li>
+<li>D) C'est l'auto-évaluation non calibrée, mal corrélée à l'exactitude réelle — le modèle est confiant précisément là où il se trompe.</li>
+</ul>
+</div>
+</details>
+
 </div>
 
 <nav class="doc-nav">
@@ -593,7 +685,7 @@ Note : la couverture de cette section est limitée.
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — D5 Gestion du contexte et fiabilité · Sources : guide officiel CCA (chapitres 9, 10, 11, 12) · 2026
+CCA Révision — D5 Gestion du contexte et fiabilité · Source : guide officiel CCAR-F v1.0, domaine 5 (tasks 5.1 à 5.6) · 2026
 </p>
 
 

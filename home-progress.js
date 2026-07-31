@@ -10,13 +10,13 @@
   'use strict';
 
   const TOTALS = {
-    D0_API_Fundamentals: 4,
-    D1_Architecture_Orchestration_27pct: 7,
-    D2_Tool_Design_MCP_18pct: 5,
-    D3_Claude_Code_Config_20pct: 6,
-    D4_Prompt_Engineering_20pct: 6,
-    D5_Context_Fiabilite_15pct: 7,
-    Practice_Questions: 101,
+    D0_API_Fundamentals: 6,
+    D1_Architecture_Orchestration_27pct: 8,
+    D2_Tool_Design_MCP_18pct: 7,
+    D3_Claude_Code_Config_20pct: 8,
+    D4_Prompt_Engineering_20pct: 7,
+    D5_Context_Fiabilite_15pct: 9,
+    Practice_Questions: 112,
   };
   const PASS = 0.75;
 
@@ -108,7 +108,7 @@
     '</ol>' +
     '<p class="profil-hint">' +
     (rows[0].acquired >= 1
-      ? 'Tous les domaines sont acquis. Enchaîne sur les <a href="Practice_Questions.html">101 QCM</a> : vise ≥ 85 % au 2<sup>e</sup> passage.'
+      ? 'Tous les domaines sont acquis. Enchaîne sur les <a href="Practice_Questions.html">112 QCM</a> : vise ≥ 85 % au 2<sup>e</sup> passage.'
       : `Classement par rentabilité : commence par <strong>${rows[0].code}</strong>. ` +
         'Une question non ouverte compte comme non acquise — un domaine à moitié fait reste à moitié à réviser.') +
     '</p>';

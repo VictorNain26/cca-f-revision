@@ -34,14 +34,14 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | Fichier | Rôle |
 |---|---|
 | `index.html` | Page d'accueil avec navigation et vue d'ensemble |
-| `D0_API_Fundamentals.html` | Prérequis API (à lire avant les domaines) |
-| `D1_Architecture_Orchestration_27pct.html` | Domaine 1 (le plus lourd) |
-| `D2_Tool_Design_MCP_18pct.html` | Domaine 2 |
-| `D3_Claude_Code_Config_20pct.html` | Domaine 3 |
-| `D4_Prompt_Engineering_20pct.html` | Domaine 4 |
-| `D5_Context_Fiabilite_15pct.html` | Domaine 5 |
+| `D0_API_Fundamentals.html` | Prérequis API (à lire avant les domaines) — 6 questions d'auto-évaluation |
+| `D1_Architecture_Orchestration_27pct.html` | Domaine 1 (le plus lourd) — 8 questions d'auto-évaluation |
+| `D2_Tool_Design_MCP_18pct.html` | Domaine 2 — 7 questions d'auto-évaluation |
+| `D3_Claude_Code_Config_20pct.html` | Domaine 3 — 8 questions d'auto-évaluation |
+| `D4_Prompt_Engineering_20pct.html` | Domaine 4 — 7 questions d'auto-évaluation |
+| `D5_Context_Fiabilite_15pct.html` | Domaine 5 — 9 questions d'auto-évaluation |
 | `Scenarios_Exam.html` | Les 6 scénarios + tableau croisé scénario × domaine |
-| `Practice_Questions.html` | Questions d'entraînement corrigées (questions expliquées en détail + questions sur les 6 scénarios) |
+| `Practice_Questions.html` | 112 QCM corrigés, **énoncés et corrigés en anglais** (langue de l'examen) — 12 questions officielles + 100 items couvrant les 6 scénarios et les 30 task statements |
 | `Exam_Strategy.html` | Cheat sheet jour J, méthodologie QCM, 5 arbres de décision |
 | `styles.css` | Design system unifié partagé par tous les documents |
 
@@ -49,7 +49,7 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 
 1. **Diagnostic** — réponds aux auto-évaluations des 5 fiches de domaine, fiches fermées. Le **profil par domaine** sur l'accueil se remplit et classe les domaines par rentabilité (poids à l'examen × ce qu'il te reste à combler).
 2. **Par domaine**, dans l'ordre donné par le profil — teste-toi d'abord, puis lis pour combler, explique chaque distracteur.
-3. **Volume** — les 101 QCM corrigés, dont les 12 exemples officiels du guide. Go/no-go : ≥ 85 % au 2e passage, aucun domaine sous 75 %.
+3. **Volume** — les 112 QCM corrigés, dont les 12 exemples officiels du guide. Go/no-go : ≥ 85 % au 2e passage, aucun domaine sous 75 %.
 4. **Dernière ligne droite** — relis seulement ton journal d'erreurs + le Cheat Sheet.
 
 > **Principe** : active recall > relecture passive. Faire les QCM, expliquer pourquoi chaque distracteur est faux. La compréhension émerge de la formulation, pas de la lecture.
