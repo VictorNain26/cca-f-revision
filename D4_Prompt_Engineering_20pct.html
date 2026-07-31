@@ -42,11 +42,12 @@
 <li><a href="#s4">Validation, retry-with-feedback et self-correction</a></li>
 <li><a href="#s5">Le traitement par lots — Message Batches API</a></li>
 <li><a href="#s6">La revue multi-instance et multi-pass review</a></li>
-<li><a href="#s7">Fondamentaux d'API — note de structure</a></li>
-<li><a href="#s8">Synthèse — les points clés</a></li>
-<li><a href="#s9">Auto-évaluation (7 questions)</a></li>
+<li><a href="#s7">Synthèse — les points clés</a></li>
+<li><a href="#s8">Auto-évaluation (7 questions)</a></li>
 </ol>
 </div>
+
+<p class="exam-tip">Les fondamentaux de l'API — structure de requête, rôles de messages, system prompt, <code>max_tokens</code>, <code>stop_reason</code>, <code>tool_use</code> et <code>tool_choice</code> — sont traités dans <a href="D0_API_Fundamentals.html">D0</a>. Cette fiche les suppose acquis.</p>
 
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s1">1. Des critères explicites plutôt que des instructions vagues (Task 4.1)</h2></div>
@@ -66,6 +67,25 @@ Signaler un commentaire comme problématique <strong>uniquement</strong> si :<br
 3. Un TODO/FIXME porte sur un bug <strong>déjà corrigé</strong> dans le code.<br><br>
 <strong>Ne pas signaler :</strong> un style simplement daté, des formulations légèrement imprécises, des commentaires manquants (catégorie séparée).
 </div>
+
+<p>Les deux formulations, côte à côte, sous forme de texte de prompt copiable :</p>
+<pre># Prompt vague — ne pas faire
+Check code comments for accuracy. Be conservative — report only
+high-confidence findings.
+
+# Prompt à critères explicites — à faire
+Flag a comment ONLY IF one of these conditions holds:
+  1. The comment describes behaviour that contradicts the actual code.
+  2. The comment references a function or variable that does not exist.
+  3. A TODO/FIXME refers to a bug already fixed in the code.
+
+DO NOT flag:
+  - merely dated style or phrasing;
+  - slightly imprecise wording that does not contradict the code;
+  - missing comments (handled as a separate category).
+
+For each finding, output: file:line, condition number, quoted comment,
+and the code fragment that contradicts it.</pre>
 
 <h3>Les critères de severity</h3>
 <table>
@@ -142,6 +162,11 @@ Les few-shot examples sont particulièrement efficaces pour l'extraction de mesu
 <li><strong>Pourcentages :</strong> fraction décimale ; "half" → 0.5.</li>
 </ul>
 
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> choisissez le few-shot dès que l'énoncé réunit deux signaux — les instructions sont <em>déjà</em> détaillées et la sortie reste inconsistante, et le modèle doit trancher sur des cas <strong>non listés à l'avance</strong>. C'est le seul levier qui enseigne une distinction généralisable ; tout ce qui énumère échoue sur le cas suivant.<br><br>
+<strong>Distracteurs :</strong> <em>réécrire les instructions plus fermement</em> (l'énoncé dit qu'elles sont déjà détaillées : le manque est l'illustration, pas l'insistance) ; <em>maintenir une liste blanche des patterns acceptés</em> (ne couvre que ce qui y figure, jamais le pattern qui apparaîtra demain) ; <em>post-traiter la sortie</em> (un filtre aval ne reconstruit pas une décision que le modèle n'a pas produite) ; <em>baisser la sensibilité</em> (supprime les vrais positifs au même rythme que les faux).
+</div>
+
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s3">3. Les sorties structurées avec tool_use et JSON Schema (Task 4.3)</h2></div>
 
@@ -156,6 +181,45 @@ Ce qu'elle ne garantit <strong>pas</strong>, et que le guide souligne : la <stro
 
 <div class="exam-tip">
 <strong>Le guide fait loi ici.</strong> La documentation Anthropic recommande aujourd'hui les <strong>Structured Outputs natifs</strong> — <code>output_config: {"format": {"type": "json_schema", ...}}</code>, ou <code>client.messages.parse()</code> côté SDK Python. Ce mécanisme n'existe pas dans le guide CCAR-F v1.0 : <strong>ne le proposez pas comme réponse à l'examen</strong>. Si une option mentionne <code>output_config.format</code>, ce n'est pas celle attendue.
+</div>
+
+<h3>L'exemple travaillé</h3>
+<p>Le schéma de sortie voulu se déclare comme l'<code>input_schema</code> d'un outil, et l'extraction se lit dans le champ <code>input</code> du bloc retourné — l'outil n'est jamais exécuté.</p>
+<pre>{
+  "tools": [{
+    "name": "extract_invoice",
+    "description": "Records the fields extracted from an invoice document.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "invoice_number": { "type": "string" },
+        "issue_date":     { "type": "string", "description": "ISO 8601" },
+        "total":          { "type": "number" },
+        "company_name":   { "type": ["string", "null"] }
+      },
+      "required": ["invoice_number", "total"]
+    }
+  }],
+  "tool_choice": { "type": "tool", "name": "extract_invoice" }
+}
+
+// La réponse porte un bloc tool_use dont `input` EST l'extraction :
+{
+  "stop_reason": "tool_use",
+  "content": [{
+    "type": "tool_use",
+    "name": "extract_invoice",
+    "input": { "invoice_number": "INV-2024-0912", "issue_date": "2024-09-12",
+               "total": 1249.90, "company_name": null }
+  }]
+}</pre>
+
+<div class="anti-pattern">
+<strong>Distracteurs :</strong><br>
+<code>output_config.format</code> / <code>messages.parse()</code> — la méthode de la documentation actuelle, <strong>absente du guide</strong> : ce n'est pas la réponse attendue à l'examen.<br>
+<code>tool_choice: "auto"</code> — laisse au modèle la liberté de répondre en texte ; l'extraction n'est plus garantie.<br>
+Demander du JSON en prose, avec le schéma décrit dans le prompt — réintroduit exactement les erreurs de syntaxe que <code>tool_use</code> élimine.<br>
+Réparer la sortie à la regex après coup — répare des symptômes au lieu de contraindre la forme à la source.
 </div>
 
 <h3>Le paramètre <code>tool_choice</code></h3>
@@ -367,6 +431,33 @@ def extract_invoice(document_text: str, max_retries: int = 3) -&gt; Invoice:
 <tr><td>Revue de code interactive</td><td><strong>Synchrone</strong></td><td>Réponse immédiate requise pour le développeur.</td></tr>
 </table>
 
+<h3>L'exemple travaillé</h3>
+<p>Chaque requête porte son <code>custom_id</code> ; c'est lui, et non la position, qui rattache la réponse au document source.</p>
+<pre>POST /v1/messages/batches
+{
+  "requests": [
+    { "custom_id": "order-10231",
+      "params": { "model": "claude-sonnet-5", "max_tokens": 1024,
+                  "messages": [{ "role": "user", "content": "Extract: ..." }] } },
+    { "custom_id": "order-10232",
+      "params": { "model": "claude-sonnet-5", "max_tokens": 1024,
+                  "messages": [{ "role": "user", "content": "Extract: ..." }] } }
+  ]
+}
+
+// Résultats : ordre non garanti, on apparie par custom_id.
+{ "custom_id": "order-10232", "result": { "type": "succeeded", "message": { ... } } }
+{ "custom_id": "order-10231", "result": { "type": "errored",   "error": { ... } } }
+// → ne resoumettre que order-10231.</pre>
+
+<div class="anti-pattern">
+<strong>Distracteurs :</strong><br>
+Basculer un contrôle <strong>bloquant pré-merge</strong> sur le Batches API — les 50 % d'économie séduisent, mais il n'existe <em>aucune</em> garantie de latence et un développeur attend.<br>
+Le rendre acceptable en ajoutant du polling de statut — « souvent plus rapide » n'est pas un engagement.<br>
+Tout garder en synchrone pour éviter les problèmes d'ordre — méprise : <code>custom_id</code> corrèle les réponses, l'ordre n'est pas un problème.<br>
+Batch avec repli temporisé vers le synchrone — deux chemins de code pour un problème qui disparaît en appariant chaque API à sa charge.
+</div>
+
 <h3>Planification du SLA avec la Message Batches API</h3>
 <div class="key-concept">
 <strong>Exemple de calcul SLA :</strong><br>
@@ -407,18 +498,29 @@ En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 
 <tr><td><strong>intégration pass</strong></td><td>Relations entre les fichiers</td><td>Types incohérents, dépendances circulaires, flux de données cassés</td></tr>
 </table>
 
+<pre># Passe 1 — per-file, une invocation par fichier
+for file in $(git diff --name-only main...HEAD); do
+  review --scope="$file" \
+         --prompt="Local issues only: bugs, security, quality in THIS file."
+done
+
+# Passe 2 — intégration, une seule invocation sur les signatures et les appels
+review --scope="$(git diff --name-only main...HEAD)" \
+       --prompt="Cross-file only: type mismatches across module boundaries,
+                 circular dependencies, broken data flow. Ignore local issues."</pre>
+
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> quand l'énoncé décrit une revue <em>contradictoire d'un fichier à l'autre</em> — un pattern signalé ici, le même approuvé là, dans la même PR — nommez la cause : <strong>dilution de l'attention</strong>, pas manque de contexte. Toute option qui donne <em>plus</em> de contexte au lieu de réduire le périmètre de chaque passe est fausse.<br><br>
+<strong>Distracteurs :</strong> <em>passer à un modèle à fenêtre plus large</em> (confond capacité de contexte et qualité d'attention) ; <em>trois passes complètes avec vote de consensus</em> (exiger 2 détections sur 3 supprime les vrais bugs qui ne sont vus qu'une fois) ; <em>demander aux développeurs de découper leurs PR en lots de 3-4 fichiers</em> (déplace la charge sur les humains sans améliorer le système).
+</div>
+
 <h3>Verification pass avec confidence self-report</h3>
 <p>Un troisième skill de review Task 4.6 : demander au modèle de produire, pour chaque finding, un score de <code>confidence</code> explicite qui l'accompagne. Ce signal sert à <strong>router</strong> la revue (haute confidence → validation rapide ou auto-approuvé ; basse confidence → revue humaine approfondie) et à calibrer les seuils de revue au fil du temps.</p>
 
 <p><em>Voir aussi : D1, section 6 pour le détail de la multi-pass review dans le contexte de la décomposition de tâches.</em></p>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s7">7. Fondamentaux d'API — note de structure</h2></div>
-
-<p>Les fondamentaux de l'API Claude retenus par le référentiel (structure de requête, rôles de messages, <code>system prompt</code>, <code>max_tokens</code>, <code>stop_reason</code>, <code>tool_use</code> et <code>tool_choice</code>) sont traités dans le domaine <a href="D0_API_Fundamentals.html">D0 — Fondamentaux de l'API</a>. D4 se concentre sur les techniques de prompt engineering (critères explicites, few-shot, sorties structurées, validation, Batches API, revue multi-pass).</p>
-
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s8">8. Synthèse — les points clés</h2></div>
+<div class="section-header page-break"><h2 id="s7">7. Synthèse — les points clés</h2></div>
 
 <h3>Critères et few-shot</h3>
 <ul>
@@ -466,7 +568,7 @@ En pratique, découper cette fenêtre de 6 h en blocs plus petits (par exemple, 
 
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s9">9. Auto-évaluation (7 questions)</h2></div>
+<div class="section-header"><h2 id="s8">8. Auto-évaluation (7 questions)</h2></div>
 
 <div class="quiz-section">
 <h3>Questions de révision — Domain 4</h3>
