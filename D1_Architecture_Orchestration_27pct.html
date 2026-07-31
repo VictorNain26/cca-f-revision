@@ -51,7 +51,7 @@
 <div class="section-header"><h2 id="s1">1. Workflows vs. agents : le cadrage (hors task statements)</h2></div>
 
 <h3>Le problème que cela résout</h3>
-<p>Quand on conçoit un système basé sur Claude, il faut choisir entre un <strong>workflow</strong> (séquence d'étapes prédéfinies, orchestrée par le code) et un <strong>agent</strong> (séquence d'étapes décidées dynamiquement par le modèle). Le mauvais choix entraîne soit un système rigide qui ne s'adapte pas, soit un système imprévisible difficile à tester.</p>
+<p>Concevoir un système avec Claude impose un choix : <strong>workflow</strong> (étapes prédéfinies, orchestrées par le code) ou <strong>agent</strong> (étapes décidées dynamiquement par le modèle). Se tromper donne soit un système rigide, soit un système imprévisible et difficile à tester.</p>
 
 <table>
 <tr><th></th><th>Workflows</th><th>Agents</th></tr>
@@ -65,21 +65,7 @@
 <strong>Règle de décision :</strong> privilégiez les workflows pour la reliability. N'utilisez un agent que lorsque la flexibilité est réellement nécessaire. Les utilisateurs veulent des produits fiables, pas des agents impressionnants.
 </div>
 
-<h3>Les cinq workflow patterns</h3>
-
-<div class="exam-tip">
-<strong>Hors périmètre testé — à lire une fois, pas à mémoriser.</strong> Cette taxonomie vient de l'essai Anthropic <em>« Building effective agents »</em>, pas du guide d'examen. Le référentiel ne retient que deux stratégies de décomposition (<strong>prompt chaining</strong> et <strong>décomposition dynamique</strong>, section 4) et un pattern d'orchestration (<strong>coordinateur-subagents</strong>, section 3). Les trois autres — routing, parallelization, evaluator-optimizer — vous aident à situer le paysage ; aucune question ne portera sur leurs noms.
-</div>
-
-<p>L'essai distingue <strong>cinq</strong> workflow patterns.</p>
-<table>
-<tr><th>Pattern</th><th>Principe</th><th>Cas d'usage typique</th></tr>
-<tr><td><strong>Prompt chaining</strong></td><td>Étapes séquentielles distinctes</td><td>Claude ignore des contraintes dans les prompts longs → découper en étapes</td></tr>
-<tr><td><strong>Routing</strong></td><td>Classifier l'entrée, puis dispatcher vers le bon pipeline</td><td>Différents types de requêtes nécessitant un traitement différent</td></tr>
-<tr><td><strong>Parallelization</strong></td><td>Sous-tâches simultanées, puis agrégation</td><td>Tâches décomposables sans dépendances entre elles</td></tr>
-<tr><td><strong>Orchestrator-workers</strong></td><td>Un orchestrateur décompose la tâche et délègue à des workers spécialisés</td><td>Sous-tâches non connues à l'avance, nécessitant une décomposition dynamique — voir <strong>section 3</strong> (architecture hub-and-spoke)</td></tr>
-<tr><td><strong>Evaluator-optimizer</strong></td><td>Produire → évaluer → boucler jusqu'à satisfaction</td><td>Qualité variable nécessitant un raffinement itératif</td></tr>
-</table>
+<p>L'essai Anthropic <em>« Building effective agents »</em> nomme cinq patterns de workflow (prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer). Le référentiel n'en retient que deux stratégies de décomposition, traitées en <a href="#s4">section 4</a>, et le pattern coordinateur-subagents, traité en <a href="#s3">section 3</a> : les autres noms ne sont pas matière d'examen.</p>
 
 <h3>Quand les subagents sont utiles — et quand ils nuisent</h3>
 <p>La question clé : <strong>est-ce que le travail intermédiaire m'intéresse ?</strong></p>
@@ -88,16 +74,7 @@
 <li><strong>Oui</strong> (je dois voir et réagir à chaque étape) → garder dans le thread principal. Exemple : exécuter des tests et analyser les erreurs.</li>
 </ul>
 
-<div class="anti-pattern">
-<strong>Trois anti-patterns de subagents à connaître</strong> <em>(matière de cours, absente du guide — utile en pratique, pas testée telle quelle)</em> <strong>:</strong>
-<ul>
-<li><strong>Les « expert claims » :</strong> « You are a Python expert » n'ajoute aucune capacité réelle. Claude possède déjà ces connaissances. Préférer une description factuelle du rôle et du périmètre.</li>
-<li><strong>Les sequential pipelines :</strong> quand chaque étape dépend des découvertes de la précédente (reproduire → debugger → corriger), l'information se perd dans les transferts entre agents. Garder dans le thread principal.</li>
-<li><strong>Les test runners en subagent :</strong> un subagent qui retourne simplement « tests failed » cache les détails de diagnostic dont on a besoin pour comprendre l'échec.</li>
-</ul>
-</div>
-
-<!-- ================================================================== -->
+<!--================================================================== -->
 <div class="section-header"><h2 id="s2">2. L'agentic loop — la boucle agentique (Task 1.1)</h2></div>
 
 <h3>Le problème que cela résout</h3>
@@ -126,15 +103,10 @@
 </div>
 
 <h3>Comment ça fonctionne</h3>
-<p>À chaque itération, votre code envoie l'historique complet à Claude (messages + tool results). Claude répond, et sa réponse contient un champ <code>stop_reason</code> qui détermine la suite :</p>
-
-<table>
-<tr><th>Valeur de <code>stop_reason</code></th><th>Signification</th><th>Action dans votre code</th></tr>
-<tr><td><code>"tool_use"</code></td><td>Claude veut appeler un outil</td><td>Exécuter l'outil, ajouter le <code>tool_result</code> à l'historique, relancer une itération</td></tr>
-<tr><td><code>"end_turn"</code></td><td>Claude a terminé</td><td>Afficher le résultat à l'utilisateur, sortir de la boucle</td></tr>
-<tr><td><code>"max_tokens"</code></td><td>La limite de tokens est atteinte</td><td>La réponse est tronquée ; envisager d'augmenter <code>max_tokens</code></td></tr>
-<tr><td><code>"pause_turn"</code></td><td>Un server tool a atteint sa limite d'itérations</td><td>Re-envoyer la requête avec l'historique tel quel pour continuer — ne pas sortir de la boucle</td></tr>
-</table>
+<p>Chaque réponse porte un champ <code>stop_reason</code> — les valeurs et leur signification sont détaillées en <a href="D0_API_Fundamentals.html#s3">D0 §3</a>. Ici, ce qui compte est ce que votre code en fait : deux valeurs suffisent à piloter la boucle.</p>
+<pre>stop_reason == "tool_use"  → exécuter les outils, ajouter les tool_result
+                              à l'historique, relancer une itération
+stop_reason == "end_turn"  → la tâche est terminée, sortir de la boucle</pre>
 
 <div class="key-concept">
 <strong>L'approche est model-driven.</strong> C'est Claude qui choisit quel outil appeler à chaque étape, en s'appuyant sur le contexte accumulé et les tool results précédents. Cela diffère fondamentalement d'un arbre de décision codé en dur (hardcoded), où la séquence d'actions est figée à l'avance.
@@ -219,6 +191,10 @@
 <li><strong>Ne jamais court-circuiter le coordinateur :</strong> même si cela semble plus efficace qu'un subagent envoie directement ses résultats à un autre, le passage systématique par le hub assure la visibilité centralisée, la gestion uniforme des erreurs et le contrôle de ce que chaque subagent reçoit.</li>
 </ul>
 
+<div class="exam-tip">
+<strong>Le réflexe :</strong> quand chaque subagent réussit sa mission mais que le rapport final rate des pans entiers du sujet, la cause est la <strong>décomposition du coordinateur</strong>, pas les agents en aval. Les distracteurs incriminent un agent réel : des requêtes pas assez larges chez l'agent de recherche, l'absence de détection de lacunes chez l'agent de synthèse, ou des critères de pertinence trop stricts chez l'agent d'analyse. Ils séduisent parce qu'ils nomment un composant du système — mais l'énoncé précise que chacun a correctement exécuté ce qui lui était assigné. Ce qui a été mal fait, c'est l'assignation.
+</div>
+
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s4">4. Les stratégies de décomposition (Task 1.6)</h2></div>
 
@@ -254,6 +230,15 @@
 
 <div class="exam-tip">
 <strong>Pour l'examen :</strong> le prompt chaining convient aux tâches prévisibles et répétables (review, migration). La dynamic décomposition convient aux investigations ouvertes où les sous-tâches émergent en cours d'exécution.
+</div>
+
+<div class="anti-pattern">
+<strong>Les distracteurs qui visent le mauvais choix de décomposition :</strong>
+<ul>
+<li><strong>La revue multi-passes</strong> proposée pour une investigation ouverte — elle est conçue pour un périmètre borné et énumérable, comme les fichiers d'une PR, pas pour un sujet dont on ignore l'étendue.</li>
+<li><strong>Un prompt exhaustif unique</strong> qui couvrirait tout d'un coup — il suppose de connaître le périmètre à l'avance, ce qui est précisément l'inconnue.</li>
+<li><strong>Un pipeline fixe sur un périmètre inconnu</strong> — il exige la liste des étapes avant de commencer, alors que chaque étape ne se révèle qu'avec les découvertes de la précédente.</li>
+</ul>
 </div>
 
 <!-- ================================================================== -->
@@ -316,6 +301,10 @@ Task 3 : "Rechercher des articles sur Z"
 <tr><td>3</td><td><strong>Le signalement des obstacles</strong></td><td>Si le subagent découvre un contournement (dépendance manquante, flag spécial), cette information doit remonter pour éviter que le thread principal ne la redécouvre.</td></tr>
 <tr><td>4</td><td><strong>Des outils limités au strict nécessaire</strong></td><td>Un subagent de recherche n'a besoin que de <code>Glob, Grep, Read</code>. Un reviewer y ajoute <code>Bash</code>. Trop d'outils (18 au lieu de 4-5) dégrade la fiabilité de sélection.</td></tr>
 </table>
+
+<div class="exam-tip">
+<strong>Le réflexe :</strong> trois faits décident de la bonne option. <code>allowedTools</code> doit contenir <code>"Task"</code> pour qu'un coordinateur puisse lancer des subagents ; les subagents n'héritent d'aucun contexte, tout ce dont ils ont besoin passe par le prompt ; le parallélisme s'obtient en émettant plusieurs appels <code>Task</code> dans <strong>une seule</strong> réponse du coordinateur. Les distracteurs : agrandir la fenêtre de contexte du subagent (rien ne lui a été transmis, la taille n'y change rien), laisser les subagents s'appeler entre eux (cela casse le hub-and-spoke et l'observabilité), ou émettre les appels sur des tours successifs (c'est du séquentiel avec des étapes en plus, pas du parallèle).
+</div>
 
 <p><em>Voir aussi : D2, section 3 pour le paramètre <code>tool_choice</code> et D2, section 5 pour la référence complète des outils intégrés.</em></p>
 
@@ -390,6 +379,17 @@ def normalize_dates(tool_result):
 <strong>La règle absolue :</strong> quand l'échec a des conséquences financières, légales ou de sécurité → <strong>hooks</strong>. Les prompt instructions ne suffisent jamais pour ces cas-là.
 </div>
 
+<div class="anti-pattern">
+<strong>Les distracteurs qui visent l'enforcement programmatique :</strong>
+<ul>
+<li><strong>Renforcer le system prompt</strong> (« la vérification est obligatoire »).</li>
+<li><strong>Ajouter des few-shot examples</strong> montrant l'agent appelant toujours l'outil de vérification en premier.</li>
+<li><strong>Auditer après coup</strong> les transactions pour repérer les violations.</li>
+<li><strong>Déployer un classifieur de routage</strong> qui n'active que le sous-ensemble d'outils pertinent pour chaque requête.</li>
+</ul>
+<p>Les trois premiers séduisent parce qu'ils font réellement baisser le taux d'échec — mais l'énoncé demande une <em>garantie</em>, et un audit ne détecte la violation qu'une fois l'argent parti. Le quatrième traite la <em>disponibilité</em> des outils, pas leur <em>ordre</em> d'appel : ce n'est pas le problème posé.</p>
+</div>
+
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. La gestion des sessions (Task 1.7)</h2></div>
 
@@ -421,6 +421,10 @@ def normalize_dates(tool_result):
 
 <div class="key-concept">
 Il est souvent plus fiable de démarrer une nouvelle session avec un résumé structuré que de reprendre avec des tool results potentiellement obsolètes. Un résumé bien écrit perd peu d'information et offre un contexte frais.
+</div>
+
+<div class="exam-tip">
+<strong>Le réflexe :</strong> trois situations, trois réponses. Le contexte antérieur reste majoritairement valide → <code>--resume</code>, en <strong>nommant les fichiers modifiés</strong> pour une ré-analyse ciblée. Les tool results sont largement périmés → session neuve avec un résumé structuré injecté. On veut explorer deux approches depuis une base d'analyse commune → <code>fork_session</code>. Les distracteurs : tout ré-explorer de zéro (cela jette du travail encore valide), reprendre sans signaler les changements (l'agent garde une vue fausse des fichiers et raisonne sur des tool results morts), ou forker pour comparer l'ancienne et la nouvelle version d'un fichier (le fork sert à explorer des approches divergentes, pas à réconcilier un état disque).
 </div>
 
 <!-- ================================================================== -->
