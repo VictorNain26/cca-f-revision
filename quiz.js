@@ -12,6 +12,8 @@
 
   const STORAGE_KEY = 'cca-quiz-state-v2';
   const LETTERS = ['A', 'B', 'C', 'D', 'E'];
+  // Les énoncés sont en anglais (langue de l'examen), le chrome reste en français.
+  const ANSWER_LABEL = /^\s*(?:R[ée]ponses?|Answers?)\s*[:.]/i;
 
   // ---------- localStorage helpers ----------
   const loadState = () => {
@@ -99,11 +101,11 @@
     let correctP = detailsEl.querySelector('p.correct');
     if (!correctP) {
       correctP = [...detailsEl.querySelectorAll(':scope > p, :scope > div > p')]
-        .find((p) => /^\s*R[ée]ponses?\s*[:.]/i.test(p.textContent || ''));
+        .find((p) => ANSWER_LABEL.test(p.textContent || ''));
     }
     if (!correctP) return { letters: [], multi: false };
     const text = (correctP.textContent || '').replace(/\s+/g, ' ');
-    const seg = text.match(/R[ée]ponses?\s*:?\s*([A-E](?:\s*(?:,|et|&|\/|ou)\s*[A-E])*)/i);
+    const seg = text.match(/(?:R[ée]ponses?|Answers?)\s*:?\s*([A-E](?:\s*(?:,|et|and|&|\/|ou|or)\s*[A-E])*)/i);
     if (!seg) return { letters: [], multi: false };
     const letters = [...new Set((seg[1].match(/[A-E]/gi) || []).map((c) => c.toUpperCase()))];
     return { letters, multi: letters.length > 1 };
@@ -111,25 +113,34 @@
 
   // ---------- Wrap réponse dans <details class="answer-reveal"> ----------
   const wrapAnswerInReveal = (detailsEl) => {
-    const body = detailsEl.querySelector(':scope > div');
-    let bodyParas;
-    let holder;
-
-    if (body) {
-      bodyParas = [...body.children].filter(
-        (el) => !el.classList.contains('choices') && !el.classList.contains('quiz-feedback')
-      );
-      if (bodyParas.length === 0) return null;
-      holder = body;
-    } else {
-      bodyParas = [...detailsEl.children].filter((el) => el.tagName !== 'SUMMARY');
-      if (bodyParas.length === 0) return null;
-      const newDiv = document.createElement('div');
-      for (const el of bodyParas) newDiv.appendChild(el);
-      detailsEl.appendChild(newDiv);
-      holder = newDiv;
-      bodyParas = [...newDiv.children];
+    let holder = detailsEl.querySelector(':scope > div');
+    if (!holder) {
+      const loose = [...detailsEl.children].filter((el) => el.tagName !== 'SUMMARY');
+      if (loose.length === 0) return null;
+      holder = document.createElement('div');
+      for (const el of loose) holder.appendChild(el);
+      detailsEl.appendChild(holder);
     }
+
+    // L'énoncé (Scenario / Question) doit rester lisible pendant qu'on répond :
+    // seul ce qui suit le <hr> part dans le bloc masqué. Sans <hr>, on coupe au
+    // premier paragraphe de réponse.
+    const children = [...holder.children];
+    const sep = children.find((el) => el.tagName === 'HR');
+    let bodyParas;
+    if (sep) {
+      bodyParas = children.slice(children.indexOf(sep) + 1);
+      sep.remove();
+    } else {
+      const start = children.findIndex(
+        (el) => el.classList.contains('correct') || ANSWER_LABEL.test(el.textContent || '')
+      );
+      bodyParas = start >= 0 ? children.slice(start) : children;
+    }
+    bodyParas = bodyParas.filter(
+      (el) => !el.classList.contains('choices') && !el.classList.contains('quiz-feedback')
+    );
+    if (bodyParas.length === 0) return null;
 
     const reveal = document.createElement('details');
     reveal.className = 'answer-reveal is-locked';
@@ -141,7 +152,7 @@
     reveal.appendChild(revBody);
 
     const firstP = revBody.querySelector('p');
-    if (firstP && /^R[ée]ponses?\s*[:.]/i.test((firstP.textContent || '').trim())) {
+    if (firstP && ANSWER_LABEL.test((firstP.textContent || '').trim())) {
       firstP.classList.add('answer-correct');
     }
 
