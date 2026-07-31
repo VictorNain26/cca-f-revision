@@ -86,7 +86,10 @@ for (const file of files) {
       if (!hasExamTip) failures.push(`${code} — « ${title} » : aucun réflexe d'examen`);
       if (!hasDistractors) failures.push(`${code} — « ${title} » : aucun distracteur nommé`);
     }
-    if (!isTaskSection && !isQuizSection && !isSynthesis && words > 250) {
+    // Plafond des sections hors task : ne s'applique qu'aux fiches de domaine.
+    // D0 est un prérequis — aucune de ses sections ne porte de task, et leur
+    // longueur est légitime.
+    if (code !== 'D0' && !isTaskSection && !isQuizSection && !isSynthesis && words > 250) {
       failures.push(`${code} — « ${title} » : ${words} mots hors task statement (plafond 250)`);
     }
   }
