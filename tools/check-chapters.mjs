@@ -6,6 +6,7 @@
  *   - des distracteurs nommés (bloc .anti-pattern, ou .exam-tip mentionnant un distracteur)
  * D0 ne porte aucune task : seule la garantie « exemple concret » s'y applique.
  * Sans dépendance : le corpus est du HTML statique régulier.
+ * Requiert Node ≥ 20.11 (pour import.meta.dirname).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -37,8 +38,10 @@ for (const file of files) {
 
     const hasExample = /<pre[\s>]/.test(part);
     const hasExamTip = /class="exam-tip"/.test(part);
-    const hasDistractors = /class="anti-pattern"/.test(part) ||
-                           /distracteur|anti-pattern|pi.ge/i.test(part);
+    const antiPatternBlocks = /class="anti-pattern"/.test(part);
+    const examTipBlocks = part.match(/<div class="exam-tip">([\s\S]*?)<\/div>/g) || [];
+    const distractorsInExamTips = examTipBlocks.some((block) => /distracteur/i.test(block));
+    const hasDistractors = antiPatternBlocks || distractorsInExamTips;
 
     if (code === 'D0' && !isQuizSection && !hasExample) {
       failures.push(`${code} — « ${title} » : aucun exemple concret`);
