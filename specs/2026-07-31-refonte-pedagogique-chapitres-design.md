@@ -63,7 +63,7 @@ Chacune se justifie seule, indépendamment de tout budget.
 | **D0 §3 ↔ D1 §2** | Deux exposés de `stop_reason` aux cadrages légèrement divergents | Trancher la propriété : **D0 possède le champ** (valeurs, sens), **D1 possède la boucle** (contrôle de flux, anti-patterns). D1 perd le tableau des valeurs, conserve un renvoi vers D0 |
 | **D0 §5 ↔ D5 §1** | Les trois problèmes du context window exposés deux fois | **D0 possède les problèmes** (c'est le prérequis), **D5 possède les solutions**. D5 §1 perd la ré-exposition, conserve `case facts`, le trimming des tool results et le reste |
 | **D4 §7** | 63 mots, « Fondamentaux d'API — note de structure » | Supprimer, remplacer par un renvoi vers D0 en tête de fiche |
-| **D3 §7** | 110 mots, « Arbre de décision » | Replier dans la synthèse §8 |
+| **D3 §7** | 110 mots, « Arbre de décision » | **Déplacer** le tableau comparatif (CLAUDE.md / Skills / Slash commands / Hooks / Subagents / MCP) dans la synthèse §8 sous son propre sous-titre. La prose fait 82 mots, mais le tableau à six lignes a de la valeur : il est déplacé, pas supprimé |
 
 Deux récits légèrement différents du même mécanisme sont une source d'hésitation le jour de l'examen. C'est la raison des deux déduplications, pas l'économie de mots.
 
