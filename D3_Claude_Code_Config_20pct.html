@@ -139,7 +139,7 @@ argument-hint: "Branch name to compare against main"
 ---
 Quand tu rédiges une description de PR :
 1. Exécuter `git diff main...HEAD` pour voir les changements
-2. Ecrire une description structurée : What / Why / Changes</pre>
+2. Écrire une description structurée : What / Why / Changes</pre>
 
 <h3>Les paramètres du frontmatter</h3>
 <table>
@@ -253,14 +253,14 @@ Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de dé
 <h3>Le problème que cela résout</h3>
 <p>Même avec des instructions détaillées en prose, Claude peut interpréter différemment vos attentes à chaque itération. Il faut des méthodes plus précises pour converger.</p>
 
-<h3>Des exemples concrets d'entree/sortie (I/O examples)</h3>
+<h3>Des exemples concrets d'entrée/sortie (I/O examples)</h3>
 <p>La méthode la plus efficace. Si Claude produit des résultats différents de vos attentes malgré les descriptions textuelles, fournissez 2 à 3 paires input/output concrètes montrant la transformation voulue.</p>
 
 <div class="anti-pattern">
 <strong>Les distracteurs face à des exemples entrée/sortie.</strong> Trois options concurrentes reviennent quand une consigne en prose est interprétée différemment à chaque exécution. Réécrire la consigne encore plus précisément : c'est la démarche qui a déjà échoué, et ajouter des mots sur une ambiguïté ne la tranche pas. Demander au modèle d'expliquer son interprétation avant chaque exécution : cela transforme chaque lancement en négociation au lieu de figer la spécification une fois pour toutes. Découper la transformation en une commande par champ : cela multiplie les invocations sans jamais définir ce que le terme ambigu recouvre. L'exemple travaillé, lui, montre le résultat attendu au lieu de le décrire.
 </div>
 
-<h3>L'iteration guidee par les tests (TDD iteration)</h3>
+<h3>L'itération guidée par les tests (TDD iteration)</h3>
 <ol>
 <li>Écrire les tests d'abord (cas attendus, cas limites, exigences de performance).</li>
 <li>Demander à Claude d'implémenter le code.</li>
