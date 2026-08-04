@@ -97,6 +97,16 @@
 <h4>Outils intégrés vs outils MCP</h4>
 <p>Les agents ont tendance à préférer les outils intégrés (<code>Read</code>, <code>Grep</code>) aux outils MCP offrant des fonctionnalités proches. Pour contrer cette tendance, renforcez les descriptions des outils MCP en soulignant les avantages concrets qu'ils offrent par rapport aux outils intégrés : données exclusives, contexte spécifique, ou fonctionnalités que les outils intégrés ne couvrent pas.</p>
 
+<div class="anti-pattern">
+<strong>Les distracteurs classiques face au <code>misrouting</code> par description pauvre.</strong>
+<ul>
+<li><strong>Ajouter des few-shot examples au system prompt</strong> — coûte des tokens à chaque appel sans lever l'ambiguïté sémantique des descriptions elles-mêmes.</li>
+<li><strong>Construire une couche de routage qui analyse l'entrée avant chaque tour</strong> — sur-ingénierie qui court-circuite la compréhension du langage naturel que le modèle fait déjà à partir des descriptions.</li>
+<li><strong>Fusionner les deux outils en un <code>lookup_entity</code> générique</strong> — un choix d'architecture défendable en soi, mais bien plus lourd qu'un premier pas quand le problème immédiat est simplement la pauvreté des descriptions existantes.</li>
+<li><strong>N'enrichir que l'une des deux descriptions</strong> — l'autre reste tout aussi attirante pour les mêmes requêtes, le <code>misrouting</code> persiste dans l'autre sens.</li>
+</ul>
+</div>
+
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s2">2. Les réponses d'erreur structurées en MCP (Task 2.2)</h2></div>
 
@@ -176,6 +186,16 @@
     "required": ["claim", "source_id"]
   }
 }</pre>
+
+<div class="anti-pattern">
+<strong>Les distracteurs classiques face à la distribution d'outils et à <code>tool_choice</code>.</strong>
+<ul>
+<li><strong>Fusionner les outils en un outil générique à paramètre <code>mode</code></strong> — déplace la décision dans un argument, où la <code>description</code> ne peut plus la guider aussi efficacement que via des outils distincts.</li>
+<li><strong>Régler <code>tool_choice: "any"</code> pour corriger un mauvais choix d'outil</strong> — garantit qu'un outil est appelé, pas que ce soit le bon.</li>
+<li><strong>Réécrire les descriptions encore une fois</strong> — inutile quand le vrai problème est le <strong>nombre</strong> d'outils exposés à l'agent, pas leur formulation.</li>
+<li><strong>Donner tous les outils à un agent « au cas où »</strong> — un agent doté d'outils hors de sa spécialité les emploie à mauvais escient, comme le montre l'exemple <code>fetch_url</code> plus haut.</li>
+</ul>
+</div>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s4">4. MCP Integration — primitives et configuration (Task 2.4)</h2></div>
@@ -289,6 +309,16 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 
 <div class="exam-tip">
 <strong>Pour l'examen :</strong> cette stratégie incrémentale (<code>Grep</code> → <code>Read</code> → <code>Grep</code> → <code>Read</code>) est la méthode recommandée pour explorer un codebase inconnu. Elle évite de surcharger le contexte en ne lisant que les fichiers pertinents.
+</div>
+
+<div class="anti-pattern">
+<strong>Les distracteurs classiques face au choix d'outil intégré (distracteur).</strong>
+<ul>
+<li><strong>Confondre <code>Grep</code> (contenu) et <code>Glob</code> (chemins)</strong> — le piège tient à ce que les deux « cherchent » ; l'un lit dans les fichiers, l'autre ne regarde que les noms.</li>
+<li><strong>Relancer <code>Edit</code> avec la même ancre ambiguë</strong> — l'outil est déterministe et échouera à l'identique ; la correspondance non unique ne devient pas unique en réessayant.</li>
+<li><strong>Lire tous les fichiers d'emblée au lieu d'explorer par <code>Grep</code> puis <code>Read</code></strong> — surcharge le contexte avec des fichiers non pertinents dès le départ.</li>
+<li><strong>Passer par <code>Bash</code> et <code>find</code></strong> — là où <code>Glob</code> répond directement, sans dépendre d'une commande shell.</li>
+</ul>
 </div>
 
 <!-- ================================================================== -->
