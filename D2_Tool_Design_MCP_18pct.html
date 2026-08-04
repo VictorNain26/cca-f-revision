@@ -102,7 +102,7 @@
 <ul>
 <li><strong>Ajouter des few-shot examples au system prompt</strong> — coûte des tokens à chaque appel sans lever l'ambiguïté sémantique des descriptions elles-mêmes.</li>
 <li><strong>Construire une couche de routage qui analyse l'entrée avant chaque tour</strong> — sur-ingénierie qui court-circuite la compréhension du langage naturel que le modèle fait déjà à partir des descriptions.</li>
-<li><strong>Fusionner les deux outils en un <code>lookup_entity</code> générique</strong> — un choix d'architecture défendable en soi, mais bien plus lourd qu'un premier pas quand le problème immédiat est simplement la pauvreté des descriptions existantes.</li>
+<li><strong>Fusionner les deux outils en un <code>lookup_entity</code> générique</strong> (par exemple <code>get_customer</code> et <code>lookup_order</code>) — un choix d'architecture défendable en soi, mais bien plus lourd qu'un premier pas quand le problème immédiat est simplement la pauvreté des descriptions existantes.</li>
 <li><strong>N'enrichir que l'une des deux descriptions</strong> — l'autre reste tout aussi attirante pour les mêmes requêtes, le <code>misrouting</code> persiste dans l'autre sens.</li>
 </ul>
 </div>
@@ -314,7 +314,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <div class="anti-pattern">
 <strong>Les distracteurs classiques face au choix d'un outil intégré.</strong>
 <ul>
-<li><strong>Confondre <code>Grep</code> (contenu) et <code>Glob</code> (chemins)</strong> — le piège tient à ce que les deux « cherchent » ; l'un lit dans les fichiers, l'autre ne regarde que les noms.</li>
+<li><strong>Confondre <code>Grep</code> (contenu) et <code>Glob</code> (chemins)</strong> — le piège tient à ce que les deux « cherchent » ; l'un lit dans les fichiers, l'autre ne regarde que les chemins.</li>
 <li><strong>Relancer <code>Edit</code> avec la même ancre ambiguë</strong> — l'outil est déterministe et échouera à l'identique ; la correspondance non unique ne devient pas unique en réessayant.</li>
 <li><strong>Lire tous les fichiers d'emblée au lieu d'explorer par <code>Grep</code> puis <code>Read</code></strong> — surcharge le contexte avec des fichiers non pertinents dès le départ.</li>
 <li><strong>Passer par <code>Bash</code> et <code>find</code></strong> — là où <code>Glob</code> répond directement, sans dépendre d'une commande shell.</li>
