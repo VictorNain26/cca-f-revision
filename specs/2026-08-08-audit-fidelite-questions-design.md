@@ -18,7 +18,9 @@ Six mesures cadrent le problème.
 
 **Aucune question ne porte d'identifiant.** Les 112 `<details>` de la banque n'ont pas d'attribut `id`. `quiz.js` dérive donc leur identité d'un hash des soixante premiers caractères du `<summary>` (`quizId()`). Toute reformulation d'intitulé détruit l'historique de réponses associé.
 
-**Le domaine n'est pas déclaré, il est deviné.** 106 des 112 questions de la banque citent un task statement dans leur explication (« This is Task 1.4 »), ce qui rend leur domaine dérivable. Six ne citent rien et sont donc inclassables : Q12, Q32, Q46, Q53, Q91, Q112.
+**Le domaine n'est pas déclaré, il est deviné.** 106 des 112 questions de la banque citent un task statement dans leur explication (« This is Task 1.4 »), ce qui rend leur domaine dérivable. Six ne citent rien : Q12, Q32, Q46, Q53, Q91, Q112.
+
+**Et aucune auto-évaluation n'en cite.** Les 45 quiz des fiches ne référencent aucun task statement — 0 sur 45, sur les six fiches. Leur `(D1)` en intitulé donne le domaine, jamais la task. Le rattachement existe donc dans l'intention, nulle part dans le balisage. Au total, **51 questions** attendent une attribution de task, pas six.
 
 **Les explications désignent les options par leur lettre.** Exemple, banque Q1 : « B) and C) both rely on probabilistic LLM compliance ». Cette formulation lie l'explication à la position de l'option. Elle empêche tout réordonnancement ultérieur des choix, et elle traite deux distracteurs en une phrase là où le corpus en analyse habituellement un par un.
 
@@ -90,7 +92,11 @@ Trois niveaux, selon le risque et selon qu'une source existe.
 - aucune paire d'options simultanément correcte ;
 - énoncé auto-suffisant : tout ce qui est nécessaire pour trancher y figure.
 
-**Les six questions sans task citée.** Q12, Q32, Q46, Q53, Q91 et Q112 ne référencent aucun task statement. Le contrat exige un `data-task` : il leur est donc attribué par jugement, en rattachant la question au task dont elle teste réellement le réflexe. Cette attribution est une décision, pas une lecture — elle figure au journal avec sa justification. Si une question ne se rattache à aucun task, c'est qu'elle est hors référentiel, et le journal doit le dire plutôt que de forcer un rattachement.
+**Les 51 questions sans task citée.** Six de la banque — Q12, Q32, Q46, Q53, Q91, Q112 — et la totalité des 45 auto-évaluations. Le contrat exige un `data-task` : il est donc attribué par jugement, en rattachant la question au task dont elle teste réellement le réflexe. Cette attribution est une décision, pas une lecture — elle figure au journal avec sa justification.
+
+Pour les 45 auto-évaluations, le jugement est cadré : la task attribuée doit appartenir à la fiche qui héberge le quiz, et les sections de cette fiche portent déjà leur numéro de task dans leur titre. L'attribution consiste donc à rattacher chaque quiz à la section qu'il teste, ce qui vérifie au passage l'affirmation jamais contrôlée selon laquelle chaque fiche évalue ses propres tasks.
+
+Si une question ne se rattache à aucun task, c'est qu'elle est hors référentiel, et le journal doit le dire plutôt que de forcer un rattachement.
 
 **Journal de vérification.** Un fichier listant les questions de niveau N1 et N2 ainsi que toute question modifiée : id, niveau, verdict, source. Les questions N3 inchangées n'y figurent pas — un journal de 157 lignes dont soixante diraient « cohérent » n'aurait aucune valeur de preuve.
 
