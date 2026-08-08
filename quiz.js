@@ -98,17 +98,28 @@
   // (« Réponses : A, C »). Scopé au marqueur pour ne pas matcher un « Réponse : X »
   // cité dans une narration.
   const findCorrect = (detailsEl) => {
-    let correctP = detailsEl.querySelector('p.correct');
-    if (!correctP) {
-      correctP = [...detailsEl.querySelectorAll(':scope > p, :scope > div > p')]
+    const correctP = detailsEl.querySelector('p.correct');
+    // data-answer est la source unique dès qu'il existe : le contrat retire la
+    // lettre du texte du corrigé, donc le parsing ci-dessous n'y trouverait
+    // plus rien. Le fallback ne sert qu'aux questions pas encore migrées.
+    if (correctP?.dataset.answer) {
+      const opts = correctP.dataset.answer.split(/\s+/).filter(Boolean);
+      const letters = opts
+        .map((o) => detailsEl.querySelector(`.choices li[data-opt="${o}"]`)?.dataset.letter)
+        .filter(Boolean);
+      return { letters, multi: letters.length > 1, opts };
+    }
+    let labelledP = correctP;
+    if (!labelledP) {
+      labelledP = [...detailsEl.querySelectorAll(':scope > p, :scope > div > p')]
         .find((p) => ANSWER_LABEL.test(p.textContent || ''));
     }
-    if (!correctP) return { letters: [], multi: false };
-    const text = (correctP.textContent || '').replace(/\s+/g, ' ');
+    if (!labelledP) return { letters: [], multi: false, opts: [] };
+    const text = (labelledP.textContent || '').replace(/\s+/g, ' ');
     const seg = text.match(/(?:R[ée]ponses?|Answers?)\s*:?\s*([A-E](?:\s*(?:,|et|and|&|\/|ou|or)\s*[A-E])*)/i);
-    if (!seg) return { letters: [], multi: false };
+    if (!seg) return { letters: [], multi: false, opts: [] };
     const letters = [...new Set((seg[1].match(/[A-E]/gi) || []).map((c) => c.toUpperCase()))];
-    return { letters, multi: letters.length > 1 };
+    return { letters, multi: letters.length > 1, opts: [] };
   };
 
   // ---------- Wrap réponse dans <details class="answer-reveal"> ----------
@@ -261,18 +272,22 @@
   // ---------- Process ----------
   const extractChoicesFromBody = (body2) => {
     const ps = [...body2.querySelectorAll(':scope > p')];
-    const choicesPs = ps.filter((p) => /^\s*[A-E]\)/.test(p.textContent || ''));
+    const choicesPs = ps.filter((p) => p.dataset.opt || /^\s*[A-E]\)/.test(p.textContent || ''));
 
     if (choicesPs.length >= 2) {
       const ul = document.createElement('ul');
       ul.className = 'choices';
-      for (const p of choicesPs) {
-        const letter = (p.textContent || '').match(/^\s*([A-E])\)/)[1];
+      choicesPs.forEach((p, index) => {
         const li = document.createElement('li');
-        li.dataset.letter = letter;
+        // L'identité d'une option est son data-opt ; sa lettre est sa position.
+        // Sans data-opt (question non encore migrée), on retombe sur la lettre
+        // lue dans le texte, qui est alors la seule identité disponible.
+        const letterInText = ((p.textContent || '').match(/^\s*([A-E])\)/) || [, null])[1];
+        if (p.dataset.opt) li.dataset.opt = p.dataset.opt;
+        li.dataset.letter = p.dataset.opt ? LETTERS[index] : letterInText;
         li.innerHTML = p.innerHTML.replace(/^\s*[A-E]\)\s*/, '').replace(/[.,]\s*$/, '');
         ul.appendChild(li);
-      }
+      });
       choicesPs[0].parentNode.replaceChild(ul, choicesPs[0]);
       for (let k = 1; k < choicesPs.length; k++) choicesPs[k].remove();
       return;
@@ -314,10 +329,7 @@
     // Capturé avant toute décoration/mutation du summary (q-tag, split des choix).
     detailsEl.dataset.qid = qid;
 
-    // 1) Réponse correcte AVANT de wrapper (pour ne pas perdre le texte)
-    const correct = findCorrect(detailsEl);
-
-    // 2) Choix depuis le summary, sinon depuis le body
+    // 1) Choix depuis le summary, sinon depuis le body
     const split = splitChoicesInSummary(summary);
     if (split) {
       summary.innerHTML = split.questionHtml;
@@ -350,9 +362,33 @@
       if (body2) extractChoicesFromBody(body2);
     }
 
+    // 2) Réponse correcte : lue via .choices li[data-opt=…], donc APRÈS que le
+    // ul.choices ci-dessus existe.
+    const correct = findCorrect(detailsEl);
+
     decorateQTag(summary);
 
     const revealEl = wrapAnswerInReveal(detailsEl);
+
+    // Le corrigé et les explications ne portent plus de lettre en dur : elle
+    // est réinjectée depuis la position courante des options. Le badge ✓ occupe
+    // déjà ::before sur .answer-correct, d'où l'injection dans le texte.
+    if (detailsEl.id && correct.letters.length) {
+      const correctP = detailsEl.querySelector('.correct');
+      if (correctP && !/\b[A-E]\)/.test(correctP.textContent || '')) {
+        correctP.innerHTML = correctP.innerHTML.replace(
+          /(Answers?\s*:\s*)/i,
+          `$1${correct.letters.join(', ')}) `
+        );
+      }
+      for (const li of detailsEl.querySelectorAll('.answer-reveal li[data-opt]')) {
+        const letter = detailsEl.querySelector(`.choices li[data-opt="${li.dataset.opt}"]`)?.dataset.letter;
+        if (letter && !/^\s*[A-E]\)/.test(li.textContent || '')) {
+          li.innerHTML = `${letter}) ${li.innerHTML}`;
+        }
+      }
+    }
+
     attachChoiceHandlers(detailsEl, correct, revealEl, qid);
 
     // Restaurer l'état si déjà répondu

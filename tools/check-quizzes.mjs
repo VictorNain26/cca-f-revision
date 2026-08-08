@@ -41,6 +41,22 @@ for (const page of pages) {
     if (!quiz.querySelector('.choices li[data-letter]')) report('LETTRES MANQUANTES');
     if (visible.some((el) => el.classList.contains('correct'))) report('RÉPONSE FUITÉE');
     if (!quiz.querySelector('.answer-reveal .correct')) report('AUCUNE BONNE RÉPONSE');
+
+    // Contrat de question : sur une question migrée, l'identité de l'option est
+    // son data-opt et sa lettre vient de sa position. Le corrigé et chaque
+    // explication doivent porter la lettre courante, sinon un réordonnancement
+    // ultérieur les ferait désigner la mauvaise option.
+    if (quiz.id) {
+      const lis = [...quiz.querySelectorAll('.choices li')];
+      const letters = lis.map((li) => li.dataset.letter).join('');
+      if (letters !== 'ABCDE'.slice(0, lis.length)) report(`LETTRES NON POSITIONNELLES (${letters})`);
+      if (lis.some((li) => !li.dataset.opt)) report('DATA-OPT PERDU AU RENDU');
+      const correct = quiz.querySelector('.answer-reveal .correct');
+      if (correct && !/\b[A-E]\)/.test(correct.textContent || '')) report('CORRIGÉ SANS LETTRE');
+      for (const li of quiz.querySelectorAll('.answer-reveal li[data-opt]')) {
+        if (!/^\s*[A-E]\)/.test(li.textContent || '')) report(`EXPLICATION SANS LETTRE (${li.dataset.opt})`);
+      }
+    }
   }
 
   total += quizzes.length;

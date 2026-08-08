@@ -87,22 +87,23 @@
 
 <h3>Scenario: Customer Support Resolution Agent</h3>
 
-<details>
+<details id="pq-q1" data-domain="D1" data-task="1.4">
 <summary>Q1 (Customer Support) — Deterministic tool ordering</summary>
 <div>
 <p><strong>Scenario:</strong> You are building a customer support resolution agent with the Claude Agent SDK. It reaches your backend through MCP tools (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Production data shows that in 12% of cases, your agent skips <code>get_customer</code> entirely and calls <code>lookup_order</code> using only the customer's stated name, occasionally leading to misidentified accounts and incorrect refunds.</p>
 <p><strong>Question:</strong> What change would most effectively address this reliability issue?</p>
-<p>A) Add a programmatic prerequisite that blocks <code>lookup_order</code> and <code>process_refund</code> calls until <code>get_customer</code> has returned a verified customer ID.</p>
-<p>B) Enhance the system prompt to state that customer verification via <code>get_customer</code> is mandatory before any order operations.</p>
-<p>C) Add few-shot examples showing the agent always calling <code>get_customer</code> first, even when customers volunteer order details.</p>
-<p>D) Implement a routing classifier that analyzes each request and enables only the subset of tools appropriate for that request type.</p>
+<p data-opt="a">A) Add a programmatic prerequisite that blocks <code>lookup_order</code> and <code>process_refund</code> calls until <code>get_customer</code> has returned a verified customer ID.</p>
+<p data-opt="b">B) Enhance the system prompt to state that customer verification via <code>get_customer</code> is mandatory before any order operations.</p>
+<p data-opt="c">C) Add few-shot examples showing the agent always calling <code>get_customer</code> first, even when customers volunteer order details.</p>
+<p data-opt="d">D) Implement a routing classifier that analyzes each request and enables only the subset of tools appropriate for that request type.</p>
 <hr>
-<p class="correct">Answer: A) Add a programmatic prerequisite that blocks the downstream calls</p>
+<p class="correct" data-answer="a">Answer: Add a programmatic prerequisite that blocks the downstream calls</p>
 <p><strong>Why:</strong> when a specific tool sequence is required for critical business logic — verifying identity before moving money — programmatic enforcement provides a deterministic guarantee that prompt-based approaches cannot. This is Task 1.4: prerequisite gates versus prompt-based guidance.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) and C) both rely on probabilistic LLM compliance. A 12% failure rate with financial consequences is exactly the case where "usually follows the instruction" is not good enough.</li>
-<li>D) addresses tool <em>availability</em>, not tool <em>ordering</em>. The agent has the right tools; it calls them in the wrong order.</li>
+<li data-opt="b">Relies on probabilistic LLM compliance. A 12% failure rate with financial consequences is exactly the case where "usually follows the instruction" is not good enough.</li>
+<li data-opt="c">Also relies on probabilistic LLM compliance, for the same reason: a 12% failure rate with financial consequences is exactly the case where "usually follows the instruction" is not good enough.</li>
+<li data-opt="d">Addresses tool <em>availability</em>, not tool <em>ordering</em>. The agent has the right tools; it calls them in the wrong order.</li>
 </ul>
 </div>
 </details>
