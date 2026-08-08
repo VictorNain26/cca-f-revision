@@ -6,11 +6,14 @@
  * anglais, plus les caractères accentués. Même parti pris que
  * check-diacritics.mjs — peu de faux positifs, liste incomplète par
  * construction, qui se complète quand une coquille passe.
+ * La liste est validée contre les 112 questions déjà anglaises du corpus :
+ * tout ajout doit l'être aussi, sous peine de faux positif (cas de « plus »,
+ * mot anglais ordinaire, retiré après mesure contre ce même corpus).
  */
 const LETTERS = ['a', 'b', 'c', 'd', 'e'];
 
 export const FRENCH_MARKERS =
-  /\b(?:le|la|les|des|une|dans|pour|qui|que|pas|avec|sur|est|sont|leur|leurs|cette|ces|donc|mais|aux|par|du|ses|elle|ils|elles|nous|vous|plus|tout|toute|toutes|tous|alors|ainsi|entre|sans|sous|chaque|quand|lorsque|parce|afin|selon|vers|depuis|jusqu|ou|où)\b/i;
+  /\b(?:le|la|les|des|une|dans|pour|qui|que|pas|avec|sur|est|sont|leur|leurs|cette|ces|donc|mais|aux|par|du|ses|elle|ils|elles|nous|vous|tout|toute|toutes|tous|alors|ainsi|entre|sans|sous|chaque|quand|lorsque|parce|afin|selon|vers|depuis|jusqu|ou|où)\b/i;
 
 const ACCENTS = /[àâäçéèêëîïôöùûüÿœæ]/i;
 

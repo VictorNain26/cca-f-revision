@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseQuestions } from './questions.mjs';
-import { checkQuestion } from './question-contract.mjs';
+import { checkQuestion, FRENCH_MARKERS } from './question-contract.mjs';
 
 const build = (over = {}) => {
   const opts = over.options ?? ['a', 'b', 'c', 'd'];
@@ -86,11 +86,17 @@ test('un accent isolé suffit à signaler du français', () => {
 });
 
 test('du français dans un <code> ne compte pas', () => {
-  const html = build({ scenario: 'The tool <code>calculer_le_prix</code> returns a total.' });
+  const html = build({ scenario: 'The tool named <code>où</code> returns a total.' });
   assert.deepEqual(violations(html), []);
 });
 
 test('une question à réponses multiples est acceptée', () => {
   const html = build({ answer: 'b d', explanations: ['a', 'c'], answerText: 'Answers: two guarantees' });
   assert.deepEqual(violations(html), []);
+});
+
+test('la liste française ne contient aucun mot anglais courant', () => {
+  assert.ok(!FRENCH_MARKERS.test('criteria plus few-shot examples'));
+  assert.ok(!FRENCH_MARKERS.test('the summary is on point'));
+  assert.ok(!FRENCH_MARKERS.test('An escalation, or a retry'));
 });
