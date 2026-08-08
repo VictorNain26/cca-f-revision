@@ -408,23 +408,23 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <!-- ===== SECTION 9 ===== -->
 <div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-évaluation</h2></div>
 
-<details>
-<summary>Q1 (D0) — Terminer la boucle agentique</summary>
+<details id="d0-q1" data-domain="D0" data-task="1.1">
+<summary>Q1 (D0) — A stop_reason your display code ignores</summary>
 <div>
-<p><strong>Situation :</strong> vous implémentez la boucle agentique d'un agent de support. À chaque tour, vous devez décider s'il faut exécuter un outil et rappeler l'API, ou sortir de la boucle et afficher la réponse.</p>
-<p><strong>Question :</strong> sur quoi fondez-vous cette décision ?</p>
-<p>A) Sur la présence d'un bloc <code>tool_use</code> dans <code>content</code>, en sortant dès que le modèle produit du texte.</p>
-<p>B) Sur le champ <code>stop_reason</code> : continuer tant qu'il vaut <code>"tool_use"</code>, sortir quand il vaut <code>"end_turn"</code>.</p>
-<p>C) Sur un plafond d'itérations fixé à l'avance (par exemple 10 tours).</p>
-<p>D) Sur la détection de formules de clôture dans le texte du modèle (« voilà », « en résumé »).</p>
+<p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
+<p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
+<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> only limits the size of the request, not of the output.</p>
+<p data-opt="b">B) The token budget ran out before the model finished generating; only <code>stop_reason: "end_turn"</code> means the response is complete.</p>
+<p data-opt="c">C) The model refused to continue for safety reasons; check <code>stop_details</code> instead of showing anything.</p>
+<p data-opt="d">D) A server-side tool call was interrupted mid-turn; resend the request unchanged so it can finish.</p>
 <hr>
-<p class="correct">Réponse : B) Le champ stop_reason</p>
-<p><strong>Explication :</strong> <code>stop_reason</code> est le signal explicite prévu pour cela. <code>"tool_use"</code> signifie que le modèle attend un résultat d'outil : on exécute, on renvoie le <code>tool_result</code>, on rappelle l'API. <code>"end_turn"</code> signifie que le modèle a terminé : on sort. C'est la seule valeur de ce champ qui pilote la boucle, et c'est aussi la base du domaine D1.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
+<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Vérifier le contenu textuel comme indicateur de complétion est un anti-pattern nommé par le guide : le modèle peut produire du texte <em>et</em> demander un outil dans la même réponse.</li>
-<li>C) Un plafond d'itérations est un garde-fou utile, jamais le mécanisme d'arrêt principal — il coupe des tâches légitimes et laisse tourner les boucles cassées jusqu'au plafond.</li>
-<li>D) Interpréter des signaux en langage naturel pour décider de la terminaison est l'anti-pattern le plus explicitement écarté par le guide.</li>
+<li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
+<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause.</li>
+<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget.</li>
 </ul>
 </div>
 </details>

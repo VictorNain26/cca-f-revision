@@ -538,22 +538,23 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </div>
 </details>
 
-<details>
-<summary>Q4 (D1) — Condition d'arrêt de l'agentic loop</summary>
+<details id="d1-q4" data-domain="D1" data-task="1.1">
+<summary>Q4 (D1) — Who decides the next tool call</summary>
 <div>
-<p><strong>Situation :</strong> vous implémentez la boucle agentique. Comment votre code détermine-t-il qu'il faut continuer à exécuter des outils ou présenter la réponse finale ?</p>
-<p>A) Vérifier <code>stop_reason</code> : continuer si <code>"tool_use"</code>, s'arrêter si <code>"end_turn"</code>.</p>
-<p>B) Analyser le texte de l'assistant à la recherche de formulations de fin comme « I'm done ».</p>
-<p>C) Fixer un plafond d'itérations (<code>max_iterations=5</code>) comme mécanisme d'arrêt principal.</p>
-<p>D) Vérifier si la réponse contient un bloc de texte : sa présence signale que le modèle a terminé.</p>
+<p><strong>Scenario:</strong> A migration agent needs to run <code>read_schema</code>, then <code>plan_changes</code>, then <code>apply_migration</code> for each table. To keep the process predictable, the orchestrator pre-computes this exact call sequence before the first request and feeds each tool result into the next hardcoded step, never letting the model's own response decide what happens next. When a table turns out to need an extra validation step the sequence doesn't account for, the agent has no way to trigger it.</p>
+<p><strong>Question:</strong> What should change about how the loop is driven?</p>
+<p data-opt="a">A) Keep the fixed sequence, but add a fourth hardcoded step for validation.</p>
+<p data-opt="b">B) Let the model choose the next action each turn from its own reasoning over the current <code>tool_result</code>, continuing while it keeps requesting tools and stopping only once it signals the work is done.</p>
+<p data-opt="c">C) Run all three tools on every turn regardless of need, so the missing step is covered by default.</p>
+<p data-opt="d">D) Keep the fixed sequence, but let the orchestrator retry a failed step before moving to the next one.</p>
 <hr>
-<p class="correct">Réponse : A) Vérifier stop_reason</p>
-<p><strong>Explication :</strong> <code>stop_reason</code> est le signal explicite prévu pour ça. Le modèle décide de la suite à partir du contexte, et la boucle suit sa décision — c'est ce qui distingue un agent d'un arbre de décision pré-câblé.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: hand control back to the model, turn by turn</p>
+<p><strong>Why:</strong> a sequence fixed in advance by the orchestrator is a hardcoded decision tree — it can only be as flexible as whoever wrote it anticipated. An agentic loop is model-driven: the model reads each tool result and decides the next action itself, which is what lets it insert a step nobody hardcoded.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Analyser le langage naturel pour détecter la fin est un anti-pattern : le modèle peut écrire « done » tout en émettant un <code>tool_use</code> dans la même réponse.</li>
-<li>C) Un plafond d'itérations est un garde-fou, jamais le mécanisme d'arrêt principal — il coupe des tâches légitimes.</li>
-<li>D) Le modèle émet fréquemment du texte explicatif <em>et</em> un bloc <code>tool_use</code> dans la même réponse.</li>
+<li data-opt="a">Fixes this one gap but leaves the orchestrator guessing every future case in advance — the same limitation returns with the next table that needs something different.</li>
+<li data-opt="c">Running every tool regardless of need does not add judgment, it just hides the missing decision behind unconditional execution.</li>
+<li data-opt="d">A retry addresses a step failing, not a step nobody planned for.</li>
 </ul>
 </div>
 </details>

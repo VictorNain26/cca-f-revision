@@ -348,44 +348,44 @@
 
 <p class="exam-tip"><strong>Contexte du scénario.</strong> Agent de résolution support bâti sur le Claude Agent SDK. Il traite des demandes à forte ambiguïté — retours, litiges de facturation, problèmes de compte — via des outils MCP (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Objectif : 80 % de résolution au premier contact, tout en sachant quand escalader. Domaines dominants : D1, D2, D5.</p>
 
-<details>
+<details id="pq-q13" data-domain="D1" data-task="1.1">
 <summary>Q13 (Customer Support) — Terminating the agentic loop</summary>
 <div>
 <p><strong>Scenario:</strong> Your agentic loop occasionally stops before the work is done: the agent calls <code>lookup_order</code>, receives the result, and the loop exits before the refund is processed. Your implementation exits as soon as the response contains any text content.</p>
 <p><strong>Question:</strong> What is the correct loop control condition?</p>
-<p>A) Continue until the model's text contains a closing phrase such as "Is there anything else I can help with?"</p>
-<p>B) Continue for a fixed maximum of 10 iterations, then return the last response.</p>
-<p>C) Continue while <code>stop_reason</code> is <code>"tool_use"</code>; exit when it is <code>"end_turn"</code>.</p>
-<p>D) Continue until the assistant produces no text content in its response.</p>
+<p data-opt="a">A) Continue until the model's text contains a closing phrase such as "Is there anything else I can help with?"</p>
+<p data-opt="b">B) Continue for a fixed maximum of 10 iterations, then return the last response.</p>
+<p data-opt="c">C) Continue while <code>stop_reason</code> is <code>"tool_use"</code>; exit when it is <code>"end_turn"</code>.</p>
+<p data-opt="d">D) Continue until the assistant produces no text content in its response.</p>
 <hr>
-<p class="correct">Answer: C) Drive the loop from <code>stop_reason</code></p>
+<p class="correct" data-answer="c">Answer: Drive the loop from <code>stop_reason</code></p>
 <p><strong>Why:</strong> <code>stop_reason</code> is the explicit control signal. <code>"tool_use"</code> means the model is waiting on a tool result: execute it, append the <code>tool_result</code>, call again. <code>"end_turn"</code> means the turn is finished (Task 1.1). The bug described is exactly the anti-pattern of treating text content as a completion indicator — a model can emit text <em>and</em> request a tool in the same response.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>D) is the very behaviour causing the reported failure.</li>
-<li>B) an iteration cap is a safety net, never the primary stopping mechanism: it truncates legitimate work and lets broken loops run to the cap.</li>
-<li>A) parsing natural-language signals for termination is the anti-pattern the guide names most explicitly.</li>
+<li data-opt="a">Parsing natural-language signals for termination is the anti-pattern the guide names most explicitly.</li>
+<li data-opt="b">An iteration cap is a safety net, never the primary stopping mechanism: it truncates legitimate work and lets broken loops run to the cap.</li>
+<li data-opt="d">Is the very behaviour causing the reported failure.</li>
 </ul>
 </div>
 </details>
 
-<details>
+<details id="pq-q14" data-domain="D1" data-task="1.1">
 <summary>Q14 (Customer Support) — What to send on the next iteration</summary>
 <div>
 <p><strong>Scenario:</strong> After executing <code>lookup_order</code>, your code calls the API again with only the original user message and the tool's output as a plain string appended to it. The agent then re-requests the same tool call.</p>
 <p><strong>Question:</strong> What is the correct way to return the result to the model?</p>
-<p>A) Send only the tool output as a new <code>user</code> message; the model retains the rest of the conversation server-side.</p>
-<p>B) Append the assistant's <code>tool_use</code> block and a <code>user</code> message containing a <code>tool_result</code> block with the matching <code>tool_use_id</code>, keeping the full prior history.</p>
-<p>C) Send the tool output in the <code>system</code> field so it takes priority over the conversation.</p>
-<p>D) Replace the conversation with a summary of what happened so far plus the tool output, to keep the context small.</p>
+<p data-opt="a">A) Send only the tool output as a new <code>user</code> message; the model retains the rest of the conversation server-side.</p>
+<p data-opt="b">B) Append the assistant's <code>tool_use</code> block and a <code>user</code> message containing a <code>tool_result</code> block with the matching <code>tool_use_id</code>, keeping the full prior history.</p>
+<p data-opt="c">C) Send the tool output in the <code>system</code> field so it takes priority over the conversation.</p>
+<p data-opt="d">D) Replace the conversation with a summary of what happened so far plus the tool output, to keep the context small.</p>
 <hr>
-<p class="correct">Answer: B) Full history, with the <code>tool_use</code> / <code>tool_result</code> pair intact</p>
+<p class="correct" data-answer="b">Answer: Full history, with the <code>tool_use</code> / <code>tool_result</code> pair intact</p>
 <p><strong>Why:</strong> the API is stateless. Tool results are appended to conversation history as <code>tool_result</code> blocks linked by <code>tool_use_id</code>, so the model can see that the call it requested has been satisfied and reason about the next action (Task 1.1). Losing that link is why the agent re-requests the same call.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>D) summarising mid-loop discards the structured link between request and result, and drops exactly the transactional details you will need later.</li>
-<li>C) the system prompt defines behaviour; it is not where turn-level results belong.</li>
-<li>A) there is no server-side conversation state to retain — that is the definition of a stateless API.</li>
+<li data-opt="a">There is no server-side conversation state to retain — that is the definition of a stateless API.</li>
+<li data-opt="c">The system prompt defines behaviour; it is not where turn-level results belong.</li>
+<li data-opt="d">Summarising mid-loop discards the structured link between request and result, and drops exactly the transactional details you will need later.</li>
 </ul>
 </div>
 </details>
