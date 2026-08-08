@@ -5,6 +5,8 @@
  *   - un réflexe d'examen (bloc .exam-tip)
  *   - des distracteurs nommés (bloc .anti-pattern, ou .exam-tip mentionnant un distracteur)
  * D0 ne porte aucune task : seule la garantie « exemple concret » s'y applique.
+ * Le contrôle porte sur la présence des blocs, pas sur leur substance : il
+ * attrape l'oubli, pas le remplissage. La relecture reste nécessaire.
  * Sans dépendance : le corpus est du HTML statique régulier.
  * Requiert Node ≥ 20.11 (pour import.meta.dirname).
  */
@@ -22,8 +24,11 @@ for (const file of files) {
   const code = file.slice(0, 2);
   const html = fs.readFileSync(path.join(ROOT, file), 'utf8');
 
-  // Découpage en sections sur les en-têtes <h2 id="sN">
-  const parts = html.split(/<div class="section-header[^"]*"><h2 id="s\d+"[^>]*>/).slice(1);
+  // Découpage en sections sur les en-têtes <h2 id="sN">. Ne pas exiger le
+  // <div class="section-header"> qui précède : une variante de balisage ferait
+  // silencieusement fusionner la section avec la précédente, dont elle
+  // hériterait les blocs — un faux négatif du gate.
+  const parts = html.split(/<h2 id="s\d+"[^>]*>/).slice(1);
   let contentWords = 0;
 
   for (const part of parts) {

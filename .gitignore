@@ -28,3 +28,6 @@ docs/
 
 # Espace de travail des plans (subagent-driven development)
 .superpowers/
+
+# Outillage des contrôles qualité (le site publié reste statique)
+node_modules/
