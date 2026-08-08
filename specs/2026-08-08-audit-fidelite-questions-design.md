@@ -12,7 +12,9 @@ Six mesures cadrent le problème.
 
 **Les auto-évaluations sont en français.** Les 45 quiz des fiches `D0`–`D5` le sont intégralement — énoncé, options, marqueur `Réponse :`, explication. Seules les 112 questions de `Practice_Questions.html` sont en anglais. L'examen se passe en anglais : une auto-évaluation en français n'entraîne pas la lecture des énoncés et des distracteurs tels qu'ils se présenteront.
 
-**Un quiz sur deux rejoue une question de la banque.** Sur les 45 auto-évaluations, **19** recouvrent fortement un QCM de la banque et 4 le recouvrent partiellement, mesuré par l'empreinte des identifiants de code et des valeurs chiffrées — les deux éléments qui survivent à une traduction. Le corpus annonce 157 questions ; il en compte environ 134 distinctes.
+**Un quiz sur deux rejoue une question de la banque.** Sur les 45 auto-évaluations, **18** recouvrent un QCM de la banque à 0,50 ou plus, et **6** de plus se situent entre 0,30 et 0,49. Le plafond retenu étant 0,30, ce sont **24 questions de fiche** qui dépassent le seuil et doivent être réécrites. Mesure faite sur l'empreinte des identifiants de code et des valeurs chiffrées — les deux éléments qui survivent à une traduction. Le corpus annonce 157 questions ; il en compte **133** distinctes.
+
+> Ces valeurs ont été recalculées après l'implémentation du module d'index. Les premières mesures du design utilisaient une empreinte qui laissait tomber le signe `%` : les fiches françaises écrivant « 12 % » avec une espace, leur pourcentage n'entrait pas dans l'empreinte. L'empreinte retenue normalise « 12 % » et « 12% » vers le même token, ce qui est la condition pour apparier une fiche française et son jumeau anglais.
 
 **Quatre des douze questions officielles sont déjà servies en fiche.** Q1, Q6, Q10 et Q11 du guide apparaissent en auto-évaluation avant d'être rencontrées dans la banque. Il n'existe que douze questions officielles : ce sont les items les plus précieux du corpus, et ils ne testent plus rien une fois vus.
 
@@ -100,7 +102,7 @@ Si une question ne se rattache à aucun task, c'est qu'elle est hors référenti
 
 **Journal de vérification.** Un fichier listant les questions de niveau N1 et N2 ainsi que toute question modifiée : id, niveau, verdict, source. Les questions N3 inchangées n'y figurent pas — un journal de 157 lignes dont soixante diraient « cohérent » n'aurait aucune valeur de preuve.
 
-## La réécriture des 19 doublons
+## La réécriture des 24 doublons
 
 Règle : même task statement, même principe discriminant, situation métier différente.
 
@@ -169,7 +171,7 @@ Il vérifie aujourd'hui que l'énoncé et les choix sont visibles et que la rép
 
 1. `npm run check` vert à chaque commit, les quatre contrôles existants plus le nouveau en mode progressif. Le dernier commit du chantier fait passer `check-questions.mjs` en mode strict et doit être vert lui aussi.
 2. Contrôle manuel dans le navigateur sur une fiche et sur la banque : énoncé visible, options cliquables, lettre correcte devant chaque option, devant chaque explication et dans le corrigé, réponse masquée avant le clic. Vérifié sur une page migrée **et** sur une page non migrée, tant que les deux coexistent.
-3. Remesure du recouvrement fiches ↔ banque après réécriture des 19 variantes : plus aucun couple au-dessus de 0,30.
+3. Remesure du recouvrement fiches ↔ banque après réécriture des 24 variantes : plus aucun couple au-dessus de 0,30.
 4. Recomptage du nombre de questions distinctes : 157 attendues.
 
 ## Ordre d'exécution
@@ -187,7 +189,7 @@ Un contrôle qu'on n'a jamais vu échouer ne prouve rien. Mais le faire échouer
 ## Ce que ce chantier ne fait pas
 
 - Pas de mode examen, de mélange des options ni de rejeu des erreurs — chantier suivant.
-- Pas d'agrandissement de la banque au-delà des 19 réécritures.
+- Pas d'agrandissement de la banque au-delà des 24 réécritures.
 - Aucune modification de la prose française des fiches, ni de l'accueil, ni du cheat sheet.
 - Aucun rééquilibrage des lettres de réponse — voir décision de cadrage 4.
 - Aucune migration du contenu vers un format de données : le HTML reste la source de vérité et le site reste statique, sans étape de build.

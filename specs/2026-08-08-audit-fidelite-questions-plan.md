@@ -156,7 +156,9 @@ test('overlap est un indice de Jaccard', () => {
 
 - [ ] **Step 2: Ajouter le script de test et vérifier l'échec**
 
-Dans `package.json`, ajouter à `scripts` : `"test": "node --test tools/"`
+Dans `package.json`, ajouter à `scripts` : `"test": "node --test tools/**/*.test.mjs"`
+
+Le glob est nécessaire : sur Node 24, `node --test tools/` traite `tools` comme un fichier de test et échoue. C'est le test runner de Node qui interprète le motif, pas le shell.
 
 Run: `npm test`
 Expected: FAIL — `Cannot find module` sur `./questions.mjs`.
@@ -189,7 +191,11 @@ export const pagePrefix = (file) =>
 export const fingerprint = (el) => {
   const text = el.textContent || '';
   const code = [...el.querySelectorAll('code')].map((c) => (c.textContent || '').trim().toLowerCase());
-  const nums = (text.match(/\b\d+(?:[.,]\d+)?\s*%?\b/g) || []).map((s) => s.replace(/\s+/g, ''));
+  // Pas de \b final : « % » et l'espace qui le précède sont tous deux des
+  // non-mots, donc un \b après %? ferait échouer la capture du signe. Le \s*
+  // normalise le « 12 % » des fiches françaises et le « 12% » de la banque
+  // anglaise vers un même token — condition de l'appariement interlangue.
+  const nums = (text.match(/\b\d+(?:[.,]\d+)?\s*%?/g) || []).map((s) => s.replace(/\s+/g, ''));
   return new Set([...code, ...nums].filter((t) => t.length > 1));
 };
 
@@ -1175,14 +1181,14 @@ Chaque task statement suit **exactement** le gabarit de Task 7. Un commit par ta
 
 | Task | Banque | Fiche | Doublon à réécrire |
 |---|---|---|---|
-| 1.1 | Q13 Q14 | — | D0 Q1 ↔ Q13 (0,56) |
+| 1.1 | Q13 Q14 | — | D0 Q1 ↔ Q13 (0,56), D1 Q4 ↔ Q13 (0,33) |
 | 1.2 | Q7 Q48 Q49 Q50 Q51 | — | — |
 | 1.3 | Q43 Q44 Q45 Q47 Q111 | — | D1 Q7 ↔ Q43 (0,50) |
 | 1.4 | Q1 Q25 Q26 | D1 Q1 | **fait en Task 7** |
 | 1.5 | Q15 Q16 | — | D1 Q8 ↔ Q15 (0,63) |
 | 1.6 | Q101 Q102 | — | — |
-| 1.7 | Q52 Q71 Q72 | — | D1 Q5 ↔ Q52 (0,67) |
-| 2.1 | Q2 Q27 Q103 Q104 | — | D0 Q4 ↔ Q27 (0,80), D2 Q1 ↔ Q104 (0,50) |
+| 1.7 | Q52 Q71 Q72 | — | D1 Q5 ↔ Q52 (0,67), D5 Q7 ↔ Q72 (0,33) |
+| 2.1 | Q2 Q27 Q103 Q104 | — | D0 Q4 ↔ Q27 (0,80), D2 Q1 ↔ Q104 (0,50), D2 Q4 ↔ Q27 (0,30) |
 | 2.2 | Q17 Q18 | — | — |
 | 2.3 | Q9 Q28 Q69 Q70 | — | D2 Q2 ↔ Q70 (0,67) |
 | 2.4 | Q64 Q65 Q66 Q67 Q68 | — | D2 Q6 ↔ Q64 (0,75) |
@@ -1192,7 +1198,7 @@ Chaque task statement suit **exactement** le gabarit de Task 7. Un commit par ta
 | 3.3 | Q6 | — | — |
 | 3.4 | Q5 Q38 Q39 | — | D3 Q7 ↔ Q38 (0,50) |
 | 3.5 | Q40 Q41 Q42 Q85 | — | — |
-| 3.6 | Q10 Q73 Q74 Q76 Q77 | — | D3 Q4 ↔ Q10 (0,60) |
+| 3.6 | Q10 Q73 Q74 Q76 Q77 | — | D3 Q4 ↔ Q10 (0,60), D3 Q5 ↔ Q73 (0,40) |
 | 4.1 | Q78 Q79 Q80 | — | — |
 | 4.2 | Q81 Q82 Q98 | — | — |
 | 4.3 | Q87 Q88 Q89 Q90 Q92 | — | D4 Q4 ↔ Q88 (0,75), D0 Q6 ↔ Q88 (0,50) |
@@ -1203,12 +1209,14 @@ Chaque task statement suit **exactement** le gabarit de Task 7. Un commit par ta
 | 5.2 | Q3 Q21 Q22 Q23 Q24 Q110 | — | — |
 | 5.3 | Q8 Q54 Q55 | — | D5 Q3 ↔ Q54 (0,67) |
 | 5.4 | Q105 Q106 | — | — |
-| 5.5 | Q100 Q109 | — | D5 Q4 ↔ Q100 (0,50) |
-| 5.6 | Q56 Q57 Q58 Q108 | — | — |
+| 5.5 | Q100 Q109 | — | D5 Q4 ↔ Q100 (0,40) |
+| 5.6 | Q56 Q57 Q58 Q108 | — | D5 Q5 ↔ Q57 (0,40) |
 
-La colonne *Fiche* est vide partout sauf 1.4 parce **qu'aucune auto-évaluation ne déclare sa task** : les 45 se répartissent au fil des tasks pendant l'étape 8. La colonne *Doublon* en localise déjà 19 sur 45 — les 19 paires mesurées au-dessus de 0,50. Les 26 restantes se rattachent pendant l'étape 8, et le total des lignes *Fiche* devra faire 45 à la fin du chantier.
+La colonne *Fiche* est vide partout sauf 1.4 parce **qu'aucune auto-évaluation ne déclare sa task** : les 45 se répartissent au fil des tasks pendant l'étape 8. La colonne *Doublon* en localise déjà 24 sur 45 — 18 paires à 0,50 ou plus, et 6 entre 0,30 et 0,49, toutes au-dessus du plafond que le gate applique. Les 21 restantes se rattachent pendant l'étape 8, et le total des lignes *Fiche* devra faire 45 à la fin du chantier.
 
-> **Deux doublons visent la même question de banque.** `D4 Q2` et `D4 Q6` recouvrent tous deux `Q11`, et `D4 Q4` et `D0 Q6` tous deux `Q88`. Leurs variantes doivent diverger de la banque **et l'une de l'autre** : traiter les deux dans le même commit, le gate ne comparant pas fiche à fiche.
+Les six paires du second groupe sont plus faciles à traiter que les premières : le recouvrement y tient souvent à deux ou trois valeurs chiffrées partagées, non à la situation entière. Vérifier avant de réécrire — si la situation est réellement différente, il suffit de changer les chiffres.
+
+> **Quatre questions de banque sont visées deux fois.** `Q11` par `D4 Q2` et `D4 Q6` ; `Q88` par `D4 Q4` et `D0 Q6` ; `Q13` par `D0 Q1` et `D1 Q4` ; `Q27` par `D0 Q4` et `D2 Q4`. Leurs variantes doivent diverger de la banque **et l'une de l'autre** : traiter chaque paire dans le même commit, le gate ne comparant pas fiche à fiche.
 
 - [ ] Task 1.1 · [ ] 1.2 · [ ] 1.3 · [ ] 1.5 · [ ] 1.6 · [ ] 1.7
 - [ ] Task 2.1 · [ ] 2.2 · [ ] 2.3 · [ ] 2.4 · [ ] 2.5
