@@ -14,7 +14,8 @@
  * liste est incomplète par construction et se complète quand une coquille
  * échappe au contrôle.
  *
- * Practice_Questions.html est rédigé en anglais : hors périmètre.
+ * Les blocs <details> de quiz sont rédigés en anglais : hors périmètre. La
+ * prose qui les entoure est contrôlée, y compris dans Practice_Questions.html.
  * Sans dépendance. Requiert Node >= 20.11 (pour import.meta.dirname).
  */
 import fs from 'node:fs';
@@ -74,19 +75,28 @@ verites versionnee visee
   .filter(Boolean)
   .map((word) => [word, new RegExp(`\\b${word}\\b`, 'i')]);
 
-const files = fs
-  .readdirSync(ROOT)
-  .filter((f) => /\.(html|md|js|css)$/.test(f) && f !== 'Practice_Questions.html')
-  .sort();
+const files = fs.readdirSync(ROOT).filter((f) => /\.(html|md|js|css)$/.test(f)).sort();
 
 let hits = 0;
 for (const file of files) {
   const lines = fs.readFileSync(path.join(ROOT, file), 'utf8').split(/\r?\n/);
+  // Les blocs quiz sont rédigés en anglais : hors périmètre. On les suit par
+  // profondeur d'ouverture plutôt que d'exclure des fichiers entiers, sinon la
+  // prose française de Practice_Questions.html — ses titres de section et sa
+  // note de fidélité — n'est jamais contrôlée.
+  let depth = 0;
   lines.forEach((line, index) => {
+    const opens = (line.match(/<details\b/g) || []).length;
+    const closes = (line.match(/<\/details>/g) || []).length;
+    const insideBefore = depth > 0;
+    depth += opens - closes;
+    if (insideBefore || opens > 0) return;
+
     const prose = line
       .replace(/<code>[\s\S]*?<\/code>/g, ' ')
       .replace(/https?:\/\/\S+/g, ' ')
-      .replace(/\b[\w./-]+\.(html|js|css|md|json|mjs|py|pdf)\b/g, ' ');
+      .replace(/\b[\w./-]+\.(html|js|css|md|json|mjs|py|pdf)\b/g, ' ')
+      .replace(/\b(?:id|href)="#?[\w-]*"/g, ' ');
     for (const [word, pattern] of WORDS) {
       if (!pattern.test(prose)) continue;
       console.log(`${file}:${index + 1} — « ${word} » : ${line.trim().replace(/\s+/g, ' ').slice(0, 110)}`);
