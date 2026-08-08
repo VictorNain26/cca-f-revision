@@ -318,7 +318,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <tr><th>Valeur</th><th>Comportement</th><th>Cas d'usage</th></tr>
 <tr><td><code>{"type": "auto"}</code></td><td>Le modèle décide librement s'il appelle un tool ou non (valeur par <strong>défaut</strong>)</td><td>Conversations générales avec tools optionnels</td></tr>
 <tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel)</td><td>Quand vous voulez forcer un output structuré sans imposer un tool spécifique</td></tr>
-<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution précis dans un pipeline</td></tr>
+<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool spécifié — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution précis dans un pipeline</td></tr>
 <tr><td><code>{"type": "none"}</code></td><td>Aucun tool n'est autorisé, même s'il y en a de disponibles</td><td>Forcer une réponse texte pure malgré la présence de tools dans la requête</td></tr>
 </table>
 
@@ -403,7 +403,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <tr><td><strong>Erreur sémantique</strong> (valeurs incorrectes)</td><td>Mauvaise interprétation, hallucination</td><td>Validation programmatique + retry</td></tr>
 </table>
 
-<p>Voir <strong>D4</strong> pour les patterns avances de structured output.</p>
+<p>Voir <strong>D4</strong> pour les patterns avancés de structured output.</p>
 
 <!-- ===== SECTION 9 ===== -->
 <div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-évaluation</h2></div>
