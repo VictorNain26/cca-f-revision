@@ -97,7 +97,7 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 </div>
 
 <h3>Les commandes <code>/memory</code> et <code>/compact</code></h3>
-<p><em>(Source : guide officiel, sections 5.7 et 5.8.)</em></p>
+<p><em>(Source : guide officiel — <code>/memory</code> en Task 3.1, <code>/compact</code> en Task 5.4.)</em></p>
 <ul>
 <li><strong><code>/memory</code></strong> affiche quels fichiers mémoire sont actuellement chargés et vous permet de les éditer pour y ajouter des notes et préférences. Les fichiers chargés (ex. <code>~/.claude/projects/&lt;id&gt;/memory/*.md</code>) persistent entre les sessions et sont appliqués automatiquement au démarrage. C'est aussi la commande de diagnostic quand vous soupçonnez qu'une instruction n'a pas été chargée correctement — vérifiez que le fichier de mémoire attendu apparaît dans la liste des fichiers chargés.</li>
 <li><strong><code>/compact</code></strong> compresse le contexte en résumant l'historique. Utile dans les longues sessions d'investigation, mais avec un risque : les valeurs numériques exactes, les dates et les détails précis peuvent être perdus lors de la compression.</li>
@@ -413,7 +413,7 @@ jobs:
 <tr><td><strong>Serveurs MCP</strong></td><td>À la connexion</td><td>Via les outils</td><td>Non</td><td>Outils et intégrations externes</td></tr>
 </table>
 
-<p><em>Pour les hooks de l'Agent SDK (PostToolUse, PreToolUse) au niveau programmatique, voir D1, section 5.</em></p>
+<p><em>Pour les hooks de l'Agent SDK (PostToolUse, PreToolUse) au niveau programmatique, voir D1, section 6.</em></p>
 
 <h3>CLAUDE.md</h3>
 <ul>

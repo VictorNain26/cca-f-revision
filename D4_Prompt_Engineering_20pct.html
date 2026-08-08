@@ -143,7 +143,7 @@ Référence bibliographique : "The rate is 42%. [1]"
 → {"value": "42%", "source": "reference_1", "type": "bibliography"}</pre>
 
 <h4>5. Mesures informelles et non standard</h4>
-<p><em>(Source : guide officiel, section 6.1, exemple 5.)</em></p>
+<p><em>(Source : guide officiel, Task 4.2 — « handling informal measurements, varied document structures ».)</em></p>
 <pre>Texte : "about two handfuls of rice"
 → {"amount": "~100g", "original_text": "two handfuls", "précision": "approximate"}
 
@@ -396,7 +396,7 @@ def extract_invoice(document_text: str, max_retries: int = 3) -&gt; Invoice:
 </div>
 
 <div class="exam-tip">
-<strong>EXAM TIP :</strong> sur les questions de scénario Structured Data Extraction, le pattern "boucle validate-retry avec Pydantic comme source de verite" est la <strong>réponse canonique</strong>. Les distracteurs typiques : "ajouter plus de few-shot examples" (peut aider en amont mais ne résout pas la validation runtime), "post-processer avec un parser custom" (réimplémente ce que Pydantic fait déjà), "augmenter <code>max_tokens</code>" (sans rapport).
+<strong>EXAM TIP :</strong> sur les questions de scénario Structured Data Extraction, le pattern "boucle validate-retry avec Pydantic comme source de vérité" est la <strong>réponse canonique</strong>. Les distracteurs typiques : "ajouter plus de few-shot examples" (peut aider en amont mais ne résout pas la validation runtime), "post-processer avec un parser custom" (réimplémente ce que Pydantic fait déjà), "augmenter <code>max_tokens</code>" (sans rapport).
 </div>
 
 <!-- ================================================================== -->
@@ -521,7 +521,7 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <h3>Verification pass avec confidence self-report</h3>
 <p>Un troisième skill de review Task 4.6 : demander au modèle de produire, pour chaque finding, un score de <code>confidence</code> explicite qui l'accompagne. Ce signal sert à <strong>router</strong> la revue (haute confidence → validation rapide ou auto-approuvé ; basse confidence → revue humaine approfondie) et à calibrer les seuils de revue au fil du temps.</p>
 
-<p><em>Voir aussi : D1, section 6 pour le détail de la multi-pass review dans le contexte de la décomposition de tâches.</em></p>
+<p><em>Voir aussi : D1, section 4 pour le détail de la multi-pass review dans le contexte de la décomposition de tâches.</em></p>
 
 <!-- ================================================================== -->
 <div class="section-header page-break"><h2 id="s7">7. Synthèse — les points clés</h2></div>
@@ -699,8 +699,6 @@ review --scope="$(git diff --name-only main...HEAD)" \
 </div>
 </details>
 
-</div>
-
 <details>
 <summary>Q7 (D4) — Du code idiomatique signalé comme défaut</summary>
 <div>
@@ -721,6 +719,8 @@ review --scope="$(git diff --name-only main...HEAD)" \
 </ul>
 </div>
 </details>
+
+</div>
 
 <nav class="doc-nav">
   <a class="prev" href="D3_Claude_Code_Config_20pct.html"><span class="label">Précédent</span><span class="title">D3 — Configuration Claude Code</span></a>

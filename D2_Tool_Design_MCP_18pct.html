@@ -173,7 +173,8 @@
 </div>
 
 <h3>Outils cross-role scoped : l'exemple de <code>verify_fact</code></h3>
-<p>Certains outils sont pertinents pour <strong>plusieurs agents</strong> mais doivent rester <strong>restreints</strong> en capacité. Exemple : un outil <code>verify_fact</code> qui vérifie une affirmation contre une source documentaire. Un research agent et un document analysis agent ont tous deux besoin de cet outil — mais avec des restrictions différentes (ex. : le research agent y accède toujours, le document analysis agent seulement s'il la requête inclut explicitement la vérification). La solution : un <strong>outil partagé restreint</strong>, fourni aux deux via leur <code>tools</code> respectif avec une description précise du contexte d'utilisation.</p>
+<p>Le cas canonique du guide est celui de l'<strong>agent de synthèse</strong>. Pendant qu'il combine les findings, il a sans cesse besoin de vérifier une affirmation ponctuelle. S'il doit à chaque fois rendre la main au coordinateur, qui invoque le web search agent, puis le relance avec le résultat, on paie 2 à 3 allers-retours par tâche — jusqu'à 40 % de latence en plus. Or l'évaluation montre que <strong>85 % de ces vérifications sont de simples fact-checks</strong> (dates, noms, statistiques) et 15 % seulement demandent une investigation.</p>
+<p>La réponse n'est pas d'ouvrir le web à l'agent de synthèse, mais de lui donner un outil <strong>restreint en capacité</strong> : un <code>verify_fact</code> qui ne fait que confronter une affirmation à une source identifiée. Les 15 % de vérifications complexes continuent de passer par le coordinateur vers le web search agent. C'est le <strong>principe de moindre privilège</strong> appliqué à la distribution d'outils : on scope l'outil, on ne l'élargit pas.</p>
 <pre>{
   "name": "verify_fact",
   "description": "Verifies a claim against source documents or references. Returns confidence level (high/medium/low) and the source excerpt. Use this cross-role tool only when a specific claim needs verification, not for general information retrieval.",
@@ -192,8 +193,10 @@
 <ul>
 <li><strong>Fusionner les outils en un outil générique à paramètre <code>mode</code></strong> — déplace la décision dans un argument, où la <code>description</code> ne peut plus la guider aussi efficacement que via des outils distincts.</li>
 <li><strong>Régler <code>tool_choice: "any"</code> pour corriger un mauvais choix d'outil</strong> — garantit qu'un outil est appelé, pas que ce soit le bon.</li>
-<li><strong>Réécrire les descriptions encore une fois</strong> — inutile quand le vrai problème est le <strong>nombre</strong> d'outils exposés à l'agent, pas leur formulation.</li>
-<li><strong>Donner tous les outils à un agent « au cas où »</strong> — un agent doté d'outils hors de sa spécialité les emploie à mauvais escient, comme le montre l'exemple <code>fetch_url</code> plus haut.</li>
+<li><strong>Réécrire les descriptions encore une fois</strong> — inutile quand l'énoncé pointe le <strong>nombre</strong> d'outils (« 18 outils exposés ») et non leur formulation (« descriptions minimales »). Le même remède est la bonne réponse en §1 : c'est le signal donné par l'énoncé qui tranche.</li>
+<li><strong>Donner tous les outils à un agent « au cas où »</strong> — un agent doté d'outils hors de sa spécialité les emploie à mauvais escient, comme le montre l'exemple <code>fetch_url</code> plus haut. Sur le cas <code>verify_fact</code>, cela revient à ouvrir tous les outils de web search à l'agent de synthèse : la latence tombe, le moindre privilège aussi.</li>
+<li><strong>Accumuler les vérifications et les envoyer en lot au coordinateur en fin de passe</strong> — supprime les allers-retours, mais l'agent de synthèse écrit alors sa synthèse avant d'avoir vérifié quoi que ce soit.</li>
+<li><strong>Faire pré-cacher du contexte supplémentaire par l'agent amont « au cas où »</strong> — parie sur ce dont l'aval aura besoin ; on charge du contexte inutile et on rate quand même les vérifications non anticipées.</li>
 </ul>
 </div>
 
