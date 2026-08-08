@@ -45,6 +45,7 @@ test('parseQuestions lit le contrat complet', () => {
   assert.deepEqual(q.options.map((o) => o.letterInText), ['A', 'B', 'C', 'D']);
   assert.deepEqual(q.answer, ['a']);
   assert.deepEqual(q.explanations, ['b', 'c', 'd']);
+  assert.ok(!q.prose.includes('get_customer'));
 });
 
 test('parseQuestions tolère une question non migrée', () => {

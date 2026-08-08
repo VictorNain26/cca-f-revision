@@ -46,6 +46,8 @@ export const parseQuestions = (html, file) => {
         ? tagged
         : [...d.querySelectorAll('p')].filter((p) => OPTION_RE.test(p.textContent || ''));
       const correct = d.querySelector('p.correct');
+      const stripped = d.cloneNode(true);
+      for (const c of stripped.querySelectorAll('code')) c.remove();
 
       return {
         file,
@@ -65,6 +67,7 @@ export const parseQuestions = (html, file) => {
         answer: (correct?.dataset.answer || '').split(/\s+/).filter(Boolean),
         answerText: (correct?.textContent || '').trim(),
         explanations: [...d.querySelectorAll('li[data-opt]')].map((li) => li.dataset.opt),
+        prose: (stripped.textContent || '').replace(/\s+/g, ' ').trim(),
         fp: fingerprint(d),
       };
     });
