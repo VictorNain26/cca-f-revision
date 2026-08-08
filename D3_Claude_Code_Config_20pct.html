@@ -42,9 +42,8 @@
 <li><a href="#s4">Planning mode vs. direct exécution</a></li>
 <li><a href="#s5">Le raffinement itératif</a></li>
 <li><a href="#s6">L'intégration dans les pipelines CI/CD</a></li>
-<li><a href="#s7">Arbre de décision : quelle fonctionnalité utiliser</a></li>
-<li><a href="#s8">Synthèse — les points clés</a></li>
-<li><a href="#s9">Auto-évaluation</a></li>
+<li><a href="#s7">Synthèse — les points clés</a></li>
+<li><a href="#s8">Auto-évaluation</a></li>
 </ol>
 </div>
 
@@ -64,6 +63,10 @@
 
 <div class="anti-pattern">
 <strong>Erreur classique :</strong> trois développeurs expérimentés bénéficient de l'instruction "always include comprehensive error handling", mais un nouveau ne la reçoit pas. Cause : les instructions étaient dans <code>~/.claude/CLAUDE.md</code> (user-level) au lieu de <code>.claude/CLAUDE.md</code> (project-level). Le nouveau n'a pas les fichiers personnels des anciens. Solution : déplacer vers le project-level pour que tout le monde en bénéficie.
+</div>
+
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> le signe distinctif d'un problème de hiérarchie, c'est « ça marche pour tout le monde <em>sauf</em> le nouvel arrivant ». Une instruction que les anciens appliquent et que le dernier embauché n'a jamais reçue vit au niveau user — <code>~/.claude/CLAUDE.md</code>, jamais partagé par le VCS. La réponse est le déplacement vers le niveau projet ; <code>/memory</code> sert à le confirmer en listant les fichiers réellement chargés. Trois distracteurs : une version de Claude Code différente, qui n'explique pas une instruction ciblée manquante ; un <code>CLAUDE.md</code> devenu trop long, qui produirait une dégradation partagée par toute l'équipe et pas par un seul poste ; et demander à chacun de recopier le fichier, qui reproduit à la main ce que le versionnage fait déjà et redivergera au premier changement.
 </div>
 
 <h3>La syntaxe <code>@path</code> pour les imports</h3>
@@ -94,7 +97,7 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 </div>
 
 <h3>Les commandes <code>/memory</code> et <code>/compact</code></h3>
-<p><em>(Source : guide officiel, sections 5.7 et 5.8.)</em></p>
+<p><em>(Source : guide officiel — <code>/memory</code> en Task 3.1, <code>/compact</code> en Task 5.4.)</em></p>
 <ul>
 <li><strong><code>/memory</code></strong> affiche quels fichiers mémoire sont actuellement chargés et vous permet de les éditer pour y ajouter des notes et préférences. Les fichiers chargés (ex. <code>~/.claude/projects/&lt;id&gt;/memory/*.md</code>) persistent entre les sessions et sont appliqués automatiquement au démarrage. C'est aussi la commande de diagnostic quand vous soupçonnez qu'une instruction n'a pas été chargée correctement — vérifiez que le fichier de mémoire attendu apparaît dans la liste des fichiers chargés.</li>
 <li><strong><code>/compact</code></strong> compresse le contexte en résumant l'historique. Utile dans les longues sessions d'investigation, mais avec un risque : les valeurs numériques exactes, les dates et les détails précis peuvent être perdus lors de la compression.</li>
@@ -120,6 +123,10 @@ Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
 </table>
 <p>Le nom du fichier détermine le nom de la commande : <code>review.md</code> devient <code>/review</code>. Le placeholder <code>$ARGUMENTS</code> accepte des paramètres positionnels 0-based : <code>$0</code> = 1er argument, <code>$1</code> = 2e, etc.</p>
 
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> dès que l'énoncé dit qu'une commande doit être <em>disponible pour toute l'équipe après un clone</em>, la réponse du guide est <code>.claude/commands/</code>. Trois distracteurs : <code>~/.claude/commands/</code>, qui produit bien la commande mais reste personnel et hors VCS — donc invisible pour les collègues ; le <code>CLAUDE.md</code>, qui porte des instructions permanentes et non des définitions de commande invocable ; et un tableau <code>commands</code> déclaré dans un <code>.claude/config.json</code>, qui séduit parce qu'il ressemble à une configuration d'outil mais désigne un mécanisme inexistant.
+</div>
+
 <h3>Les skills</h3>
 <p>Le skill est l'autre mécanisme : il porte un workflow invoqué à la demande, et il est mieux outillé que la slash command pour les cas complexes — isolation de contexte, restriction d'outils, indice d'argument. Chaque skill vit dans un répertoire contenant un fichier <code>SKILL.md</code> avec un YAML frontmatter :</p>
 <pre>---
@@ -132,7 +139,7 @@ argument-hint: "Branch name to compare against main"
 ---
 Quand tu rédiges une description de PR :
 1. Exécuter `git diff main...HEAD` pour voir les changements
-2. Ecrire une description structurée : What / Why / Changes</pre>
+2. Écrire une description structurée : What / Why / Changes</pre>
 
 <h3>Les paramètres du frontmatter</h3>
 <table>
@@ -145,7 +152,7 @@ Quand tu rédiges une description de PR :
 </table>
 
 <div class="exam-tip">
-<strong>Scénario d'examen :</strong> après avoir exécuté un skill d'analyse lourde, Claude devient moins réactif et perd le fil de la tâche originale. Solution : ajouter <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> pour isoler l'exécution dans un subagent séparé.
+<strong>Scénario d'examen :</strong> après avoir exécuté un skill d'analyse lourde, Claude devient moins réactif et perd le fil de la tâche originale. Solution : ajouter <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> pour isoler l'exécution dans un subagent séparé. Deux distracteurs accompagnent presque toujours cette question : <code>allowed-tools</code>, qui restreint les outils accessibles mais ne change rien à la destination de la sortie produite ; et une consigne « sois concis » ajoutée au corps du skill, qui demande au modèle de moins écrire au lieu d'écrire ailleurs — la sortie, même réduite, atterrit toujours dans la session principale.
 </div>
 
 <h3>Skills personnels vs. skills projet</h3>
@@ -183,6 +190,19 @@ Conventions de test :
 - Utiliser des data factories, pas de données codées en dur.
 - Ne pas mocker la base de données — utiliser une base de test.</pre>
 
+<h3>L'anatomie du frontmatter</h3>
+<p>Le champ <code>paths</code> accepte une liste de globs. Le fichier ne se charge que si le fichier en cours d'édition correspond à l'un d'eux ; le corps est alors injecté tel quel dans le contexte, sans reformulation ni résumé. Un second exemple, scopé cette fois par répertoire :</p>
+<pre># .claude/rules/terraform.md
+---
+paths: ["terraform/**/*"]
+---
+Toute ressource porte les tags obligatoires : owner, cost-center, environment.
+Les backends d'état sont déclarés en S3 avec verrouillage DynamoDB.</pre>
+
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> quand un scénario dit que des conventions doivent s'appliquer à des fichiers <em>dispersés dans l'arborescence</em> — les tests co-localisés en sont l'exemple canonique — la réponse est <code>.claude/rules/</code> avec un glob dans le frontmatter. Trois distracteurs reviennent : un <code>CLAUDE.md</code> par sous-répertoire, qui séduit parce qu'il est « plus local » mais reste lié au dossier et ne suit pas les fichiers dispersés ; tout consolider dans le <code>CLAUDE.md</code> racine sous des titres de section, qui repose sur l'inférence du modèle au lieu d'un appariement explicite ; et un skill par type de code, qui échoue sur le mot <em>automatiquement</em> de l'énoncé, puisqu'un skill s'invoque.
+</div>
+
 <div class="key-concept">
 <strong>Chargement conditionnel :</strong> la règle ne se charge que lorsque Claude Code édite un fichier correspondant au glob pattern. Cela économise du contexte et des tokens : les conventions non pertinentes ne sont jamais chargées.
 <br><br>
@@ -202,12 +222,29 @@ Conventions de test :
 <tr><td><strong>Cas d'usage</strong></td><td>Changements importants, choix architecturaux, codebase inconnu, migrations (45+ fichiers), multiples approches possibles</td><td>Corrections ciblées sur un seul fichier, ajout d'une validation simple</td></tr>
 </table>
 
-<p>La combinaison la plus courante : <strong>planning mode</strong> pour l'investigation, approbation du plan, puis <strong>direct exécution</strong> pour l'implémentation.</p>
+<h3>Les cas contrastés du guide</h3>
+<pre>Plan mode
+  Restructurer un monolithe en microservices
+    → frontières de service à décider, dizaines de fichiers
+  Migrer une bibliothèque sur 45+ fichiers
+    → périmètre large, approches concurrentes
+  Choisir entre deux approches d'intégration
+    → prérequis d'infrastructure différents
+
+Exécution directe
+  Corriger une déréférence null localisée par une stack trace
+    → un fichier, une garde, périmètre déjà établi
+  Ajouter une validation de date à un endpoint
+    → changement compris, aucun arbitrage</pre>
+
+<p>La combinaison la plus courante : <strong>planning mode</strong> pour l'investigation, approbation du plan, puis <strong>direct exécution</strong> pour l'implémentation. Le plan approuvé sert alors de périmètre à la phase d'écriture : les décisions ont été tranchées avant qu'un seul fichier ne soit modifié.</p>
 
 <div class="key-concept">
-<strong>Plan = largeur</strong> (explorer plus de fichiers). <strong>Thinking = profondeur</strong> (raisonnement approfondi sur un problème précis). Les deux se combinent pour les tâches complexes.
-<br><br>
-Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de découverte et retourne un résumé concis, préservant le contexte principal pour les phases suivantes.
+Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de découverte — les fichiers lus, les recherches infructueuses, les chemins abandonnés — et ne remonte qu'un résumé à la session principale. Le contexte principal reste disponible pour la planification puis l'implémentation, au lieu d'être consommé par la lecture exploratoire. C'est le complément naturel du plan mode sur un codebase inconnu : explorer via le subagent, planifier avec le résumé, exécuter ensuite.
+</div>
+
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> la complexité est <em>énoncée dans le scénario</em>, elle ne se devine pas. « Dizaines de fichiers », « décisions d'architecture », « plusieurs approches valides » → plan mode. « Stack trace claire », « un seul fichier », « changement bien compris » → exécution directe. Le distracteur le plus fin propose de commencer en exécution directe et de basculer en plan mode <em>si</em> la complexité se révèle : il séduit parce qu'il a l'air prudent, mais il ignore que l'énoncé a déjà établi la complexité. Deux autres : appliquer le plan mode partout par principe, et donner des instructions exhaustives en exécution directe — ce qui suppose de connaître la bonne structure avant d'avoir exploré le code.
 </div>
 
 <!-- ================================================================== -->
@@ -216,10 +253,14 @@ Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de dé
 <h3>Le problème que cela résout</h3>
 <p>Même avec des instructions détaillées en prose, Claude peut interpréter différemment vos attentes à chaque itération. Il faut des méthodes plus précises pour converger.</p>
 
-<h3>Des exemples concrets d'entree/sortie (I/O examples)</h3>
+<h3>Des exemples concrets d'entrée/sortie (I/O examples)</h3>
 <p>La méthode la plus efficace. Si Claude produit des résultats différents de vos attentes malgré les descriptions textuelles, fournissez 2 à 3 paires input/output concrètes montrant la transformation voulue.</p>
 
-<h3>L'iteration guidee par les tests (TDD iteration)</h3>
+<div class="anti-pattern">
+<strong>Les distracteurs face à des exemples entrée/sortie.</strong> Trois options concurrentes reviennent quand une consigne en prose est interprétée différemment à chaque exécution. Réécrire la consigne encore plus précisément : c'est la démarche qui a déjà échoué, et ajouter des mots sur une ambiguïté ne la tranche pas. Demander au modèle d'expliquer son interprétation avant chaque exécution : cela transforme chaque lancement en négociation au lieu de figer la spécification une fois pour toutes. Découper la transformation en une commande par champ : cela multiplie les invocations sans jamais définir ce que le terme ambigu recouvre. L'exemple travaillé, lui, montre le résultat attendu au lieu de le décrire.
+</div>
+
+<h3>L'itération guidée par les tests (TDD iteration)</h3>
 <ol>
 <li>Écrire les tests d'abord (cas attendus, cas limites, exigences de performance).</li>
 <li>Demander à Claude d'implémenter le code.</li>
@@ -353,12 +394,15 @@ jobs:
 <strong>Anti-pattern :</strong> relancer la revue à chaque nouveau commit sans lui donner les findings des passes précédentes. Claude re-signale les mêmes problèmes, la PR se couvre de commentaires dupliqués et les développeurs cessent de les lire. Le correctif : inclure les findings antérieurs dans le contexte et demander explicitement de ne rapporter que les problèmes <em>nouveaux ou non encore traités</em>.
 </div>
 
+<div class="exam-tip">
+<strong>Réflexe d'examen :</strong> quatre associations suffisent à trancher la plupart des questions CI/CD. Un job qui se bloque en attente de saisie → <code>-p</code>. Une pipeline qui doit parser des findings → <code>--output-format json</code> avec <code>--json-schema</code>. Une instance CI qui ignore les conventions de test du projet → le <code>CLAUDE.md</code> versionné les lui porte. Une revue à faire sur du code que Claude vient de produire → une instance indépendante. Les distracteurs sont de deux familles. Les mécanismes inventés d'abord : une variable <code>CLAUDE_HEADLESS</code> et un flag <code>--batch</code>, plausibles parce que « headless » et « batch » sont bien le vocabulaire du domaine, mais aucun des deux n'existe. Les contournements ensuite : rediriger stdin depuis <code>/dev/null</code>, qui traite le symptôme sans activer le mode documenté, et parser la prose à coups de regex, qui déplace la fragilité du format dans votre code au lieu de contraindre la sortie.
+</div>
+
 <!-- ================================================================== -->
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s7">7. Arbre de décision : quelle fonctionnalité utiliser</h2></div>
+<div class="section-header page-break"><h2 id="s7">7. Synthèse — les points clés</h2></div>
 
-<p>Claude Code offre plusieurs mécanismes. Voici comment choisir le bon :</p>
-
+<h3>Quelle fonctionnalité utiliser</h3>
 <table>
 <tr><th>Fonctionnalité</th><th>Chargement</th><th>Déclenchement</th><th>Isolation</th><th>Usage idéal</th></tr>
 <tr><td><strong>CLAUDE.md</strong></td><td>Toujours</td><td>Automatique</td><td>Non</td><td>Standards universels du projet</td></tr>
@@ -369,10 +413,7 @@ jobs:
 <tr><td><strong>Serveurs MCP</strong></td><td>À la connexion</td><td>Via les outils</td><td>Non</td><td>Outils et intégrations externes</td></tr>
 </table>
 
-<p><em>Pour les hooks de l'Agent SDK (PostToolUse, PreToolUse) au niveau programmatique, voir D1, section 5.</em></p>
-
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s8">8. Synthèse — les points clés</h2></div>
+<p><em>Pour les hooks de l'Agent SDK (PostToolUse, PreToolUse) au niveau programmatique, voir D1, section 6.</em></p>
 
 <h3>CLAUDE.md</h3>
 <ul>
@@ -414,7 +455,7 @@ jobs:
 </ul>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s9">9. Auto-évaluation</h2></div>
+<div class="section-header"><h2 id="s8">8. Auto-évaluation</h2></div>
 
 <details>
 <summary>Q1 (D3) — Une instruction qui n'atteint pas le nouvel arrivant</summary>

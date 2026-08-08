@@ -50,14 +50,13 @@
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s1">1. Préserver les informations critiques dans le contexte (Task 5.1)</h2></div>
 
-<h3>Le problème que cela résout</h3>
-<p>L'API Claude ne conserve aucun état entre les requêtes : vous devez envoyer le <strong>full history</strong> à chaque appel. Au fil d'une conversation longue, cet historique grossit, et trois phénomènes menacent la qualité des réponses :</p>
+<p>Les trois menaces qui pèsent sur un contexte long — compression progressive qui dilue les valeurs exactes, effet <code>lost-in-the-middle</code>, accumulation des <code>tool results</code> — sont posées en <a href="D0_API_Fundamentals.html#s5">D0 §5</a>. Cette section traite ce que le référentiel teste réellement : <strong>les parades</strong>.</p>
 
-<h4>1. La perte lors de la compression progressive</h4>
-<p>Quand l'historique est résumé pour libérer du contexte, les valeurs numériques, les pourcentages et les dates sont condensés en termes vagues. Un remboursement de 89,99 $ discuté vingt turns plus tôt devient « a promotional pricing was discussed » dans le résumé.</p>
+<h4>1. Le bloc <code>case facts</code></h4>
+<p>Parade à la <strong>compression progressive</strong> : quand l'historique est résumé, un remboursement de 89,99 $ discuté vingt turns plus tôt devient « a promotional pricing was discussed ». Les faits exacts doivent donc vivre ailleurs que dans ce qui est résumé.</p>
 
 <div class="key-concept">
-<strong>Solution : le <code>case facts</code> block.</strong> Extraire les faits transactionnels (montants, dates, numéros de commande, statuts) dans un bloc structuré, inclus dans chaque prompt <em>en dehors</em> de l'historique résumé :
+<strong>Le <code>case facts</code> block.</strong> Extraire les faits transactionnels (montants, dates, numéros de commande, statuts) dans un bloc structuré, inclus dans chaque prompt <em>en dehors</em> de l'historique résumé :
 <pre>=== CASE FACTS (mis à jour à chaque nouveau fait) ===
 Customer ID : CUST-12345
 Order ID    : ORD-67890
@@ -73,8 +72,8 @@ Status      : En attente d'approbation
 <strong>Point clé :</strong> Le <code>case facts</code> block vit <em>en dehors</em> de l'historique résumé (summarized history). Il est inclus dans chaque prompt API, de sorte que même après un <code>/compact</code>, les faits critiques restent intacts.
 </div>
 
-<h4>2. L'effet <code>lost-in-the-middle</code></h4>
-<p>Les modèles traitent de manière fiable les informations situées au <strong>début</strong> et à la <strong>fin</strong> des entrées longues, mais peuvent manquer des éléments placés au milieu. La parade : placer les conclusions clés en tête et les actions requises en fin de document.</p>
+<h4>2. L'ordonnancement début/fin</h4>
+<p>Parade à l'effet <strong><code>lost-in-the-middle</code></strong> : ce qui est placé au milieu d'une entrée longue peut être manqué. On place donc les conclusions clés en tête et les actions requises en fin de document, en laissant le détail volumineux au centre.</p>
 <pre>[CONCLUSIONS CLÉS — en haut]
 Trois vulnérabilités critiques identifiées...
 
@@ -85,8 +84,8 @@ Trois vulnérabilités critiques identifiées...
 [ACTIONS REQUISES — en bas]
 Priorité : corriger auth.ts avant le merge.</pre>
 
-<h4>3. L'accumulation des <code>tool results</code></h4>
-<p>Si <code>lookup_order</code> retourne 40 champs mais que seuls 5 sont pertinents pour la tâche en cours, le contexte se remplit d'informations inutiles. La solution : un hook <code>PostToolUse</code> qui intervient <em>après</em> l'exécution de l'outil et ne conserve que les champs nécessaires avant que le résultat n'entre dans le contexte du modèle.</p>
+<h4>3. Le trimming par hook <code>PostToolUse</code></h4>
+<p>Parade à l'<strong>accumulation des <code>tool results</code></strong> : si <code>lookup_order</code> retourne 40 champs mais que seuls 5 sont pertinents pour la tâche en cours, le contexte se remplit d'informations inutiles. La solution : un hook <code>PostToolUse</code> qui intervient <em>après</em> l'exécution de l'outil et ne conserve que les champs nécessaires avant que le résultat n'entre dans le contexte du modèle.</p>
 
 <p>En pratique, le hook <code>PostToolUse</code> reçoit l'événement complet (tool name, full result, metadata) et peut filtrer les champs avant retour. Pour un outil <code>lookup_order</code>, cela signifie sélectionner seulement <code>order_id</code>, <code>status</code>, <code>total</code>, <code>items</code> et <code>return_eligible</code> plutôt que les 40 champs bruts. Le résultat réduit est ensuite passé au modèle, économisant du contexte pour les turns suivants.</p>
 
@@ -102,6 +101,15 @@ Priorité : corriger auth.ts avant le merge.</pre>
 <li><strong>Budgets de contexte contraints :</strong> envoyer un contexte minimal aux <code>subagent</code>s, exiger des résultats structurés (pas de dumps bruts), et limiter les outils disponibles pour réduire les distractions.</li>
 <li><strong>Métadonnées obligatoires dans les sorties des <code>subagent</code>s :</strong> les <code>subagent</code>s doivent inclure les dates, sources et <code>attribution</code>s dans leurs résultats structurés, faute de quoi la synthèse en aval perd la <code>provenance</code>.</li>
 </ul>
+
+<div class="anti-pattern">
+<strong>Les distracteurs classiques face au bloc <code>case facts</code>.</strong>
+<ul>
+<li><strong>« Passer à un modèle à fenêtre de contexte plus large »</strong> — séduit parce que la limite recule visiblement. Mais une conversation longue finit par dépasser aussi la nouvelle limite : on repousse l'échéance sans jamais protéger les faits.</li>
+<li><strong>« Espacer les <code>/compact</code> »</strong> — même piège, formulé côté fréquence. Compacter moins souvent ne change pas ce que la compression détruit quand elle a lieu ; les montants et les dates restent dans ce qui sera résumé.</li>
+<li><strong>« Demander dans le prompt au résumeur de préserver tous les nombres et toutes les dates »</strong> — le plus tentant, parce qu'il vise le bon symptôme. Mais il repose sur une <em>conformité probabiliste</em> du modèle, à chaque résumé et pour chaque fait ; le bloc <code>case facts</code> donne une garantie structurelle en gardant les faits hors du texte résumé.</li>
+</ul>
+</div>
 
 
 <!-- ================================================================== -->
@@ -239,6 +247,16 @@ Note : la couverture de cette section est limitée.
 ### Littérature (FULL COVERAGE)
 [résultats de recherche]</pre>
 
+<div class="anti-pattern">
+<strong>Les distracteurs classiques face au contexte d'erreur structuré.</strong>
+<ul>
+<li><strong>« Retries avec <code>exponential backoff</code> dans le <code>subagent</code>, puis statut générique <em>search unavailable</em> »</strong> — séduit parce que le backoff sonne comme une bonne pratique d'ingénierie. Mais ce qui est jugé ici, c'est ce qui remonte : un statut générique cache au coordinateur le <code>failure_type</code>, la requête tentée et les résultats partiels dont il a besoin pour décider.</li>
+<li><strong>« Attraper le timeout et retourner un résultat vide marqué comme succès »</strong> — séduit parce que le workflow ne casse pas. C'est une <em>suppression silencieuse</em> : le coordinateur conclut « rien à trouver » là où l'accès a échoué, et aucune récupération n'est déclenchée.</li>
+<li><strong>« Propager l'exception à un handler global qui termine le workflow »</strong> — séduit par sa netteté. Mais une branche en échec ne justifie pas de jeter les résultats déjà obtenus sur toutes les autres.</li>
+<li><strong>« Agréger les échecs en un pourcentage de couverture global »</strong> — séduit parce qu'il produit une métrique lisible. Il détruit précisément la distinction que le domaine teste : un <em>access failure</em> et un <em>résultat vide valide</em> deviennent indiscernables une fois moyennés.</li>
+</ul>
+</div>
+
 <p class="exam-tip">Les résultats partiels obtenus avant l'échec ne doivent pas mourir avec le contexte du <code>subagent</code> : ils se persistent dans un fichier <code>scratchpad</code>, traité en <a href="#s4">section 4</a>.</p>
 
 <!-- ================================================================== -->
@@ -317,6 +335,15 @@ Note : la couverture de cette section est limitée.
 <h4>5. Modifier les agents en amont</h4>
 <p>Quand les agents en aval ont des budgets de contexte limités, les agents en amont doivent retourner des <strong>données structurées</strong> (faits clés, citations, scores de pertinence) plutôt que du contenu verbeux et des chaînes de raisonnement.</p>
 
+<div class="anti-pattern">
+<strong>Les distracteurs classiques face au <code>scratchpad</code> et à la délégation.</strong>
+<ul>
+<li><strong>« Redémarrer la session et repartir de zéro »</strong> — séduit parce qu'un contexte propre supprime le symptôme immédiatement. Mais on jette tout le travail d'investigation valide, et la même session longue reproduira la même dégradation : rien n'a été rendu persistant.</li>
+<li><strong>« Augmenter <code>max_tokens</code> »</strong> — séduit par la confusion entre les deux budgets. <code>max_tokens</code> borne la longueur de la <em>réponse</em> générée, pas la quantité d'information que l'agent a conservée en entrée ; la dégradation du contexte n'en est pas affectée.</li>
+<li><strong>« Demander à l'agent de mieux se concentrer sur le code réel plutôt que sur des patterns génériques »</strong> — séduit parce qu'il décrit exactement le symptôme observé. Mais aucune instruction ne restaure une information déjà noyée : si les fichiers lus ne sont plus exploitables dans le contexte, il faut les réintroduire (<code>scratchpad</code>) ou ne jamais les y avoir mis (délégation).</li>
+</ul>
+</div>
+
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s5">5. Revue humaine et calibration de la confiance (Task 5.5)</h2></div>
 
@@ -358,6 +385,16 @@ Note : la couverture de cette section est limitée.
 
 <div class="exam-tip">
 <strong>Le piège du domaine — les deux visages de la confidence.</strong> La section 2 dit que le <code>self-rated confidence</code> est un déclencheur d'escalade non fiable, et c'est vrai : un agent qui s'auto-note « 8/10 » pour décider d'escalader est déjà confiant à tort sur les cas difficiles. Mais ici, le <strong>score de confiance par champ, calibré sur un jeu de validation étiqueté</strong>, est la bonne réponse pour router la relecture. La différence tient en trois points : granularité (par champ, pas par cas), calage (sur des données annotées, pas sur l'introspection du modèle), et usage (prioriser une file de relecture, pas prendre la décision à la place de l'humain). Une option qui parle de confiance n'est donc <em>ni</em> automatiquement fausse <em>ni</em> automatiquement juste — lisez laquelle des deux on vous propose.
+</div>
+
+<div class="anti-pattern">
+<strong>Les distracteurs classiques face à la confiance par champ calibrée.</strong>
+<ul>
+<li><strong>« Un score de confiance global par document »</strong> — séduit parce qu'il porte bien le mot « confidence » et qu'il est simple à implémenter. Mais il agrège dans un seul chiffre les champs sûrs et les champs douteux : un document à 0,93 dont le numéro de TVA est à 0,41 passe en automatique. C'est le même défaut que les 97 % d'accuracy agrégée, transposé au routage.</li>
+<li><strong>« Échantillonner aléatoirement une part fixe des extractions et relire celles-là »</strong> — séduit parce que l'échantillonnage est bel et bien recommandé dans ce task. Confusion d'usage : le <code>stratified random sampling</code> sert à <em>mesurer</em> un taux d'erreur et à détecter des patterns nouveaux, pas à <em>allouer</em> une capacité de relecture, qui doit aller là où le risque est.</li>
+<li><strong>« Faire auto-noter au modèle sa confiance de 1 à 10 »</strong> — séduit parce que cela ressemble à la bonne réponse. C'est la version <em>non calibrée</em> : aucune confrontation à un <code>labeled validation set</code>, donc un 8/10 ne correspond à aucun taux d'erreur connu et le seuil est arbitraire.</li>
+<li><strong>« Ne relire que les types de documents ayant déjà généré des réclamations clients »</strong> — séduit parce que le signal vient du terrain. Mais il est retardé (l'erreur est déjà partie chez le client) et biaisé (seules les erreurs visibles et réclamées remontent) ; les poches d'erreur silencieuses restent invisibles.</li>
+</ul>
 </div>
 
 <!-- ================================================================== -->

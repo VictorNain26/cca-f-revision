@@ -1901,16 +1901,16 @@
 <p><strong>Scenario:</strong> A nightly analysis processes documents through the Message Batches API. Your commitment to internal users is that any document submitted is analysed within 30 hours. Batch processing can take up to 24 hours.</p>
 <p><strong>Question:</strong> How often must you submit batches to guarantee the SLA?</p>
 <p>A) Once every 24 hours, matching the maximum processing time.</p>
-<p>B) Once every 30 hours, matching the SLA window.</p>
+<p>B) Every 4 hours at most, keeping margin under the arithmetic ceiling.</p>
 <p>C) Every 6 hours at most — a document arriving just after a submission waits up to 6 hours, plus up to 24 hours of processing.</p>
 <p>D) The submission frequency is irrelevant, since batches usually complete in under an hour.</p>
 <hr>
-<p class="correct">Answer: C) Every 6 hours at most</p>
-<p><strong>Why:</strong> the worst case is queueing time plus processing time. With a 24-hour processing ceiling and a 30-hour commitment, at most 6 hours of queueing remain, so batches must be submitted at least every 6 hours (Task 4.5).</p>
+<p class="correct">Answer: B) Every 4 hours at most</p>
+<p><strong>Why:</strong> the worst case is queueing time plus processing time, so 30 − 24 leaves 6 hours of queueing. That 6 is a ceiling, not an operating window: a document arriving at exactly 6 hours consumes the entire budget, leaving nothing for a batch that runs to the 24-hour limit or for resubmitting a failed document identified by its <code>custom_id</code>. On this same 30-hour / 24-hour pair, the official example retains <strong>4-hour windows</strong> (Task 4.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) 30 + 24 = 54 hours in the worst case, nearly double the commitment.</li>
-<li>A) 24 + 24 = 48 hours worst case, still a breach.</li>
+<li>C) the most attractive distractor: the subtraction is right, but 6 hours is the theoretical bound and leaves zero margin.</li>
+<li>A) 24 + 24 = 48 hours worst case, a breach.</li>
 <li>D) typical latency is not a guarantee, and an SLA is a statement about the worst case.</li>
 </ul>
 </div>

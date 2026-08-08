@@ -1,0 +1,19 @@
+{
+  "name": "cca-f-revision",
+  "private": true,
+  "type": "module",
+  "description": "Corpus de révision CCAR-F. Le site est statique ; ce manifeste ne sert qu'aux contrôles qualité.",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "scripts": {
+    "check": "npm run check:chapters && npm run check:links && npm run check:diacritics && npm run check:quizzes",
+    "check:chapters": "node tools/check-chapters.mjs",
+    "check:links": "node tools/check-links.mjs",
+    "check:diacritics": "node tools/check-diacritics.mjs",
+    "check:quizzes": "node tools/check-quizzes.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

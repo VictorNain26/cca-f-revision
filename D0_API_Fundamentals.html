@@ -139,6 +139,19 @@
 
 <p>Chaque réponse de l'API contient un champ <code>stop_reason</code> qui indique pourquoi le modèle a arrêté de générer. Ce champ est essentiel pour contrôler le flux de votre application.</p>
 
+<pre>{
+  "id": "msg_01ABC",
+  "role": "assistant",
+  "content": [
+    { "type": "text", "text": "Je consulte la commande." },
+    { "type": "tool_use", "id": "toolu_01X", "name": "lookup_order",
+      "input": { "order_id": "ORD-67890" } }
+  ],
+  "stop_reason": "tool_use"
+}</pre>
+
+<p>La réponse porte du texte <strong>et</strong> une demande d'outil — c'est précisément pourquoi la présence de texte ne peut pas servir de signal de fin.</p>
+
 <div class="exam-tip">
 <strong>Ce qui est testé :</strong> le guide ne nomme que <strong>deux</strong> valeurs, <code>"tool_use"</code> et <code>"end_turn"</code> — celles qui pilotent la boucle agentique. Les quatre autres lignes du tableau sont là pour que vous les reconnaissiez sans les confondre ; ne passez pas de temps à les mémoriser.
 </div>
@@ -183,6 +196,20 @@ Voir <strong>D1</strong> pour les détails sur la boucle agentique.
 <strong>Anti-pattern :</strong> Placer le system prompt comme premier message <code>user</code> dans <code>messages</code>. Cela réduit sa priorité et le mélange avec le contexte conversationnel.
 </div>
 
+<pre>// Correct — system au même niveau que messages
+{
+  "system": "Tu es un assistant de support. Vérifie l'identité avant tout remboursement.",
+  "messages": [{ "role": "user", "content": "Je veux un remboursement" }]
+}
+
+// Incorrect — le system prompt glissé en premier message user
+{
+  "messages": [
+    { "role": "user", "content": "Tu es un assistant de support. Vérifie…" },
+    { "role": "user", "content": "Je veux un remboursement" }
+  ]
+}</pre>
+
 <!-- ===== SECTION 5 ===== -->
 <div class="section-header"><h2 id="s5" class="page-break">5. Context Window</h2></div>
 
@@ -205,6 +232,13 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <h4>2. Accumulation des tool results</h4>
 <p>Un tool peut retourner un objet avec 40+ champs alors que seuls 5 sont pertinents. Chaque appel ajoute ces résultats volumineux au contexte, le saturant rapidement avec des informations inutiles.</p>
 
+<pre>lookup_order → 42 champs retournés, 5 utiles pour l'éligibilité au retour
+  order_id, status, total, items, return_eligible          ← utiles
+  warehouse_route, carrier_scac, pick_wave, audit_flags,
+  promo_ledger, tax_jurisdiction, … (37 autres)            ← inutiles ici
+
+3 commandes consultées = 126 champs en contexte, dont 15 servent.</pre>
+
 <h4>3. Progressive summarization</h4>
 <p>Quand on demande au modèle de résumer l'historique pour libérer du contexte, les <strong>valeurs numériques</strong>, les <strong>dates</strong> et les <strong>détails spécifiques</strong> sont progressivement perdus au profit de reformulations vagues.</p>
 
@@ -218,6 +252,27 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div class="key-concept">
 <strong>Point fondamental :</strong> Claude n'exécute PAS de code. Il génère une <strong>requête structurée d'appel tool</strong> (nom + paramètres). C'est <strong>votre code</strong> qui exécute le tool et renvoie le résultat.
 </div>
+
+<pre>// 1. Définition envoyée dans la requête
+{
+  "name": "lookup_order",
+  "description": "Récupère les détails d'une commande à partir de son identifiant.",
+  "input_schema": {
+    "type": "object",
+    "properties": { "order_id": { "type": "string" } },
+    "required": ["order_id"]
+  }
+}
+
+// 2. Bloc tool_use émis par le modèle
+{ "type": "tool_use", "id": "toolu_01X", "name": "lookup_order",
+  "input": { "order_id": "ORD-67890" } }
+
+// 3. tool_result renvoyé par votre code au tour suivant
+{ "type": "tool_result", "tool_use_id": "toolu_01X",
+  "content": "{ \"status\": \"shipped\", \"total\": 42.90 }" }</pre>
+
+<p>Entre l'étape 2 et l'étape 3, c'est <strong>votre code</strong> qui exécute <code>lookup_order</code> — jamais le modèle, qui se contente de demander l'appel.</p>
 
 <h3>Anatomie d'une tool définition</h3>
 
@@ -254,11 +309,16 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 
 <p>Le paramètre <code>tool_choice</code> contrôle comment le modèle décide d'utiliser (ou non) un tool :</p>
 
+<pre>{ "tool_choice": { "type": "auto" } }                            // le modèle décide
+{ "tool_choice": { "type": "any" } }                             // un outil, au choix du modèle
+{ "tool_choice": { "type": "tool", "name": "extract_invoice" } } // cet outil précisément
+{ "tool_choice": { "type": "none" } }                            // aucun outil</pre>
+
 <table>
 <tr><th>Valeur</th><th>Comportement</th><th>Cas d'usage</th></tr>
 <tr><td><code>{"type": "auto"}</code></td><td>Le modèle décide librement s'il appelle un tool ou non (valeur par <strong>défaut</strong>)</td><td>Conversations générales avec tools optionnels</td></tr>
 <tr><td><code>{"type": "any"}</code></td><td>Le modèle <strong>DOIT</strong> appeler un tool (n'importe lequel)</td><td>Quand vous voulez forcer un output structuré sans imposer un tool spécifique</td></tr>
-<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool specifie — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution précis dans un pipeline</td></tr>
+<tr><td><code>{"type": "tool", "name": "extract_metadata"}</code></td><td>Le modèle <strong>DOIT</strong> appeler le tool spécifié — <strong>exécution garantie</strong></td><td>Forcer un ordre d'exécution précis dans un pipeline</td></tr>
 <tr><td><code>{"type": "none"}</code></td><td>Aucun tool n'est autorisé, même s'il y en a de disponibles</td><td>Forcer une réponse texte pure malgré la présence de tools dans la requête</td></tr>
 </table>
 
@@ -343,7 +403,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <tr><td><strong>Erreur sémantique</strong> (valeurs incorrectes)</td><td>Mauvaise interprétation, hallucination</td><td>Validation programmatique + retry</td></tr>
 </table>
 
-<p>Voir <strong>D4</strong> pour les patterns avances de structured output.</p>
+<p>Voir <strong>D4</strong> pour les patterns avancés de structured output.</p>
 
 <!-- ===== SECTION 9 ===== -->
 <div class="section-header"><h2 id="s9" class="page-break">9. Questions d'auto-évaluation</h2></div>

@@ -361,7 +361,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Retry-with-feedback</td><td>Document original + extraction précédente + erreur spécifique</td></tr>
 <tr><td>Pydantic loop</td><td>Schema unique → tool_use → validate → si échec : tool_result is_error=true → retry</td></tr>
 <tr><td>Batch API</td><td>50 % savings / 24 h / PAS de multi-turn / <code>custom_id</code> pour correlation</td></tr>
-<tr><td>SLA Batch</td><td>Deadline - 24 h = fenêtre de soumission</td></tr>
+<tr><td>SLA Batch</td><td>Deadline − 24 h = <strong>plafond théorique</strong>, pas la cadence. On garde de la marge : l'exemple du guide retient des fenêtres de <strong>4 h</strong> pour un SLA de 30 h. Le distracteur, c'est 6 h</td></tr>
 <tr><td>Multi-instance review</td><td>Self-review = biais. Instance indépendante > self-review</td></tr>
 <tr><td>Multi-pass review</td><td>Per-file pass + intégration pass</td></tr>
 </table>

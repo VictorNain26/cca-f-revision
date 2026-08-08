@@ -67,6 +67,22 @@ Le guide fige l'état de l'outillage en juillet 2026 et la doc a bougé depuis. 
 | `allowed-tools` dans un skill | Restreint l'accès aux outils | Décrit comme une pré-approbation de permissions |
 | Sortie structurée | `tool_use` + JSON Schema | Structured Outputs natifs (`output_config.format`) |
 
+## Contrôles qualité
+
+Le site publié reste du HTML statique ; `package.json` ne sert qu'à outiller les contrôles.
+
+```bash
+npm install     # une fois — installe jsdom (seule dépendance, pour les quiz)
+npm run check   # enchaîne les quatre contrôles, sort en échec au premier problème
+```
+
+| Script | Ce qu'il garantit |
+|---|---|
+| `check:chapters` | Chaque section portant un task statement a un exemple, un réflexe d'examen et des distracteurs nommés. Vérifie la présence des blocs, pas leur substance. |
+| `check:links` | Aucun lien ni ancre interne cassé ; les 30 task statements sont tous cités. |
+| `check:diacritics` | Aucun mot français écrit sans ses accents (`Practice_Questions.html` est en anglais, hors périmètre). |
+| `check:quizzes` | `quiz.js` exécuté sur chaque page : l'énoncé et les choix sont visibles, la réponse ne fuite pas avant la révélation. |
+
 ## Déploiement
 
 Hébergé sur GitHub Pages depuis ce repo (branche `main`, racine).
