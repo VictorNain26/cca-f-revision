@@ -47,7 +47,7 @@ Toute question, de fiche comme de banque, prend cette forme :
   <p data-opt="c">C) Add few-shot examples showing…</p>
   <p data-opt="d">D) Implement a routing classifier…</p>
   <hr>
-  <p class="correct" data-answer="a">Answer: A) Add a programmatic prerequisite</p>
+  <p class="correct" data-answer="a">Answer: add a programmatic prerequisite</p>
   <p><strong>Why:</strong> when a specific tool sequence is required…</p>
   <p class="incorrect"><strong>Why the others are wrong:</strong></p>
   <ul>
@@ -63,7 +63,8 @@ Toute question, de fiche comme de banque, prend cette forme :
 |---|---|
 | `id` unique et global — `pq-qN` pour la banque, `dN-qM` pour les fiches | Identité qui survit à une reformulation, et qui distingue les pages pour un tirage inter-fichiers |
 | `data-domain` et `data-task` déclarés, à valeur unique | Rend explicite ce qui n'était dérivable qu'en lisant la prose. Aucune question de la banque ne relève de deux domaines à la fois, la mesure le confirme : un seul task statement par question |
-| `data-answer` listant les lettres correctes, séparées par une espace | Les 4 questions à réponses multiples s'expriment dans le même contrat que les autres : `data-answer="b d"` |
+| `data-answer` listant les options correctes, séparées par une espace | Devient la **source unique** de la bonne réponse. Les 4 questions à réponses multiples s'expriment dans le même contrat : `data-answer="b d"` |
+| Aucune lettre en dur dans le paragraphe « Answer: » | Même raison que pour les `<li>` : après réordonnancement, « Answer: A) » désignerait la mauvaise option. La lettre est réinjectée à l'affichage |
 | `data-opt` sur chaque option | Ancre l'identité d'une option indépendamment de sa lettre |
 | `data-opt` sur chaque `<li>` d'explication, lettre absente du texte | L'explication reste attachée à son option après réordonnancement ; un `<li>` par distracteur au lieu d'une phrase groupée |
 | Bloc quiz intégralement en anglais américain | Langue de l'examen, sur l'ensemble du bloc — la prose pédagogique de la fiche reste en français |
@@ -121,12 +122,19 @@ Il reconstruit un index des 157 questions en mémoire à chaque exécution, sans
 | `id` unique, préfixe conforme au fichier | Collision, copier-coller |
 | `data-domain` et `data-task` présents, et cohérents avec la task citée en prose quand elle l'est | Tag qui dérive du contenu |
 | `data-opt` sur chaque option ; chaque `<li>` d'explication pointe une option existante | Explication orpheline après réécriture |
-| `data-answer` concorde avec la lettre du texte « Answer: » | Désynchronisation entre marqueur et réponse |
+| `data-answer` référence des `data-opt` existants, et le paragraphe « Answer: » ne contient aucune lettre en dur | Deux sources de vérité pour la bonne réponse, qui divergeront |
 | Nombre d'options entre 4 et 5 | Question tronquée |
 | Absence de français dans les blocs quiz — mots-outils et diacritiques, hors `<code>` | Traduction oubliée |
 | Recouvrement fiches ↔ banque sous 0,30 | Doublon recréé |
 | Les 30 task statements couverts | Régression de couverture |
 | `TOTALS` de `home-progress.js` égal au compte réel par page | La valeur codée en dur qui, si elle dérive, empêche un domaine d'atteindre « Terminé » |
+
+**Deux modes, parce qu'un gate rouge pendant trente commits ne protège rien.** Le contrôle exige `data-opt` sur toutes les options : appliqué d'emblée à l'ensemble du corpus, il resterait en échec pendant toute la durée du chantier, et on prendrait l'habitude de le voir rouge — c'est-à-dire de ne plus le lire.
+
+- **Mode progressif**, pendant le chantier : une question **qui porte un `id`** doit satisfaire le contrat en entier ; une question sans `id` est ignorée. Migrer une question la place sous contrôle définitivement, et aucune régression n'est possible sur ce qui est déjà migré.
+- **Mode strict**, à la fin : le contrôle exige un `id` sur les 157 questions. Le passage en strict est un commit à lui seul, et c'est lui qui atteste l'achèvement du chantier.
+
+Le compteur de questions migrées est affiché à chaque exécution — c'est l'avancement réel du chantier, mesuré et non déclaré.
 
 ### Contrôle modifié : `check-diacritics.mjs`
 
@@ -134,16 +142,27 @@ Il exclut aujourd'hui `Practice_Questions.html` par son nom (ligne 79). Il doit 
 
 Le gain n'est pas d'éviter des faux positifs sur l'anglais — la liste ne contient que des formes qui n'existent pas en anglais. Le gain est que la **prose française de `Practice_Questions.html` échappe aujourd'hui entièrement au contrôle** : ses dix titres de section et son paragraphe « Note de fidélité » sont en français et ne sont jamais vérifiés. Le contrôle reste ligne à ligne, pour conserver le report `fichier:ligne` ; l'appartenance d'une ligne à un bloc quiz se suit par profondeur d'ouverture de `<details>`.
 
-### Modification de `quiz.js`
+### Modifications de `quiz.js`
 
-Une seule : la lettre affichée devant une option est **dérivée de sa position** au lieu d'être lue dans le texte, et la même lettre est réinjectée devant le `<li>` d'explication qui porte le même `data-opt`.
+Quatre, pas une :
+
+1. **La lettre d'une option est dérivée de sa position**, au lieu d'être lue dans le texte.
+2. **La même lettre est réinjectée** devant le `<li>` d'explication portant le même `data-opt`, et devant le paragraphe « Answer: ».
+3. **La bonne réponse est lue dans `data-answer`.** `findCorrect()` la parse aujourd'hui depuis le texte du marqueur (`quiz.js:100`). Le contrat retirant la lettre de ce texte, le parsing devient inopérant : `data-answer` devient la source unique. Le fallback sur `Réponse :` / `Answer:` disparaît une fois les 157 questions migrées.
+4. **Les questions non encore migrées continuent de fonctionner.** Pendant les 30 tasks, la banque contient un mélange de questions conformes au contrat et de questions à l'ancien format. `quiz.js` détecte la présence de `data-opt` et retombe sur le comportement actuel en son absence. Sans cela, chaque commit intermédiaire casserait les pages non encore traitées.
 
 Le contenu devient réordonnançable sans que le réordonnancement soit implémenté. C'est la frontière tenue entre ce chantier et le suivant.
 
+Le point 4 est temporaire par construction. Sa suppression, une fois les 157 questions migrées, est la dernière étape du chantier — et c'est `check-questions.mjs` passé en mode strict qui autorise cette suppression.
+
+### Contrôle existant : `check-quizzes.mjs`
+
+Il vérifie aujourd'hui que l'énoncé et les choix sont visibles et que la réponse ne fuite pas avant révélation. Ses assertions doivent couvrir les deux formats pendant la migration, puis le seul format cible à la fin. C'est lui qui prouve que le point 4 ci-dessus fonctionne réellement.
+
 ## Vérification
 
-1. `npm run check` vert à chaque commit, les quatre contrôles existants plus le nouveau.
-2. Contrôle manuel dans le navigateur sur une fiche et sur la banque : énoncé visible, options cliquables, lettre correcte devant chaque option et devant chaque explication, réponse masquée avant le clic.
+1. `npm run check` vert à chaque commit, les quatre contrôles existants plus le nouveau en mode progressif. Le dernier commit du chantier fait passer `check-questions.mjs` en mode strict et doit être vert lui aussi.
+2. Contrôle manuel dans le navigateur sur une fiche et sur la banque : énoncé visible, options cliquables, lettre correcte devant chaque option, devant chaque explication et dans le corrigé, réponse masquée avant le clic. Vérifié sur une page migrée **et** sur une page non migrée, tant que les deux coexistent.
 3. Remesure du recouvrement fiches ↔ banque après réécriture des 19 variantes : plus aucun couple au-dessus de 0,30.
 4. Recomptage du nombre de questions distinctes : 157 attendues.
 
@@ -155,7 +174,9 @@ La raison est concrète : les 19 doublons sont par construction groupés par tas
 
 Les tasks sont abordées dans l'ordre des domaines, D1 d'abord — 27 % de l'examen. Un commit par task ou par groupe de tasks d'un même domaine, `npm run check` vert à chacun.
 
-Le contrôle neuf et les deux modifications d'outillage viennent **avant** la première task : ils doivent pouvoir échouer sur l'état actuel, sinon ils ne prouvent rien.
+L'outillage vient **avant** la première task : le contrôle neuf, les modifications de `check-diacritics.mjs` et `check-quizzes.mjs`, et les quatre changements de `quiz.js`.
+
+Un contrôle qu'on n'a jamais vu échouer ne prouve rien. Mais le faire échouer sur le corpus entier non migré ne prouve rien non plus — seulement que rien n'est encore fait. La démonstration porte donc sur **une seule question migrée d'abord**, celle de la première task : on la rend conforme, on vérifie que le contrôle passe, on casse délibérément un `data-opt`, on vérifie qu'il échoue, on rétablit. Ensuite seulement le chantier avance.
 
 ## Ce que ce chantier ne fait pas
 
