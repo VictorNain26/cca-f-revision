@@ -11,7 +11,8 @@
     "check:chapters": "node tools/check-chapters.mjs",
     "check:links": "node tools/check-links.mjs",
     "check:diacritics": "node tools/check-diacritics.mjs",
-    "check:quizzes": "node tools/check-quizzes.mjs"
+    "check:quizzes": "node tools/check-quizzes.mjs",
+    "test": "node --test tools/**/*.test.mjs"
   },
   "devDependencies": {
     "jsdom": "^29.1.1"
