@@ -476,22 +476,23 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 
 <h3>Questions d'auto-évaluation</h3>
 
-<details>
-<summary>Q1 (D1) — Séquencement d'outils à conséquence financière</summary>
+<details id="d1-q1" data-domain="D1" data-task="1.4">
+<summary>Q1 (D1) — A privilege granted before the role is known</summary>
 <div>
-<p><strong>Situation :</strong> les logs montrent que dans 12 % des cas, l'agent saute <code>get_customer</code> et appelle directement <code>lookup_order</code>, causant des remboursements incorrects. Quel changement est le plus efficace ?</p>
-<p>A) Ajouter un prérequis programmatique qui bloque <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourné un ID vérifié.</p>
-<p>B) Renforcer le system prompt en indiquant que la vérification client est obligatoire avant toute opération sur les commandes.</p>
-<p>C) Ajouter des few-shot examples montrant l'agent appelant systématiquement <code>get_customer</code> en premier.</p>
-<p>D) Implémenter un routing classifier qui n'active que le sous-ensemble d'outils adapté à chaque type de requête.</p>
+<p><strong>Scenario:</strong> An access-provisioning agent reaches your directory through MCP tools (<code>verify_role</code>, <code>grant_access</code>, <code>revoke_access</code>). In 8% of tickets it calls <code>grant_access</code> using only the role the requester claims in the ticket text, and auditors have found permissions granted to people who never held the role.</p>
+<p><strong>Question:</strong> What change most reliably prevents the ungrounded grants?</p>
+<p data-opt="a">A) Block <code>grant_access</code> in code until <code>verify_role</code> has returned a role for that user.</p>
+<p data-opt="b">B) State in the system prompt that role verification is mandatory before granting anything.</p>
+<p data-opt="c">C) Add few-shot examples showing the agent verifying the role first, even when the ticket names it.</p>
+<p data-opt="d">D) Reduce the agent's tool set to <code>verify_role</code> until the ticket is triaged.</p>
 <hr>
-<p class="correct">Réponse : A) Un prérequis programmatique qui bloque les appels en aval</p>
-<p><strong>Explication :</strong> quand une séquence d'outils est requise pour une logique métier critique, seul l'enforcement programmatique offre une garantie déterministe. Des conséquences financières ne s'accommodent pas d'un taux d'échec résiduel.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: block the downstream call until verification has returned</p>
+<p><strong>Why:</strong> a required ordering that protects a security boundary needs a deterministic guarantee. A prerequisite enforced in code cannot be talked out of, which is what an 8% residual failure rate on privilege grants demands.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Une instruction prompt améliore la conformité sans la garantir — le taux d'échec reste non nul sur des milliers d'interactions.</li>
-<li>C) Même limite que B : les few-shot orientent le comportement, ils ne le contraignent pas.</li>
-<li>D) Le routing classifier traite la <em>disponibilité</em> des outils, pas leur <em>ordre</em> — ce n'est pas le problème posé.</li>
+<li data-opt="b">Improves compliance without guaranteeing it — the residual rate stays non-zero across thousands of tickets.</li>
+<li data-opt="c">Same limit: examples steer the model, they do not constrain it.</li>
+<li data-opt="d">Addresses which tools are <em>available</em>, not the <em>order</em> they are called in. The agent already has the right tools.</li>
 </ul>
 </div>
 </details>

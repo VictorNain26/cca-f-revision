@@ -594,44 +594,44 @@
 </div>
 </details>
 
-<details>
+<details id="pq-q25" data-domain="D1" data-task="1.4">
 <summary>Q25 (Customer Support) — Handing off mid-case</summary>
 <div>
 <p><strong>Scenario:</strong> After verifying the customer, confirming the order, and offering a replacement that was refused, the agent escalates. Human agents receive only a notification saying "Customer requests human assistance — refund issue" and do not have access to the conversation transcript. They routinely re-ask questions the customer already answered.</p>
 <p><strong>Question:</strong> What should the handoff include?</p>
-<p>A) The customer ID and a link to the account, letting the human investigate from scratch.</p>
-<p>B) A structured summary: customer ID, order ID, root cause, actions already taken, refund amount, recommended action, and the reason for escalation.</p>
-<p>C) The agent's confidence score for the case, so the human knows how much to re-verify.</p>
-<p>D) The full raw transcript, so the human loses nothing.</p>
+<p data-opt="a">A) The customer ID and a link to the account, letting the human investigate from scratch.</p>
+<p data-opt="b">B) A structured summary: customer ID, order ID, root cause, actions already taken, refund amount, recommended action, and the reason for escalation.</p>
+<p data-opt="c">C) The agent's confidence score for the case, so the human knows how much to re-verify.</p>
+<p data-opt="d">D) The full raw transcript, so the human loses nothing.</p>
 <hr>
-<p class="correct">Answer: B) A structured, self-sufficient handoff summary</p>
+<p class="correct" data-answer="b">Answer: A structured, self-sufficient handoff summary</p>
 <p><strong>Why:</strong> the receiving human has no transcript, so the summary <em>is</em> the context. It must carry the facts, the diagnosis and a recommendation — enough to act without re-interviewing the customer (Task 1.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>D) a raw transcript transfers the reading burden instead of the conclusion; the human still has to reconstruct the root cause.</li>
-<li>A) discards everything the agent established and guarantees the duplicate questioning described.</li>
-<li>C) a confidence number tells the human nothing about what happened or what to do.</li>
+<li data-opt="a">Discards everything the agent established and guarantees the duplicate questioning described.</li>
+<li data-opt="c">A confidence number tells the human nothing about what happened or what to do.</li>
+<li data-opt="d">A raw transcript transfers the reading burden instead of the conclusion; the human still has to reconstruct the root cause.</li>
 </ul>
 </div>
 </details>
 
-<details>
+<details id="pq-q26" data-domain="D1" data-task="1.4">
 <summary>Q26 (Customer Support) — Three problems in one message</summary>
 <div>
 <p><strong>Scenario:</strong> A customer writes a single message containing three issues: a damaged item on order A, a duplicate charge on order B, and a request to change the delivery address on order C. The agent addresses the damaged item, then replies as though the conversation were finished.</p>
 <p><strong>Question:</strong> What is the right handling pattern?</p>
-<p>A) Escalate the whole conversation, since multi-issue messages exceed single-agent scope.</p>
-<p>B) Handle the first issue, then ask the customer to resend the remaining ones separately.</p>
-<p>C) Decompose the message into three distinct items, investigate each — in parallel where the tools allow — using shared customer context, then synthesise one unified response covering all three.</p>
-<p>D) Address whichever issue has the highest monetary value and note the others for follow-up.</p>
+<p data-opt="a">A) Escalate the whole conversation, since multi-issue messages exceed single-agent scope.</p>
+<p data-opt="b">B) Handle the first issue, then ask the customer to resend the remaining ones separately.</p>
+<p data-opt="c">C) Decompose the message into three distinct items, investigate each — in parallel where the tools allow — using shared customer context, then synthesise one unified response covering all three.</p>
+<p data-opt="d">D) Address whichever issue has the highest monetary value and note the others for follow-up.</p>
 <hr>
-<p class="correct">Answer: C) Decompose, investigate each, synthesise one answer</p>
+<p class="correct" data-answer="c">Answer: Decompose, investigate each, synthesise one answer</p>
 <p><strong>Why:</strong> multi-concern requests are decomposed into distinct items that share the already-established customer context, and resolved together. Splitting the investigation while unifying the response is what keeps first-contact resolution high (Task 1.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) pushes work back to the customer and turns one contact into three.</li>
-<li>A) the number of issues does not make any of them complex; nothing here matches an escalation trigger.</li>
-<li>D) silently drops two legitimate requests.</li>
+<li data-opt="a">The number of issues does not make any of them complex; nothing here matches an escalation trigger.</li>
+<li data-opt="b">Pushes work back to the customer and turns one contact into three.</li>
+<li data-opt="d">Silently drops two legitimate requests.</li>
 </ul>
 </div>
 </details>
