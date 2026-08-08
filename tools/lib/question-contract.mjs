@@ -10,6 +10,8 @@
  * tout ajout doit l'être aussi, sous peine de faux positif (cas de « plus »,
  * mot anglais ordinaire, retiré après mesure contre ce même corpus).
  */
+import { overlap } from './questions.mjs';
+
 const LETTERS = ['a', 'b', 'c', 'd', 'e'];
 
 export const FRENCH_MARKERS =
@@ -87,3 +89,77 @@ export const checkQuestion = (q) => {
 
   return out;
 };
+
+export const OVERLAP_MAX = 0.30;
+
+// Identité : deux questions ne peuvent pas partager un id.
+export const checkIds = (questions) => {
+  const out = [];
+  const seen = new Map();
+  for (const q of questions) {
+    if (!q.id) continue;
+    if (seen.has(q.id)) out.push(`id dupliqué « ${q.id} » : ${seen.get(q.id)} et ${q.label.slice(0, 40)}`);
+    else seen.set(q.id, q.label.slice(0, 40));
+  }
+  return out;
+};
+
+// Recouvrement fiche <-> banque. Une fiche migrée a été réécrite : elle ne
+// doit plus rejouer une question de la banque, migrée ou non.
+export const checkOverlap = (questions) => {
+  const out = [];
+  const bank = questions.filter((x) => x.prefix === 'pq');
+  for (const s of questions) {
+    if (s.prefix === 'pq' || !s.migrated) continue;
+    for (const b of bank) {
+      const v = overlap(s.fp, b.fp);
+      if (v >= OVERLAP_MAX) {
+        out.push(`recouvrement ${v.toFixed(2)} entre ${s.id} et ${b.id ?? 'Q' + b.qnum} (plafond ${OVERLAP_MAX})`);
+      }
+    }
+  }
+  return out;
+};
+
+export const expectedTasks = { 1: 7, 2: 5, 3: 6, 4: 6, 5: 6 };
+
+// Couverture des 30 task statements, sur la task déclarée ou citée.
+export const checkTaskCoverage = (questions) => {
+  const out = [];
+  const covered = new Set(questions.map((x) => x.task ?? x.citedTask).filter(Boolean));
+  for (const [domain, count] of Object.entries(expectedTasks)) {
+    for (let n = 1; n <= count; n++) {
+      if (!covered.has(`${domain}.${n}`)) out.push(`task ${domain}.${n} sans aucune question`);
+    }
+  }
+  return out;
+};
+
+// TOTALS de home-progress.js, contre le compte réel par page.
+export const checkTotals = (questions, declaredTotals) => {
+  const out = [];
+  const realTotals = {};
+  for (const q of questions) {
+    const key = q.file.replace(/\.html$/, '');
+    realTotals[key] = (realTotals[key] || 0) + 1;
+  }
+  for (const [key, declared] of Object.entries(declaredTotals)) {
+    if (realTotals[key] !== undefined && realTotals[key] !== declared) {
+      out.push(`TOTALS.${key} = ${declared}, compte réel ${realTotals[key]}`);
+    }
+  }
+  return out;
+};
+
+export const checkCorpus = (questions, { strict = false, declaredTotals = {} } = {}) => [
+  ...checkIds(questions),
+  ...questions.flatMap((q) =>
+    q.migrated
+      ? checkQuestion(q)
+      : strict
+        ? [`${q.file} :: ${q.label.slice(0, 52)} — non migrée (mode strict)`]
+        : []),
+  ...checkOverlap(questions),
+  ...checkTaskCoverage(questions),
+  ...checkTotals(questions, declaredTotals),
+];

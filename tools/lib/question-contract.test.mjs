@@ -1,7 +1,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseQuestions } from './questions.mjs';
-import { checkQuestion, FRENCH_MARKERS } from './question-contract.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { parseQuestions, loadCorpus, ROOT } from './questions.mjs';
+import {
+  checkQuestion, FRENCH_MARKERS,
+  checkIds, checkOverlap, checkTaskCoverage, checkTotals, checkCorpus, expectedTasks,
+} from './question-contract.mjs';
 
 const build = (over = {}) => {
   const opts = over.options ?? ['a', 'b', 'c', 'd'];
@@ -99,4 +104,74 @@ test('la liste française ne contient aucun mot anglais courant', () => {
   assert.ok(!FRENCH_MARKERS.test('criteria plus few-shot examples'));
   assert.ok(!FRENCH_MARKERS.test('the summary is on point'));
   assert.ok(!FRENCH_MARKERS.test('An escalation, or a retry'));
+});
+
+const q = (over) => ({
+  file: 'Practice_Questions.html', prefix: 'pq', id: 'pq-q1', migrated: true,
+  qnum: 1, label: 'Q1 — T', domain: 'D1', task: '1.4', citedTask: null,
+  options: [], answer: [], answerText: '', explanations: [], prose: '',
+  fp: new Set(['x']), ...over,
+});
+
+test('deux id identiques sont refusés', () => {
+  const found = checkIds([q({}), q({ label: 'Q2 — U' })]);
+  assert.match(found.join(' '), /pq-q1/);
+});
+
+test('deux id distincts ne produisent aucune violation', () => {
+  assert.deepEqual(checkIds([q({}), q({ id: 'pq-q2', label: 'Q2 — U' })]), []);
+});
+
+test('un recouvrement fiche/banque au-dessus du seuil est refusé', () => {
+  const bank = q({ fp: new Set(['get_customer', '12%', 'lookup_order']) });
+  const sheet = q({
+    file: 'D1_Architecture_Orchestration_27pct.html', prefix: 'd1', id: 'd1-q1',
+    fp: new Set(['get_customer', '12%', 'lookup_order']),
+  });
+  assert.match(checkOverlap([bank, sheet]).join(' '), /recouvrement/i);
+});
+
+test('un recouvrement sous le seuil passe', () => {
+  const bank = q({ fp: new Set(['get_customer', '12%']) });
+  const sheet = q({
+    file: 'D1_Architecture_Orchestration_27pct.html', prefix: 'd1', id: 'd1-q1',
+    fp: new Set(['grant_access', 'verify_role', '8%', 'provisioning']),
+  });
+  assert.deepEqual(checkOverlap([bank, sheet]), []);
+});
+
+test('un tableau vide laisse les 30 tasks sans couverture', () => {
+  assert.equal(checkTaskCoverage([]).length, 30);
+});
+
+test('les 30 tasks attendues couvertes ne produisent aucune violation', () => {
+  const full = Object.entries(expectedTasks).flatMap(([domain, count]) =>
+    Array.from({ length: count }, (_, i) => q({ task: `${domain}.${i + 1}` })));
+  assert.deepEqual(checkTaskCoverage(full), []);
+});
+
+test('un TOTALS désaccordé du compte réel est refusé', () => {
+  const found = checkTotals([q({})], { Practice_Questions: 112 });
+  assert.match(found.join(' '), /TOTALS/);
+});
+
+test('une question non migrée est ignorée en mode progressif', () => {
+  const bad = q({ id: null, migrated: false, domain: null, task: null });
+  const found = checkCorpus([bad], { declaredTotals: {} });
+  assert.ok(!found.some((m) => /non migr/i.test(m)));
+});
+
+test('une question non migrée est refusée en mode strict', () => {
+  const bad = q({ id: null, migrated: false, domain: null, task: null });
+  const found = checkCorpus([bad], { strict: true, declaredTotals: {} });
+  assert.ok(found.some((m) => /non migr/i.test(m)));
+});
+
+test('le corpus réel passe le contrat en mode progressif', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'home-progress.js'), 'utf8');
+  const block = src.match(/const TOTALS = \{([\s\S]*?)\};/);
+  const declaredTotals = Object.fromEntries(
+    [...block[1].matchAll(/(\w+):\s*(\d+)/g)].map((m) => [m[1], Number(m[2])])
+  );
+  assert.deepEqual(checkCorpus(loadCorpus(), { declaredTotals }), []);
 });

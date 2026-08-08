@@ -79,6 +79,7 @@ npm run check   # enchaîne les quatre contrôles, sort en échec au premier pro
 | Script | Ce qu'il garantit |
 |---|---|
 | `check:chapters` | Chaque section portant un task statement a un exemple, un réflexe d'examen et des distracteurs nommés. Vérifie la présence des blocs, pas leur substance. |
+| `check:questions` | Le contrat des 157 questions : identifiant stable, domaine et task déclarés, options tagguées, une explication par distracteur, aucun français résiduel, aucun doublon fiche ↔ banque. Progressif pendant la migration — seules les questions déjà migrées sont jugées. |
 | `check:links` | Aucun lien ni ancre interne cassé ; les 30 task statements sont tous cités. |
 | `check:diacritics` | Aucun mot français écrit sans ses accents (`Practice_Questions.html` est en anglais, hors périmètre). |
 | `check:quizzes` | `quiz.js` exécuté sur chaque page : l'énoncé et les choix sont visibles, la réponse ne fuite pas avant la révélation. |
