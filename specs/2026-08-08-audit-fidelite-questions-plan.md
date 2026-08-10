@@ -598,6 +598,8 @@ test('un TOTALS désaccordé du compte réel est refusé', () => {
 Run: `npm test`
 Expected: FAIL — `checkCorpus is not a function`.
 
+> **Corrigé à l'implémentation (commit `087b3a2`).** Le code ci-dessous et ses tests sont **contradictoires** : la règle de couverture des 30 task statements s'applique sans condition, donc tout fixture de deux questions produit une trentaine de messages et `assert.deepEqual(..., [])` ne peut jamais passer. La livraison décompose `checkCorpus` en quatre règles pures exportées — `checkIds`, `checkOverlap`, `checkTaskCoverage`, `checkTotals` — plus un composeur, chacune testée sur son propre fixture, comme la Task 2 l'avait établi pour `checkQuestion`. Un test d'intégration `checkCorpus(loadCorpus(), …) === []` sur le corpus réel a été ajouté : c'est lui qui garde effectivement le dépôt.
+
 - [ ] **Step 3: Écrire `checkCorpus`**
 
 ```javascript
@@ -1162,6 +1164,12 @@ EOF
 ---
 
 ### Tasks 8 à 36: Les 29 task statements restants
+
+> **Remplacées à l'exécution par une orchestration parallèle** (run `wf_e6ffd5a9-e2a`), après mesure du volume réellement éditorial : sur les 107 questions de banque restantes, **93 ont déjà un `<li>` par distracteur** et leur migration est purement mécanique. Les faire traiter une par une par des agents aurait été du gâchis.
+>
+> La traversée par task statement est donc abandonnée au profit d'une traversée **par fichier**, seule façon de paralléliser : six agents travaillant par task statement écriraient tous dans `Practice_Questions.html` et se corrompraient mutuellement. Cinq phases — codemod structurel, dégroupage éditorial des 14 explications groupées, six agents en parallèle sur les six fiches, cinq auditeurs en lecture seule par domaine, un applicateur unique.
+>
+> Ce que ce changement coûte, et qui doit rester écrit : la granularité « un commit par task statement » est perdue, et la boucle de revue par tâche est remplacée par la seule revue finale de branche. La procédure en neuf étapes ci-dessous reste la référence de **ce qui doit être fait** à chaque question ; seule la façon de le répartir change.
 
 Chaque task statement suit **exactement** le gabarit de Task 7. Un commit par task statement, `npm run check` vert à chacun.
 

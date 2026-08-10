@@ -98,6 +98,8 @@ Trois niveaux, selon le risque et selon qu'une source existe.
 
 Pour les 45 auto-évaluations, le jugement est cadré : la task attribuée doit appartenir à la fiche qui héberge le quiz, et les sections de cette fiche portent déjà leur numéro de task dans leur titre. L'attribution consiste donc à rattacher chaque quiz à la section qu'il teste, ce qui vérifie au passage l'affirmation jamais contrôlée selon laquelle chaque fiche évalue ses propres tasks.
 
+**Cas particulier de `D0`.** Cette fiche est un prérequis, pas un domaine : aucune de ses sections ne porte de task statement, alors que le contrat en exige un. Décision : **une question de `D0` déclare la task qu'elle prépare** — `data-domain="D0"` avec, par exemple, `data-task="1.1"`. Aucune règle du contrat ne s'y oppose, la cohérence domaine/fichier et le format de la task étant vérifiés séparément, sans croisement entre les deux. Ce choix rend explicite le lien entre un prérequis et la task qu'il sert, ce que le corpus n'exprimait nulle part.
+
 Si une question ne se rattache à aucun task, c'est qu'elle est hors référentiel, et le journal doit le dire plutôt que de forcer un rattachement.
 
 **Journal de vérification.** Un fichier listant les questions de niveau N1 et N2 ainsi que toute question modifiée : id, niveau, verdict, source. Les questions N3 inchangées n'y figurent pas — un journal de 157 lignes dont soixante diraient « cohérent » n'aurait aucune valeur de preuve.
