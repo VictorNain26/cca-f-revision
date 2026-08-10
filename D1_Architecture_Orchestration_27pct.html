@@ -477,43 +477,43 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <h3>Questions d'auto-évaluation</h3>
 
 <details id="d1-q1" data-domain="D1" data-task="1.4">
-<summary>Q1 (D1) — A privilege granted before the role is known</summary>
+<summary>Q1 (D1) — A dose released before the interaction check</summary>
 <div>
-<p><strong>Scenario:</strong> An access-provisioning agent reaches your directory through MCP tools (<code>verify_role</code>, <code>grant_access</code>, <code>revoke_access</code>). In 8% of tickets it calls <code>grant_access</code> using only the role the requester claims in the ticket text, and auditors have found permissions granted to people who never held the role.</p>
-<p><strong>Question:</strong> What change most reliably prevents the ungrounded grants?</p>
-<p data-opt="a">A) Block <code>grant_access</code> in code until <code>verify_role</code> has returned a role for that user.</p>
-<p data-opt="b">B) State in the system prompt that role verification is mandatory before granting anything.</p>
-<p data-opt="c">C) Add few-shot examples showing the agent verifying the role first, even when the ticket names it.</p>
-<p data-opt="d">D) Reduce the agent's tool set to <code>verify_role</code> until the ticket is triaged.</p>
+<p><strong>Scenario:</strong> A pharmacy agent fills prescription requests through MCP tools (<code>check_interactions</code>, <code>dispense</code>, <code>page_pharmacist</code>). Reviewers pulled last month's transcripts and found doses released to patients whose interaction check never ran: in those requests the agent took the allergy list pasted into the ticket at face value and went straight to <code>dispense</code>.</p>
+<p><strong>Question:</strong> Which change makes the skipped check impossible?</p>
+<p data-opt="a">A) Have the agent write out the sequence it intends to follow before its first call, so a skipped step shows up in the transcript.</p>
+<p data-opt="b">B) Cache interaction results per patient so the check costs almost nothing and the agent has no reason to route around it.</p>
+<p data-opt="c">C) Refuse <code>dispense</code> in code until <code>check_interactions</code> has returned for that patient.</p>
+<p data-opt="d">D) Add a hook that rejects malformed prescription identifiers before the outgoing call leaves the agent.</p>
 <hr>
-<p class="correct" data-answer="a">Answer: block the downstream call until verification has returned</p>
-<p><strong>Why:</strong> a required ordering that protects a security boundary needs a deterministic guarantee. A prerequisite enforced in code cannot be talked out of, which is what an 8% residual failure rate on privilege grants demands.</p>
+<p class="correct" data-answer="c">Answer: refuse the downstream call in code until the upstream check has returned</p>
+<p><strong>Why:</strong> an ordering that guards a patient-safety boundary needs a guarantee, not a tendency. A prerequisite evaluated in code cannot be argued out of by a convincing-looking allergy list sitting in the ticket.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Improves compliance without guaranteeing it — the residual rate stays non-zero across thousands of tickets.</li>
-<li data-opt="c">Same limit: examples steer the model, they do not constrain it.</li>
-<li data-opt="d">Addresses which tools are <em>available</em>, not the <em>order</em> they are called in. The agent already has the right tools.</li>
+<li data-opt="a">A stated plan is still the model's own output, nothing holds it to what it wrote, and the transcript gets read after the dose is out.</li>
+<li data-opt="b">Cost was never the obstacle — the agent skipped a step it believed it already had the answer to.</li>
+<li data-opt="d">Enforces a property of the arguments, not the fact that anything ran first. A well-formed identifier says nothing about the check.</li>
 </ul>
 </div>
 </details>
 
 <details id="d1-q2" data-domain="D1" data-task="1.2">
-<summary>Q2 (D1) — Every subagent succeeded, the brief still has holes</summary>
+<summary>Q2 (D1) — A clean audit that missed most of the rubric</summary>
 <div>
-<p><strong>Scenario:</strong> A market-intelligence system had to brief the board on regulatory risk for a payments product across Europe. Every subagent finished cleanly. The coordinator log shows it split the work into data-privacy rules in Germany, in France, and in Spain. The brief says nothing about licensing, anti-money-laundering duties, or consumer credit.</p>
-<p><strong>Question:</strong> What is the root cause?</p>
-<p data-opt="a">A) The coordinator carved the topic into subtasks that never spanned it.</p>
-<p data-opt="b">B) The synthesis agent has no instruction for spotting coverage gaps in what it receives.</p>
-<p data-opt="c">C) The search agent issued queries too narrow for a board-level brief.</p>
-<p data-opt="d">D) The document analysis agent screened out non-privacy sources as irrelevant.</p>
+<p><strong>Scenario:</strong> A multi-agent system was asked to audit a banking app for accessibility. Three auditor subagents ran, and each returned a clean, well-formed result. The coordinator's log preserves the assignments it wrote: color contrast on the login screen, color contrast on the transfer screen, color contrast on the statements screen. The delivered report says nothing about screen-reader labels, focus order, or touch-target size.</p>
+<p><strong>Question:</strong> Where does the gap come from?</p>
+<p data-opt="a">A) The three screens sampled do not represent the app's surface, so entire flows were never opened by any auditor.</p>
+<p data-opt="b">B) The report template offers one findings section per screen.</p>
+<p data-opt="c">C) Running the three auditors in isolation left none of them able to notice which criteria the others were leaving untouched.</p>
+<p data-opt="d">D) The coordinator wrote three assignments that all exercise a single criterion.</p>
 <hr>
-<p class="correct" data-answer="a">Answer: the coordinator's decomposition never spanned the topic</p>
-<p><strong>Why:</strong> the log settles it — all three subtasks are one theme in three countries, so licensing and anti-money-laundering were never assigned to anyone. The spokes executed what they were handed; the fault sits upstream, in the split.</p>
+<p class="correct" data-answer="d">Answer: the assignments the coordinator wrote all exercise one criterion</p>
+<p><strong>Why:</strong> the log names the defect. Screen-reader labels, focus order and target size were handed to nobody, so no amount of careful work downstream could surface them. The auditors did what they were given; the giving was the fault.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">A synthesis agent can only combine what reaches it, and nothing on the missing themes ever did.</li>
-<li data-opt="c">The queries matched the scope handed down; the scope itself was the defect.</li>
-<li data-opt="d">Nothing was filtered — no source outside data privacy was ever retrieved for it to screen.</li>
+<li data-opt="a">Three screens is thin coverage, but what is missing here is criteria, not screens — those same three screens went unchecked for focus order too.</li>
+<li data-opt="b">A template shapes where findings get written, not whether they exist, and there was nothing to place.</li>
+<li data-opt="c">Isolation is the point of a subagent, and mutual awareness would have changed nothing: no auditor held the missing criteria to share.</li>
 </ul>
 </div>
 </details>
@@ -561,43 +561,43 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </details>
 
 <details id="d1-q5" data-domain="D1" data-task="1.7">
-<summary>Q5 (D1) — Picking an audit back up after a restructure</summary>
+<summary>Q5 (D1) — The vendor retired the version you probed</summary>
 <div>
-<p><strong>Scenario:</strong> Last month a session named <code>cost-sweep</code> mapped how your infrastructure modules allocate spend. Since then the module tree was restructured: directories renamed, modules deleted, the billing exporter rewritten. Nearly every file that session read is gone or moved, though its conclusions about which workloads dominate the bill still hold.</p>
-<p><strong>Question:</strong> How should you pick the work back up?</p>
-<p data-opt="a">A) Resume with <code>--resume cost-sweep</code> and carry on, sparing you the mapping work.</p>
-<p data-opt="b">B) Start a fresh session and inject a structured summary of the surviving conclusions.</p>
-<p data-opt="c">C) Use <code>fork_session</code> so the earlier analysis stays available alongside the new tree.</p>
-<p data-opt="d">D) Re-explore the infrastructure from scratch and set the earlier findings aside as unreliable.</p>
+<p><strong>Scenario:</strong> A session named <code>fx-integration</code> spent a long afternoon probing a currency vendor's sandbox: sample payloads, error shapes, throttling behavior. The vendor has since shipped v3 and retired v2, so every recorded response describes an endpoint that now answers 410. What that session concluded about the vendor's pagination model and its throttling window still holds.</p>
+<p><strong>Question:</strong> How do you take the integration work forward?</p>
+<p data-opt="a">A) Start a new session and seed it with a summary of what still holds.</p>
+<p data-opt="b">B) Resume the session and let the agent re-probe each endpoint as it needs one, so the recorded v2 responses get corrected along the way.</p>
+<p data-opt="c">C) Start a new session and replay the entire v2 transcript into it, so nothing observed that afternoon is lost.</p>
+<p data-opt="d">D) Start a new session with only the vendor's v3 changelog.</p>
 <hr>
-<p class="correct" data-answer="b">Answer: a fresh session seeded with a structured summary</p>
-<p><strong>Why:</strong> resumption pays off while the stored tool results still describe reality. Here they describe files that no longer exist, so replaying them makes the agent reason about dead paths. A summary keeps what survived the restructure and carries nothing stale.</p>
+<p class="correct" data-answer="a">Answer: a new session seeded with what survived the version change</p>
+<p><strong>Why:</strong> resumption pays off while the stored tool results still describe the system you are talking to. Here they describe endpoints that answer 410, so replaying them makes the agent reason about a vendor that no longer exists. A summary carries the pagination model and the throttling window forward and leaves the dead payloads behind.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">The mapping it spares you is the very part that went stale: resuming reloads reads of files that were renamed or deleted, which is exactly the context you want to drop.</li>
-<li data-opt="c">Forking explores two directions from one shared baseline; keeping the old analysis beside the new tree does not make stale results any fresher.</li>
-<li data-opt="d">Starting over throws away conclusions that are still true. The file reads went stale, not the findings they supported.</li>
+<li data-opt="b">Re-probing corrects the record only where the agent happens to look; everything it does not revisit sits in context as though it were still true.</li>
+<li data-opt="c">Carries the obsolete payloads into the new session, which is the one thing a fresh start was meant to avoid.</li>
+<li data-opt="d">A changelog says what moved on the vendor's side, not what you learned. Pagination and throttling would have to be rediscovered.</li>
 </ul>
 </div>
 </details>
 
 <details id="d1-q6" data-domain="D1" data-task="1.5">
-<summary>Q6 (D1) — A scaling cap that must hold</summary>
+<summary>Q6 (D1) — Five hundred rows, and then a signature</summary>
 <div>
-<p><strong>Scenario:</strong> An on-call agent resizes production clusters through <code>scale_cluster</code>. Policy lets it grow one to 40 nodes on its own; anything larger needs a human owner. The rule sits in the system prompt, yet during a traffic spike the agent took a cluster to 96 nodes and the cloud bill went with it.</p>
-<p><strong>Question:</strong> What guarantees the cap holds?</p>
-<p data-opt="a">A) A <code>PreToolUse</code> hook that reads the requested size, blocks the call above the cap, and routes it to the approval workflow.</p>
-<p data-opt="b">B) A system prompt that restates the cap in capital letters and spells out the budget consequences.</p>
-<p data-opt="c">C) Few-shot examples showing the agent stopping at the cap and paging an owner instead.</p>
-<p data-opt="d">D) A cost alert that fires once a cluster crosses the cap, so the on-call engineer can shrink it back.</p>
+<p><strong>Scenario:</strong> A retention agent trims expired records through <code>purge_records</code>. Policy lets it delete up to 500 rows in one call; a larger purge needs a data steward's sign-off. The rule is written in the system prompt, and last week a single call removed 40,000 rows from an audit table.</p>
+<p><strong>Question:</strong> What makes the ceiling hold?</p>
+<p data-opt="a">A) Give the agent a <code>request_signoff</code> tool, with a description telling it when a purge has grown too large to run alone.</p>
+<p data-opt="b">B) A hook that blocks the outgoing call when the row count passes the ceiling.</p>
+<p data-opt="c">C) State the ceiling in the tool's own description, so the limit travels with the tool wherever it is used.</p>
+<p data-opt="d">D) Have the agent announce the row count it is about to delete before it issues the call.</p>
 <hr>
-<p class="correct" data-answer="a">Answer: intercept the outgoing call and block it above the cap</p>
-<p><strong>Why:</strong> a limit that must hold every time belongs in deterministic enforcement. The hook evaluates the call before the tool runs, so an oversized request never reaches the cluster API — no wording of the rule can offer that.</p>
+<p class="correct" data-answer="b">Answer: intercept the outgoing call and stop it above the ceiling</p>
+<p><strong>Why:</strong> a ceiling that must hold every time belongs in code that sees the actual argument. The hook runs before the tool does, so an oversized purge never reaches the database, and a deletion is not something an apology can undo.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Stronger wording lowers the failure rate without driving it to zero, and money is already committed when it fails.</li>
-<li data-opt="c">Examples steer the model toward the cap; they cannot make exceeding it impossible.</li>
-<li data-opt="d">An alert reacts after the nodes are running and billing. Detection is not prevention.</li>
+<li data-opt="a">Offers a way out that the agent still has to choose, and the incident was precisely a case where it did not.</li>
+<li data-opt="c">Moves the rule closer to the call site without changing its nature: it stays text the model reads, not a condition anything evaluates.</li>
+<li data-opt="d">An announcement is a claim about an intent, made by the same run that is about to ignore it.</li>
 </ul>
 </div>
 </details>
@@ -625,22 +625,22 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </details>
 
 <details id="d1-q8" data-domain="D1" data-task="1.5">
-<summary>Q8 (D1) — Three stock feeds, three units of measure</summary>
+<summary>Q8 (D1) — Three trackers, three ways to say urgent</summary>
 <div>
-<p><strong>Scenario:</strong> An inventory agent reads three MCP tools: <code>warehouse_stock</code> reports cases, <code>supplier_feed</code> reports single items, <code>returns_ledger</code> reports pallets. The agent keeps getting the reorder decision wrong, comparing those quantities directly against a threshold expressed in single items.</p>
+<p><strong>Scenario:</strong> A triage agent pulls open issues from three trackers. One reports priority as <code>P1</code> through <code>P4</code>, one as <code>critical</code>, <code>major</code> or <code>minor</code>, the third as an integer from 1 to 5 where 5 is the most urgent. The agent forwards to the on-call queue whatever it reads as top priority, and cosmetic issues keep arriving there while real outages wait.</p>
 <p><strong>Question:</strong> Which fix addresses the cause?</p>
-<p data-opt="a">A) A <code>PostToolUse</code> hook that converts every result into single items before the model sees it.</p>
-<p data-opt="b">B) A system prompt section listing each tool's unit and asking the model to convert carefully.</p>
-<p data-opt="c">C) Few-shot examples showing a correct conversion from each of the three units.</p>
-<p data-opt="d">D) A <code>PreToolUse</code> hook that rewrites the call arguments before the tool runs.</p>
+<p data-opt="a">A) Rewrite each connector to attach a <code>priority_scale</code> field naming the vocabulary it uses, and leave the mapping itself to the model.</p>
+<p data-opt="b">B) Ask the model to reason step by step about which scale a label belongs to before it routes anything.</p>
+<p data-opt="c">C) A <code>PostToolUse</code> hook that maps every returned label onto one scale.</p>
+<p data-opt="d">D) Re-open each issue in its own tracker before routing it.</p>
 <hr>
-<p class="correct" data-answer="a">Answer: normalize in a hook that runs once the tool has returned</p>
-<p><strong>Why:</strong> unit conversion has one exact result, so it belongs in code that runs on every tool result rather than in an instruction the model follows most of the time. The hook fires after execution, before the model reads what came back.</p>
+<p class="correct" data-answer="c">Answer: fold the three vocabularies into one in a hook that runs after the tool returns</p>
+<p><strong>Why:</strong> three fixed vocabularies collapse onto one scale by a fixed table, so the mapping belongs in code that runs on every result rather than in a habit the model keeps most of the time. The hook fires once the tool has returned, before the model reads anything.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Turns an arithmetic certainty into a per-request gamble, and spends context on it every time.</li>
-<li data-opt="c">Same weakness: examples raise the hit rate, they do not fix the representation.</li>
-<li data-opt="d">A hook on the outgoing call never sees the returned quantities, so it has nothing to normalize.</li>
+<li data-opt="a">Naming the scale still leaves the mapping to the model on every single issue, and now costs context to describe as well.</li>
+<li data-opt="b">Deliberation raises the hit rate on something with one right answer. The misroutes get rarer, not impossible.</li>
+<li data-opt="d">Adds a round trip per issue and hands back the same three vocabularies, unchanged.</li>
 </ul>
 </div>
 </details>

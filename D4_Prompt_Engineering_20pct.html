@@ -599,64 +599,64 @@ review --scope="$(git diff --name-only main...HEAD)" \
 </details>
 
 <details id="d4-q2" data-domain="D4" data-task="4.5">
-<summary>Q2 (D4) — Two workloads, one cost-cutting proposal</summary>
+<summary>Q2 (D4) — A nightly job's clock, borrowed by a live feature</summary>
 <div>
-<p><strong>Scenario:</strong> An insurer runs two workloads: a panel that drafts a reply while the customer is on the line, and a quarterly rescoring of archived claim notes. Finance wants both on the Message Batches API for the halved price.</p>
-<p><strong>Question:</strong> How do you answer?</p>
-<p data-opt="a">A) Move both; batches usually return in minutes, so the panel will rarely notice.</p>
-<p data-opt="b">B) Keep both synchronous, since batch results come back in an order you cannot control.</p>
-<p data-opt="c">C) Move the quarterly rescoring only, and keep the agent panel on the synchronous API.</p>
-<p data-opt="d">D) Move both, with a timer that reissues a synchronous call whenever a batch has not returned in time.</p>
+<p><strong>Scenario:</strong> A retailer re-translates its whole product catalog every night through the Message Batches API, and the job has come back within twenty minutes every night this quarter. A product manager cites that record to move the storefront's live "translate this review" button onto the same endpoint.</p>
+<p><strong>Question:</strong> Where does the argument break?</p>
+<p data-opt="a">A) A live button submits one request at a time, and the endpoint prices a submission as a unit rather than per token, so a batch holding a single review would forfeit the discount that motivates the move.</p>
+<p data-opt="b">B) The nightly run clears in twenty minutes because it lands in the emptiest hours of the queue, while the button would submit all day long, when the same endpoint runs slower.</p>
+<p data-opt="c">C) Twenty minutes is a measurement, not a promise; the endpoint commits only to its outer ceiling.</p>
+<p data-opt="d">D) The endpoint draws no line between a scheduled caller and an interactive one, so the button is entitled to whatever treatment the nightly job already gets.</p>
 <hr>
-<p class="correct" data-answer="c">Answer: batch the archive job, keep the live panel synchronous</p>
-<p><strong>Why:</strong> the batch window runs to a full day with no latency guarantee. Disqualifying when a human waits on the answer, free money on a job nobody is watching.</p>
+<p class="correct" data-answer="c">Answer: a measured time is not a service commitment</p>
+<p><strong>Why:</strong> the endpoint undertakes one thing, that a submission completes inside a window running to a full day. Nothing binds it to last quarter's twenty minutes. A shopper waiting in front of a button needs a bound the endpoint never offered.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Typical latency is not a commitment, and a live workload needs one.</li>
-<li data-opt="b">Misconception: each response carries back the correlation id you submitted.</li>
-<li data-opt="d">Two code paths for a problem that matching each API to its workload dissolves.</li>
+<li data-opt="a">The discount applies per token, so a submission of one still earns it.</li>
+<li data-opt="b">Blames the hour, when the ceiling holds at every hour.</li>
+<li data-opt="d">True of the endpoint, and beside the point: the requirement lives in the workload.</li>
 </ul>
 </div>
 </details>
 
 <details id="d4-q3" data-domain="D4" data-task="4.6">
-<summary>Q3 (D4) — The draft and its author</summary>
+<summary>Q3 (D4) — Cases graded by whoever invented them</summary>
 <div>
-<p><strong>Scenario:</strong> A pipeline drafts an incident report, then asks the model in the same thread to check it for unsupported claims. The check almost always approves, yet an on-call engineer finds such claims minutes later.</p>
-<p><strong>Question:</strong> What fixes the detection?</p>
-<p data-opt="a">A) Tell the model, in the same thread, to assume its draft contains at least two unsupported claims.</p>
-<p data-opt="b">B) Give the checking step a longer thinking budget so it reasons further about the draft.</p>
-<p data-opt="c">C) Feed more incident telemetry into the drafting step so the draft is right the first time.</p>
-<p data-opt="d">D) Run the check in a fresh instance that receives the draft alone, without the reasoning that produced it.</p>
+<p><strong>Scenario:</strong> A pipeline invents synthetic test cases for a billing rules engine, then asks the same conversation to mark which ones actually break the stated rule. The marking comes back almost entirely clean, yet a QA engineer opens the file and finds cases that break nothing at all.</p>
+<p><strong>Question:</strong> What restores the marking?</p>
+<p data-opt="a">A) Score each generated case for confidence, and review only the weak ones.</p>
+<p data-opt="b">B) Keep the marking in the same conversation, but restate the rule in a fresh turn before the model decides, so it judges against the wording rather than its memory.</p>
+<p data-opt="c">C) Hand the rule and the bare cases to a second instance that never saw the generation turn.</p>
+<p data-opt="d">D) Ask for the marking inline, one verdict written under each case as it is produced, so no case is judged far from the rule that prompted it.</p>
 <hr>
-<p class="correct" data-answer="d">Answer: an independent instance that never saw the drafting context</p>
-<p><strong>Why:</strong> the writer keeps the reasoning that justified every sentence, so rereading confirms those choices instead of challenging them. An instance that sees only the artifact reads it the way a peer reviewer does.</p>
+<p class="correct" data-answer="c">Answer: a second instance carrying none of the generation context</p>
+<p><strong>Why:</strong> the generator still holds the reasoning that produced each case, so rereading confirms those choices instead of testing them. An instance handed only the rule and the artifact reads them the way an outside grader would.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">A self-criticism instruction leaves the anchoring context in place.</li>
-<li data-opt="b">More reasoning in the same context reinforces the original conclusions.</li>
-<li data-opt="c">Acts on generation, while the gap is on detection.</li>
+<li data-opt="a">Confidence reported from inside the same context inherits the same blind spot.</li>
+<li data-opt="b">Restating the rule leaves the anchoring transcript exactly where it was.</li>
+<li data-opt="d">Ties the verdict tighter still to the moment of generation.</li>
 </ul>
 </div>
 </details>
 
 <details id="d4-q4" data-domain="D4" data-task="4.3">
-<summary>Q4 (D4) — A mandatory field the source cannot fill</summary>
+<summary>Q4 (D4) — A gift with no price on it</summary>
 <div>
-<p><strong>Scenario:</strong> A conference tool extracts talk submissions into a schema where <code>co_speaker</code> is a mandatory string. Many talks are solo, and those extractions come back with plausible names found nowhere in the form.</p>
-<p><strong>Question:</strong> What is the fix?</p>
-<p data-opt="a">A) Add an instruction forbidding the model to invent a name it cannot find in the form.</p>
-<p data-opt="b">B) Let the field hold <code>null</code> and drop it from the mandatory list, so absence has a legal representation.</p>
-<p data-opt="c">C) Constrain the field to an enum of speakers already registered, so only real names can appear.</p>
-<p data-opt="d">D) Keep the field as it is and reject any extraction whose name is missing from the submission text.</p>
+<p><strong>Scenario:</strong> A museum catalogs donation paperwork into a schema where <code>acquisition_price</code> is a compulsory string. Many pieces arrive as gifts and carry no amount anywhere on the paperwork, yet those records come back with tidy round figures nobody can trace.</p>
+<p><strong>Question:</strong> What should change?</p>
+<p data-opt="a">A) Fill the field with zero when the paperwork names no amount, so every record can satisfy the schema without invention.</p>
+<p data-opt="b">B) Let the field accept <code>null</code> and take it out of the compulsory set.</p>
+<p data-opt="c">C) Split the intake in two: route gift paperwork to a second schema without the field, and keep purchases on the current one.</p>
+<p data-opt="d">D) Have the model report how sure it is of each amount, so catalogers can set aside the values it is least sure of.</p>
 <hr>
-<p class="correct" data-answer="b">Answer: make the field nullable and optional</p>
-<p><strong>Why:</strong> while the field is compulsory, the model picks between breaking the schema and fabricating a value, and it fabricates. A field the source may not carry must let "nothing here" be expressed.</p>
+<p class="correct" data-answer="b">Answer: let absence be a legal value, and stop demanding one</p>
+<p><strong>Why:</strong> as long as the field is compulsory, the model chooses between breaking the schema and producing an amount, and it produces one. A field the source may leave empty needs a representation for empty; a gift then comes back with no price instead of a convincing one.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Leaves the contradiction standing: the schema still demands a value.</li>
-<li data-opt="c">Forces a wrong pick when the honest answer is that there was no second speaker.</li>
-<li data-opt="d">Catches the fabrication afterwards, with no correct value to put in its place.</li>
+<li data-opt="a">Zero is an amount, and downstream nothing separates a gift from a bargain.</li>
+<li data-opt="c">Whoever routes the paperwork faces the same missing information first.</li>
+<li data-opt="d">The invented figure stays in the catalog, and the field still demands one.</li>
 </ul>
 </div>
 </details>

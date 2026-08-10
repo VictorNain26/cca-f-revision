@@ -472,22 +472,22 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </details>
 
 <details id="d0-q4" data-domain="D0" data-task="4.1">
-<summary>Q4 (D0) — A system prompt line that keeps pulling a tool</summary>
+<summary>Q4 (D0) — A standing rule that drags a tool onto every turn</summary>
 <div>
-<p><strong>Scenario:</strong> A travel booking assistant opens its system prompt with "Always confirm live availability before replying." Logs show <code>check_availability</code> firing on every turn, including questions about the cancellation policy. The tool definitions are detailed and clearly differentiated.</p>
-<p><strong>Question:</strong> What is the root cause?</p>
-<p data-opt="a">A) The <code>tools</code> array declares <code>check_availability</code> first, and the model falls back to the first entry when it hesitates.</p>
-<p data-opt="b">B) The unconditional wording binds the instruction to the closest matching tool, so it fires on every turn.</p>
-<p data-opt="c">C) The tool returns a large payload, so the model keeps calling it to refill its context.</p>
-<p data-opt="d">D) The instruction sits in the <code>system</code> field instead of the first <code>user</code> message, which weakens its precedence.</p>
+<p><strong>Scenario:</strong> A greenhouse operations assistant opens its system prompt with "Every answer must reflect the current sensor readings." Logs show <code>read_sensors</code> firing on each turn, including when a grower asks how a cultivar name should be spelled in the planting log. Each tool definition spells out its inputs and where its job ends.</p>
+<p><strong>Question:</strong> What stops the needless calls?</p>
+<p data-opt="a">A) Add few-shot examples of clerical turns answered without any sensor call, so the assistant can copy the pattern on the next spelling question.</p>
+<p data-opt="b">B) Have the client drop <code>read_sensors</code> from the <code>tools</code> array whenever it judges the incoming question clerical.</p>
+<p data-opt="c">C) Name the conditions that call for a reading, and retire the absolute sentence.</p>
+<p data-opt="d">D) Cache the last reading for ten minutes so repeat turns reuse it instead of calling out again.</p>
 <hr>
-<p class="correct" data-answer="b">Answer: unconditional wording in the system prompt</p>
-<p><strong>Why:</strong> the model reads "always" as a standing trigger and attaches it to the semantically nearest tool. Such keyword-sensitive instructions override even well-written tool definitions, which is why the scenario tells you those definitions are fine. Replacing the blanket instruction with the conditions under which availability must be confirmed is what removes the trigger.</p>
+<p class="correct" data-answer="c">Answer: state when a reading is required, and drop the blanket rule</p>
+<p><strong>Why:</strong> "every answer" reads as a permanent trigger, and the model binds it to whichever tool the wording resembles most. A rule phrased with no exceptions outranks the tool definitions, however careful they are — which is why the scenario tells you those definitions are sound. Spelling out the situations that genuinely need a reading removes the trigger while keeping the check where it earns its cost.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">There is no first-entry default; selection comes from the definitions and the system prompt.</li>
-<li data-opt="c">Response size has no bearing on whether a tool is selected.</li>
-<li data-opt="d">The <code>system</code> field is exactly where standing instructions belong, and moving them would not stop the over-calling.</li>
+<li data-opt="a">Examples cannot outvote a rule that still admits no exception; the model treats them as odd cases rather than as the boundary.</li>
+<li data-opt="b">Moves the decision to the caller, which must now classify a question before the model has read it, and leaves the misleading rule in place.</li>
+<li data-opt="d">Cheaper calls, identical behavior: a spelling question still travels through the sensor path, and a stale value is the wrong answer where readings matter.</li>
 </ul>
 </div>
 </details>

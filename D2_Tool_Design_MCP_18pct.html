@@ -477,43 +477,43 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 </details>
 
 <details id="d2-q6" data-domain="D2" data-task="2.4">
-<summary>Q6 (Platform Team) — Two MCP servers, two audiences</summary>
+<summary>Q6 (Data Platform) — A personal server in the shared config</summary>
 <div>
-<p><strong>Scenario:</strong> the repository already tracks a <code>.mcp.json</code> carrying a <code>github</code> server. You now add a <code>confluence</code> server that every teammate must get on clone, plus a <code>bookmarks-index</code> server reading your own browser bookmarks, which must stay on your machine.</p>
-<p><strong>Question:</strong> where does each one go?</p>
-<p data-opt="a">A) Both in <code>.mcp.json</code>, keeping the personal entry out of history with a <code>.gitignore</code> rule.</p>
-<p data-opt="b">B) Both in <code>~/.claude.json</code>, asking every teammate to recreate the <code>confluence</code> entry.</p>
-<p data-opt="c">C) <code>confluence</code> in the project <code>.mcp.json</code>, <code>bookmarks-index</code> in the user-level <code>~/.claude.json</code>.</p>
-<p data-opt="d">D) <code>bookmarks-index</code> in <code>.mcp.json</code> and <code>confluence</code> in <code>~/.claude.json</code>, since the personal server changes more often.</p>
+<p><strong>Scenario:</strong> a pull request adds a <code>vault-notes</code> entry to the repository's tracked <code>.mcp.json</code>. Its <code>command</code> field launches <code>note-indexer</code> from the author's home directory and points at <code>~/Notes/</code>, a folder that exists on that laptop alone. The author's rationale: one file, one place to look.</p>
+<p><strong>Question:</strong> what should the reviewer ask for?</p>
+<p data-opt="a">A) Merge it, then let each teammate delete the entry from their own checkout when the launch fails.</p>
+<p data-opt="b">B) Move the entry to the author's user-scoped configuration.</p>
+<p data-opt="c">C) Merge it after wrapping the launch command in a guard that exits quietly on machines without the binary, so nobody else sees an error.</p>
+<p data-opt="d">D) Merge it and list <code>.mcp.json</code> in <code>.gitignore</code>, so the entry stops reaching anyone else.</p>
 <hr>
-<p class="correct" data-answer="c">Answer: project scope for shared tooling, user scope for the personal server</p>
-<p><strong>Why:</strong> the project scope is version controlled and arrives with the clone; the user scope stays local to one machine. Both are read at connection time, so every configured server is available at once.</p>
+<p class="correct" data-answer="b">Answer: the entry belongs to the user scope, not to the tracked file</p>
+<p><strong>Why:</strong> whatever the tracked file holds arrives with every clone, while <code>~/.claude.json</code> stays on one machine. Both load at connection time, so the author keeps the tool without shipping a path nobody else has.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">A tracked file is ignored as a whole or not at all — a single entry cannot be excluded from it.</li>
-<li data-opt="b">Makes team tooling depend on manual setup by each developer, which is exactly what project scope removes.</li>
-<li data-opt="d">Inverts the two scopes: the personal server leaks to everyone and the shared one reaches nobody.</li>
+<li data-opt="a">Every checkout drifts from the branch, and the next pull brings the entry straight back.</li>
+<li data-opt="c">Silences the symptom while still shipping a machine-specific path to the whole team.</li>
+<li data-opt="d">The file is already tracked, so ignoring it now changes nothing — and it would hide the shared servers too.</li>
 </ul>
 </div>
 </details>
 
 <details id="d2-q7" data-domain="D2" data-task="2.5">
-<summary>Q7 (Developer Tooling) — Edit has no unique anchor</summary>
+<summary>Q7 (Site Reliability) — One step among twenty-three identical ones</summary>
 <div>
-<p><strong>Scenario:</strong> the agent must change one <code>logger.debug(</code> call inside <code>src/telemetry/collector.ts</code>. <code>Edit</code> fails: that string appears 14 times in the file.</p>
+<p><strong>Scenario:</strong> the agent must assign step 14 of <code>runbooks/db-failover.yaml</code>, whose <code>steps</code> list carries the line <code>owner: unassigned</code> 23 times. <code>Edit</code> refuses the change: the anchor is not unique.</p>
 <p><strong>Question:</strong> what is the correct fallback?</p>
-<p data-opt="a">A) <code>Read</code> the whole file, apply the change to the returned content, then <code>Write</code> it back.</p>
-<p data-opt="b">B) Retry <code>Edit</code> with the same anchor until it lands on the intended occurrence.</p>
-<p data-opt="c">C) Run <code>Glob</code> on the file to get the line numbers, then call <code>Edit</code> again.</p>
-<p data-opt="d">D) Delete the file and recreate it from scratch with <code>Write</code>, which sidesteps the failing anchor entirely.</p>
+<p data-opt="a">A) Report that the runbook cannot be changed safely and hand the step back to the on-call engineer.</p>
+<p data-opt="b">B) <code>Read</code> the runbook in full, then <code>Write</code> back the amended version.</p>
+<p data-opt="c">C) Enable <code>replace_all</code> on the same call.</p>
+<p data-opt="d">D) Append a corrected copy of the step at the end of the file, leaving the stale one for a later cleanup.</p>
 <hr>
-<p class="correct" data-answer="a">Answer: read the whole file, then write it back</p>
-<p><strong>Why:</strong> when no unique anchor text exists, loading the full file and rewriting it is the documented fallback. Complete content resolves the ambiguity the anchor could not.</p>
+<p class="correct" data-answer="b">Answer: load the whole file, then write it back</p>
+<p><strong>Why:</strong> with no unique anchor available, the documented fallback is a full read followed by a write of the amended content. What the anchor could not express, complete content carries.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">The tool is deterministic: the same ambiguous anchor fails identically on every attempt.</li>
-<li data-opt="c"><code>Glob</code> matches file paths; it never looks inside a file and returns no line numbers.</li>
-<li data-opt="d">Deleting first risks losing the content if the write fails, with no gain over rewriting in place.</li>
+<li data-opt="a">Hands a solvable task to a human, and the step stays unassigned meanwhile.</li>
+<li data-opt="c">Assigns all twenty-three steps at once, when twenty-two of them must stay untouched.</li>
+<li data-opt="d">Records two owners for the same step, so the runbook now contradicts itself.</li>
 </ul>
 </div>
 </details>

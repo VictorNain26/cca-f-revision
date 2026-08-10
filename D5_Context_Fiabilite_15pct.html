@@ -531,85 +531,85 @@ Note : la couverture de cette section est limitée.
 <h3>9 questions pour tester votre compréhension</h3>
 
 <details id="d5-q1" data-domain="D5" data-task="5.1">
-<summary>Q1 (D5) — A figure that summarization dilutes</summary>
+<summary>Q1 (D5) — Assay settings the summary stops carrying</summary>
 <div>
-<p><strong>Scenario:</strong> On a long travel rebooking case, the passenger accepted a fare-difference credit of $214.50 on booking <code>BK-4471</code>. Eighteen turns later, after the history has been summarized twice, the agent offers "a credit" with no amount and cannot name the booking.</p>
-<p><strong>Question:</strong> What prevents the loss?</p>
-<p data-opt="a">A) Hold the transactional facts in a <code>case facts</code> block injected in every prompt, outside the summarized history.</p>
-<p data-opt="b">B) Move to a model with a wider context window, so summarization never runs on a case this long.</p>
-<p data-opt="c">C) Run <code>/compact</code> less often, so that fewer of the case details pass through a compression step.</p>
-<p data-opt="d">D) Add few-shot examples of summaries that preserve every amount and every reference number in the case.</p>
+<p><strong>Scenario:</strong> A lab assistant walks a technician through a three-hour assay. At step 2 the two of them fixed the reagent lot, a 1:250 dilution and which plate reader to use. Sixty steps later the raw turns have been replaced by two successive summaries, and the assistant proposes "the usual dilution" without naming one.</p>
+<p><strong>Question:</strong> What keeps those settings usable to the end of the run?</p>
+<p data-opt="a">A) Have the assistant search back through the earlier turns whenever it needs a setting, so no value has to be repeated in the prompt.</p>
+<p data-opt="b">B) Pin the fixed settings in a <code>run_context</code> block rebuilt into every prompt.</p>
+<p data-opt="c">C) Ask the technician to restate the lot and the dilution at the start of each phase, so the values keep re-entering the conversation.</p>
+<p data-opt="d">D) Lower the sampling temperature, so the assistant stops reaching for a habitual value in place of the one it was given.</p>
 <hr>
-<p class="correct" data-answer="a">Answer: a case facts block held outside the summarized history</p>
-<p><strong>Why:</strong> the facts worth pinning are the transactional ones — passenger identity, booking reference, amount, status. Progressive summarization compresses by nature, and those are exactly what it dilutes. Kept in a block that is re-injected every turn, they sit out of the compressor's reach.</p>
+<p class="correct" data-answer="b">Answer: the fixed settings pinned outside the summarized history</p>
+<p><strong>Why:</strong> summarization compresses by nature, and a lot number, a ratio and an instrument are the kind of detail it drops first. Rebuilt into every prompt from a block of its own, they never travel through the compressor at all.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Postpones the deadline without protecting anything; a longer case reaches the wider limit too.</li>
-<li data-opt="c">Same move, phrased as frequency: compressing later does not change what compression destroys.</li>
-<li data-opt="d">Few-shot examples shape output format, not what survives in the input context.</li>
+<li data-opt="a">There is nothing left to search: the summaries replaced the turns that held those values.</li>
+<li data-opt="c">Moves the burden onto the technician, and each restated value is compressed again a few steps later.</li>
+<li data-opt="d">Temperature governs the choice between candidate tokens, not what the context still carries.</li>
 </ul>
 </div>
 </details>
 
 <details id="d5-q2" data-domain="D5" data-task="5.2">
-<summary>Q2 (D5) — An angry message with an easy fix</summary>
+<summary>Q2 (D5) — A guest at the end of their patience</summary>
 <div>
-<p><strong>Scenario:</strong> A grocery delivery customer writes: "Unbelievable, the whole chilled order turned up warm again." No human has been asked for, and the goodwill credit that settles the case is within the agent's authority.</p>
+<p><strong>Scenario:</strong> A hotel messaging agent receives: "Third time this month the room key has died on me. I'm done." The guest has not asked for a person. Reissuing the key and crediting loyalty points both sit inside the agent's authority.</p>
 <p><strong>Question:</strong> What is the correct behavior?</p>
-<p data-opt="a">A) Escalate right away, since wording that strong is a reliable predictor of an outcome nobody will accept.</p>
-<p data-opt="b">B) Acknowledge the frustration, offer the credit, and escalate only if the customer then asks for a person.</p>
-<p data-opt="c">C) Score the message with a sentiment model, and escalate whenever it lands above the configured threshold.</p>
-<p data-opt="d">D) Skip the emotional content and issue the credit, since that is what actually fixes the order.</p>
+<p data-opt="a">A) Ask the guest up front whether they would rather be transferred to a person, so the choice belongs to them and not to the agent.</p>
+<p data-opt="b">B) Name the repeat failure, reissue the key, credit the points, and hand off only if asked.</p>
+<p data-opt="c">C) Hold the thread until a duty manager approves the credit, since a fault recurring three times in one month is no longer routine.</p>
+<p data-opt="d">D) Mirror the exasperation at length, since tone is the strongest signal here.</p>
 <hr>
-<p class="correct" data-answer="b">Answer: acknowledge, resolve, escalate only on reiteration</p>
-<p><strong>Why:</strong> anger is not a request for a human, and tone does not track case difficulty. The nuanced pattern honors the customer's experience while still resolving on first contact.</p>
+<p class="correct" data-answer="b">Answer: name it, fix it, and hand off only on request</p>
+<p><strong>Why:</strong> exasperation is not a request for a human, and it says nothing about how hard the case is. This one sits inside the agent's authority, so the agent closes it — while still telling the guest their experience was heard.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Hands off a case the agent can close, which is what drives first-contact resolution down.</li>
-<li data-opt="c">Turns an unreliable signal into a number without making it any more predictive of complexity.</li>
-<li data-opt="d">Settles the order and ignores the person; the acknowledgement costs one sentence.</li>
+<li data-opt="a">Offers a handoff nobody asked for, and turns a case the agent can close into a queue.</li>
+<li data-opt="c">Invents an approval gate over a gesture the agent was already granted.</li>
+<li data-opt="d">Sympathy and still no working key; being heard is worth one sentence, not a paragraph.</li>
 </ul>
 </div>
 </details>
 
 <details id="d5-q3" data-domain="D5" data-task="5.3">
-<summary>Q3 (D5) — An access failure next to an empty answer</summary>
+<summary>Q3 (D5) — Nothing on file, or nobody answered</summary>
 <div>
-<p><strong>Scenario:</strong> A due-diligence subagent queries three registries. Court records return eleven filings, the sanctions list returns no matches, and the corporate registry connector returns a connection timeout. The subagent reports the last two identically, as "source failure".</p>
-<p><strong>Question:</strong> How should these outcomes reach the coordinator?</p>
-<p data-opt="a">A) Merge the three outcomes into a single source-coverage percentage for the run, so the coordinator sees one number.</p>
-<p data-opt="b">B) Report both as failures, so the coordinator retries both and stays on the safe side.</p>
-<p data-opt="c">C) Separate the access failure from the valid empty answer, and report each under its own outcome type.</p>
-<p data-opt="d">D) Report both as successes with empty result sets, so a slow connector never interrupts the run.</p>
+<p><strong>Scenario:</strong> A compliance agent checks an engineer's certifications in three systems. The HR record holds two certificates, the training platform holds none for this engineer, and the badge system's connector returns a gateway error. The agent reports the last two the same way, as "no data".</p>
+<p><strong>Question:</strong> How should the three outcomes reach the coordinator?</p>
+<p data-opt="a">A) Let the coordinator tell them apart from the response times, since a connector that gives up takes far longer than one answering with nothing.</p>
+<p data-opt="b">B) Send the coordinator a prose note describing what each system did, so nothing is lost and it can judge for itself.</p>
+<p data-opt="c">C) Return one typed outcome per system: records found, none on file, lookup never completed.</p>
+<p data-opt="d">D) Conclude that the engineer holds no badge certification, since neither of those two systems produced one.</p>
 <hr>
-<p class="correct" data-answer="c">Answer: an access failure and a valid empty answer are different things</p>
-<p><strong>Why:</strong> the timeout means the question was never answered, so a retry decision is still open; no matches means it was answered and the answer is "nothing here", which is coverage information. The structured error the coordinator needs carries <code>failure_type</code>, the attempted query, <code>partial_results</code> and alternatives, so it can retry, requery, or annotate the gap.</p>
+<p class="correct" data-answer="c">Answer: one typed outcome per system, the unanswered lookup kept apart</p>
+<p><strong>Why:</strong> "none on file" answers the question and is coverage information; a gateway error means the question was never put, so a retry decision is still open. The typed outcome carries <code>failure_type</code>, the query attempted and any <code>partial_results</code>, which is what lets the coordinator retry one system and annotate the other.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">A single percentage destroys exactly the distinction the coordinator has to act on.</li>
-<li data-opt="b">Retrying a registry that legitimately matched nothing returns nothing again, at cost.</li>
-<li data-opt="d">Silent suppression: a real access failure is filed as an absence of evidence and no recovery fires.</li>
+<li data-opt="a">Reads an outcome off a timing side effect, which a fast-failing connector breaks straight away.</li>
+<li data-opt="b">A narrative is not a decidable outcome; the coordinator has to branch on it, not read it.</li>
+<li data-opt="d">Turns an unanswered lookup into a finding about the engineer, which is the error with consequences.</li>
 </ul>
 </div>
 </details>
 
 <details id="d5-q4" data-domain="D5" data-task="5.5">
-<summary>Q4 (D5) — What one accuracy figure hides</summary>
+<summary>Q4 (D5) — One figure for every kind of permit</summary>
 <div>
-<p><strong>Scenario:</strong> A clinical records extraction pipeline reports 94% accuracy across all documents and all fields. The team wants to drop human review for everything the pipeline handles.</p>
+<p><strong>Scenario:</strong> A building-permit agent routes applications to the right municipal desk. For last quarter it reports 91% correct routing over everything it handled, and the operations team wants to switch off the human check on that basis.</p>
 <p><strong>Question:</strong> What has to be established first?</p>
-<p data-opt="a">A) Break the figure down by document type and by field, and confirm the level holds in every segment.</p>
-<p data-opt="b">B) Nothing further: the figure already clears the accuracy bar the business agreed to, so automation can proceed.</p>
-<p data-opt="c">C) Re-measure the same aggregate on a bigger sample, so its confidence interval tightens before the team relies on it.</p>
-<p data-opt="d">D) Train a dedicated classifier that flags the extractions most likely to be wrong, and review only those.</p>
+<p data-opt="a">A) Recompute the figure per permit category and per intake channel, and confirm it holds in each.</p>
+<p data-opt="b">B) Compare the quarter against the three before it, and switch the check off once the level has held steady for a full year.</p>
+<p data-opt="c">C) Spot-check the agent's stated reasons instead of its destinations.</p>
+<p data-opt="d">D) Have the agent rate its own certainty on each application, and keep the human check only on the ones it rates lowest.</p>
 <hr>
-<p class="correct" data-answer="a">Answer: break it down by document type and by field before automating</p>
-<p><strong>Why:</strong> an average hides segments that perform far worse — faxed handwritten intake forms at 62%, the <code>insurer_member_id</code> field at 58% — while the headline stays reassuring. The breakdown holds only if each segment is drawn by stratified random sampling, and that segment-level measurement is the precondition for reducing review, not a follow-up to it.</p>
+<p class="correct" data-answer="a">Answer: recompute per category and per channel before switching anything off</p>
+<p><strong>Why:</strong> one number over everything can sit at 91% while faxed applications run at 60% and historic-district cases at 55%. Each segment has to be drawn by stratified random sampling for the breakdown to mean anything, and that segment-level measurement is the precondition for removing the check, not a follow-up to it.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Accepts the exact reasoning the scenario is built to challenge.</li>
-<li data-opt="c">A sharper aggregate is still an aggregate; precision does not reveal structure.</li>
-<li data-opt="d">Adds machinery before anyone has measured where the errors actually sit.</li>
+<li data-opt="b">A stable aggregate is still an aggregate; four quarters of it reveal no structure.</li>
+<li data-opt="c">A convincing reason and a correct desk are different things, and only one of them is being looked at.</li>
+<li data-opt="d">Uncalibrated self-rating sorts the queue by the agent's opinion, which is highest exactly where it is wrong.</li>
 </ul>
 </div>
 </details>
@@ -636,22 +636,22 @@ Note : la couverture de cette section est limitée.
 </details>
 
 <details id="d5-q6" data-domain="D5" data-task="5.1">
-<summary>Q6 (D5) — Early decisions in a saturated window</summary>
+<summary>Q6 (D5) — A bring-up session running out of room</summary>
 <div>
-<p><strong>Scenario:</strong> An incident-response agent is 80 turns into an outage investigation and close to the context limit. The opening turns hold the agreed rollback boundary and the mitigation the team explicitly ruled out.</p>
-<p><strong>Question:</strong> Which strategy keeps the session alive without losing those decisions?</p>
-<p data-opt="a">A) Run <code>/compact</code> now and carry on, trusting the summary to preserve the decisions that matter.</p>
-<p data-opt="b">B) Raise <code>max_tokens</code>, so the session has room for more turns before it hits the limit.</p>
-<p data-opt="c">C) Summarize the older turns progressively, and keep the binding decisions in a <code>case facts</code> block outside it.</p>
-<p data-opt="d">D) Start a fresh session and rebuild the picture from scratch, so the window starts empty for the outage.</p>
+<p><strong>Scenario:</strong> A hardware bring-up assistant is 120 turns into debugging a prototype board and near the context limit. Turn 3 recorded the errata in the pin mapping and the supply rail the team agreed nobody would touch. The work has to continue in this session.</p>
+<p><strong>Question:</strong> Which strategy keeps the session going without losing those two constraints?</p>
+<p data-opt="a">A) Move the older turns into a transcript file the assistant can open when it needs them, so the window holds only recent exchanges.</p>
+<p data-opt="b">B) Compress the older turns for budget, and pin the two constraints outside that compression.</p>
+<p data-opt="c">C) Trim every tool result down to its closing lines as it arrives, so the window fills more slowly from here.</p>
+<p data-opt="d">D) Hand each remaining subsystem to its own fresh subagent, briefed on that subsystem alone, and keep only their reports in the main thread.</p>
 <hr>
-<p class="correct" data-answer="c">Answer: progressive summarization plus an external case facts block</p>
-<p><strong>Why:</strong> summarization buys context budget, the persistent block protects what must not be diluted — here the agreed rollback boundary and the mitigation the team ruled out. Only the pair delivers both session longevity and intact decisions.</p>
+<p class="correct" data-answer="b">Answer: compression for budget, a pinned block for what must not be diluted</p>
+<p><strong>Why:</strong> the session has two problems and each needs its own answer. Compression buys room; it cannot promise that any particular line survives it. Pinning the errata and the untouchable rail outside the compressed region is what guarantees they are still there at turn 200.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Compaction on its own dilutes precisely the decisions you are trying to keep.</li>
-<li data-opt="b">That parameter bounds the length of the generated answer, not the input window.</li>
-<li data-opt="d">Restarting with no summary injected throws away the whole investigation.</li>
+<li data-opt="a">A file the assistant has to remember to open is no guarantee, and a degraded assistant is the one that stops opening it.</li>
+<li data-opt="c">Slows saturation and protects nothing: turn 3 still sits in the part that gets compressed.</li>
+<li data-opt="d">Every brief that omits the untouchable rail is a subagent free to touch it.</li>
 </ul>
 </div>
 </details>
@@ -700,22 +700,22 @@ Note : la couverture de cette section est limitée.
 </details>
 
 <details id="d5-q9" data-domain="D5" data-task="5.5">
-<summary>Q9 (D5) — Where to point a small review team</summary>
+<summary>Q9 (D5) — Two reviewers, nine thousand declarations</summary>
 <div>
-<p><strong>Scenario:</strong> A loan application extraction pipeline handles 4,200 documents a day. Your single reviewer gets through roughly 150 of them, and you want that capacity to earn its keep.</p>
+<p><strong>Scenario:</strong> A customs pipeline extracts nine thousand declaration line items a day. Your two reviewers get through about four hundred between them, and you want that capacity spent where it changes an outcome.</p>
 <p><strong>Question:</strong> How should review be routed?</p>
-<p data-opt="a">A) Emit one confidence score per document and review the lowest-scoring ones until the reviewer runs out of day.</p>
-<p data-opt="b">B) Draw the reviewed documents at random each day, so the sample stays unbiased and the error rate it measures is trustworthy.</p>
-<p data-opt="c">C) Emit confidence per field, calibrate the threshold on labeled data, and route the fields below it plus the ambiguous sources.</p>
-<p data-opt="d">D) Have the model rate the quality of its own extraction, and route whatever it rates poorly to the reviewer.</p>
+<p data-opt="a">A) Rank whole declarations by certainty and work down from the weakest.</p>
+<p data-opt="b">B) Score each field on its own, and tune the cut-off on a hand-checked sample.</p>
+<p data-opt="c">C) Put every declaration through a second extraction pass, and queue the ones where the two passes disagree with each other.</p>
+<p data-opt="d">D) Rotate the reviewers through each field type on a fixed weekly cycle, so no part of the form goes unchecked for long.</p>
 <hr>
-<p class="correct" data-answer="c">Answer: per-field confidence, a threshold calibrated on labeled data, and the ambiguous sources</p>
-<p><strong>Why:</strong> field granularity spends the reviewer where the doubt is — a form whose only shaky value is <code>employer_tax_id</code> does not need a full reread. A threshold means nothing until it has been set against a labeled validation set: ground truth is what says which confidence level carries an acceptable real error rate. Sources that are ambiguous or self-contradictory earn a look whatever their score.</p>
+<p class="correct" data-answer="b">Answer: per-field scores, cut-off tuned on hand-checked data</p>
+<p><strong>Why:</strong> field granularity spends the reviewer where the doubt is — a declaration whose only shaky value is <code>hs_code</code> does not need a full reread. And a cut-off means nothing until it has been set against data someone checked by hand: ground truth is what says which score level carries an error rate you can live with.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">One score per document averages the safe fields with the doubtful ones, so it queues near-perfect documents and waves through a single critical field.</li>
-<li data-opt="b">Random draw is the right tool to <em>measure</em> an error rate, not to <em>allocate</em> review: most of the reviewer's day goes to correct extractions.</li>
-<li data-opt="d">Uncalibrated self-assessment tracks real accuracy poorly, and the model is confident exactly where it is wrong.</li>
+<li data-opt="a">One number per declaration averages the safe fields with the doubtful one, so it queues near-perfect documents and waves a single bad field through.</li>
+<li data-opt="c">Two passes of one model agree most readily where it is confidently wrong, so the queue fills with disagreements that were never the dangerous cases.</li>
+<li data-opt="d">A calendar decides what gets looked at, and the doubtful fields wait their turn like everything else.</li>
 </ul>
 </div>
 </details>
