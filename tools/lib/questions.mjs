@@ -16,6 +16,17 @@ export const ROOT = path.resolve(import.meta.dirname, '..', '..');
 const OPTION_RE = /^\s*([A-E])\)/;
 const QUIZ_SUMMARY_RE = /^Q\s*\d+/i;
 
+/* Le préfixe « A) » est un artefact de présentation : il ouvre les quatre
+ * options à l'identique et n'appartient pas à leur contenu.
+ * Deux vues du même <p> : `text` pour ce que le lecteur voit, `html` pour ce
+ * qui distingue une balise <code> de la prose autour. Le second sert au
+ * détecteur de doublons, qui doit écarter le contenu des <code> — les
+ * identifiants sont précisément ce qu'une réécriture paresseuse renomme, et
+ * dans ce corpus ils sont souvent des mots anglais ordinaires (`tools`,
+ * `description`) qu'aucune heuristique de forme ne saurait reconnaître dans du
+ * texte brut. */
+const normalize = (s) => s.replace(OPTION_RE, '').replace(/\s+/g, ' ').trim();
+
 export const pagePrefix = (file) =>
   file === 'Practice_Questions.html' ? 'pq' : file.slice(0, 2).toLowerCase();
 
@@ -63,6 +74,8 @@ export const parseQuestions = (html, file) => {
           opt: p.dataset.opt ?? null,
           letterInText: ((p.textContent || '').match(OPTION_RE) || [, null])[1],
           index,
+          text: normalize(p.textContent || ''),
+          html: normalize(p.innerHTML || ''),
         })),
         answer: (correct?.dataset.answer || '').split(/\s+/).filter(Boolean),
         answerText: (correct?.textContent || '').trim(),

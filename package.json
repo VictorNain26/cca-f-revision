@@ -14,7 +14,8 @@
     "check:diacritics": "node tools/check-diacritics.mjs",
     "check:quizzes": "node tools/check-quizzes.mjs",
     "check:length": "node tools/check-length-tell.mjs",
-    "test": "node --test tools/**/*.test.mjs"
+    "test": "node --test tools/**/*.test.mjs",
+    "check:dupes": "node tools/check-duplicates.mjs"
   },
   "devDependencies": {
     "jsdom": "^29.1.1"

@@ -68,6 +68,24 @@ test("parseQuestions ignore un <details> qui n'est pas un quiz", () => {
   assert.deepEqual(parseQuestions(html, 'Exam_Strategy.html'), []);
 });
 
+test('parseQuestions expose le texte de chaque option', () => {
+  const [q] = parseQuestions(MIGRATED, 'Practice_Questions.html');
+  assert.deepEqual(q.options.map((o) => o.text), [
+    'Add a programmatic prerequisite.',
+    'Enhance the system prompt.',
+    'Add few-shot examples.',
+    'Implement a routing classifier.',
+  ]);
+  // Le balisage est conservé à part : le détecteur de doublons doit pouvoir
+  // écarter le contenu des <code>, ce que le texte seul ne permet plus.
+  const [scenario] = parseQuestions(
+    MIGRATED.replace('A) Add a programmatic', 'A) Add a <code>get_customer</code> programmatic'),
+    'Practice_Questions.html'
+  ).map((x) => x.options[0]);
+  assert.equal(scenario.text, 'Add a get_customer programmatic prerequisite.');
+  assert.equal(scenario.html, 'Add a <code>get_customer</code> programmatic prerequisite.');
+});
+
 test("l'empreinte retient le code et les nombres", () => {
   const [q] = parseQuestions(MIGRATED, 'Practice_Questions.html');
   assert.ok(q.fp.has('get_customer'));
