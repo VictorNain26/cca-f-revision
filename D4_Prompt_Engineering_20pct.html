@@ -582,13 +582,13 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <div>
 <p><strong>Scenario:</strong> A reviewer inspects database migration scripts under the instruction "flag risky migrations, and be careful". The same <code>DROP COLUMN</code> statement is flagged on Monday and approved on Thursday.</p>
 <p><strong>Question:</strong> What change makes the verdicts stable?</p>
-<p data-opt="a">A) Add few-shot examples of migrations the team considers risky.</p>
-<p data-opt="b">B) Spell out the criteria: flag a migration only when it drops a column, rewrites a table in place, or backfills rows without batching.</p>
-<p data-opt="c">C) Run the check twice and keep only the findings that appear in both runs.</p>
-<p data-opt="d">D) Restrict the check to migrations that touch production schemas.</p>
+<p data-opt="a">A) Add few-shot examples of migrations the team called risky, letting the reviewer infer the threshold.</p>
+<p data-opt="b">B) Spell out the criteria: a dropped column, an in-place table rewrite, or an unbatched backfill.</p>
+<p data-opt="c">C) Run the check twice and keep the findings both runs agree on, taking agreement for stability.</p>
+<p data-opt="d">D) Restrict the check to migrations touching production schemas, where an inconsistent verdict actually costs something.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: replace the adjective with named, testable conditions</p>
-<p><strong>Why:</strong> "risky" carries no operational meaning, so every run reinvents the threshold. Named conditions turn a matter of taste into something the model applies the same way twice.</p>
+<p><strong>Why:</strong> "risky" carries no operational meaning, so every run reinvents the threshold. Named conditions — flag a migration only when it drops a column, rewrites a table in place, or backfills rows without batching — turn a matter of taste into something the model applies the same way twice.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Illustrates a rule that still has not been defined.</li>
@@ -645,9 +645,9 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <div>
 <p><strong>Scenario:</strong> A conference tool extracts talk submissions into a schema where <code>co_speaker</code> is a mandatory string. Many talks are solo, and those extractions come back with plausible names found nowhere in the form.</p>
 <p><strong>Question:</strong> What is the fix?</p>
-<p data-opt="a">A) Add an instruction forbidding the model to invent a name.</p>
+<p data-opt="a">A) Add an instruction forbidding the model to invent a name it cannot find in the form.</p>
 <p data-opt="b">B) Let the field hold <code>null</code> and drop it from the mandatory list, so absence has a legal representation.</p>
-<p data-opt="c">C) Constrain the field to an enum built from the speakers already registered.</p>
+<p data-opt="c">C) Constrain the field to an enum of speakers already registered, so only real names can appear.</p>
 <p data-opt="d">D) Keep the field as it is and reject any extraction whose name is missing from the submission text.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: make the field nullable and optional</p>
@@ -666,14 +666,14 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <div>
 <p><strong>Scenario:</strong> A payroll extractor returns a timesheet whose <code>reported_hours</code> reads 38, while the daily entries sum to 41. The payload parses and matches the schema.</p>
 <p><strong>Question:</strong> Which two statements fit this situation?</p>
-<p data-opt="a">A) It is a syntax error; enforcing the tool schema more strictly removes it.</p>
-<p data-opt="b">B) It is a semantic error; validate programmatically and, on failure, resubmit with the document, the rejected extraction, and the exact discrepancy.</p>
-<p data-opt="c">C) It is a syntax error; more few-shot examples stop the arithmetic from drifting.</p>
-<p data-opt="d">D) It is a semantic error; carry <code>computed_hours</code> next to <code>reported_hours</code> with a <code>conflict_detected</code> flag, so downstream code sees the gap.</p>
+<p data-opt="a">A) It is a syntax error; enforcing the tool schema more strictly makes the payload conform.</p>
+<p data-opt="b">B) It is a semantic error; validate programmatically and resubmit on failure with the exact discrepancy named.</p>
+<p data-opt="c">C) It is a syntax error; a few more worked examples keep the arithmetic from drifting.</p>
+<p data-opt="d">D) It is a semantic error; carry <code>computed_hours</code> beside <code>reported_hours</code> with a <code>conflict_detected</code> flag.</p>
 <p data-opt="e">E) It is a syntax error; a higher output token cap leaves room to finish the arithmetic.</p>
 <hr>
 <p class="correct" data-answer="b d">Answers: a semantic error, handled by a validate-retry loop and by an explicit conflict flag</p>
-<p><strong>Why:</strong> a forced tool call guarantees the shape of the payload, never the truth of its values. A message naming the field and the gap lets the model correct itself; carrying both figures plus a flag keeps the conflict visible.</p>
+<p><strong>Why:</strong> a forced tool call guarantees the shape of the payload, never the truth of its values. The retry carries the document, the rejected extraction and the named gap, which lets the model correct itself; carrying both figures plus a flag keeps the conflict visible to downstream code.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Schema enforcement removes malformed payloads, not disagreement between fields.</li>
@@ -690,12 +690,12 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <p><strong>Question:</strong> Which two statements about that run are correct?</p>
 <p data-opt="a">A) Results come back in submission order, so a response position is a safe key to its review.</p>
 <p data-opt="b">B) Results come back unordered, so each one is paired with its request through the <code>custom_id</code> the team set.</p>
-<p data-opt="c">C) A batch request is one pass and one answer, so a step needing your code to execute a tool and hand the result back to the model does not fit.</p>
-<p data-opt="d">D) The endpoint halves latency along with price, so the weekly job finishes sooner.</p>
+<p data-opt="c">C) A batch request buys one pass and one answer, so a multi-turn tool loop does not fit.</p>
+<p data-opt="d">D) The endpoint halves latency along with price, so the weekly job finishes well inside its window.</p>
 <p data-opt="e">E) Results are discarded once the batch completes, so the run must stream them out as they land.</p>
 <hr>
 <p class="correct" data-answer="b c">Answers: pair results by their correlation key, and expect a single pass per request</p>
-<p><strong>Why:</strong> the two structural facts that decide whether a workload fits. The correlation key ties each response to its document and lets the team resubmit only the failures; a batch request buys one turn, never a tool loop.</p>
+<p><strong>Why:</strong> the two structural facts that decide whether a workload fits. The correlation key ties each response to its document and lets the team resubmit only the failures; a batch request buys one turn, so a step whose code must execute a tool and hand the result back to the model has nowhere to run.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Position is exactly what must not be trusted; results are unordered.</li>
@@ -710,13 +710,13 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <div>
 <p><strong>Scenario:</strong> A recipe importer turns ingredient lines into structured quantities. Informal amounts such as "a couple of handfuls" or "a splash" come back empty or wildly wrong, and fresh phrasings appear with every new import.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
-<p data-opt="a">A) Lower the extractor's sensitivity so it reports fewer questionable quantities.</p>
+<p data-opt="a">A) Lower the extractor's sensitivity so it reports fewer questionable quantities and the wildest values disappear.</p>
 <p data-opt="b">B) Keep a lookup table mapping every informal phrase to a quantity, extended as new phrases appear.</p>
-<p data-opt="c">C) Give two to four worked examples pairing an informal phrase with the converted quantity and the reasoning behind it, so the model generalizes to unseen phrasings.</p>
-<p data-opt="d">D) Reject ingredient lines that carry no numeric unit and route them to manual entry.</p>
+<p data-opt="c">C) Give two to four worked examples pairing an informal phrase with its converted quantity and the reasoning.</p>
+<p data-opt="d">D) Reject ingredient lines carrying no numeric unit and route them to manual entry for a human call.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: worked examples that teach the conversion, not a dictionary of phrases</p>
-<p><strong>Why:</strong> examples carrying their rationale teach a transferable rule, which is what a space of phrasings nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
+<p><strong>Why:</strong> examples carrying their rationale teach a transferable rule, so the model generalizes to phrasings it has never seen — which is what a space nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Suppresses good extractions at the same rate as bad ones.</li>

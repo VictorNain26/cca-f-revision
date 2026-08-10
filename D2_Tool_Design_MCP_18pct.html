@@ -375,13 +375,13 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <div>
 <p><strong>Scenario:</strong> a delivery assistant routes "where is my parcel" requests to <code>find_package</code> 38% of the time, when they belong to <code>find_shipment</code>. <code>find_shipment</code> is described as "finds a shipment and returns its details", <code>find_package</code> as "finds a package and returns its details" — although <code>find_package</code> only returns warehouse scan events.</p>
 <p><strong>Question:</strong> what is the right fix?</p>
-<p data-opt="a">A) Rename <code>find_package</code> to <code>list_warehouse_scans</code> and rewrite its description around the scan events it really returns.</p>
+<p data-opt="a">A) Rename <code>find_package</code> to <code>list_warehouse_scans</code> and rewrite its description around the scan events.</p>
 <p data-opt="b">B) Add a routing classifier that labels every request before any tool is offered.</p>
-<p data-opt="c">C) Add worked routing examples to the assistant system prompt.</p>
-<p data-opt="d">D) Expand only the <code>find_shipment</code> description with more delivery wording.</p>
+<p data-opt="c">C) Add worked routing examples to the assistant system prompt, teaching the distinction by demonstration.</p>
+<p data-opt="d">D) Expand only the <code>find_shipment</code> description so delivery wording pulls those requests to it.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: rename the overlapping tool and rewrite its description</p>
-<p><strong>Why:</strong> two near-identical descriptions leave the model nothing to discriminate on. Renaming and redescribing removes the functional overlap at its source, where the selection decision is actually made.</p>
+<p><strong>Why:</strong> two near-identical descriptions leave the model nothing to discriminate on. The new name and the rewritten description finally say what that tool really returns — warehouse scan events, not a parcel location — so the functional overlap disappears at its source, where the selection decision is actually made.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Over-engineering: it bypasses natural language understanding instead of repairing the ambiguity.</li>
@@ -397,7 +397,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <p><strong>Scenario:</strong> a reporting subagent owns <code>execute_sql</code>, which accepts any statement against the warehouse. Traces show it browsing <code>information_schema</code> and joining raw event tables instead of reading the curated reporting views.</p>
 <p><strong>Question:</strong> what is the right fix?</p>
 <p data-opt="a">A) Replace <code>execute_sql</code> with <code>run_report_query</code>, which takes a view name plus filters and rejects anything else.</p>
-<p data-opt="b">B) Remove <code>execute_sql</code> and route every query through the coordinator.</p>
+<p data-opt="b">B) Remove <code>execute_sql</code> and route every query through the coordinator, which already knows which curated views to read.</p>
 <p data-opt="c">C) Keep the tool and add a denylist of raw table names to its handler.</p>
 <p data-opt="d">D) Instruct the subagent in its system prompt to read only the curated views.</p>
 <hr>
@@ -417,13 +417,13 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <div>
 <p><strong>Scenario:</strong> the <code>search_parts</code> tool answers <code>{"isError": true, "content": "Operation failed"}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.</p>
 <p><strong>Question:</strong> why does this design block the agent?</p>
-<p data-opt="a">A) It cannot tell a valid empty result from an access failure, so it can neither justify a retry nor report that nothing was found.</p>
-<p data-opt="b">B) A timeout is not a real failure, so the error flag should stay unset here.</p>
-<p data-opt="c">C) The payload is malformed JSON and the runtime discards it.</p>
-<p data-opt="d">D) The message is too short to be shown to the technician.</p>
+<p data-opt="a">A) It cannot tell a valid empty result from an access failure, so retrying is guesswork.</p>
+<p data-opt="b">B) A timeout is a delay, not a real failure, so the error flag should stay unset.</p>
+<p data-opt="c">C) The payload is malformed JSON, so the runtime discards it before the agent can act.</p>
+<p data-opt="d">D) The message is too short for the technician to act on in the field.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: an empty result and an access failure become indistinguishable</p>
-<p><strong>Why:</strong> the agent decides from two signals — whether the call is worth repeating (<code>isRetryable</code>) and what it really received. A <code>transient</code> timeout calls for a retry, an empty catalog hit is a legitimate success. Merged into one payload, they produce either wasted retries or silent gaps in the answer.</p>
+<p><strong>Why:</strong> the agent decides from two signals — whether the call is worth repeating (<code>isRetryable</code>) and what it really received. A <code>transient</code> timeout calls for a retry, an empty catalog hit is a legitimate success. Merged into one payload, the agent can neither justify a retry nor state that nothing was found, and the run ends in wasted retries or silent gaps in the answer.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">The timeout is a genuine failure and the flag belongs there; what is missing is everything around it.</li>
@@ -505,7 +505,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <p data-opt="a">A) <code>Read</code> the whole file, apply the change to the returned content, then <code>Write</code> it back.</p>
 <p data-opt="b">B) Retry <code>Edit</code> with the same anchor until it lands on the intended occurrence.</p>
 <p data-opt="c">C) Run <code>Glob</code> on the file to get the line numbers, then call <code>Edit</code> again.</p>
-<p data-opt="d">D) Delete the file and recreate it from scratch with <code>Write</code>.</p>
+<p data-opt="d">D) Delete the file and recreate it from scratch with <code>Write</code>, which sidesteps the failing anchor entirely.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: read the whole file, then write it back</p>
 <p><strong>Why:</strong> when no unique anchor text exists, loading the full file and rewriting it is the documented fallback. Complete content resolves the ambiguity the anchor could not.</p>

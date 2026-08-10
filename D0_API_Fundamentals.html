@@ -413,7 +413,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div>
 <p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
 <p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
-<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> only limits the size of the request, not of the output.</p>
+<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> caps the size of the request being sent, not the length of the output.</p>
 <p data-opt="b">B) The token budget ran out before the model finished generating; only <code>stop_reason: "end_turn"</code> means the response is complete.</p>
 <p data-opt="c">C) The model refused to continue for safety reasons; check <code>stop_details</code> instead of showing anything.</p>
 <p data-opt="d">D) A server-side tool call was interrupted mid-turn; resend the request unchanged so it can finish.</p>
@@ -455,17 +455,17 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div>
 <p><strong>Scenario:</strong> A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.</p>
 <p><strong>Question:</strong> What is the most likely cause?</p>
-<p data-opt="a">A) The API keeps no state, and the caller did not resend the whole history, <code>tool_result</code> blocks included.</p>
-<p data-opt="b">B) A <code>tool_result</code> block expires server-side a few seconds after it is submitted.</p>
-<p data-opt="c">C) The <code>max_tokens</code> value is too low to retain the <code>tool_result</code>.</p>
-<p data-opt="d">D) A <code>session_id</code> parameter is missing, so state is not persisted between requests.</p>
+<p data-opt="a">A) The API keeps no state, and the caller did not resend the earlier <code>tool_result</code> blocks.</p>
+<p data-opt="b">B) A <code>tool_result</code> block expires server-side soon after it is submitted, so later requests miss it.</p>
+<p data-opt="c">C) The <code>max_tokens</code> value is too low to hold the <code>tool_result</code>, so the oldest blocks drop first.</p>
+<p data-opt="d">D) A <code>session_id</code> parameter is missing, so the server cannot attach this request to the earlier turn.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: the API is stateless and the history was not resent</p>
 <p><strong>Why:</strong> nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Nothing expires server-side, because nothing is stored there.</li>
-<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send.</li>
+<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send; and no block is dropped for you, because none is kept for you.</li>
 <li data-opt="d">The Messages API has no such parameter.</li>
 </ul>
 </div>
@@ -477,12 +477,12 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <p><strong>Scenario:</strong> A travel booking assistant opens its system prompt with "Always confirm live availability before replying." Logs show <code>check_availability</code> firing on every turn, including questions about the cancellation policy. The tool definitions are detailed and clearly differentiated.</p>
 <p><strong>Question:</strong> What is the root cause?</p>
 <p data-opt="a">A) The <code>tools</code> array declares <code>check_availability</code> first, and the model falls back to the first entry when it hesitates.</p>
-<p data-opt="b">B) The unconditional wording binds the instruction to the closest matching tool; the fix is to say under which conditions availability must be confirmed.</p>
+<p data-opt="b">B) The unconditional wording binds the instruction to the closest matching tool, so it fires on every turn.</p>
 <p data-opt="c">C) The tool returns a large payload, so the model keeps calling it to refill its context.</p>
 <p data-opt="d">D) The instruction sits in the <code>system</code> field instead of the first <code>user</code> message, which weakens its precedence.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: unconditional wording in the system prompt</p>
-<p><strong>Why:</strong> the model reads "always" as a standing trigger and attaches it to the semantically nearest tool. Such keyword-sensitive instructions override even well-written tool definitions, which is why the scenario tells you those definitions are fine. Replacing a blanket instruction with explicit conditions is what removes the trigger.</p>
+<p><strong>Why:</strong> the model reads "always" as a standing trigger and attaches it to the semantically nearest tool. Such keyword-sensitive instructions override even well-written tool definitions, which is why the scenario tells you those definitions are fine. Replacing the blanket instruction with the conditions under which availability must be confirmed is what removes the trigger.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">There is no first-entry default; selection comes from the definitions and the system prompt.</li>
@@ -518,13 +518,13 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <div>
 <p><strong>Scenario:</strong> An invoice extraction tool lists <code>discount_pct</code> among its <code>required</code> properties, yet plenty of invoices grant no discount. Reviewers keep finding discount figures that appear nowhere on the invoice.</p>
 <p><strong>Question:</strong> What is happening, and what removes the cause?</p>
-<p data-opt="a">A) The API rejects the call as schema-invalid, so nothing reaches the pipeline.</p>
-<p data-opt="b">B) The model invents a figure to satisfy the constraint; make the property nullable with <code>"type": ["number", "null"]</code> and drop it from the mandatory list.</p>
+<p data-opt="a">A) The API validates the payload against the schema and rejects the call as invalid, so nothing reaches the pipeline.</p>
+<p data-opt="b">B) The model invents a figure to satisfy the constraint; make the property nullable and no longer mandatory.</p>
 <p data-opt="c">C) The model leaves the property empty, and the pipeline should read an empty value as absent.</p>
 <p data-opt="d">D) The model skips the tool call whenever a mandatory property has no source value.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: the model invents a figure, so make the property nullable and optional</p>
-<p><strong>Why:</strong> a mandatory property leaves the model choosing between breaking the schema and making something up, and it makes something up. Declaring the property nullable and optional gives it an honest way to report absence.</p>
+<p><strong>Why:</strong> a mandatory property leaves the model choosing between breaking the schema and making something up, and it makes something up. Declaring it <code>"type": ["number", "null"]</code> and taking it out of <code>required</code> gives the model an honest way to report absence.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Validation covers schema conformance, never truthfulness: an invented number conforms perfectly.</li>

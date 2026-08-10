@@ -535,13 +535,13 @@ Note : la couverture de cette section est limitée.
 <div>
 <p><strong>Scenario:</strong> On a long travel rebooking case, the passenger accepted a fare-difference credit of $214.50 on booking <code>BK-4471</code>. Eighteen turns later, after the history has been summarized twice, the agent offers "a credit" with no amount and cannot name the booking.</p>
 <p><strong>Question:</strong> What prevents the loss?</p>
-<p data-opt="a">A) Extract the transactional facts — passenger ID, booking reference, amount, status — into a <code>case facts</code> block injected in every prompt, outside the summarized history.</p>
-<p data-opt="b">B) Move to a model with a wider context window so summarization is never triggered.</p>
-<p data-opt="c">C) Run <code>/compact</code> less often, so fewer details get compressed.</p>
-<p data-opt="d">D) Add few-shot examples of summaries that keep every amount.</p>
+<p data-opt="a">A) Hold the transactional facts in a <code>case facts</code> block injected in every prompt, outside the summarized history.</p>
+<p data-opt="b">B) Move to a model with a wider context window, so summarization never runs on a case this long.</p>
+<p data-opt="c">C) Run <code>/compact</code> less often, so that fewer of the case details pass through a compression step.</p>
+<p data-opt="d">D) Add few-shot examples of summaries that preserve every amount and every reference number in the case.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: a case facts block held outside the summarized history</p>
-<p><strong>Why:</strong> progressive summarization compresses by nature, and amounts, dates and booking references are exactly what it dilutes. Facts kept in a block that is re-injected every turn sit out of the compressor's reach.</p>
+<p><strong>Why:</strong> the facts worth pinning are the transactional ones — passenger identity, booking reference, amount, status. Progressive summarization compresses by nature, and those are exactly what it dilutes. Kept in a block that is re-injected every turn, they sit out of the compressor's reach.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Postpones the deadline without protecting anything; a longer case reaches the wider limit too.</li>
@@ -556,9 +556,9 @@ Note : la couverture de cette section est limitée.
 <div>
 <p><strong>Scenario:</strong> A grocery delivery customer writes: "Unbelievable, the whole chilled order turned up warm again." No human has been asked for, and the goodwill credit that settles the case is within the agent's authority.</p>
 <p><strong>Question:</strong> What is the correct behavior?</p>
-<p data-opt="a">A) Escalate right away; wording that strong predicts an unsatisfactory outcome.</p>
+<p data-opt="a">A) Escalate right away, since wording that strong is a reliable predictor of an outcome nobody will accept.</p>
 <p data-opt="b">B) Acknowledge the frustration, offer the credit, and escalate only if the customer then asks for a person.</p>
-<p data-opt="c">C) Score the message with a sentiment model and escalate above the configured threshold.</p>
+<p data-opt="c">C) Score the message with a sentiment model, and escalate whenever it lands above the configured threshold.</p>
 <p data-opt="d">D) Skip the emotional content and issue the credit, since that is what actually fixes the order.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: acknowledge, resolve, escalate only on reiteration</p>
@@ -577,13 +577,13 @@ Note : la couverture de cette section est limitée.
 <div>
 <p><strong>Scenario:</strong> A due-diligence subagent queries three registries. Court records return eleven filings, the sanctions list returns no matches, and the corporate registry connector returns a connection timeout. The subagent reports the last two identically, as "source failure".</p>
 <p><strong>Question:</strong> How should these outcomes reach the coordinator?</p>
-<p data-opt="a">A) Merge the three into one source-coverage percentage for the run.</p>
+<p data-opt="a">A) Merge the three outcomes into a single source-coverage percentage for the run, so the coordinator sees one number.</p>
 <p data-opt="b">B) Report both as failures, so the coordinator retries both and stays on the safe side.</p>
-<p data-opt="c">C) Separate the access failure (the timeout never completed, so a retry decision is open) from the valid empty answer (the query completed and matched nothing, which is coverage information).</p>
-<p data-opt="d">D) Report both as successes with empty result sets, so the run is not interrupted.</p>
+<p data-opt="c">C) Separate the access failure from the valid empty answer, and report each under its own outcome type.</p>
+<p data-opt="d">D) Report both as successes with empty result sets, so a slow connector never interrupts the run.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: an access failure and a valid empty answer are different things</p>
-<p><strong>Why:</strong> the timeout means the question was never answered; no matches means it was answered and the answer is "nothing here". The structured error the coordinator needs carries <code>failure_type</code>, the attempted query, <code>partial_results</code> and alternatives, so it can retry, requery, or annotate the gap.</p>
+<p><strong>Why:</strong> the timeout means the question was never answered, so a retry decision is still open; no matches means it was answered and the answer is "nothing here", which is coverage information. The structured error the coordinator needs carries <code>failure_type</code>, the attempted query, <code>partial_results</code> and alternatives, so it can retry, requery, or annotate the gap.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">A single percentage destroys exactly the distinction the coordinator has to act on.</li>
@@ -598,13 +598,13 @@ Note : la couverture de cette section est limitée.
 <div>
 <p><strong>Scenario:</strong> A clinical records extraction pipeline reports 94% accuracy across all documents and all fields. The team wants to drop human review for everything the pipeline handles.</p>
 <p><strong>Question:</strong> What has to be established first?</p>
-<p data-opt="a">A) Break the figure down by document type and by field with stratified random sampling, and confirm the level holds in every segment.</p>
-<p data-opt="b">B) Nothing: the figure already clears the bar agreed with the business.</p>
-<p data-opt="c">C) Re-measure the same aggregate on a bigger sample to tighten its confidence interval.</p>
-<p data-opt="d">D) Train a dedicated classifier that flags the extractions most likely to be wrong.</p>
+<p data-opt="a">A) Break the figure down by document type and by field, and confirm the level holds in every segment.</p>
+<p data-opt="b">B) Nothing further: the figure already clears the accuracy bar the business agreed to, so automation can proceed.</p>
+<p data-opt="c">C) Re-measure the same aggregate on a bigger sample, so its confidence interval tightens before the team relies on it.</p>
+<p data-opt="d">D) Train a dedicated classifier that flags the extractions most likely to be wrong, and review only those.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: break it down by document type and by field before automating</p>
-<p><strong>Why:</strong> an average hides segments that perform far worse — faxed handwritten intake forms at 62%, the <code>insurer_member_id</code> field at 58% — while the headline stays reassuring. Segment-level measurement is the precondition for reducing review, not a follow-up to it.</p>
+<p><strong>Why:</strong> an average hides segments that perform far worse — faxed handwritten intake forms at 62%, the <code>insurer_member_id</code> field at 58% — while the headline stays reassuring. The breakdown holds only if each segment is drawn by stratified random sampling, and that segment-level measurement is the precondition for reducing review, not a follow-up to it.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Accepts the exact reasoning the scenario is built to challenge.</li>
@@ -619,13 +619,13 @@ Note : la couverture de cette section est limitée.
 <div>
 <p><strong>Scenario:</strong> A synthesis agent receives two readmission rates for the same procedure: 9.4% from a 2022 national registry built on claims data, and 6.1% from a 2025 hospital survey. Both sources are credible and the methods differ.</p>
 <p><strong>Question:</strong> What goes into the report?</p>
-<p data-opt="a">A) The more recent figure, with the older one dropped.</p>
-<p data-opt="b">B) The average of the two, labeled as an estimate.</p>
-<p data-opt="c">C) Neither, since contradictory data is not reportable.</p>
-<p data-opt="d">D) Both values with full attribution — source, date, method — flagged as a conflict for the coordinator or the reader to resolve.</p>
+<p data-opt="a">A) The more recent figure alone, since the newer measurement supersedes the older one.</p>
+<p data-opt="b">B) The average of the two, labeled as a pooled estimate so the reader sees one figure.</p>
+<p data-opt="c">C) Neither figure, since reporting numbers that contradict each other would mislead the reader.</p>
+<p data-opt="d">D) Both values with full attribution, flagged as a conflict for the reader to resolve.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: keep both values, attributed, and flag the conflict</p>
-<p><strong>Why:</strong> conflicting statistics from credible sources get annotated, not silently resolved. The dates and the methodological gap are part of the finding: a claims-based count and a self-reported survey three years apart may not even be measuring the same thing.</p>
+<p><strong>Why:</strong> conflicting statistics from credible sources get annotated, not silently resolved. Full attribution means each value travels with its source, its date and its method, and the flag reaches the coordinator as well as the reader. The dates and the methodological gap are part of the finding: a claims-based count and a self-reported survey three years apart may not even be measuring the same thing.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Recency alone is an arbitrary tie-break, and it deletes valid evidence.</li>
@@ -640,13 +640,13 @@ Note : la couverture de cette section est limitée.
 <div>
 <p><strong>Scenario:</strong> An incident-response agent is 80 turns into an outage investigation and close to the context limit. The opening turns hold the agreed rollback boundary and the mitigation the team explicitly ruled out.</p>
 <p><strong>Question:</strong> Which strategy keeps the session alive without losing those decisions?</p>
-<p data-opt="a">A) Run <code>/compact</code> now and carry on.</p>
-<p data-opt="b">B) Raise <code>max_tokens</code> so more fits.</p>
-<p data-opt="c">C) Summarize the older turns progressively, and hold the binding decisions in a <code>case facts</code> block outside the summarized history.</p>
-<p data-opt="d">D) Start a fresh session and rebuild the picture from scratch.</p>
+<p data-opt="a">A) Run <code>/compact</code> now and carry on, trusting the summary to preserve the decisions that matter.</p>
+<p data-opt="b">B) Raise <code>max_tokens</code>, so the session has room for more turns before it hits the limit.</p>
+<p data-opt="c">C) Summarize the older turns progressively, and keep the binding decisions in a <code>case facts</code> block outside it.</p>
+<p data-opt="d">D) Start a fresh session and rebuild the picture from scratch, so the window starts empty for the outage.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: progressive summarization plus an external case facts block</p>
-<p><strong>Why:</strong> summarization buys context budget, the persistent block protects what must not be diluted. Only the pair delivers both session longevity and intact decisions.</p>
+<p><strong>Why:</strong> summarization buys context budget, the persistent block protects what must not be diluted — here the agreed rollback boundary and the mitigation the team ruled out. Only the pair delivers both session longevity and intact decisions.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Compaction on its own dilutes precisely the decisions you are trying to keep.</li>
@@ -663,12 +663,12 @@ Note : la couverture de cette section est limitée.
 <p><strong>Question:</strong> Which two responses does the escalation policy require here?</p>
 <p data-opt="a">A) Escalate on the policy gap the discount request falls into.</p>
 <p data-opt="b">B) Escalate because the ticket is long and the window is filling up.</p>
-<p data-opt="c">C) Ask for a further identifier — contract number or billing domain — before acting on any of the three accounts.</p>
+<p data-opt="c">C) Ask for a discriminating identifier before acting on any of the three accounts.</p>
 <p data-opt="d">D) Pick the account with the most recent renewal, as the likeliest match.</p>
 <p data-opt="e">E) Score the customer's tone and escalate if it reads negative.</p>
 <hr>
 <p class="correct" data-answer="a c">Answers: the policy gap, and the ambiguous account match</p>
-<p><strong>Why:</strong> policy silence on the case is a reliable trigger, because granting the discount is a commercial decision nobody delegated. Multiple matches call for a discriminating identifier, never a guess: acting on the wrong company's contract is the failure that identity checks exist to prevent.</p>
+<p><strong>Why:</strong> policy silence on the case is a reliable trigger, because granting the discount is a commercial decision nobody delegated. Multiple matches call for a discriminating identifier — a contract number, a billing domain — never a guess: acting on the wrong company's contract is the failure that identity checks exist to prevent.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">A filling window is a technical constraint with technical remedies, not a business reason to involve a human.</li>
@@ -683,13 +683,13 @@ Note : la couverture de cette section est limitée.
 <div>
 <p><strong>Scenario:</strong> Deep into an audit of a legacy inventory module, the agent answers that "stock reconciliation jobs usually follow the observer pattern", although it had located <code>StockLedgerSync</code> and its callers an hour earlier. The investigation has to continue on the same files.</p>
 <p><strong>Question:</strong> Which combination treats the cause?</p>
-<p data-opt="a">A) Raise <code>max_tokens</code> so the answers carry more detail.</p>
-<p data-opt="b">B) Have the agent write its findings to a scratchpad file it rereads later, and delegate the verbose discovery phases to a subagent that returns a summary only.</p>
-<p data-opt="c">C) Rerun the exploration in a clean session, keeping nothing.</p>
-<p data-opt="d">D) Tell the agent to concentrate on the real code and cite its sources.</p>
+<p data-opt="a">A) Raise <code>max_tokens</code>, so the answers have room to carry the detail that went missing.</p>
+<p data-opt="b">B) Have the agent write findings to a scratchpad file it rereads, and delegate verbose discovery to a subagent.</p>
+<p data-opt="c">C) Rerun the exploration in a clean session, keeping nothing, so the window is uncluttered again.</p>
+<p data-opt="d">D) Tell the agent to concentrate on the real code it read and to cite its sources for every claim.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: a scratchpad it rereads, plus delegation to a subagent</p>
-<p><strong>Why:</strong> reaching for a "typical pattern" instead of the class it actually read is the signature of context degradation. The two remedies are complementary: the scratchpad makes findings readable again independently of the window, and delegation keeps verbose discovery output out of the main thread in the first place.</p>
+<p><strong>Why:</strong> reaching for a "typical pattern" instead of the class it actually read is the signature of context degradation. The two remedies are complementary: the scratchpad makes findings readable again independently of the window, and a subagent that hands back a summary only keeps verbose discovery output out of the main thread in the first place.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">That parameter bounds answer length; it has no effect on what the agent still holds.</li>
@@ -705,12 +705,12 @@ Note : la couverture de cette section est limitée.
 <p><strong>Scenario:</strong> A loan application extraction pipeline handles 4,200 documents a day. Your single reviewer gets through roughly 150 of them, and you want that capacity to earn its keep.</p>
 <p><strong>Question:</strong> How should review be routed?</p>
 <p data-opt="a">A) Emit one confidence score per document and review the lowest-scoring ones until the reviewer runs out of day.</p>
-<p data-opt="b">B) Draw the reviewed documents at random each day, for an unbiased sample.</p>
-<p data-opt="c">C) Emit confidence per field, calibrate the threshold against a labeled validation set, and route the fields below it along with documents whose source is ambiguous or self-contradictory.</p>
-<p data-opt="d">D) Have the model rate the quality of its own extraction and review whatever it rates poorly.</p>
+<p data-opt="b">B) Draw the reviewed documents at random each day, so the sample stays unbiased and the error rate it measures is trustworthy.</p>
+<p data-opt="c">C) Emit confidence per field, calibrate the threshold on labeled data, and route the fields below it plus the ambiguous sources.</p>
+<p data-opt="d">D) Have the model rate the quality of its own extraction, and route whatever it rates poorly to the reviewer.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: per-field confidence, a threshold calibrated on labeled data, and the ambiguous sources</p>
-<p><strong>Why:</strong> field granularity spends the reviewer where the doubt is — a form whose only shaky value is <code>employer_tax_id</code> does not need a full reread. And a threshold means nothing until it has been set against ground truth: the labeled set is what says which confidence level carries an acceptable real error rate.</p>
+<p><strong>Why:</strong> field granularity spends the reviewer where the doubt is — a form whose only shaky value is <code>employer_tax_id</code> does not need a full reread. A threshold means nothing until it has been set against a labeled validation set: ground truth is what says which confidence level carries an acceptable real error rate. Sources that are ambiguous or self-contradictory earn a look whatever their score.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">One score per document averages the safe fields with the doubtful ones, so it queues near-perfect documents and waves through a single critical field.</li>

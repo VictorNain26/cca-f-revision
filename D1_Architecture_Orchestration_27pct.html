@@ -565,18 +565,18 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <div>
 <p><strong>Scenario:</strong> Last month a session named <code>cost-sweep</code> mapped how your infrastructure modules allocate spend. Since then the module tree was restructured: directories renamed, modules deleted, the billing exporter rewritten. Nearly every file that session read is gone or moved, though its conclusions about which workloads dominate the bill still hold.</p>
 <p><strong>Question:</strong> How should you pick the work back up?</p>
-<p data-opt="a">A) Resume with <code>--resume cost-sweep</code> and carry on where you stopped.</p>
-<p data-opt="b">B) Start a fresh session and inject a structured summary of the conclusions that still hold.</p>
-<p data-opt="c">C) Use <code>fork_session</code> so the earlier analysis stays available for comparison.</p>
-<p data-opt="d">D) Re-explore the infrastructure from scratch and set the earlier findings aside.</p>
+<p data-opt="a">A) Resume with <code>--resume cost-sweep</code> and carry on, sparing you the mapping work.</p>
+<p data-opt="b">B) Start a fresh session and inject a structured summary of the surviving conclusions.</p>
+<p data-opt="c">C) Use <code>fork_session</code> so the earlier analysis stays available alongside the new tree.</p>
+<p data-opt="d">D) Re-explore the infrastructure from scratch and set the earlier findings aside as unreliable.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: a fresh session seeded with a structured summary</p>
 <p><strong>Why:</strong> resumption pays off while the stored tool results still describe reality. Here they describe files that no longer exist, so replaying them makes the agent reason about dead paths. A summary keeps what survived the restructure and carries nothing stale.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Resuming reloads reads of files that were renamed or deleted, which is exactly the context you want to drop.</li>
-<li data-opt="c">Forking explores two directions from one shared baseline; it does not make stale results any fresher.</li>
-<li data-opt="d">Starting over throws away conclusions that are still true.</li>
+<li data-opt="a">The mapping it spares you is the very part that went stale: resuming reloads reads of files that were renamed or deleted, which is exactly the context you want to drop.</li>
+<li data-opt="c">Forking explores two directions from one shared baseline; keeping the old analysis beside the new tree does not make stale results any fresher.</li>
+<li data-opt="d">Starting over throws away conclusions that are still true. The file reads went stale, not the findings they supported.</li>
 </ul>
 </div>
 </details>

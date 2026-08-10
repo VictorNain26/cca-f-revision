@@ -504,13 +504,13 @@ jobs:
 <div>
 <p><strong>Scenario:</strong> Your <code>/license-audit</code> skill walks the dependency tree and prints every package it inspects before reaching its verdict. Reviewers want the verdict, but once the skill has run the main session drifts off the work it was doing.</p>
 <p><strong>Question:</strong> What fixes it?</p>
-<p data-opt="a">A) <code>context: fork</code>, so the skill runs in an isolated subagent and only its result comes back.</p>
+<p data-opt="a">A) <code>context: fork</code>, so only the skill's verdict returns to the main session.</p>
 <p data-opt="b">B) An added line in the skill body telling it to stay brief.</p>
-<p data-opt="c">C) A follow-up <code>/compact</code> after every audit.</p>
-<p data-opt="d">D) One skill per package manager, replacing the single <code>.claude/skills/license-audit/SKILL.md</code>.</p>
+<p data-opt="c">C) A follow-up <code>/compact</code> after every audit, to clear the crowded window.</p>
+<p data-opt="d">D) One skill per package manager, replacing the single <code>.claude/skills/license-audit/SKILL.md</code>, so each run stays shorter.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: run the skill in a forked context</p>
-<p><strong>Why:</strong> the intermediate output is worth producing, it simply belongs somewhere other than the main conversation. A forked context keeps it inside the subagent and returns only the conclusion.</p>
+<p><strong>Why:</strong> the intermediate output is worth producing, it simply belongs somewhere other than the main conversation. A forked context runs the whole walk inside an isolated subagent and hands back only the conclusion, so the session never carries the package-by-package trace.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Asks the model to write less rather than to write elsewhere, with no guarantee either way.</li>
@@ -569,12 +569,12 @@ jobs:
 <p><strong>Question:</strong> Which two moves deliver that?</p>
 <p data-opt="a">A) Commit it as <code>.claude/skills/a11y-audit/SKILL.md</code> with <code>context: fork</code> in its frontmatter.</p>
 <p data-opt="b">B) Keep it as a personal <code>~/.claude/skills/a11y-audit/SKILL.md</code> so you can iterate without disturbing anyone.</p>
-<p data-opt="c">C) Invoke it by name at the terminal, and from the pipeline through <code>claude -p</code> with <code>--output-format json</code> so the next step can act on the result.</p>
+<p data-opt="c">C) Invoke it by name at the terminal, and headless from the pipeline through <code>claude -p</code>.</p>
 <p data-opt="d">D) Paste the audit steps into <code>~/.claude/CLAUDE.md</code> so every session carries them.</p>
-<p data-opt="e">E) Fire it from a <code>PostToolUse</code> hook after each file write.</p>
+<p data-opt="e">E) Fire it from a <code>PostToolUse</code> hook after each write, so nobody has to remember it.</p>
 <hr>
 <p class="correct" data-answer="a c">Answers: commit the forked skill with the repository, and invoke it by name locally or headless from the pipeline</p>
-<p><strong>Why:</strong> a committed skill meets all three requirements at once — versioned, so everyone gets it at clone time; forked, so its trace stays out of the session; and reachable from both sides, by name at the terminal and headless in the pipeline.</p>
+<p><strong>Why:</strong> a committed skill meets all three requirements at once — versioned, so everyone gets it at clone time; forked, so its trace stays out of the session; and reachable from both sides, by name at the terminal and headless in the pipeline, where <code>--output-format json</code> hands the next step something it can act on.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">User scope is private and outside version control, which is the one requirement it cannot meet.</li>
