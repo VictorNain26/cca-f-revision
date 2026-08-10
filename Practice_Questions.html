@@ -398,8 +398,8 @@
 <div>
 <p><strong>Scenario:</strong> Your three MCP tools return dates differently: <code>get_customer</code> emits Unix timestamps, <code>lookup_order</code> emits ISO 8601 strings, and the legacy billing tool emits numeric status codes. The agent regularly miscomputes whether an order is still inside the 30-day return window.</p>
 <p><strong>Question:</strong> What is the most reliable way to fix this?</p>
-<p data-opt="a">A) Add few-shot examples showing correct conversions from each of the three formats.</p>
-<p data-opt="b">B) Ask the model to call a <code>convert_date</code> tool whenever it encounters an unfamiliar timestamp.</p>
+<p data-opt="a">A) Add few-shot examples showing correct conversions from each of the three formats, so the model has a worked pattern to follow.</p>
+<p data-opt="b">B) Ask the model to call a <code>convert_date</code> tool whenever it encounters an unfamiliar timestamp, keeping conversion in one place.</p>
 <p data-opt="c">C) Implement a <code>PostToolUse</code> hook that normalises the tool results into a single date and status representation before the model sees them.</p>
 <p data-opt="d">D) Add a section to the system prompt explaining each tool's date format and asking the model to convert carefully.</p>
 <hr>
@@ -408,7 +408,7 @@
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Examples make the conversion probable rather than exact: the model still performs the arithmetic itself, on a problem that has one right answer, and the examples occupy context on every request whether or not a date appears.</li>
-<li data-opt="b">Adds a round trip per date and still depends on the model noticing that a conversion is needed.</li>
+<li data-opt="b">The logic does end up in one place, but reaching it depends on the model noticing that a conversion is needed, and every date it does notice costs an extra round trip.</li>
 <li data-opt="d">Prompt text describing three formats leaves the same conversion to the model on every tool result, and pays for the description on every request — an instruction where a transformation is what is required.</li>
 </ul>
 </div>
@@ -420,15 +420,15 @@
 <p><strong>Scenario:</strong> Company policy caps agent-issued refunds at $500; anything above must go to a human. The system prompt states the rule, but audit logs show four refunds above the cap were processed last quarter.</p>
 <p><strong>Question:</strong> What change guarantees the policy holds?</p>
 <p data-opt="a">A) A hook that intercepts the outgoing <code>process_refund</code> call, blocks it when the amount exceeds $500, and redirects to the escalation workflow.</p>
-<p data-opt="b">B) A post-hoc audit job that flags refunds above $500 the next morning for reversal.</p>
+<p data-opt="b">B) A post-hoc audit job that flags refunds above $500 the next morning, so every breach is caught and corrected.</p>
 <p data-opt="c">C) A stronger system prompt that repeats the $500 limit in capital letters and warns about compliance consequences.</p>
-<p data-opt="d">D) Few-shot examples showing the agent escalating a $750 refund and a $1,200 refund.</p>
+<p data-opt="d">D) Few-shot examples showing the agent escalating a $750 refund and a $1,200 refund, so escalation becomes the behaviour it imitates.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Intercept the tool call and block it</p>
 <p><strong>Why:</strong> business rules that must hold every time require deterministic enforcement. A tool-call interception hook evaluates the actual arguments and can refuse the action, then route to escalation — prompt text cannot (Task 1.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Detects the breach after the money has left. Reversal is not prevention, and the policy is about not issuing the refund.</li>
+<li data-opt="b">Catching every breach is not the same as preventing one: the money has already left, reversal depends on the customer co-operating, and the policy is about not issuing the refund in the first place.</li>
 <li data-opt="c">Louder wording lowers the failure rate without removing it. The rule was already stated in the system prompt, and the breaches recorded last quarter are the evidence that "usually complies" is the wrong standard here.</li>
 <li data-opt="d">Demonstrations steer the agent towards escalating without ever making the cap impossible to cross; a demonstrated behaviour remains probabilistic, and this policy needs a guarantee.</li>
 </ul>
@@ -463,16 +463,16 @@
 <p><strong>Question:</strong> How should the tool report this?</p>
 <p data-opt="a">A) A successful response with <code>refund_amount: 0</code>, letting the agent infer that the refund was declined.</p>
 <p data-opt="b">B) The same error, plus instructions in the system prompt telling the agent never to retry refund errors.</p>
-<p data-opt="c">C) A transient error, so that the agent retries and eventually escalates to a human.</p>
-<p data-opt="d">D) A structured business error with <code>retriable: false</code> and a customer-friendly explanation of the 30-day window, so the agent can explain the outcome and offer alternatives.</p>
+<p data-opt="c">C) A transient error, so the agent retries and eventually escalates to a human who can override the window.</p>
+<p data-opt="d">D) A structured business error carrying <code>retriable: false</code> and a customer-friendly explanation of the 30-day window.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: A business error, explicitly non-retryable, with a usable explanation</p>
-<p><strong>Why:</strong> a policy refusal is a definitive outcome, not a fault. Marking it non-retryable stops the wasted attempts, and the customer-friendly text gives the agent something accurate to say instead of inventing an outage (Task 2.2).</p>
+<p><strong>Why:</strong> a policy refusal is a definitive outcome, not a fault. Marking it non-retryable stops the wasted attempts, and the customer-friendly text gives the agent something accurate to say — and an alternative to offer — instead of inventing an outage (Task 2.2).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Makes a refusal indistinguishable from a zero-value success, which is precisely the ambiguity the <code>isError</code> flag exists to remove.</li>
 <li data-opt="b">Leaves the tool's contract broken and patches it with a prompt rule that applies to <em>all</em> refund errors, including the genuinely transient ones.</li>
-<li data-opt="c">Mislabels a deterministic refusal as a fault — retrying will fail identically every time.</li>
+<li data-opt="c">Mislabels a deterministic refusal as a fault — retrying will fail identically every time, and the escalation arrives only after the customer has watched the agent flounder.</li>
 </ul>
 </div>
 </details>
@@ -482,10 +482,10 @@
 <div>
 <p><strong>Scenario:</strong> In a long billing dispute, the customer agreed early on to a partial refund of $89.99 on order ORD-67890. Thirty turns later, after the history has been summarised twice, the agent offers "a partial refund" without an amount and cannot recall the order number.</p>
 <p><strong>Question:</strong> What is the correct fix?</p>
-<p data-opt="a">A) Raise the summarisation threshold so history is compressed less often.</p>
-<p data-opt="b">B) Instruct the summariser to preserve all numbers when it compresses the history.</p>
-<p data-opt="c">C) Maintain a case facts block — customer ID, order ID, amount, status — included in every prompt, outside the summarised history.</p>
-<p data-opt="d">D) Move to a model with a larger context window so summarisation is never triggered.</p>
+<p data-opt="a">A) Raise the summarisation threshold so history is compressed less often and the agreed terms survive longer.</p>
+<p data-opt="b">B) Instruct the summariser to preserve every identifier and amount verbatim when it compresses the history.</p>
+<p data-opt="c">C) Maintain a case facts block — customer ID, order ID, amount, status — re-injected into every prompt.</p>
+<p data-opt="d">D) Move to a model with a larger context window so summarisation is never triggered at all.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: A case facts block outside the summarised history</p>
 <p><strong>Why:</strong> progressive summarisation compresses by nature, and amounts, dates and stated expectations are exactly what it dilutes. Extracting those facts into a persistent block that is re-injected every turn puts them out of reach of compression (Task 5.1).</p>
@@ -650,18 +650,18 @@
 <div>
 <p><strong>Scenario:</strong> Your system prompt opens with "Always verify the customer's identity." You observe <code>get_customer</code> being called on every turn, including when the customer only asks about store opening hours. The tool descriptions are detailed and well differentiated.</p>
 <p><strong>Question:</strong> What is the root cause?</p>
-<p data-opt="a">A) The agent has too many tools and defaults to the first one in the list.</p>
-<p data-opt="b">B) The system prompt wording creates an unintended association with <code>get_customer</code>; the fix is to state <em>when</em> verification is required rather than "always".</p>
-<p data-opt="c">C) <code>get_customer</code>'s description is too broad and needs narrowing.</p>
-<p data-opt="d">D) <code>tool_choice</code> is set to <code>"any"</code>, forcing a tool call on every turn.</p>
+<p data-opt="a">A) The agent has too many tools and falls back to the first one in the list whenever it hesitates.</p>
+<p data-opt="b">B) The system prompt wording creates an unintended association with <code>get_customer</code>; the fix is to state <em>when</em> verification is actually required.</p>
+<p data-opt="c">C) <code>get_customer</code>'s description is too broad, so the model reaches for it on requests that never involve an account.</p>
+<p data-opt="d">D) <code>tool_choice</code> is set to <code>"any"</code>, forcing a tool call on every turn even when the question needs none.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Keyword-sensitive system prompt wording</p>
-<p><strong>Why:</strong> the word "always" reads as an unconditional trigger, and the model attaches it to the semantically closest tool. Keyword-sensitive instructions can override well-written tool descriptions — which is why the scenario is careful to tell you the descriptions are good (Task 2.1).</p>
+<p><strong>Why:</strong> the word "always" reads as an unconditional trigger, and the model attaches it to the semantically closest tool. Keyword-sensitive instructions can override well-written tool descriptions — which is why the scenario is careful to tell you the descriptions are good. The repair is to say <em>when</em> verification applies rather than "always" (Task 2.1).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">There is no "first tool in the list" default; selection is driven by descriptions and the system prompt.</li>
-<li data-opt="c">Contradicts the stated facts: the descriptions are detailed and differentiated.</li>
-<li data-opt="d">Nothing indicates a forced <code>tool_choice</code>, and the default is <code>"auto"</code>.</li>
+<li data-opt="a">There is no positional fallback to hesitate into: selection is driven by the tool descriptions and the system prompt, never by a tool's rank in the list.</li>
+<li data-opt="c">Contradicts the stated facts: the descriptions are detailed and well differentiated, so breadth is not what drags the tool onto turns about opening hours.</li>
+<li data-opt="d">Would indeed force a call on every turn, but nothing in the scenario points to a forced <code>tool_choice</code>, and the default is <code>"auto"</code>.</li>
 </ul>
 </div>
 </details>
@@ -698,18 +698,18 @@
 <div>
 <p><strong>Scenario:</strong> Your team's conventions — error handling style, test naming, import ordering — are respected on every existing developer's machine. A developer who joined last week reports that Claude Code ignores all of them. The conventions were written by the tech lead in <code>~/.claude/CLAUDE.md</code>.</p>
 <p><strong>Question:</strong> What is the diagnosis and fix?</p>
-<p data-opt="a">A) The new developer's Claude Code version is older; ask them to upgrade.</p>
-<p data-opt="b">B) The file is too long and is being truncated; split it before sharing.</p>
-<p data-opt="c">C) The new developer must run <code>/init</code> to generate their own configuration from the codebase.</p>
+<p data-opt="a">A) The new developer's Claude Code version is older and does not yet read the convention file; ask them to upgrade.</p>
+<p data-opt="b">B) The file is too long and is being silently truncated, which is why only the earlier rules survive; split it.</p>
+<p data-opt="c">C) The new developer must run <code>/init</code> to generate a configuration from the codebase, which will infer the conventions from existing code.</p>
 <p data-opt="d">D) The conventions live at user level, which is not shared through version control; move them to a project-level <code>CLAUDE.md</code> committed to the repository.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: User-level configuration is personal by definition</p>
 <p><strong>Why:</strong> <code>~/.claude/CLAUDE.md</code> applies to one user on one machine and is never distributed with the repository. Anything the whole team must follow belongs at project level, in version control (Task 3.1). Note the tell in the scenario: it works for everyone who was there when the file was written, and only for them.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">A version difference would not produce a clean split between long-standing developers and the new one.</li>
-<li data-opt="b">Length is not the issue; the file is not on that machine at all.</li>
-<li data-opt="c"><code>/init</code> would generate a fresh local file, not recover the team's conventions.</li>
+<li data-opt="a">No release of the tool can read a file that is not on the machine, and a version difference would not split cleanly between the long-standing developers and the one who joined last week.</li>
+<li data-opt="b">Truncation would degrade everyone equally rather than one person, and here nothing is being truncated: the file is not on that machine at all.</li>
+<li data-opt="c"><code>/init</code> writes a fresh local file from whatever the codebase happens to show, which is not the same as the conventions the tech lead wrote down, and nothing it produces reaches the rest of the team.</li>
 </ul>
 </div>
 </details>
@@ -720,17 +720,17 @@
 <p><strong>Scenario:</strong> Your monorepo holds four packages, each with its own standards documents already maintained by their owners (<code>docs/api-standards.md</code>, <code>docs/ui-standards.md</code>, and so on). You want each package's <code>CLAUDE.md</code> to carry the relevant standards without copying them, so that updates to the source documents propagate.</p>
 <p><strong>Question:</strong> Which mechanism fits?</p>
 <p data-opt="a">A) Use <code>@import</code> in each package's <code>CLAUDE.md</code> to reference the standards files that apply to it.</p>
-<p data-opt="b">B) Concatenate all four standards documents into the root <code>CLAUDE.md</code>.</p>
-<p data-opt="c">C) Create a skill per package whose <code>SKILL.md</code> contains the standards.</p>
-<p data-opt="d">D) Symlink each standards file into the package directory as <code>CLAUDE.md</code>.</p>
+<p data-opt="b">B) Concatenate all four standards documents into the root <code>CLAUDE.md</code> so every session sees them.</p>
+<p data-opt="c">C) Create a skill per package whose <code>SKILL.md</code> carries that package's standards, loaded only when invoked.</p>
+<p data-opt="d">D) Symlink each standards file into the package directory as <code>CLAUDE.md</code>, so source edits propagate automatically.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: <code>@import</code> the relevant standards files</p>
 <p><strong>Why:</strong> <code>@import</code> exists to keep <code>CLAUDE.md</code> modular by referencing external files rather than duplicating them, and it lets each package's maintainer include only what is relevant to their domain (Task 3.1).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Loads every package's standards into every session, which is both noisy and wasteful.</li>
-<li data-opt="c">Skills are invoked on demand; standards that should always apply to a package are not on-demand content.</li>
-<li data-opt="d">A filesystem trick that leaves no room for package-specific content alongside the import, and breaks on platforms without symlink support.</li>
+<li data-opt="b">Every session does see them, which is the cost: work touching one package pays for the other three, and the owners lose the file they maintain.</li>
+<li data-opt="c">Loading only on invocation is the wrong shape here — standards that govern every line written in a package must apply without anyone remembering to ask for them.</li>
+<li data-opt="d">Edits would propagate, but the symlink consumes the whole file: there is no room for package-specific content beside it, and it breaks on platforms without symlink support.</li>
 </ul>
 </div>
 </details>
@@ -761,18 +761,18 @@
 <div>
 <p><strong>Scenario:</strong> Your root <code>CLAUDE.md</code> has grown to 900 lines covering testing, API conventions, deployment, database migrations and code review. Developers report that Claude follows the sections near the top reliably and the rest inconsistently, and every session pays for the whole file.</p>
 <p><strong>Question:</strong> What is the most maintainable restructuring?</p>
-<p data-opt="a">A) Cut the file down to the twenty rules developers break most often.</p>
+<p data-opt="a">A) Cut the file down to the twenty rules developers break most often, so everything left is read reliably.</p>
 <p data-opt="b">B) Reorder the file so the most important sections are at the top and the least important at the bottom.</p>
-<p data-opt="c">C) Move the whole content into a single skill so it is only loaded when needed.</p>
-<p data-opt="d">D) Split it into topic-specific files under <code>.claude/rules/</code> — <code>testing.md</code>, <code>api-conventions.md</code>, <code>deployment.md</code> — with path scoping where a topic maps to a file pattern.</p>
+<p data-opt="c">C) Move the whole content into a single skill so the session pays for it only when it is actually needed.</p>
+<p data-opt="d">D) Split it into topic-specific files under <code>.claude/rules/</code> — <code>testing.md</code>, <code>api-conventions.md</code>, <code>deployment.md</code> — path-scoped where a topic maps to a file pattern.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Split into topic-specific rule files</p>
 <p><strong>Why:</strong> <code>.claude/rules/</code> exists as the alternative to a monolithic <code>CLAUDE.md</code>. Topic files are separately maintainable, and those that map to a file pattern can be path-scoped so they load only when relevant (Tasks 3.1 and 3.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Reordering manages the symptom — position effects — while leaving 900 lines loaded every time.</li>
-<li data-opt="c">A skill requires invocation; universal standards must apply without anyone remembering to ask.</li>
-<li data-opt="a">Deleting real conventions to fit a budget solves the wrong problem when scoping is available.</li>
+<li data-opt="c">The saving is real and so is the price: a skill only runs when someone invokes it, and universal standards must apply without anyone remembering to ask.</li>
+<li data-opt="a">What survives would indeed be read reliably, but the method is to delete real conventions to fit a budget — a loss, when scoping keeps all of them and still loads only what is relevant.</li>
 </ul>
 </div>
 </details>
@@ -782,18 +782,18 @@
 <div>
 <p><strong>Scenario:</strong> Your <code>/analyze-architecture</code> skill walks the dependency graph and prints hundreds of lines of intermediate findings. Developers like the final summary, but after running it the main session is saturated and subsequent answers degrade.</p>
 <p><strong>Question:</strong> Which frontmatter option addresses this?</p>
-<p data-opt="a">A) Wrapping the skill body in an instruction to "be concise and summarise aggressively".</p>
-<p data-opt="b">B) <code>argument-hint</code>, prompting the developer to narrow the scope before running.</p>
-<p data-opt="c">C) <code>context: fork</code>, so the skill runs in an isolated subagent context and only its result returns to the main conversation.</p>
-<p data-opt="d">D) <code>allowed-tools</code>, restricting the skill to read-only tools so it produces less output.</p>
+<p data-opt="a">A) Wrapping the skill body in an instruction to "be concise and summarise aggressively", so it prints less.</p>
+<p data-opt="b">B) <code>argument-hint</code>, prompting the developer to narrow the scope so the walk produces less output.</p>
+<p data-opt="c">C) <code>context: fork</code>, so the skill runs in an isolated subagent context and returns only its summary.</p>
+<p data-opt="d">D) <code>allowed-tools</code>, restricting the skill to read-only tools so it gathers less and prints less.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: <code>context: fork</code></p>
 <p><strong>Why:</strong> <code>context: fork</code> runs the skill in an isolated sub-agent context precisely so verbose output does not pollute the main session — the documented use case being exactly this kind of codebase analysis (Task 3.2).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">A prompt instruction gives no guarantee, and the intermediate findings are useful — they just belong elsewhere.</li>
-<li data-opt="b">Narrowing the scope reduces the volume without isolating it, and shifts the decision onto the developer.</li>
-<li data-opt="d"><code>allowed-tools</code> restricts what the skill may do, not where its output lands.</li>
+<li data-opt="b">A narrower walk does produce less, but the remainder still lands in the main session, and the judgement of how far to narrow is pushed onto the developer every time.</li>
+<li data-opt="d">Read-only tools still read, and reading is what generates the volume here: <code>allowed-tools</code> governs what the skill may do, never where its output lands.</li>
 </ul>
 </div>
 </details>
@@ -824,17 +824,17 @@
 <div>
 <p><strong>Scenario:</strong> Your <code>/new-endpoint</code> skill needs a resource name and an HTTP method. Developers frequently type <code>/new-endpoint</code> with nothing after it, and the skill either guesses or produces a generic stub.</p>
 <p><strong>Question:</strong> Which frontmatter field addresses this?</p>
-<p data-opt="a">A) <code>context: fork</code>, so the guessing happens in an isolated context.</p>
+<p data-opt="a">A) <code>context: fork</code>, so a wrong guess is thrown away with the isolated context instead of persisting.</p>
 <p data-opt="b">B) <code>argument-hint</code>, which prompts the developer for the required parameters when the skill is invoked without arguments.</p>
-<p data-opt="c">C) <code>description</code>, rewritten to explain the expected arguments.</p>
-<p data-opt="d">D) <code>allowed-tools</code>, restricting the skill until arguments are supplied.</p>
+<p data-opt="c">C) <code>description</code>, rewritten to spell out the expected arguments so the developer sees them before typing.</p>
+<p data-opt="d">D) <code>allowed-tools</code>, restricting the skill so it cannot generate anything until arguments are supplied.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: <code>argument-hint</code></p>
 <p><strong>Why:</strong> <code>argument-hint</code> exists to surface the required parameters at invocation time (Task 3.2). It converts a silent guess into an explicit prompt.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Addresses context isolation: <code>context: fork</code> runs the skill in a separate sub-agent context, which moves the guessing elsewhere without ever supplying the missing resource name and method.</li>
-<li data-opt="c">The description helps the model decide <em>whether</em> to use the skill; it does not prompt the developer at the moment of invocation.</li>
+<li data-opt="a">Addresses context isolation: discarding a bad guess is not the same as obtaining the resource name and method, so the developer still gets a generic stub, merely a tidier one.</li>
+<li data-opt="c">The description is read by the model when it decides <em>whether</em> to use the skill; nobody shows it to the developer as they type, so it cannot ask for what is missing.</li>
 <li data-opt="d">Addresses permissions: <code>allowed-tools</code> restricts which tools the skill may call, and it has no way to condition execution on the presence of arguments.</li>
 </ul>
 </div>
@@ -845,8 +845,8 @@
 <div>
 <p><strong>Scenario:</strong> You need to encode two things: (1) the team's naming and error-handling standards, which apply to every piece of code anyone writes, and (2) a twelve-step release-preparation procedure that runs roughly once a month.</p>
 <p><strong>Question:</strong> Where does each belong?</p>
-<p data-opt="a">A) Both in <code>CLAUDE.md</code>, so nothing depends on anyone remembering to invoke a skill.</p>
-<p data-opt="b">B) Both as skills, to keep <code>CLAUDE.md</code> small.</p>
+<p data-opt="a">A) Both in <code>CLAUDE.md</code>, so nothing depends on anyone remembering to invoke a skill at release time.</p>
+<p data-opt="b">B) Both as skills, to keep <code>CLAUDE.md</code> small and the base context cheap for every session.</p>
 <p data-opt="c">C) Standards in <code>CLAUDE.md</code> (always loaded, universal), release procedure as a skill (invoked on demand for a specific task).</p>
 <p data-opt="d">D) Standards as a skill, release procedure in <code>CLAUDE.md</code> so it is always in context before a release.</p>
 <hr>
@@ -854,8 +854,8 @@
 <p><strong>Why:</strong> the division is between always-loaded universal standards and on-demand task-specific workflows (Task 3.2). Applying the criterion — "does this apply to every session, or to one kind of task?" — separates the two cases cleanly.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Puts a twelve-step monthly procedure in every session's context, paying for it constantly.</li>
-<li data-opt="b">Makes universal standards depend on invocation, so ordinary code generation silently ignores them.</li>
+<li data-opt="a">The procedure is then loaded on release day and on every other day too: a twelve-step monthly workflow paid for in every session, for the sake of one afternoon a month.</li>
+<li data-opt="b">The base context does get cheaper, at the price of making universal standards depend on invocation, so ordinary code generation silently ignores them.</li>
 <li data-opt="d">Inverts both criteria at once.</li>
 </ul>
 </div>
@@ -908,18 +908,18 @@
 <div>
 <p><strong>Scenario:</strong> You are migrating a library across 45 files. The discovery phase — locating every call site, reading each one, checking which use the deprecated signature — produces a large volume of output, and by the time you reach implementation the session is degraded.</p>
 <p><strong>Question:</strong> How should you structure this?</p>
-<p data-opt="a">A) Run <code>/compact</code> after each file so the context never grows.</p>
-<p data-opt="b">B) Run the whole migration in direct execution, file by file, restarting the session whenever it degrades.</p>
-<p data-opt="c">C) Use plan mode for the investigation, delegating verbose discovery to the <code>Explore</code> subagent so only summaries return to the main conversation, then execute the planned change directly.</p>
-<p data-opt="d">D) Do the discovery manually outside Claude Code and paste a list of files into the session.</p>
+<p data-opt="a">A) Run <code>/compact</code> after every file so that the context never grows beyond what the next file needs.</p>
+<p data-opt="b">B) Run the whole migration in direct execution, file by file, restarting the session whenever it starts to degrade.</p>
+<p data-opt="c">C) Use plan mode for the investigation, delegating verbose discovery to the <code>Explore</code> subagent, then execute the planned change directly.</p>
+<p data-opt="d">D) Do the discovery manually outside Claude Code and paste a list of the affected files into the session.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Plan mode plus <code>Explore</code> for discovery, then direct execution</p>
 <p><strong>Why:</strong> this combines the two mechanisms the guide pairs for exactly this shape of task — plan mode for a change with architectural implications across 45 files, and the <code>Explore</code> subagent to isolate verbose discovery output and return summaries (Task 3.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Compaction is lossy and, applied after every file, will erode the migration plan itself.</li>
-<li data-opt="b">Restarts lose the accumulated understanding and repeat the discovery cost each time.</li>
-<li data-opt="d">Discards the tooling that makes the discovery reliable and reproducible.</li>
+<li data-opt="b">Each restart does clear the degradation, and also the accumulated understanding, so the discovery cost is paid again from scratch every time.</li>
+<li data-opt="d">Keeps the session clean by moving the expensive part onto you, and discards the tooling that makes discovery reliable and repeatable — a hand-built list is exactly the thing nobody will redo when the migration is revisited.</li>
 </ul>
 </div>
 </details>
@@ -930,8 +930,8 @@
 <p><strong>Scenario:</strong> You ask Claude to "normalise the legacy customer records into the new schema". Each run interprets "normalise" differently: one flattens nested addresses, another keeps them; one uppercases country codes, another does not. Your prose description has been rewritten twice without converging.</p>
 <p><strong>Question:</strong> What is the most effective next step?</p>
 <p data-opt="a">A) Provide two or three concrete input/output example pairs showing exactly what a normalised record looks like.</p>
-<p data-opt="b">B) Lower the temperature so the output becomes deterministic.</p>
-<p data-opt="c">C) Rewrite the instruction once more, longer and more precise.</p>
+<p data-opt="b">B) Lower the temperature so every run settles on the same interpretation of the instruction.</p>
+<p data-opt="c">C) Rewrite the instruction once more, longer and more precise than the two attempts before it.</p>
 <p data-opt="d">D) Ask the model to explain its interpretation before each run, and correct it each time.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Concrete input/output examples</p>
@@ -950,16 +950,16 @@
 <div>
 <p><strong>Scenario:</strong> You must add a caching layer to a service you have never worked on. You know roughly what you want but suspect there are considerations — invalidation, stampede protection, failure behaviour — that you have not thought through, and you would rather surface them before code exists.</p>
 <p><strong>Question:</strong> Which technique fits?</p>
-<p data-opt="a">A) Ask for three complete implementations and compare them.</p>
+<p data-opt="a">A) Ask for three complete implementations and compare them, letting the differences between them reveal the decisions that matter.</p>
 <p data-opt="b">B) The interview pattern: have Claude ask you questions to surface considerations you have not anticipated, before implementing.</p>
 <p data-opt="c">C) Ask for a list of caching best practices and apply the ones that seem relevant.</p>
-<p data-opt="d">D) Write the implementation, then request a review pass on the finished code.</p>
+<p data-opt="d">D) Write the implementation, then request a review pass that names everything the design overlooked.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: The interview pattern</p>
 <p><strong>Why:</strong> having the model ask questions first surfaces design considerations the developer had not anticipated — cache invalidation and failure modes being the guide's own examples — while changing the design is still cheap (Task 3.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Three implementations embody three unstated sets of assumptions; comparing them does not surface the assumptions.</li>
+<li data-opt="a">The differences show you where three answers diverge, not why: each embodies its own unstated assumptions, and comparing finished code never puts those assumptions into words you can weigh.</li>
 <li data-opt="c">A generic checklist is not calibrated to this service, and you are the one who must judge relevance — which is what you said you cannot yet do.</li>
 <li data-opt="d">Review after the fact is useful, but it finds problems once the design has already been committed to code.</li>
 </ul>
@@ -971,9 +971,9 @@
 <div>
 <p><strong>Scenario:</strong> A generated module has five problems. Three are independent — a typo in a log message, a missing null check, an unused import. Two interact: the retry logic and the timeout configuration are inconsistent with each other, and fixing either alone changes what the correct fix for the other is.</p>
 <p><strong>Question:</strong> How should you feed these back?</p>
-<p data-opt="a">A) Send all five one at a time, so each fix can be verified in isolation.</p>
-<p data-opt="b">B) Send all five in one message, to minimise round trips.</p>
-<p data-opt="c">C) Send the two interacting issues one at a time, since they are the most delicate.</p>
+<p data-opt="a">A) Send all five one at a time, so each fix can be verified in isolation before the next.</p>
+<p data-opt="b">B) Send all five in one message, so the model sees the whole picture and round trips stay low.</p>
+<p data-opt="c">C) Send the two interacting issues one at a time, since they are the most delicate of the five.</p>
 <p data-opt="d">D) Send the two interacting issues together in a single detailed message, and iterate on the three independent ones separately.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Interacting issues together, independent issues separately</p>
@@ -982,7 +982,7 @@
 <ul>
 <li data-opt="a">Applies sequential iteration to all five and so splits the interacting pair, which is exactly the case that cannot be fixed one side at a time.</li>
 <li data-opt="b">Applies one message to all five and so merges the three independent problems, which are cleaner to verify separately — round-trip count is not the criterion the scenario is built around.</li>
-<li data-opt="c">Inverts the rule exactly: the interacting pair is the one case that must not be split.</li>
+<li data-opt="c">Ranks the five by delicacy when the criterion is interaction, and so inverts the rule exactly: the pair is the one case that must not be split.</li>
 </ul>
 </div>
 </details>
@@ -1061,17 +1061,17 @@
 <div>
 <p><strong>Scenario:</strong> The web search agent returns its findings as flowing prose: "According to a recent industry report, adoption grew sharply, and a separate academic study found similar effects." By the time the synthesis agent has combined three such reports, no claim can be traced to a source.</p>
 <p><strong>Question:</strong> How should subagent output be designed?</p>
-<p data-opt="a">A) Use a structured format that separates content from metadata — claim, evidence excerpt, source URL or document name, publication date — which downstream agents preserve.</p>
+<p data-opt="a">A) Use a structured format that separates each claim from its source metadata, which downstream agents must preserve rather than compress.</p>
 <p data-opt="b">B) Store the raw search results in a file and have the reader consult it if a claim needs checking.</p>
-<p data-opt="c">C) Have the web search agent write longer prose that names each source inline in the sentence.</p>
-<p data-opt="d">D) Ask the synthesis agent to add citations at the end, based on the sources the coordinator lists.</p>
+<p data-opt="c">C) Have the web search agent write longer prose that names each source inline, so the attribution travels with the sentence.</p>
+<p data-opt="d">D) Ask the synthesis agent to add citations at the end, matching claims to whichever sources the coordinator recorded as consulted.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Structured output separating content from metadata</p>
-<p><strong>Why:</strong> attribution survives summarisation only when it is carried as structure rather than prose. Separating the claim from its source metadata gives downstream agents something they can merge without inventing or losing the mapping (Tasks 1.3 and 5.6).</p>
+<p><strong>Why:</strong> attribution survives summarisation only when it is carried as structure rather than prose. The metadata that travels with each claim — the evidence excerpt, the source name, the publication date — gives downstream agents something they can merge without inventing or losing the mapping (Tasks 1.3 and 5.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="d">Reconstructing attribution after the fact is guesswork — the mapping was destroyed upstream.</li>
-<li data-opt="c">Inline naming in prose still gets compressed away at the next summarisation step.</li>
+<li data-opt="d">The coordinator's list says which sources were consulted, not which claim came from which — so the mapping gets reconstructed by guesswork.</li>
+<li data-opt="c">Inline naming reads well until the next summarisation step rewrites the sentence, and the source name goes with it.</li>
 <li data-opt="b">Shifts verification onto the reader, which is what a cited report is supposed to avoid.</li>
 </ul>
 </div>
@@ -1103,18 +1103,18 @@
 <div>
 <p><strong>Scenario:</strong> To reduce latency, a developer wires the document analysis agent to call the web search agent directly when it needs an extra source, bypassing the coordinator. Failures in that path are now invisible in the coordinator's logs, and two agents have started requesting overlapping searches.</p>
 <p><strong>Question:</strong> What principle does this violate, and what is the fix?</p>
-<p data-opt="a">A) Hub-and-spoke: all inter-subagent communication, error handling and information routing should go through the coordinator, which is what gives observability and consistent recovery.</p>
+<p data-opt="a">A) Hub-and-spoke: all inter-subagent communication, error handling and information routing should pass through the coordinator rather than agent to agent.</p>
 <p data-opt="b">B) Least privilege: the document analysis agent should not have been given a search tool at all, under any circumstances.</p>
-<p data-opt="c">C) Nothing — direct communication is a valid optimisation as long as results are correct.</p>
-<p data-opt="d">D) Statelessness: the two agents should share a session so they can see each other's requests.</p>
+<p data-opt="c">C) Nothing — direct communication is a valid optimisation as long as results are correct and the latency improves.</p>
+<p data-opt="d">D) Statelessness: the two agents should share a session so they can see each other's requests and stop duplicating work.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Hub-and-spoke, with the coordinator as the single routing point</p>
 <p><strong>Why:</strong> routing all subagent communication through the coordinator is what delivers observability, consistent error handling and controlled information flow. Both reported symptoms — invisible failures and duplicated work — follow directly from bypassing it (Task 1.2).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Overstates the rule: a narrowly scoped cross-role tool for a high-frequency need is legitimate. What is not legitimate is an unmediated channel between agents.</li>
-<li data-opt="c">Treats observability and deduplication as optional, when they are the reasons the pattern exists.</li>
-<li data-opt="d">A shared session removes the isolation that makes subagents useful and does not restore coordinator oversight.</li>
+<li data-opt="c">Correct results and lower latency say nothing about whether a failure can be seen or duplicate work caught, which are the reasons the pattern exists.</li>
+<li data-opt="d">A shared session would curb the duplication, but it removes the isolation that makes subagents useful and still leaves the coordinator blind to failures.</li>
 </ul>
 </div>
 </details>
@@ -1145,18 +1145,18 @@
 <div>
 <p><strong>Scenario:</strong> The coordinator spawns three search subagents for "renewable energy storage". All three are given the same topic string. The returned findings overlap heavily — the same six articles appear in all three result sets — while several subdomains go uncovered.</p>
 <p><strong>Question:</strong> How should the work be partitioned?</p>
-<p data-opt="a">A) Reduce to one search subagent, since three add nothing.</p>
-<p data-opt="b">B) Deduplicate the merged results at the coordinator before passing them to synthesis.</p>
+<p data-opt="a">A) Reduce to one search subagent, since three are paying triple for the same articles.</p>
+<p data-opt="b">B) Deduplicate the merged results at the coordinator, so synthesis receives a single clean list.</p>
 <p data-opt="c">C) Assign each subagent a distinct subtopic or source type, so their scopes do not overlap.</p>
-<p data-opt="d">D) Have each subagent check what the others have already returned before searching.</p>
+<p data-opt="d">D) Have each subagent check what the others already returned, so no article is fetched twice.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Partition the scope across subagents</p>
 <p><strong>Why:</strong> partitioning research scope — distinct subtopics or distinct source types per agent — is what makes parallel search additive rather than redundant (Task 1.2). It also addresses the second symptom: uncovered subdomains become visible as unassigned partitions.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Throws away the parallelism instead of directing it.</li>
-<li data-opt="b">Deduplication cleans the output after the cost has been paid, and does nothing about the gaps.</li>
-<li data-opt="d">Requires inter-subagent visibility, which breaks isolation and serialises the parallel work.</li>
+<li data-opt="a">The cost observation is right, but the cure throws away the parallelism instead of directing it.</li>
+<li data-opt="b">A clean merged list still costs three redundant searches, and it says nothing about the subdomains nobody covered.</li>
+<li data-opt="d">Requires inter-subagent visibility, which breaks isolation and serialises the very work that was meant to run in parallel.</li>
 </ul>
 </div>
 </details>
@@ -1208,18 +1208,18 @@
 <div>
 <p><strong>Scenario:</strong> The search subagent's first API call fails with a connection reset. It currently propagates the failure to the coordinator immediately. The coordinator, having no better information, retries the whole subagent invocation from scratch — re-running the two queries that had already succeeded.</p>
 <p><strong>Question:</strong> Where should this failure be handled?</p>
-<p data-opt="a">A) In the coordinator: it has the full picture and should own every retry decision.</p>
-<p data-opt="b">B) In a top-level handler that restarts the research workflow on any failure.</p>
+<p data-opt="a">A) In the coordinator: it has the full picture and is the only place a retry budget can be enforced.</p>
+<p data-opt="b">B) In a top-level handler that restarts the research workflow on any failure, so one uniform recovery path covers everything.</p>
 <p data-opt="c">C) In the subagent, with unlimited retries until the call succeeds, so the coordinator never sees transient errors.</p>
-<p data-opt="d">D) In the subagent: recover locally from transient failures, and propagate to the coordinator only what cannot be resolved locally, together with partial results and what was attempted.</p>
+<p data-opt="d">D) In the subagent: recover locally from transient failures, and propagate only what cannot be resolved, with partial results attached.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Local recovery first, then structured propagation of what remains</p>
-<p><strong>Why:</strong> subagents implement local recovery for transient failures and propagate only errors they cannot resolve, including partial results and what was attempted. That is what stops the coordinator from re-running work that already succeeded (Tasks 2.2 and 5.3).</p>
+<p><strong>Why:</strong> subagents implement local recovery for transient failures and propagate to the coordinator only the errors they cannot resolve, carrying the partial results and a record of what was attempted. That is what stops the coordinator from re-running work that already succeeded (Tasks 2.2 and 5.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Produces exactly the described waste: the coordinator's only lever is re-invoking the whole subagent.</li>
+<li data-opt="a">A central retry budget is worth having, but making the coordinator the only retry point produces exactly the described waste: its sole lever is re-invoking the whole subagent.</li>
 <li data-opt="c">Unlimited retries burn latency and budget with no exit, and hide genuine outages.</li>
-<li data-opt="b">Restarting everything on any failure is the anti-pattern of terminating a workflow over one branch.</li>
+<li data-opt="b">One uniform path is easy to reason about and ruinous in practice — restarting everything over a single branch is the anti-pattern of terminating a workflow over one failure.</li>
 </ul>
 </div>
 </details>
@@ -1229,17 +1229,17 @@
 <div>
 <p><strong>Scenario:</strong> Three source categories return different outcomes: academic databases return 15 articles, industry reports return 0 results, and the patent database returns a connection timeout. Your subagent reports the last two identically, as "source failure".</p>
 <p><strong>Question:</strong> How should these be reported to the coordinator?</p>
-<p data-opt="a">A) Distinguish the access failure (timeout — the query did not complete, a retry decision is needed) from the valid empty result (the query completed and found nothing, which is coverage information).</p>
-<p data-opt="b">B) Aggregate the three into a single "67% source coverage" metric.</p>
-<p data-opt="c">C) Report both as successes with empty results, so the workflow is not interrupted.</p>
+<p data-opt="a">A) Distinguish the access failure, where the query never completed, from the valid empty result, which is coverage information.</p>
+<p data-opt="b">B) Aggregate the three into a single "67% source coverage" metric, giving the coordinator one figure to act on.</p>
+<p data-opt="c">C) Report both as successes with empty results, so the workflow finishes instead of stalling on one source.</p>
 <p data-opt="d">D) Report both as failures, so the coordinator retries both and errs on the side of caution.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Access failure and valid empty result are different things</p>
-<p><strong>Why:</strong> a timeout means the question was never answered; zero results means it was answered and the answer is "nothing here". Conflating them makes the coordinator either retry pointlessly or record a gap that does not exist (Task 5.3).</p>
+<p><strong>Why:</strong> a timeout means the question was never answered and a retry decision is still owed; zero results means it was answered and the answer is "nothing here", which is coverage information. Conflating them makes the coordinator either retry pointlessly or record a gap that does not exist (Task 5.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">A single percentage destroys precisely the distinction the coordinator needs to act on.</li>
-<li data-opt="c">Silently converts a real failure into an apparent absence of evidence.</li>
+<li data-opt="b">One figure is easy to act on and impossible to act on correctly: the percentage destroys precisely the distinction the coordinator needs.</li>
+<li data-opt="c">Keeps the run moving by silently converting a real failure into an apparent absence of evidence.</li>
 <li data-opt="d">Retrying a query that legitimately returned nothing will return nothing again, at cost.</li>
 </ul>
 </div>
@@ -1251,17 +1251,17 @@
 <p><strong>Scenario:</strong> Two of five subdomains could not be researched: one source timed out repeatedly, one database was unavailable for the whole run. The remaining three are well covered. The deadline is now and the report must go out.</p>
 <p><strong>Question:</strong> How should the synthesis be structured?</p>
 <p data-opt="a">A) Fill the two gaps with the model's general knowledge, clearly written in a more cautious tone.</p>
-<p data-opt="b">B) Report only the three well-covered subdomains and omit the other two entirely.</p>
-<p data-opt="c">C) Produce the report with explicit coverage annotations, marking which findings are well supported and which topic areas have gaps due to unavailable sources.</p>
-<p data-opt="d">D) Delay the report until all five subdomains can be covered.</p>
+<p data-opt="b">B) Report only the three well-covered subdomains, so every claim that ships is fully sourced and verifiable.</p>
+<p data-opt="c">C) Produce the report with explicit coverage annotations marking which findings are well supported and which areas have gaps.</p>
+<p data-opt="d">D) Delay the report until all five subdomains can be covered, so the reader gets one complete picture.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Coverage annotations on the delivered report</p>
-<p><strong>Why:</strong> graceful degradation means proceeding with partial results while making the limits of the evidence explicit. A reader who knows which sections rest on unavailable sources can act; a reader who does not, cannot (Task 5.3).</p>
+<p><strong>Why:</strong> graceful degradation means proceeding with partial results while making the limits of the evidence explicit — an annotation says the gap comes from an unavailable source, not from an absence of findings. A reader who knows which sections rest on unavailable sources can act; a reader who does not, cannot (Task 5.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Substitutes unsourced model output for research, in a report whose value is that it is sourced.</li>
-<li data-opt="b">Silent omission is indistinguishable, to the reader, from "there was nothing to say".</li>
-<li data-opt="d">Trades a known, annotated limitation for a missed deadline.</li>
+<li data-opt="b">Every shipped claim is sourced, and silent omission is still indistinguishable, to the reader, from "there was nothing to say".</li>
+<li data-opt="d">Trades a known, annotated limitation for a missed deadline, and the complete picture may never arrive.</li>
 </ul>
 </div>
 </details>
@@ -1271,18 +1271,18 @@
 <div>
 <p><strong>Scenario:</strong> Subagents return well-attributed findings. The coordinator summarises each subagent's output before passing it to synthesis, to save context. The final report contains accurate claims with no traceable sources, and reviewers cannot verify anything.</p>
 <p><strong>Question:</strong> What is the fix?</p>
-<p data-opt="a">A) Add a bibliography section listing every source consulted during the run.</p>
-<p data-opt="b">B) Have the report agent re-search each claim to rediscover a plausible source.</p>
-<p data-opt="c">C) Require structured claim-source mappings that every downstream step, including the coordinator's summarisation, must preserve and merge rather than compress away.</p>
-<p data-opt="d">D) Stop summarising subagent output and pass it through verbatim.</p>
+<p data-opt="a">A) Add a bibliography section listing every source consulted, so reviewers can reach the underlying material.</p>
+<p data-opt="b">B) Have the report agent re-search each claim to rediscover a plausible source, restoring the citations.</p>
+<p data-opt="c">C) Require structured claim-source mappings that every downstream step, including the coordinator's summarisation, must preserve rather than compress.</p>
+<p data-opt="d">D) Stop summarising subagent output and pass it through verbatim, so nothing can be dropped downstream.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Claim-source mappings preserved through every step</p>
 <p><strong>Why:</strong> attribution is lost when findings are compressed without preserving the claim-to-source link. Making that mapping a structural requirement that each step must carry forward is what survives summarisation (Task 5.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">A global list of sources does not say which source supports which claim — the exact information that was lost.</li>
-<li data-opt="b">Re-deriving a source for an existing claim invites confident mis-attribution.</li>
-<li data-opt="d">Removes the compression the coordinator needs; the mapping can be preserved <em>and</em> the prose compressed.</li>
+<li data-opt="a">Reviewers reach the material but not the claim it supports — a global list does not say which source backs which sentence, the exact information that was lost.</li>
+<li data-opt="b">Restores citations that merely look right: re-deriving a source for an existing claim invites confident mis-attribution.</li>
+<li data-opt="d">Nothing is dropped and nothing fits either — it removes the compression the coordinator needs, when the mapping can be preserved <em>and</em> the prose compressed.</li>
 </ul>
 </div>
 </details>
@@ -1292,18 +1292,18 @@
 <div>
 <p><strong>Scenario:</strong> The document analysis agent finds two figures for the same statistic: 12% from a platform's own annual report, using automated classification, and 8% from an industry survey of 500 labels. Both sources are credible and the methodologies differ.</p>
 <p><strong>Question:</strong> What should the analysis agent pass to synthesis?</p>
-<p data-opt="a">A) The average of the two values, noted as an estimate.</p>
-<p data-opt="b">B) The value from the larger or more authoritative source, with the other discarded.</p>
-<p data-opt="c">C) Both values with full attribution — source, date, methodology — explicitly annotated as a conflict, leaving the coordinator to decide how to reconcile them.</p>
-<p data-opt="d">D) Neither, since contradictory data is not reportable.</p>
+<p data-opt="a">A) The average of the two values, noted as an estimate for synthesis to use.</p>
+<p data-opt="b">B) The value from the larger or more authoritative source, with the other discarded as noise.</p>
+<p data-opt="c">C) Both values with full attribution, explicitly annotated as a conflict for the coordinator to reconcile.</p>
+<p data-opt="d">D) Neither, since contradictory data is not reportable and publishing both would undermine the report.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Both values, annotated as a conflict, with attribution</p>
-<p><strong>Why:</strong> conflicting statistics from credible sources are annotated with their attribution rather than arbitrarily resolved. The analysis agent completes its work and lets the coordinator decide — the methodological difference is itself part of the finding (Task 5.6).</p>
+<p><strong>Why:</strong> conflicting statistics from credible sources are annotated with their attribution — source, date, methodology — rather than arbitrarily resolved. The analysis agent completes its work and lets the coordinator decide; the methodological difference is itself part of the finding (Task 5.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">An average fabricates a number no source reports.</li>
-<li data-opt="b">"more authoritative" is a judgement the analysis agent is not positioned to make, and it silently deletes valid evidence.</li>
-<li data-opt="d">Discarding the statistic impoverishes the report instead of qualifying the uncertainty.</li>
+<li data-opt="a">Gives synthesis one number to work with, at the price of fabricating a figure no source reports.</li>
+<li data-opt="b">"more authoritative" is a judgement the analysis agent is not positioned to make, and calling the other figure noise silently deletes valid evidence.</li>
+<li data-opt="d">A qualified conflict is reportable; withholding the statistic impoverishes the report instead of stating the uncertainty.</li>
 </ul>
 </div>
 </details>
@@ -1313,18 +1313,18 @@
 <div>
 <p><strong>Scenario:</strong> The report flags a contradiction: "Source A states adoption is at 10%, while Source B states 15%." A reviewer checks and finds Source A was published in 2023 and Source B in 2024. Several similar false conflicts appear across the report.</p>
 <p><strong>Question:</strong> What should be required of subagent output?</p>
-<p data-opt="a">A) A final pass asking the model to re-read the report and remove contradictions.</p>
-<p data-opt="b">B) A confidence score on each figure, so the lower-confidence one can be dropped.</p>
-<p data-opt="c">C) A rule that when two figures disagree, the higher one is reported.</p>
-<p data-opt="d">D) Publication or data-collection dates in the structured output, so temporal differences are interpreted as change over time rather than as contradictions.</p>
+<p data-opt="a">A) A final pass asking the model to re-read the report and remove the contradictions it finds.</p>
+<p data-opt="b">B) A confidence score on each figure, so the weaker of the two can be dropped automatically.</p>
+<p data-opt="c">C) A rule that when two figures disagree, the higher one is reported, which keeps the output deterministic.</p>
+<p data-opt="d">D) Publication or data-collection dates in the structured output, so temporal differences read as change rather than conflict.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Require dates in the structured output</p>
 <p><strong>Why:</strong> without temporal metadata, a measurement taken a year apart looks like a disagreement. Requiring publication or collection dates turns an apparent conflict into a legible trend (Task 5.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Asking the model to remove contradictions it cannot explain will remove real ones too.</li>
-<li data-opt="b">Both figures may be entirely reliable — confidence is not the missing dimension here, time is.</li>
-<li data-opt="c">An arbitrary tie-break that discards half the evidence and encodes an upward bias.</li>
+<li data-opt="a">A cleanup pass makes the report read smoothly while removing the real contradictions along with the false ones.</li>
+<li data-opt="b">Automates the wrong dimension: both figures may be entirely reliable, and what separates them is time, not confidence.</li>
+<li data-opt="c">Deterministic and arbitrary at once — the tie-break discards half the evidence and encodes an upward bias.</li>
 </ul>
 </div>
 </details>
@@ -1403,17 +1403,17 @@
 <div>
 <p><strong>Scenario:</strong> A developer asks the agent to explain how a payment service works. The service has about 200 files. The agent's first move is to <code>Read</code> all of them.</p>
 <p><strong>Question:</strong> What is the better strategy?</p>
-<p data-opt="a">A) Build understanding incrementally: <code>Grep</code> to find entry points, then <code>Read</code> to follow imports and trace the flows that matter.</p>
-<p data-opt="b">B) Ask the developer which files to read.</p>
-<p data-opt="c">C) Read only the files whose names contain "payment".</p>
+<p data-opt="a">A) Build understanding incrementally: <code>Grep</code> for entry points, then <code>Read</code> along the imports that matter.</p>
+<p data-opt="b">B) Ask the developer which files to read, since they know the service best.</p>
+<p data-opt="c">C) Read only the files whose names contain "payment", since the naming convention marks them.</p>
 <p data-opt="d">D) Read all 200 files but summarise each in one line to save context.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Grep for entry points, then Read along the call graph</p>
 <p><strong>Why:</strong> incremental exploration — locate entry points by content, then follow imports to trace flows — gets to an accurate picture without loading the whole service into context (Task 2.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">The developer is asking precisely because they do not know.</li>
-<li data-opt="c">Filename filtering misses the collaborators — the gateway client, the ledger, the retry policy — that carry the actual behaviour.</li>
+<li data-opt="b">The developer is asking precisely because they do not know the service either.</li>
+<li data-opt="c">Naming conventions miss the collaborators — the gateway client, the ledger, the retry policy — that carry the actual behaviour.</li>
 <li data-opt="d">Still reads 200 files; summarising afterwards does not recover the context already consumed.</li>
 </ul>
 </div>
@@ -1424,18 +1424,18 @@
 <div>
 <p><strong>Scenario:</strong> <code>validateOrder</code> is defined in one module, re-exported by a barrel file under the same name, and re-exported again by a facade under the alias <code>checkOrder</code>. A search for <code>validateOrder</code> finds three hits and misses every caller that imports the facade.</p>
 <p><strong>Question:</strong> How should the agent trace real usage?</p>
-<p data-opt="a">A) Read every file that imports from the facade module.</p>
-<p data-opt="b">B) First identify all the exported names the function is reachable under, then search the codebase for each name.</p>
-<p data-opt="c">C) Rename the function so that all usages become consistent, then search once.</p>
-<p data-opt="d">D) Search for the original name and accept that aliased usage cannot be found.</p>
+<p data-opt="a">A) Read every file that imports from the facade, since that is where the alias appears.</p>
+<p data-opt="b">B) First identify every name the function is exported under, then search the codebase for each one.</p>
+<p data-opt="c">C) Rename the function so all usages become consistent, then search once with no aliases left.</p>
+<p data-opt="d">D) Search for the original name and accept that aliased usage cannot be found by text search.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Enumerate the exported names first, then search for each</p>
 <p><strong>Why:</strong> tracing usage across wrapper modules means resolving the set of names the function travels under, then searching for each of them (Task 2.5). Skipping the first step is what produced the incomplete result.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Covers one alias in one module and misses further re-exports.</li>
+<li data-opt="a">Covers the one alias in that module and misses any further re-export beyond it.</li>
 <li data-opt="c">Modifies the codebase to make a read-only question easier, which is a disproportionate side effect.</li>
-<li data-opt="d">Accepts a knowingly incomplete answer to a question about completeness.</li>
+<li data-opt="d">Text search is not the limit here — enumerating the aliases first makes them findable, so this accepts a knowingly incomplete answer to a question about completeness.</li>
 </ul>
 </div>
 </details>
@@ -1467,17 +1467,17 @@
 <p><strong>Scenario:</strong> The GitHub MCP server needs an authentication token. <code>.mcp.json</code> is committed to the repository so every developer gets the server configuration.</p>
 <p><strong>Question:</strong> How do you supply the credential?</p>
 <p data-opt="a">A) Move the whole server to <code>~/.claude.json</code> on each machine so the token is never committed.</p>
-<p data-opt="b">B) Put a shared team token in <code>.mcp.json</code> and restrict repository access.</p>
-<p data-opt="c">C) Reference it with environment variable expansion — <code>${GITHUB_TOKEN}</code> — so each developer supplies their own value from their environment.</p>
-<p data-opt="d">D) Store the token in <code>CLAUDE.md</code>, which is documentation rather than configuration.</p>
+<p data-opt="b">B) Put a shared team token in <code>.mcp.json</code> and restrict repository access, so onboarding stays effortless.</p>
+<p data-opt="c">C) Reference it with environment variable expansion — <code>${GITHUB_TOKEN}</code> — so each developer supplies their own value.</p>
+<p data-opt="d">D) Store the token in <code>CLAUDE.md</code>, documentation rather than configuration, so no scanner flags it.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Environment variable expansion in <code>.mcp.json</code></p>
 <p><strong>Why:</strong> <code>${VAR}</code> expansion in <code>.mcp.json</code> is the documented mechanism for credential management without committing secrets — the configuration is shared, the value is not (Task 2.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Solves the secret problem by giving up the shared configuration, which is the thing project scope provides.</li>
-<li data-opt="b">A committed secret is a committed secret; repository permissions do not undo it, and it lands in the history permanently.</li>
-<li data-opt="d">Puts a credential in a file that is both committed and loaded into every prompt.</li>
+<li data-opt="b">Effortless onboarding does not undo a committed secret: repository permissions do not remove it, and it lands in the history permanently.</li>
+<li data-opt="d">Being unflagged is not being safe — it puts a credential in a file that is both committed and loaded into every prompt.</li>
 </ul>
 </div>
 </details>
@@ -1487,13 +1487,13 @@
 <div>
 <p><strong>Scenario:</strong> You built an MCP tool that queries a pre-built code index and returns callers, definitions and type information in one call. The agent keeps using the built-in <code>Grep</code> instead, producing slower and less complete answers. Your tool's description reads "Searches the code index."</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
-<p data-opt="a">A) Rename the MCP tool to <code>grep_advanced</code> so it is chosen by name similarity.</p>
+<p data-opt="a">A) Rename the MCP tool to <code>grep_advanced</code> so it is chosen by name similarity with the built-in.</p>
 <p data-opt="b">B) Add a system prompt rule stating that the MCP tool must always be used before <code>Grep</code>.</p>
-<p data-opt="c">C) Expand the MCP tool's description to spell out its capabilities and outputs in detail, and when to prefer it over a text search.</p>
-<p data-opt="d">D) Remove <code>Grep</code> from the agent's <code>allowedTools</code> so it has no alternative.</p>
+<p data-opt="c">C) Expand the MCP tool's description to spell out its capabilities, outputs and when to prefer it.</p>
+<p data-opt="d">D) Remove <code>Grep</code> from the agent's <code>allowedTools</code> so it has no alternative but the better tool.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Strengthen the MCP tool's description</p>
-<p><strong>Why:</strong> agents tend to prefer built-in tools, and the documented counter-measure is enhancing MCP tool descriptions so they explain capabilities and outputs in enough detail to be chosen on merit (Task 2.4). A one-line description cannot compete with a well-understood built-in.</p>
+<p><strong>Why:</strong> agents tend to prefer built-in tools, and the documented counter-measure is enhancing MCP tool descriptions so they explain capabilities, outputs and when to prefer them over a plain text search, in enough detail to be chosen on merit (Task 2.4). A one-line description cannot compete with a well-understood built-in.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Name similarity is not the selection mechanism; the description is.</li>
@@ -1508,18 +1508,18 @@
 <div>
 <p><strong>Scenario:</strong> Your internal MCP server exposes 40 database schemas. Agents currently discover them by calling <code>describe_schema</code> repeatedly with guessed names, burning several turns before finding the right one.</p>
 <p><strong>Question:</strong> What should the server expose?</p>
-<p data-opt="a">A) A prompt in the server that instructs the agent to guess more efficiently.</p>
-<p data-opt="b">B) A single <code>list_and_describe_all_schemas</code> tool returning all 40 schemas in full.</p>
-<p data-opt="c">C) Documentation of the schema names in the project <code>CLAUDE.md</code>.</p>
-<p data-opt="d">D) MCP resources presenting a catalogue of the available schemas, so the agent can see what exists without exploratory tool calls.</p>
+<p data-opt="a">A) A prompt in the server that instructs the agent to guess names more efficiently.</p>
+<p data-opt="b">B) A single <code>list_and_describe_all_schemas</code> tool returning all 40 schemas in full, so one call answers everything.</p>
+<p data-opt="c">C) Documentation of the schema names in the project <code>CLAUDE.md</code>, where every session already reads it.</p>
+<p data-opt="d">D) MCP resources presenting a catalogue of the available schemas, so the agent sees what exists.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Expose the catalogue as MCP resources</p>
 <p><strong>Why:</strong> resources exist to expose content catalogues — issue summaries, documentation hierarchies, database schemas — giving agents visibility into available data without exploratory tool calls (Task 2.4). Tools are for actions; resources are for what exists.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">MCP prompts are not part of this exam's scope, and better guessing is still guessing.</li>
-<li data-opt="b">Dumps 40 full schemas into context to answer "which one do I need?".</li>
-<li data-opt="c">Duplicates server-owned data into a file that will drift out of date.</li>
+<li data-opt="b">One call, and 40 full schemas land in context to answer "which one do I need?".</li>
+<li data-opt="c">Every session reads a copy the server never updates — duplicated server-owned data drifts out of date.</li>
 </ul>
 </div>
 </details>
@@ -1550,16 +1550,16 @@
 <div>
 <p><strong>Scenario:</strong> Your boilerplate-generation agent has 18 tools: five for file operations, four for template rendering, three for dependency lookups, three for git, and three for issue tracking. It routinely picks a plausible but wrong tool, and adding clearer descriptions has produced only modest improvement.</p>
 <p><strong>Question:</strong> What is the underlying problem?</p>
-<p data-opt="a">A) Too many tools increase decision complexity and degrade selection reliability; restrict each agent to the four or five tools its role actually needs.</p>
-<p data-opt="b">B) The tools should be merged into one generic tool with a mode parameter.</p>
+<p data-opt="a">A) Too many tools degrade selection reliability; restrict each agent to the tools its role actually needs.</p>
+<p data-opt="b">B) The tools should be merged into one generic tool with a mode parameter, leaving one choice.</p>
 <p data-opt="c">C) The agent needs <code>tool_choice: "any"</code> so it commits to a tool instead of hesitating.</p>
-<p data-opt="d">D) The tool descriptions must be rewritten again, at greater length.</p>
+<p data-opt="d">D) The tool descriptions must be rewritten again, at greater length and with worked examples.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Scope the tool set to the agent's role</p>
-<p><strong>Why:</strong> giving an agent access to too many tools degrades selection reliability by increasing decision complexity, and agents with tools outside their specialisation tend to misuse them. The fix is scoped access — the tools the role needs, plus narrowly scoped cross-role tools for specific high-frequency needs (Task 2.3).</p>
+<p><strong>Why:</strong> giving an agent access to too many tools degrades selection reliability by increasing decision complexity, and agents with tools outside their specialisation tend to misuse them. The fix is scoped access — the four or five tools the role actually needs, plus narrowly scoped cross-role tools for specific high-frequency needs (Task 2.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">A generic tool with a mode parameter moves the same 18-way decision inside a parameter, where the description can no longer differentiate it.</li>
+<li data-opt="b">One choice on the surface only: the same 18-way decision moves inside a parameter, where the description can no longer differentiate it.</li>
 <li data-opt="c"><code>"any"</code> guarantees that a tool is called, not that the right one is.</li>
 <li data-opt="d">Descriptions have already been improved with modest effect — the scenario tells you the bottleneck is elsewhere.</li>
 </ul>
@@ -1613,17 +1613,17 @@
 <div>
 <p><strong>Scenario:</strong> A session from three weeks ago holds an architecture analysis. Since then the module was restructured, three files were deleted and the data layer was replaced. Nearly every tool result in that session describes code that no longer exists.</p>
 <p><strong>Question:</strong> Resume or start fresh?</p>
-<p data-opt="a">A) Resume the session and list the changes, as in any resumption.</p>
+<p data-opt="a">A) Resume the session and list the changes since then, as in any ordinary resumption.</p>
 <p data-opt="b">B) Start a new session and inject a structured summary of the conclusions that are still valid.</p>
-<p data-opt="c">C) Fork the old session so the stale analysis is preserved for reference.</p>
-<p data-opt="d">D) Resume the session and run <code>/compact</code> first to discard the stale details.</p>
+<p data-opt="c">C) Fork the old session so the stale analysis is preserved for reference alongside the new work.</p>
+<p data-opt="d">D) Resume the session and run <code>/compact</code> first to discard the stale details before working.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Fresh session with an injected summary</p>
 <p><strong>Why:</strong> the choice turns on how much of the prior context is still valid. Resumption is right when it mostly is; when tool results are broadly stale, starting fresh with a structured summary of the durable conclusions is the more reliable option (Task 1.7).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Works for a couple of changed files, not for a context where almost every observation is obsolete.</li>
-<li data-opt="c">Preserves the obsolete analysis without producing a usable working context.</li>
+<li data-opt="a">Listing changes works for a couple of edited files, not for a context where almost every observation is obsolete.</li>
+<li data-opt="c">Preserves the obsolete analysis without producing a usable working context — the fork carries the same dead tool results.</li>
 <li data-opt="d"><code>/compact</code> summarises the stale content rather than removing it — it cannot tell what is out of date.</li>
 </ul>
 </div>
@@ -1661,17 +1661,17 @@
 <div>
 <p><strong>Scenario:</strong> Your CI test-generation step produces tests that assert getters return what was set, mock everything including the unit under test, and ignore the project's fixture helpers entirely. Reviewers delete most of them.</p>
 <p><strong>Question:</strong> What is the most effective change?</p>
-<p data-opt="a">A) Cap the number of generated tests to five per pull request.</p>
-<p data-opt="b">B) Document the testing standards, what makes a test valuable, and the available fixtures in <code>CLAUDE.md</code>, so the CI-invoked run has project context.</p>
-<p data-opt="c">C) Add "write only high-value tests" to the CI prompt.</p>
-<p data-opt="d">D) Have a second Claude instance delete the low-value tests after generation.</p>
+<p data-opt="a">A) Cap the number of generated tests to five per pull request, keeping the review burden small.</p>
+<p data-opt="b">B) Document the testing standards, what makes a test valuable, and the available fixtures in <code>CLAUDE.md</code>.</p>
+<p data-opt="c">C) Add "write only high-value tests that reviewers will actually keep" to the CI prompt.</p>
+<p data-opt="d">D) Have a second Claude instance delete the low-value tests after generation, before reviewers see them.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Put testing standards and fixtures in <code>CLAUDE.md</code></p>
 <p><strong>Why:</strong> <code>CLAUDE.md</code> is the mechanism for giving CI-invoked Claude Code its project context — testing standards, fixture conventions, review criteria. Documenting what a valuable test looks like and which fixtures exist is what lifts generation quality and cuts low-value output (Task 3.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Caps the volume of low-value tests without improving any of them.</li>
-<li data-opt="c">"high-value" is a vague instruction of exactly the kind the guide says fails to change behaviour — the model does not know your definition.</li>
+<li data-opt="c">"high-value" is a vague instruction of exactly the kind the guide says fails to change behaviour — the model does not know which tests your reviewers keep.</li>
 <li data-opt="d">Spends a second review pass compensating for missing context that could simply be supplied.</li>
 </ul>
 </div>
@@ -1703,17 +1703,17 @@
 <div>
 <p><strong>Scenario:</strong> The review runs on every push. A pull request updated six times now carries the same three unresolved findings posted six times each, plus repeated comments on issues the author already fixed.</p>
 <p><strong>Question:</strong> How should re-runs be handled?</p>
-<p data-opt="a">A) Deduplicate comments in the posting script by comparing their text.</p>
-<p data-opt="b">B) Run the review only on the first push of each pull request.</p>
+<p data-opt="a">A) Deduplicate comments in the posting script by comparing their text, so nothing is ever posted twice.</p>
+<p data-opt="b">B) Run the review only on the first push of each pull request, so findings cannot repeat.</p>
 <p data-opt="c">C) Review only the diff of the latest push, ignoring the rest of the pull request.</p>
-<p data-opt="d">D) Include the prior review findings in the context and instruct Claude to report only new or still-unaddressed issues.</p>
+<p data-opt="d">D) Include the prior findings in the context and instruct Claude to report only new or still-unaddressed issues.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Feed prior findings back in and ask for new or unresolved issues only</p>
 <p><strong>Why:</strong> supplying the previous findings lets the model distinguish what is new, what has been fixed and what still stands — which is what prevents duplicate comments without losing coverage (Task 3.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Text matching misses re-phrased findings and cannot tell a resolved issue from a duplicated one.</li>
-<li data-opt="b">Leaves every subsequent commit unreviewed, which is where regressions get introduced.</li>
+<li data-opt="a">Text matching stops literal repeats, misses re-phrased findings, and cannot tell a resolved issue from a duplicated one.</li>
+<li data-opt="b">Nothing repeats because nothing is reviewed — every subsequent commit goes unchecked, which is where regressions get introduced.</li>
 <li data-opt="c">A narrow diff view misses issues where the new code interacts with code changed two pushes ago.</li>
 </ul>
 </div>
@@ -1745,17 +1745,17 @@
 <div>
 <p><strong>Scenario:</strong> Your comment-accuracy check flags any comment that is not a literal restatement of the code beneath it, producing dozens of false positives per pull request. You have already added "be conservative" and "only report high-confidence findings" to the prompt, with no measurable improvement.</p>
 <p><strong>Question:</strong> What actually improves precision?</p>
-<p data-opt="a">A) Replace the general instruction with a specific criterion: flag a comment only when the behaviour it claims contradicts what the code actually does.</p>
-<p data-opt="b">B) Add "and please be very careful about false positives" to the existing instruction.</p>
-<p data-opt="c">C) Have the model attach a confidence score and suppress findings below 0.8.</p>
-<p data-opt="d">D) Reduce the number of files reviewed per run so each gets more attention.</p>
+<p data-opt="a">A) Replace the general instruction with a specific criterion: flag a comment only when it contradicts the code.</p>
+<p data-opt="b">B) Add "and please be very careful about false positives" to the existing instruction, reinforcing the intent.</p>
+<p data-opt="c">C) Have the model attach a confidence score and suppress findings below 0.8, cutting the noise immediately.</p>
+<p data-opt="d">D) Reduce the number of files reviewed per run so each one gets more careful attention.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: A specific categorical criterion</p>
-<p><strong>Why:</strong> general exhortations like "be conservative" or "only high-confidence findings" do not improve precision; explicit criteria defining what counts as a reportable issue do. The rewrite converts a matter of taste into a testable condition (Task 4.1).</p>
+<p><strong>Why:</strong> general exhortations like "be conservative" or "only high-confidence findings" do not improve precision; explicit criteria defining what counts as a reportable issue do. Requiring that the behaviour the comment claims contradict what the code actually does converts a matter of taste into a testable condition (Task 4.1).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Is more of the instruction that has already been shown not to work.</li>
-<li data-opt="c">Confidence-based filtering is the guide's named alternative to criteria — it suppresses findings without making the underlying judgement better calibrated.</li>
+<li data-opt="b">Reinforces the very instruction that has already been shown not to work.</li>
+<li data-opt="c">Cuts the volume without making the underlying judgement better calibrated — confidence-based filtering is the guide's named alternative to criteria.</li>
 <li data-opt="d">Attention is not the constraint; the definition of a defect is.</li>
 </ul>
 </div>
@@ -1766,13 +1766,13 @@
 <div>
 <p><strong>Scenario:</strong> Your review reports five categories. Four are accurate and valued. The fifth, "performance concerns", is wrong roughly 70% of the time. Developers have started dismissing all review comments without reading them, including the accurate ones.</p>
 <p><strong>Question:</strong> What should you do?</p>
-<p data-opt="a">A) Remove the performance category permanently, since a 70% error rate is unrecoverable.</p>
-<p data-opt="b">B) Keep all five and let developers filter by category in the UI.</p>
-<p data-opt="c">C) Temporarily disable the performance category to restore trust in the remaining four, and keep improving its prompt offline.</p>
-<p data-opt="d">D) Keep all five and add a disclaimer that performance findings are experimental.</p>
+<p data-opt="a">A) Remove the performance category permanently, since a 70% error rate is beyond recovery.</p>
+<p data-opt="b">B) Keep all five and let developers filter out the category they distrust in the UI.</p>
+<p data-opt="c">C) Temporarily disable the performance category to restore trust, and keep improving its prompt offline.</p>
+<p data-opt="d">D) Keep all five and add a disclaimer marking performance findings as experimental and ignorable.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Temporarily disable it while you improve the prompt</p>
-<p><strong>Why:</strong> a high false-positive category undermines confidence in the accurate ones. Disabling it restores the signal-to-noise ratio of the whole review immediately, and the work on that category continues in parallel (Task 4.1).</p>
+<p><strong>Why:</strong> a high false-positive category undermines confidence in the accurate ones. Disabling it restores the signal-to-noise ratio of the whole review immediately and returns trust to the four categories that work, while the fix for the fifth continues in parallel (Task 4.1).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Over-corrects: the category is fixable, and "permanently" gives up a genuine class of defect.</li>
@@ -1830,8 +1830,8 @@
 <p><strong>Scenario:</strong> The reviewer flags your codebase's deliberate patterns as problems: the repository's standard error-wrapping helper, its intentional use of a mutable builder in hot paths, and its convention of returning early from validators. You cannot enumerate every accepted pattern in advance — new ones appear regularly.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
 <p data-opt="a">A) Maintain an explicit allow-list of accepted code patterns and update it as new ones appear.</p>
-<p data-opt="b">B) Provide few-shot examples contrasting accepted patterns with genuine issues, so the model generalises the distinction to patterns you have not listed.</p>
-<p data-opt="c">C) Exclude from review the files where these patterns occur.</p>
+<p data-opt="b">B) Provide few-shot examples contrasting the codebase's accepted patterns with genuine defects, so the distinction generalises.</p>
+<p data-opt="c">C) Exclude from review the files where these patterns occur, so the reviewer stops flagging them.</p>
 <p data-opt="d">D) Lower the review's sensitivity so fewer findings of any kind are reported.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Few-shot examples that teach the distinction</p>
@@ -1839,7 +1839,7 @@
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">An allow-list only covers what is already on it, and the scenario states that will never be complete.</li>
-<li data-opt="c">Removes whole files from review to avoid a classification problem.</li>
+<li data-opt="c">Stops the false positives by stopping review of those files, so the genuine defects living alongside the deliberate patterns go unreported too.</li>
 <li data-opt="d">Suppresses real defects at the same rate as false ones.</li>
 </ul>
 </div>
@@ -1850,18 +1850,18 @@
 <div>
 <p><strong>Scenario:</strong> Developers dismiss about 30% of findings. You want to know systematically <em>what kind</em> of code triggers the dismissed ones, so you can fix the prompt rather than guess.</p>
 <p><strong>Question:</strong> What should you add to the structured output?</p>
-<p data-opt="a">A) A free-text explanation field for developers to fill in when they dismiss a finding.</p>
-<p data-opt="b">B) A model-generated confidence score on each finding, to correlate with dismissals.</p>
-<p data-opt="c">C) A <code>detected_pattern</code> field on each finding, recording the code construct that triggered it, so dismissals can be analysed by pattern.</p>
-<p data-opt="d">D) A monthly manual review of a sample of dismissed findings.</p>
+<p data-opt="a">A) A free-text explanation field for developers to fill in whenever they dismiss a finding, capturing their reasoning.</p>
+<p data-opt="b">B) A model-generated confidence score on each finding, on the assumption that dismissals track low confidence.</p>
+<p data-opt="c">C) A <code>detected_pattern</code> field on each finding, recording the code construct that triggered it, so dismissals can be grouped.</p>
+<p data-opt="d">D) A monthly manual review of a sample of dismissed findings, read by whoever owns the prompt.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: A <code>detected_pattern</code> field</p>
 <p><strong>Why:</strong> tracking which code constructs trigger findings makes dismissal patterns analysable — you can see that, say, 80% of dismissals come from one construct and target the prompt at it (Task 4.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Depends on developers writing explanations at the moment they are trying to move on; response rates on such fields are poor.</li>
-<li data-opt="b">Confidence correlates with the model's certainty, not with the construct that misled it.</li>
-<li data-opt="d">Manual sampling is slow and does not scale to a systematic answer.</li>
+<li data-opt="b">Confidence tracks the model's certainty, not the construct that misled it, so the correlation never names the pattern you would rewrite the prompt against.</li>
+<li data-opt="d">Whoever owns the prompt still reads a handful of cases a month; manual sampling is slow and does not scale to a systematic answer.</li>
 </ul>
 </div>
 </details>
@@ -1871,18 +1871,18 @@
 <div>
 <p><strong>Scenario:</strong> Your review produces around 40 findings per large pull request. Reviewers have time for roughly ten. You want the ten they read to be the ten most likely to be real.</p>
 <p><strong>Question:</strong> What should the review pass produce?</p>
-<p data-opt="a">A) Only the ten findings the model considers most important, discarding the rest.</p>
-<p data-opt="b">B) A self-reported confidence alongside each finding, used to route which findings get human attention first, with the thresholds calibrated against outcomes over time.</p>
-<p data-opt="c">C) Findings sorted alphabetically by file, so review is systematic.</p>
-<p data-opt="d">D) A single aggregate quality score for the pull request.</p>
+<p data-opt="a">A) Only the ten findings the model considers most important, with the rest discarded unread.</p>
+<p data-opt="b">B) A self-reported confidence alongside each finding, used to route which findings get human attention first.</p>
+<p data-opt="c">C) Findings sorted alphabetically by file, so reviewers work through them in a predictable order.</p>
+<p data-opt="d">D) A single aggregate quality score for the pull request, so reviewers can gauge overall risk.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Per-finding confidence used for calibrated routing</p>
-<p><strong>Why:</strong> running verification passes where the model self-reports confidence alongside each finding is what enables calibrated review routing (Task 4.6). Note the difference from Q3: confidence is unreliable as an <em>autonomous decision</em> to escalate, and useful as a <em>prioritisation signal</em> for a human who still sees the finding.</p>
+<p><strong>Why:</strong> running verification passes where the model self-reports confidence alongside each finding is what enables calibrated review routing (Task 4.6). The thresholds are then calibrated against outcomes over time, so the routing improves as you learn which confidences held up. Note the difference from Q3: confidence is unreliable as an <em>autonomous decision</em> to escalate, and useful as a <em>prioritisation signal</em> for a human who still sees the finding.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Discarding 30 findings makes the model's judgement final and irreversible; routing keeps them available.</li>
-<li data-opt="c">Alphabetical order is systematic and carries no information about likelihood.</li>
-<li data-opt="d">One score for the whole pull request tells reviewers nothing about where to look.</li>
+<li data-opt="c">A predictable order is still an arbitrary one: file names carry no information about which findings are likely to be real.</li>
+<li data-opt="d">A gauge of overall risk still tells reviewers nothing about which of the forty findings to spend their time on.</li>
 </ul>
 </div>
 </details>
@@ -1892,17 +1892,17 @@
 <div>
 <p><strong>Scenario:</strong> You are having Claude implement a date-range parser with awkward requirements: overlapping ranges, open-ended ranges, and time zones. Each round of "that's not quite right, try again" produces a different set of defects.</p>
 <p><strong>Question:</strong> What is the most effective way to iterate?</p>
-<p data-opt="a">A) Write a test suite first covering expected behaviour, edge cases and performance requirements, then iterate by sharing the actual test failures.</p>
-<p data-opt="b">B) Implement it yourself and ask Claude to review your version.</p>
-<p data-opt="c">C) Ask for three implementations and pick the one with fewest defects.</p>
-<p data-opt="d">D) Describe each defect in prose, in more detail each round.</p>
+<p data-opt="a">A) Write a test suite first covering expected behaviour, edge cases and performance requirements, then iterate on the failures.</p>
+<p data-opt="b">B) Implement it yourself and ask Claude to review your version, since you understand the awkward requirements best.</p>
+<p data-opt="c">C) Ask for three independent implementations and pick whichever one shows the fewest defects on inspection.</p>
+<p data-opt="d">D) Describe each defect in prose, in more detail each round, until the description leaves no room for misreading.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Tests first, then iterate on the failures</p>
 <p><strong>Why:</strong> test-driven iteration replaces a subjective judgement — "not quite right" — with a specific, reproducible signal. Sharing the failures guides progressive improvement instead of restarting from a new description each round (Task 3.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Discards the automation for a task it is well suited to.</li>
-<li data-opt="c">Picks the least-bad of three unverified implementations, with no mechanism for improvement.</li>
+<li data-opt="b">Your grasp of the requirements is better spent writing the tests; handing back the implementation discards the automation for a task it is well suited to.</li>
+<li data-opt="c">Inspection of three unverified implementations picks the least-bad one and leaves you with no mechanism for improving it.</li>
 <li data-opt="d">Is the loop that is already failing; prose about defects is exactly what is being interpreted inconsistently.</li>
 </ul>
 </div>
@@ -1963,11 +1963,11 @@
 <p><strong>Question:</strong> What is the fix?</p>
 <p data-opt="a">A) Add an instruction telling the model never to invent a company name.</p>
 <p data-opt="b">B) Add an enum of the known company names so the model must choose from a list.</p>
-<p data-opt="c">C) Make the field nullable — <code>"type": ["string", "null"]</code> — and remove it from <code>required</code>, so the model can return null when the information is absent.</p>
+<p data-opt="c">C) Make the field nullable — <code>"type": ["string", "null"]</code> — and remove it from <code>required</code>.</p>
 <p data-opt="d">D) Keep the field required and validate afterwards that the value appears in the source text.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Make the field nullable and optional</p>
-<p><strong>Why:</strong> a required field puts the model between violating the schema and inventing a value, and it invents. Designing fields as nullable when the source may not contain the information is what prevents fabrication (Task 4.3).</p>
+<p><strong>Why:</strong> a required field puts the model between violating the schema and inventing a value, and it invents. Designing fields as nullable when the source may not contain the information is what prevents fabrication: null becomes a legal answer, so the model can say the receipt named no company (Task 4.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Leaves the contradiction in place: the schema still demands a value.</li>
@@ -1982,18 +1982,18 @@
 <div>
 <p><strong>Scenario:</strong> Your <code>category</code> enum is <code>["billing", "technical", "account"]</code>. Around 8% of documents concern something else — partnership enquiries, legal notices, press requests — and are currently forced into "account", where they are invisible to downstream routing.</p>
 <p><strong>Question:</strong> How should the schema change?</p>
-<p data-opt="a">A) Replace the enum with a free-text string field.</p>
+<p data-opt="a">A) Replace the enum with a free-text string field, so nothing that arrives can fall outside it.</p>
 <p data-opt="b">B) Add an <code>"other"</code> enum value plus a nullable <code>category_detail</code> free-text field describing what it actually was.</p>
-<p data-opt="c">C) Add the three new categories you have observed to the enum.</p>
-<p data-opt="d">D) Keep the enum and add a boolean <code>is_uncategorised</code> flag.</p>
+<p data-opt="c">C) Add the three new categories you have observed to the enum, restoring routing for those documents.</p>
+<p data-opt="d">D) Keep the enum and add a boolean <code>is_uncategorised</code> flag, so misfiled documents can at least be counted.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: <code>"other"</code> plus a detail field</p>
 <p><strong>Why:</strong> the <code>"other"</code> + detail-string pattern keeps the enum useful for the common cases while preserving the information that falls outside it — which is what makes the category set extensible (Task 4.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Discards the constraint that makes the field routable at all.</li>
-<li data-opt="c">Fixes the three cases you have seen and fails on the fourth kind, next month.</li>
-<li data-opt="d">Marks that something was uncategorised without recording what it was.</li>
+<li data-opt="a">Nothing falls outside a free-text field because it constrains nothing, and routing needs a closed set of values to switch on.</li>
+<li data-opt="c">Restores routing for the three kinds you have already seen, and fails again on the fourth kind, next month.</li>
+<li data-opt="d">Counting the misfiled documents still leaves you without the one thing routing needs: what they actually were.</li>
 </ul>
 </div>
 </details>
@@ -2003,16 +2003,16 @@
 <div>
 <p><strong>Scenario:</strong> A sentiment field with enum <code>["positive", "negative", "neutral"]</code> is applied to customer letters. Reviewers find that letters mixing praise and complaint are labelled inconsistently — sometimes positive, sometimes negative — and the label is later treated as fact.</p>
 <p><strong>Question:</strong> What is the appropriate schema change?</p>
-<p data-opt="a">A) Instruct the model to pick whichever sentiment dominates the letter.</p>
-<p data-opt="b">B) Route every mixed letter to a human before extraction runs.</p>
-<p data-opt="c">C) Add an <code>"unclear"</code> enum value so the model can express genuine uncertainty rather than being forced into a category.</p>
+<p data-opt="a">A) Instruct the model to pick whichever sentiment dominates the letter, which does yield one consistent rule.</p>
+<p data-opt="b">B) Route every mixed letter to a human before extraction runs, so a person decides.</p>
+<p data-opt="c">C) Add an <code>"unclear"</code> enum value so the model can record genuine uncertainty instead of guessing.</p>
 <p data-opt="d">D) Add a numeric sentiment score from −1 to 1 instead of an enum.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: An <code>"unclear"</code> enum value</p>
 <p><strong>Why:</strong> an enum with no honest exit forces an arbitrary choice, and downstream systems then treat the arbitrary choice as data. An honest "unclear" is more useful than a confident mislabel (Task 4.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Instructs the model to make exactly the arbitrary choice that is causing the inconsistency.</li>
+<li data-opt="a">A consistent rule for choosing between two genuine sentiments is still the arbitrary choice that is causing the inconsistency.</li>
 <li data-opt="b">Requires knowing a letter is mixed before extraction — which is what extraction was meant to determine.</li>
 <li data-opt="d">A score collapses "mixed" and "neutral" onto the same value near zero, hiding the distinction rather than exposing it.</li>
 </ul>
@@ -2024,18 +2024,18 @@
 <div>
 <p><strong>Scenario:</strong> Your pipeline has an <code>extract_metadata</code> tool that identifies the document type and issue date, and several enrichment tools whose behaviour depends on the document type. The model sometimes calls an enrichment tool first, which then runs with the wrong assumptions.</p>
 <p><strong>Question:</strong> How do you guarantee the ordering?</p>
-<p data-opt="a">A) Describe the required order in the tool descriptions.</p>
+<p data-opt="a">A) Describe the required order in each tool description, so the model reads the dependency before choosing.</p>
 <p data-opt="b">B) Force the first call with <code>tool_choice: {"type": "tool", "name": "extract_metadata"}</code>, then handle the enrichment steps in follow-up turns.</p>
-<p data-opt="c">C) Set <code>tool_choice: {"type": "any"}</code> so the model always calls a tool.</p>
-<p data-opt="d">D) List <code>extract_metadata</code> first in the <code>tools</code> array.</p>
+<p data-opt="c">C) Set <code>tool_choice: {"type": "any"}</code> so the model always calls a tool rather than answering from memory.</p>
+<p data-opt="d">D) List <code>extract_metadata</code> first in the <code>tools</code> array, so it is the first candidate the model sees.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Force the specific tool for the first call</p>
 <p><strong>Why:</strong> forced tool selection guarantees that a named tool runs, which is how you ensure extraction precedes enrichment. Subsequent steps are then processed in follow-up turns, where the metadata is already available (Tasks 2.3 and 4.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="c"><code>"any"</code> guarantees that <em>a</em> tool is called, not which one — the reported failure is still possible.</li>
-<li data-opt="d">Array order is not a selection mechanism.</li>
-<li data-opt="a">Descriptions inform the choice probabilistically; the scenario needs a guarantee.</li>
+<li data-opt="c"><code>"any"</code> guarantees that <em>a</em> tool is called, not which one; answering from memory was never the failure, and the enrichment-first call remains possible.</li>
+<li data-opt="d">Being listed first does not make a tool the first candidate — array order is not a selection mechanism.</li>
+<li data-opt="a">A dependency stated in a description informs the choice probabilistically; the scenario asks for a guarantee.</li>
 </ul>
 </div>
 </details>
@@ -2046,17 +2046,17 @@
 <p><strong>Scenario:</strong> Source documents write dates as "15/01/2025", "Jan 15, 2025", "2025-01-15" and "the fifteenth of January". Your schema types the field as a string, and the output preserves whichever form appeared in the document. Downstream systems expect ISO 8601.</p>
 <p><strong>Question:</strong> What is the right combination?</p>
 <p data-opt="a">A) Change the schema to accept any of the four formats and normalise downstream.</p>
-<p data-opt="b">B) Keep the strict output schema and add explicit format normalisation rules to the prompt, stating that all dates must be emitted as ISO 8601.</p>
+<p data-opt="b">B) Keep the strict output schema and add explicit format normalisation rules to the prompt.</p>
 <p data-opt="c">C) Add a regular-expression pattern to the schema field so only ISO 8601 validates.</p>
-<p data-opt="d">D) Add a second tool call that converts the extracted dates afterwards.</p>
+<p data-opt="d">D) Add a second tool call that converts the extracted dates afterwards, keeping the extraction prompt untouched.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Strict schema plus normalisation rules in the prompt</p>
-<p><strong>Why:</strong> the schema says what shape the output takes; the prompt says how to map inconsistent source formatting into it. Including format normalisation rules alongside a strict output schema is the documented pairing (Task 4.3).</p>
+<p><strong>Why:</strong> the schema says what shape the output takes; the prompt says how to map inconsistent source formatting into it — every date emitted as ISO 8601, whichever form the document used. Including format normalisation rules alongside a strict output schema is the documented pairing (Task 4.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Pushes an ambiguity — is 01/02 January 2nd or February 1st? — to a consumer with less context than the extractor had.</li>
 <li data-opt="c">A pattern rejects a non-conforming value without telling the model how to produce a conforming one.</li>
-<li data-opt="d">A second call to do what the first could have done in one pass.</li>
+<li data-opt="d">Leaving the extraction prompt untouched costs a second call to do what the first could have done in one pass.</li>
 </ul>
 </div>
 </details>
@@ -2066,18 +2066,18 @@
 <div>
 <p><strong>Scenario:</strong> Pydantic validation rejects an extraction: <code>invoice_date</code> is "15/01/2025" where the model expects an ISO date, and <code>line_items[2].quantity</code> is the string "two" rather than an integer. Your pipeline currently retries with the original prompt unchanged.</p>
 <p><strong>Question:</strong> What should the retry contain?</p>
-<p data-opt="a">A) The original document, the failed extraction, and the specific validation errors, so the model can correct exactly what failed.</p>
-<p data-opt="b">B) Only the failed extraction and the errors, without the document, to save tokens.</p>
-<p data-opt="c">C) The original document and an instruction to be more careful with types.</p>
-<p data-opt="d">D) The original document only, with a higher token budget.</p>
+<p data-opt="a">A) The original document, the failed extraction, and the specific validation errors, so the model can correct what failed.</p>
+<p data-opt="b">B) Only the failed extraction and the errors, without the document, to save tokens on the retry.</p>
+<p data-opt="c">C) The original document and a firmer instruction to be more careful with field types this time.</p>
+<p data-opt="d">D) The original document only, with a higher token budget so the model has room to be thorough.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Document, failed extraction, and the specific errors</p>
 <p><strong>Why:</strong> retry-with-error-feedback works by telling the model precisely what was wrong. Without the errors it repeats the mistake; without the document it cannot re-derive the correct value (Task 4.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Saves tokens by removing the only source of the correct answer.</li>
-<li data-opt="c">A generic instruction does not identify which two fields failed or why.</li>
-<li data-opt="d">An identical request with more tokens reproduces the same output.</li>
+<li data-opt="b">Saves tokens on the retry by removing the only source of the correct values.</li>
+<li data-opt="c">A firmer instruction still does not identify which two fields failed, or why their values were rejected.</li>
+<li data-opt="d">Room to be thorough changes nothing: an identical request with a larger budget reproduces the same output.</li>
 </ul>
 </div>
 </details>
@@ -2087,18 +2087,18 @@
 <div>
 <p><strong>Scenario:</strong> Validation flags a missing <code>purchase_order_number</code>. Investigation shows the purchase order number is not in the invoice at all — it lives in a separate procurement record that is not supplied to the extractor. Your pipeline retries these three times before failing.</p>
 <p><strong>Question:</strong> How should this be handled?</p>
-<p data-opt="a">A) Make the model infer a plausible purchase order number from the vendor and date.</p>
-<p data-opt="b">B) Recognise that retries cannot succeed when the information is absent from the source, and route the case to the process that can supply the missing document.</p>
-<p data-opt="c">C) Increase the retry count, since some extractions succeed on the fourth attempt.</p>
-<p data-opt="d">D) Retry with a stronger instruction to search the document more thoroughly.</p>
+<p data-opt="a">A) Make the model infer a plausible purchase order number from the vendor and the invoice date.</p>
+<p data-opt="b">B) Recognise that retries cannot succeed when the information is absent, and route the case for the missing document.</p>
+<p data-opt="c">C) Increase the retry count, since some extractions do succeed on a later attempt than the third.</p>
+<p data-opt="d">D) Retry with a stronger instruction to search the whole document, including its attachments, more thoroughly.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Retries do not create information that is not there</p>
-<p><strong>Why:</strong> the distinction that matters is between format or structural errors — which retries fix — and information genuinely absent from the source, which they cannot (Task 4.4). Recognising the second class is what stops the wasted attempts.</p>
+<p><strong>Why:</strong> the distinction that matters is between format or structural errors — which retries fix — and information genuinely absent from the source, which they cannot (Task 4.4). Recognising the second class is what stops the wasted attempts and routes the case to the process that can supply the missing procurement record.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Manufactures a value for a field used in financial reconciliation.</li>
-<li data-opt="c">Treats a deterministic absence as if it were flakiness.</li>
-<li data-opt="d">Searching harder in a document that does not contain the value yields the same result.</li>
+<li data-opt="a">Vendor and date cannot produce a number they do not encode, so this manufactures a value for a field used in financial reconciliation.</li>
+<li data-opt="c">Later attempts help with flakiness; this is a deterministic absence, and every further attempt reads the same document.</li>
+<li data-opt="d">There is nothing further to find: searching the invoice and its attachments harder yields the same absence.</li>
 </ul>
 </div>
 </details>
@@ -2109,16 +2109,16 @@
 <p><strong>Scenario:</strong> Some invoices contain arithmetic errors in the source itself: the printed total does not match the sum of the line items. Today the extractor silently reports the printed total, and the discrepancy surfaces weeks later in reconciliation.</p>
 <p><strong>Question:</strong> How should the schema be designed?</p>
 <p data-opt="a">A) Have the model correct the line items to match the total.</p>
-<p data-opt="b">B) Reject any invoice whose totals disagree.</p>
-<p data-opt="c">C) Extract <code>stated_total</code> and <code>calculated_total</code> as separate fields and add a <code>conflict_detected</code> boolean, so the discrepancy is visible at extraction time.</p>
+<p data-opt="b">B) Reject any invoice whose totals disagree and send it back to the supplier for correction.</p>
+<p data-opt="c">C) Extract <code>stated_total</code> and <code>calculated_total</code> as separate fields and add a <code>conflict_detected</code> boolean flag.</p>
 <p data-opt="d">D) Have the model correct the total to match the line items.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Both totals plus an explicit conflict flag</p>
-<p><strong>Why:</strong> extracting <code>calculated_total</code> alongside <code>stated_total</code> and flagging discrepancies is the self-correction validation design the guide describes. The extractor's job is to report what the document says and surface the inconsistency, not to resolve it (Task 4.4).</p>
+<p><strong>Why:</strong> extracting <code>calculated_total</code> alongside <code>stated_total</code> and flagging discrepancies is the self-correction validation design the guide describes. The extractor's job is to report what the document says and surface the inconsistency at extraction time, not to resolve it weeks later (Task 4.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Silently rewrites the line items, which assumes the printed total is the trustworthy side — a guess the extractor has no basis to make, and the record no longer matches the document.</li>
-<li data-opt="b">Discards documents that are legitimate business records — a supplier's arithmetic error is still an invoice you must process.</li>
+<li data-opt="b">Sending it back stalls a legitimate business record — a supplier's arithmetic error is still an invoice you must process, and the discrepancy is worth recording either way.</li>
 <li data-opt="d">Silently rewrites the total instead, assuming the opposite side is trustworthy. It is the same alteration of source data, and reconciliation still has nothing telling it that the invoice disagreed with itself.</li>
 </ul>
 </div>
@@ -2129,18 +2129,18 @@
 <div>
 <p><strong>Scenario:</strong> You submitted 100 documents to the Message Batches API. Eighty-eight succeeded; twelve failed because the documents exceeded the context limit.</p>
 <p><strong>Question:</strong> What is the correct recovery?</p>
-<p data-opt="a">A) Resubmit all 100 with chunking applied uniformly.</p>
+<p data-opt="a">A) Resubmit all 100 with chunking applied uniformly, so no document can exceed the limit again.</p>
 <p data-opt="b">B) Identify the twelve by <code>custom_id</code> and resubmit only those, chunked so each request fits within the limit.</p>
 <p data-opt="c">C) Process the twelve through the synchronous API instead, which has no context limit.</p>
-<p data-opt="d">D) Resubmit the twelve unchanged, since batch capacity varies between runs.</p>
+<p data-opt="d">D) Resubmit the twelve unchanged, since batch capacity varies between runs and a quieter run may accept them.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Resubmit only the failures, chunked, identified by <code>custom_id</code></p>
 <p><strong>Why:</strong> <code>custom_id</code> correlates each request with its response, which is what lets you isolate the failures. Resubmitting them with the modification that addresses the cause — chunking oversized documents — is the documented handling (Task 4.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Pays for 88 successful extractions a second time.</li>
+<li data-opt="a">Prevents a recurrence by paying for 88 successful extractions a second time.</li>
 <li data-opt="c">The synchronous API has the same context window — the limit is the model's, not the batch mechanism's.</li>
-<li data-opt="d">The context limit is deterministic; an unchanged oversized document fails identically.</li>
+<li data-opt="d">Capacity varies, but the context limit does not: an unchanged oversized document fails identically on the quietest run.</li>
 </ul>
 </div>
 </details>
@@ -2150,17 +2150,17 @@
 <div>
 <p><strong>Scenario:</strong> You are about to run a 50,000-document backfill through the Batches API. Your prompt and schema have been tested on three documents you happened to have open.</p>
 <p><strong>Question:</strong> What should you do first?</p>
-<p data-opt="a">A) Submit all 50,000 twice and compare the two runs for consistency.</p>
-<p data-opt="b">B) Submit all 50,000 and iterate on whatever fails.</p>
-<p data-opt="c">C) Submit in ten batches of 5,000, adjusting the prompt between batches.</p>
+<p data-opt="a">A) Submit all 50,000 twice and compare the two runs, treating disagreement as the defect signal.</p>
+<p data-opt="b">B) Submit all 50,000 and iterate on whatever fails, since the failures are the only real evidence.</p>
+<p data-opt="c">C) Submit in ten batches of 5,000, adjusting the prompt between batches as problems reveal themselves.</p>
 <p data-opt="d">D) Refine the prompt against a representative sample, measuring first-pass success, before committing the full volume.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Refine on a sample first</p>
 <p><strong>Why:</strong> prompt refinement on a sample before batch-processing large volumes is what maximises the first-pass success rate and avoids the cost of iterative resubmission at scale (Task 4.5). Three convenient documents are not a sample.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Doubles the cost and measures consistency, not correctness — two identically wrong runs agree perfectly.</li>
-<li data-opt="b">Discovers a systematic prompt defect after paying for 50,000 extractions.</li>
+<li data-opt="a">Agreement measures consistency, not correctness — two identically wrong runs agree perfectly, and the bill is doubled.</li>
+<li data-opt="b">The failures are evidence bought at full price: a systematic prompt defect is far cheaper to find on a sample.</li>
 <li data-opt="c">Better than B, but each 5,000-document batch still costs a full day of latency to learn something a small sample answers in minutes.</li>
 </ul>
 </div>
@@ -2171,18 +2171,18 @@
 <div>
 <p><strong>Scenario:</strong> Your research-paper extractor handles papers with a bibliography reliably, but returns null for <code>references</code> on papers using inline citations, and misses methodology details when they are embedded in the results section instead of a dedicated one. The schema and instructions are correct.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
-<p data-opt="a">A) Instruct the model to read the whole document twice before extracting.</p>
-<p data-opt="b">B) Add few-shot examples demonstrating correct extraction from each structural variety — inline citations as well as bibliographies, embedded methodology as well as dedicated sections.</p>
+<p data-opt="a">A) Instruct the model to read the whole document twice before extracting, so nothing is missed.</p>
+<p data-opt="b">B) Add few-shot examples demonstrating correct extraction from each structural variety — inline citations as well as bibliographies.</p>
 <p data-opt="c">C) Add a preliminary classification step that detects the document layout, then dispatches to one of several extractors.</p>
-<p data-opt="d">D) Mark the affected fields as nullable so the null results validate cleanly.</p>
+<p data-opt="d">D) Mark the affected fields as nullable so the null results validate cleanly and stop failing the pipeline.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Few-shot examples covering the structural varieties</p>
-<p><strong>Why:</strong> few-shot examples showing correct extraction from varied document structures directly address empty or null extraction of fields that are present but laid out unexpectedly (Task 4.2). The information is in the document; the model does not recognise it in that form.</p>
+<p><strong>Why:</strong> few-shot examples showing correct extraction from varied document structures directly address empty or null extraction of fields that are present but laid out unexpectedly (Task 4.2). Cover every variety you see — embedded methodology as well as dedicated sections. The information is in the document; the model does not recognise it in that form.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Rereading does not help when the difficulty is recognising an unfamiliar form.</li>
+<li data-opt="a">A second reading misses the same material: the difficulty is recognising an unfamiliar form, not seeing it.</li>
 <li data-opt="c">Builds a dispatcher and N extractors to solve a recognition problem that examples fix in one prompt.</li>
-<li data-opt="d">Makes the wrong answer validate — the references exist, and null is incorrect.</li>
+<li data-opt="d">Stops the pipeline failing by making the wrong answer valid — the references exist, and null is incorrect.</li>
 </ul>
 </div>
 </details>
@@ -2193,9 +2193,9 @@
 <p><strong>Scenario:</strong> You aggregate the analyses of 30 contracts into a single request for a comparative summary. The summary reliably reflects the first four contracts and the last three; clauses from contracts 10 to 22 are frequently omitted, even though they are present in the input.</p>
 <p><strong>Question:</strong> How should the input be organised?</p>
 <p data-opt="a">A) Submit the 30 contracts in a single request but ask for the summary in 30 separate responses.</p>
-<p data-opt="b">B) Place a summary of the key findings at the beginning, and organise the detailed results with explicit section headers so position effects are mitigated.</p>
-<p data-opt="c">C) Sort the contracts so the most important ones are first and last.</p>
-<p data-opt="d">D) Move to a model with a larger context window.</p>
+<p data-opt="b">B) Place a summary of the key findings at the beginning, and organise the detailed results with explicit section headers.</p>
+<p data-opt="c">C) Sort the contracts so the most important ones sit at the beginning and the end, where attention is reliable.</p>
+<p data-opt="d">D) Move to a model with a larger context window, so the whole comparison fits with room to spare.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Key findings first, detailed results under explicit headers</p>
 <p><strong>Why:</strong> models process the beginning and end of long inputs reliably and may omit the middle. Front-loading a findings summary and structuring the body with explicit headers are the documented mitigations (Task 5.1).</p>
@@ -2203,7 +2203,7 @@
 <ul>
 <li data-opt="a">30 separate answers is not a comparative summary.</li>
 <li data-opt="c">Requires knowing which contracts matter before the comparison that determines it, and it still buries whatever lands in the middle.</li>
-<li data-opt="d">A larger window does not change where attention concentrates within it.</li>
+<li data-opt="d">Room to spare does not change where attention concentrates within the window; the middle is still the middle.</li>
 </ul>
 </div>
 </details>
@@ -2214,16 +2214,16 @@
 <p><strong>Scenario:</strong> Your pipeline reports 97% aggregate accuracy across all documents and fields. Management wants to remove human review from the 97% and keep reviewers only for the rest.</p>
 <p><strong>Question:</strong> What must you verify first?</p>
 <p data-opt="a">A) Confirm the 3% of failures are randomly distributed by checking that they come from many different customers.</p>
-<p data-opt="b">B) Nothing — 97% is above the threshold agreed with the business.</p>
+<p data-opt="b">B) Nothing — 97% is above the threshold the business already agreed to, so the decision is made.</p>
 <p data-opt="c">C) Re-measure the aggregate on a larger sample to tighten the confidence interval.</p>
-<p data-opt="d">D) Break the accuracy down by document type and by field, using stratified random sampling, to confirm performance is consistent across every segment before reducing review.</p>
+<p data-opt="d">D) Break the accuracy down by document type and by field, using stratified random sampling across every segment.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Break it down by document type and field</p>
 <p><strong>Why:</strong> an aggregate figure can conceal a segment performing far worse — scanned invoices at 60%, VAT numbers at 40% — while the average stays reassuring. Validating accuracy by document type and field segment is the precondition for automating high-confidence extractions (Task 5.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Customer spread says nothing about concentration by document type or by field.</li>
-<li data-opt="b">Accepts the exact reasoning the scenario is constructed to challenge.</li>
+<li data-opt="b">An agreed threshold read off an aggregate figure is the exact reasoning the scenario is constructed to challenge.</li>
 <li data-opt="c">A more precise aggregate is still an aggregate; precision does not reveal structure.</li>
 </ul>
 </div>
@@ -2261,17 +2261,17 @@
 <div>
 <p><strong>Scenario:</strong> Every release, you review the same eight service modules against the same four concerns: security, error handling, logging, and API contract compliance. The scope is stable and known in advance. A single combined prompt produces uneven depth.</p>
 <p><strong>Question:</strong> Which decomposition fits?</p>
-<p data-opt="a">A) One prompt per release, with instructions to cover all four concerns thoroughly.</p>
-<p data-opt="b">B) Delegate the whole review to a single subagent with a large context.</p>
+<p data-opt="a">A) One prompt per release, with firmer instructions to cover all four concerns to the same depth.</p>
+<p data-opt="b">B) Delegate the whole review to a single subagent with a large context, so every module is seen together.</p>
 <p data-opt="c">C) Prompt chaining: a fixed sequence of focused passes, one per aspect or per module, then an integration pass.</p>
-<p data-opt="d">D) Dynamic adaptive decomposition, letting each pass decide what the next should examine.</p>
+<p data-opt="d">D) Dynamic adaptive decomposition, letting each pass decide what the next should examine as issues surface.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: Prompt chaining</p>
 <p><strong>Why:</strong> prompt chaining suits predictable multi-aspect reviews where the steps are known in advance; dynamic decomposition suits open-ended investigation. The distinguishing feature here is that the scope is stable release after release (Task 1.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Is the current approach, and uneven depth is the reported symptom.</li>
-<li data-opt="b">Moves the same undifferentiated pass into a subagent.</li>
+<li data-opt="a">Firmer wording does not change the approach that is already producing the uneven depth you are trying to fix.</li>
+<li data-opt="b">Seeing every module together is what the combined prompt already does; moving it into a subagent leaves the pass undifferentiated.</li>
 <li data-opt="d">Adaptivity buys nothing when the aspects and modules are fixed, and it makes results less comparable between releases.</li>
 </ul>
 </div>
@@ -2303,18 +2303,18 @@
 <div>
 <p><strong>Scenario:</strong> You have <code>analyze_content</code> ("Analyzes content and extracts key information") and <code>analyze_document</code> ("Analyzes documents and extracts information"). In practice the first is used for web search results and the second for PDFs, but the agent picks between them essentially at random.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
-<p data-opt="a">A) Add a system prompt rule stating which tool to use for which input.</p>
-<p data-opt="b">B) Merge the two into one tool that handles both input types.</p>
-<p data-opt="c">C) Remove <code>analyze_content</code> and route web results through <code>analyze_document</code>.</p>
-<p data-opt="d">D) Rename <code>analyze_content</code> to <code>extract_web_results</code> and rewrite its description around web-specific inputs and outputs, so the two no longer overlap functionally.</p>
+<p data-opt="a">A) Add a system prompt rule stating which tool to use for which kind of input.</p>
+<p data-opt="b">B) Merge the two into one tool that handles both input types, removing the choice altogether.</p>
+<p data-opt="c">C) Remove <code>analyze_content</code> and route every web result through <code>analyze_document</code>, leaving one tool.</p>
+<p data-opt="d">D) Rename <code>analyze_content</code> to <code>extract_web_results</code> and rewrite its description around web-specific inputs and outputs.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Rename and rewrite the description to eliminate the overlap</p>
 <p><strong>Why:</strong> near-identical descriptions cause misrouting, and the fix is to remove the functional overlap — renaming the tool and rewriting its description around its actual domain. The guide uses this exact pair as its example (Task 2.1).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">A prompt rule patches the selection while leaving two indistinguishable descriptions in place.</li>
-<li data-opt="b">Merging is a real option, but it discards a genuine distinction between two input types with different handling.</li>
-<li data-opt="c">Forces web results through a tool designed for documents.</li>
+<li data-opt="b">Removing the choice is a real option, but merging discards a genuine distinction between two input types that need different handling.</li>
+<li data-opt="c">One tool is unambiguous only because every web result is now forced through a tool designed for documents.</li>
 </ul>
 </div>
 </details>
@@ -2325,9 +2325,9 @@
 <p><strong>Scenario:</strong> A six-hour multi-agent analysis crashes at hour five. Two agents had completed, one was mid-run, three had not started. Restarting from scratch means six more hours.</p>
 <p><strong>Question:</strong> What should the system have been designed to do?</p>
 <p data-opt="a">A) Have the coordinator keep the full run in its conversation history so it can be resumed from the transcript.</p>
-<p data-opt="b">B) Run every agent twice in parallel so a crash in one copy leaves the other running.</p>
-<p data-opt="c">C) Checkpoint the whole process to disk every fifteen minutes and restore the last checkpoint.</p>
-<p data-opt="d">D) Have each agent export its state to a known location and have the coordinator maintain a manifest it loads on resume, injecting the recovered state into agent prompts.</p>
+<p data-opt="b">B) Run every agent twice in parallel so a crash in one copy leaves the other still running to completion.</p>
+<p data-opt="c">C) Checkpoint the whole process to disk every fifteen minutes and restore the last checkpoint after a crash.</p>
+<p data-opt="d">D) Have each agent export its state to a known location and have the coordinator maintain a manifest it loads on resume.</p>
 <hr>
 <p class="correct" data-answer="d">Answer: Per-agent state exports plus a coordinator manifest</p>
 <p><strong>Why:</strong> structured state persistence for crash recovery means each agent exports its state to a known location and the coordinator loads a manifest on resume, injecting the recovered state where it is needed (Task 5.4). Completed work is then skipped rather than repeated.</p>
@@ -2345,17 +2345,17 @@
 <div>
 <p><strong>Scenario:</strong> Two hours into an exploration session, the context is dominated by verbose file listings and search results from the discovery phase. The conclusions you care about are a handful of paragraphs. You need to continue in the same session.</p>
 <p><strong>Question:</strong> What is the appropriate tool?</p>
-<p data-opt="a">A) <code>/compact</code>, to reduce context usage, having first captured the conclusions you must not lose in a scratchpad file.</p>
-<p data-opt="b">B) Ask the model to forget the discovery output it no longer needs.</p>
-<p data-opt="c">C) Restart the session, since compaction always loses too much.</p>
-<p data-opt="d">D) <code>/compact</code> alone, which preserves important information automatically.</p>
+<p data-opt="a">A) <code>/compact</code>, having first captured the conclusions you must not lose in a scratchpad file.</p>
+<p data-opt="b">B) Ask the model to forget the discovery output it no longer needs, freeing the space.</p>
+<p data-opt="c">C) Restart the session with only the conclusions, since compaction always loses too much.</p>
+<p data-opt="d">D) <code>/compact</code> alone, since it preserves the important information automatically and the session continues.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: <code>/compact</code>, with the critical conclusions persisted first</p>
 <p><strong>Why:</strong> <code>/compact</code> is the documented way to reduce context usage during extended exploration sessions filled with verbose discovery output. Because compaction is lossy, the durable findings belong in a scratchpad first (Task 5.4).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Asking the model to forget removes nothing: the tokens are already in the request. Taking something out of the context takes a real mechanism — compaction, API-side context editing, or a fresh session — never an instruction.</li>
-<li data-opt="c">Overstates the risk — compaction plus a scratchpad keeps the session alive and the findings intact.</li>
+<li data-opt="c">Restarting throws away a session you were told to continue; compaction plus a scratchpad keeps it alive and the findings intact.</li>
 <li data-opt="d">Compaction summarises; it does not guarantee that any particular detail survives.</li>
 </ul>
 </div>
@@ -2366,16 +2366,16 @@
 <div>
 <p><strong>Scenario:</strong> Your synthesis agent receives, from three upstream agents, their full reasoning chains and the complete text of every source they consulted. It exhausts its context before finishing and its output degrades in the second half.</p>
 <p><strong>Question:</strong> What should change upstream?</p>
-<p data-opt="a">A) Have the upstream agents return structured data — key facts, citations, relevance scores — instead of verbose content and reasoning chains.</p>
-<p data-opt="b">B) Give the synthesis agent a model with a larger context window.</p>
-<p data-opt="c">C) Have the synthesis agent summarise each upstream input before using it.</p>
+<p data-opt="a">A) Have the upstream agents return structured data — key facts, citations, relevance scores — instead of raw content.</p>
+<p data-opt="b">B) Give the synthesis agent a model with a larger context window, so everything upstream sends still fits.</p>
+<p data-opt="c">C) Have the synthesis agent summarise each upstream input before using it, condensing the material where it lands.</p>
 <p data-opt="d">D) Run the synthesis agent three times, once per upstream input, and concatenate the results.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: Upstream agents return structured data</p>
 <p><strong>Why:</strong> when downstream agents have limited context budgets, the fix belongs upstream: return key facts, citations and relevance scores rather than reasoning chains and raw content (Task 5.1). The reasoning was useful to the agent that produced it; it is not what synthesis consumes.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="b">Buys headroom and leaves the ratio of signal to noise unchanged.</li>
+<li data-opt="b">Making everything fit buys headroom and leaves the ratio of signal to noise exactly where it was.</li>
 <li data-opt="c">Makes the synthesis agent pay to read everything before condensing it — the cost you are trying to avoid.</li>
 <li data-opt="d">Three partial syntheses concatenated is not a synthesis; cross-source connections are exactly what is lost.</li>
 </ul>
@@ -2387,16 +2387,16 @@
 <div>
 <p><strong>Scenario:</strong> Your synthesis output is factually correct and properly sourced, but readers complain it is unusable. Twelve quarters of revenue figures are described in flowing sentences, a sequence of regulatory events is presented as a bulleted list of fragments, and technical findings are buried in narrative paragraphs.</p>
 <p><strong>Question:</strong> Where is the defect and what is the fix?</p>
-<p data-opt="a">A) In the sourcing: readers are struggling because they cannot verify the claims quickly enough.</p>
-<p data-opt="b">B) In the rendering at synthesis output: instruct the synthesis agent to render each content type in its natural form — tables for figures, prose for events and context, structured lists for technical findings.</p>
+<p data-opt="a">A) In the sourcing: readers are struggling because they cannot trace a claim back to its source quickly enough.</p>
+<p data-opt="b">B) In the rendering at synthesis output: instruct the synthesis agent to render each content type in its natural form.</p>
 <p data-opt="c">C) In the upstream agents, which are returning content in a form the synthesis agent cannot present well.</p>
 <p data-opt="d">D) In the volume: the report covers too much and should be split into three shorter reports.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: A rendering defect at the synthesis step</p>
-<p><strong>Why:</strong> when the content is correct and well sourced but hard to use, the fault is uniform rendering on output — usually everything flattened into prose, because that is the default. Different content types have different natural forms, and the synthesis agent should be instructed accordingly (Task 5.6).</p>
+<p><strong>Why:</strong> when the content is correct and well sourced but hard to use, the fault is uniform rendering on output — usually everything flattened into prose, because that is the default. Different content types have different natural forms — tables for figures, prose for events and context, structured lists for technical findings — and the synthesis agent should be instructed accordingly (Task 5.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">The complaint is about usability of the presentation, and the sourcing is described as sound.</li>
+<li data-opt="a">Tracing claims is not the complaint: the sourcing is described as sound, and readers are stuck on the presentation.</li>
 <li data-opt="c">The scenario states the content is correct and sourced; the upstream agents did their job.</li>
 <li data-opt="d">Splitting an unreadable report produces three unreadable reports.</li>
 </ul>
@@ -2453,16 +2453,16 @@
 <p><strong>Scenario:</strong> Your coordinator delegates to a synthesis subagent that must combine the outputs of a web search agent and a document analysis agent, while preserving source attribution.</p>
 <p><strong>Question:</strong> Which two practices are correct?</p>
 <p data-opt="a">A) Give the subagent read access to the other subagents' sessions so it can consult them as needed.</p>
-<p data-opt="b">B) Pass the coordinator's entire transcript, so nothing can be missing.</p>
+<p data-opt="b">B) Pass the coordinator's entire transcript, so nothing the subagent might need can be missing.</p>
 <p data-opt="c">C) Include the complete findings from the prior agents directly in the subagent's prompt.</p>
-<p data-opt="d">D) Rely on the subagent inheriting the coordinator's conversation history automatically.</p>
-<p data-opt="e">E) Use a structured format that separates content from metadata — source URLs, document names, page numbers — so attribution survives the handoff.</p>
+<p data-opt="d">D) Rely on the subagent inheriting the coordinator's conversation history automatically, as a spawned process would.</p>
+<p data-opt="e">E) Use a structured format that separates content from metadata — source URLs, document names, page numbers.</p>
 <hr>
 <p class="correct" data-answer="c e">Answers: the prior findings passed explicitly in the prompt, in a content/metadata structure</p>
 <p><strong>Why:</strong> subagents have isolated context, so everything they need is provided explicitly in the prompt; and separating content from metadata is what preserves attribution through the handoff (Task 1.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="d">There is no automatic inheritance — this is the single most common misconception about subagents.</li>
+<li data-opt="d">A subagent is not a spawned process that inherits its parent's state: there is no automatic inheritance, and this is the single most common misconception about subagents.</li>
 <li data-opt="b">The full transcript floods the subagent's context with material irrelevant to its task; "complete findings" is not "everything that happened".</li>
 <li data-opt="a">Cross-session access breaks both the isolation of subagents and the hub-and-spoke routing through the coordinator.</li>
 </ul>
