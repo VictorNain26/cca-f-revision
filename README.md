@@ -73,7 +73,7 @@ Le site publié reste du HTML statique ; `package.json` ne sert qu'à outiller l
 
 ```bash
 npm install     # une fois — installe jsdom (seule dépendance, pour les quiz)
-npm run check   # enchaîne les quatre contrôles, sort en échec au premier problème
+npm run check   # enchaîne les cinq contrôles, sort en échec au premier problème
 ```
 
 | Script | Ce qu'il garantit |
@@ -83,6 +83,7 @@ npm run check   # enchaîne les quatre contrôles, sort en échec au premier pro
 | `check:links` | Aucun lien ni ancre interne cassé ; les 30 task statements sont tous cités. |
 | `check:diacritics` | Aucun mot français écrit sans ses accents (`Practice_Questions.html` est en anglais, hors périmètre). |
 | `check:quizzes` | `quiz.js` exécuté sur chaque page : l'énoncé et les choix sont visibles, la réponse ne fuite pas avant la révélation. |
+| `check:length` | L'indice de longueur : une bonne réponse dont la longueur trahit sa position se devine sans lire. Le verdict porte sur le **taux de réussite d'un candidat aveugle**, sous la meilleure des stratégies « toujours cocher la k-ième option la plus longue » — tous les rangs k, en mots comme en caractères — et échoue au-dessus de 35 % (`MAX_BLIND_RATE`, le hasard étant à 25 %). Balayer tous les rangs ferme la porte au contournement : ne mesurer que les extrêmes récompenserait une correction qui range la clé en deuxième position. Un rang mesuré sur moins de `MIN_RANK_SAMPLE` questions est affiché mais ne décide pas. Ratio clé/distracteurs par question, extrémités encadrées par la convention de départage et concentration des égalités restent affichés en diagnostic. Les 12 questions officielles `pq-q1..pq-q12` sont hors verdict : leur indice vient du guide d'examen. Hors de `npm run check` tant que le corpus n'est pas conforme — lancer `npm run check:length` pour le rapport, `-- --enforce` pour le verdict. |
 
 ## Déploiement
 
