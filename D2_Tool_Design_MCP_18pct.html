@@ -370,145 +370,150 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s7">7. Questions d'auto-évaluation</h2></div>
 
-<details>
-<summary>Q1 (D2) — Chevauchement sémantique entre deux descriptions</summary>
+<details id="d2-q1" data-domain="D2" data-task="2.1">
+<summary>Q1 (Logistics) — Two tool descriptions that read alike</summary>
 <div>
-<p><strong>Situation :</strong> les requêtes « analyze the uploaded quarterly report » partent vers le web search agent 45 % du temps au lieu du document analysis agent. Les outils sont <code>analyze_content</code> (« analyzes content and extracts key information ») et <code>analyze_document</code> (« analyzes documents and extracts key information »). Comment corriger ?</p>
-<p>A) Ajouter un classifieur de pré-routage qui analyse la requête avant chaque tour.</p>
-<p>B) Renommer l'outil web search en <code>extract_web_results</code> et réécrire sa <code>description</code> pour la rendre spécifique au web.</p>
-<p>C) Ajouter des few-shot examples au coordinateur pour illustrer le bon routage.</p>
-<p>D) Enrichir uniquement la <code>description</code> de l'outil document analysis.</p>
+<p><strong>Scenario:</strong> a delivery assistant routes "where is my parcel" requests to <code>find_package</code> 38% of the time, when they belong to <code>find_shipment</code>. <code>find_shipment</code> is described as "finds a shipment and returns its details", <code>find_package</code> as "finds a package and returns its details" — although <code>find_package</code> only returns warehouse scan events.</p>
+<p><strong>Question:</strong> what is the right fix?</p>
+<p data-opt="a">A) Rename <code>find_package</code> to <code>list_warehouse_scans</code> and rewrite its description around the scan events it really returns.</p>
+<p data-opt="b">B) Add a routing classifier that labels every request before any tool is offered.</p>
+<p data-opt="c">C) Add worked routing examples to the assistant system prompt.</p>
+<p data-opt="d">D) Expand only the <code>find_shipment</code> description with more delivery wording.</p>
 <hr>
-<p class="correct">Réponse : B) Renommer en extract_web_results et différencier la description</p>
-<p><strong>Explication :</strong> les deux descriptions sont quasi identiques — le modèle n'a aucun élément pour trancher. Renommer et redécrire élimine le chevauchement fonctionnel à sa source, là où le modèle prend effectivement sa décision.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: rename the overlapping tool and rewrite its description</p>
+<p><strong>Why:</strong> two near-identical descriptions leave the model nothing to discriminate on. Renaming and redescribing removes the functional overlap at its source, where the selection decision is actually made.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Sur-ingénierie : on court-circuite la compréhension du langage naturel au lieu de réparer l'ambiguïté.</li>
-<li>C) Les few-shot ajoutent du coût en tokens sans supprimer la cause, qui est la description.</li>
-<li>D) Améliorer un seul côté laisse l'autre description toujours aussi attirante pour les mêmes requêtes.</li>
+<li data-opt="b">Over-engineering: it bypasses natural language understanding instead of repairing the ambiguity.</li>
+<li data-opt="c">Examples cost tokens on every turn and leave the ambiguous description in place.</li>
+<li data-opt="d">Improving one side keeps the other just as attractive for the same requests.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q2 (D2) — Outil générique mal employé</summary>
+<details id="d2-q2" data-domain="D2" data-task="2.3">
+<summary>Q2 (Data Platform) — A subagent holding a tool that runs anything</summary>
 <div>
-<p><strong>Situation :</strong> un document analysis subagent dispose d'un outil générique <code>fetch_url</code>. Les logs montrent qu'il télécharge des pages de résultats de moteurs de recherche au lieu de documents. Quel correctif appliquer ?</p>
-<p>A) Remplacer <code>fetch_url</code> par <code>load_document</code>, qui valide que l'URL pointe vers un format document.</p>
-<p>B) Retirer <code>fetch_url</code> et faire transiter toutes les récupérations par le coordinateur.</p>
-<p>C) Ajouter un filtre sur les domaines de moteurs de recherche.</p>
-<p>D) Ajouter dans le prompt du subagent l'instruction de ne récupérer que des documents.</p>
+<p><strong>Scenario:</strong> a reporting subagent owns <code>execute_sql</code>, which accepts any statement against the warehouse. Traces show it browsing <code>information_schema</code> and joining raw event tables instead of reading the curated reporting views.</p>
+<p><strong>Question:</strong> what is the right fix?</p>
+<p data-opt="a">A) Replace <code>execute_sql</code> with <code>run_report_query</code>, which takes a view name plus filters and rejects anything else.</p>
+<p data-opt="b">B) Remove <code>execute_sql</code> and route every query through the coordinator.</p>
+<p data-opt="c">C) Keep the tool and add a denylist of raw table names to its handler.</p>
+<p data-opt="d">D) Instruct the subagent in its system prompt to read only the curated views.</p>
 <hr>
-<p class="correct">Réponse : A) Remplacer fetch_url par load_document, plus contraint</p>
-<p><strong>Explication :</strong> remplacer un outil générique par une alternative contrainte applique le moindre privilège au niveau de l'interface : l'usage incorrect devient impossible plutôt que déconseillé.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: swap the generic tool for a constrained one</p>
+<p><strong>Why:</strong> a constrained replacement applies least privilege at the interface — the wrong call becomes impossible rather than discouraged.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Ajoute un aller-retour de coordination pour un besoin fréquent et légitime du subagent.</li>
-<li>C) Une liste de domaines est fragile et ne couvrira jamais tous les cas.</li>
-<li>D) Une instruction textuelle reste probabiliste, alors que le contrat d'outil est déterministe.</li>
+<li data-opt="b">Adds a coordination round trip to a frequent and legitimate need of the subagent.</li>
+<li data-opt="c">A denylist enumerates known bad names and goes stale as soon as a new raw table ships.</li>
+<li data-opt="d">A prompt instruction stays probabilistic where a tool contract is deterministic.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q3 (D2) — Pourquoi une erreur générique est un anti-pattern</summary>
+<details id="d2-q3" data-domain="D2" data-task="2.2">
+<summary>Q3 (Field Service) — One error payload for two different outcomes</summary>
 <div>
-<p><strong>Situation :</strong> un outil MCP échoue avec <code>{"isError": true, "content": "Operation failed"}</code>. Pourquoi est-ce un anti-pattern ?</p>
-<p>A) L'agent ne peut pas décider s'il faut réessayer, corriger la requête, ou escalader.</p>
-<p>B) Le format JSON de la réponse est invalide.</p>
-<p>C) <code>isError</code> devrait valoir <code>false</code> puisque l'outil a répondu.</p>
-<p>D) Le message est trop court pour être affiché à l'utilisateur.</p>
+<p><strong>Scenario:</strong> the <code>search_parts</code> tool answers <code>{"isError": true, "content": "Operation failed"}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.</p>
+<p><strong>Question:</strong> why does this design block the agent?</p>
+<p data-opt="a">A) It cannot tell a valid empty result from an access failure, so it can neither justify a retry nor report that nothing was found.</p>
+<p data-opt="b">B) A timeout is not a real failure, so the error flag should stay unset here.</p>
+<p data-opt="c">C) The payload is malformed JSON and the runtime discards it.</p>
+<p data-opt="d">D) The message is too short to be shown to the technician.</p>
 <hr>
-<p class="correct">Réponse : A) L'agent ne peut pas décider de la suite</p>
-<p><strong>Explication :</strong> une réponse d'erreur uniforme prive l'agent de toute base de décision. Sans catégorie ni indication de caractère rejouable, il ne sait pas distinguer un <code>transient</code> (réessayer), un <code>validation</code> (corriger l'entrée), un <code>business</code> (expliquer au client) et un <code>permission</code> (escalader).</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: an empty result and an access failure become indistinguishable</p>
+<p><strong>Why:</strong> the agent decides from two signals — whether the call is worth repeating (<code>isRetryable</code>) and what it really received. A <code>transient</code> timeout calls for a retry, an empty catalog hit is a legitimate success. Merged into one payload, they produce either wasted retries or silent gaps in the answer.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) La forme est effectivement perfectible — <code>content</code> attend un tableau de content blocks — mais reformater ne rendrait pas le message plus exploitable ; ce n'est pas le point testé.</li>
-<li>C) <code>isError: true</code> est correct : l'opération a bien échoué.</li>
-<li>D) La longueur n'est pas le problème ; c'est l'absence de métadonnées de décision.</li>
+<li data-opt="b">The timeout is a genuine failure and the flag belongs there; what is missing is everything around it.</li>
+<li data-opt="c">The payload parses. Its shape could be tighter, but reformatting alone would not make the message actionable.</li>
+<li data-opt="d">Length is not the problem; the absence of decision metadata is.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q4 (D2) — Imposer un outil précis en premier</summary>
+<details id="d2-q4" data-domain="D2" data-task="2.3">
+<summary>Q4 (Compliance) — A screening step that must never be skipped</summary>
 <div>
-<p><strong>Situation :</strong> vous voulez que Claude appelle toujours <code>extract_metadata</code> avant tout autre traitement d'enrichissement. Quelle valeur de <code>tool_choice</code> utiliser ?</p>
-<p>A) <code>{"type": "auto"}</code></p>
-<p>B) <code>{"type": "any"}</code></p>
-<p>C) <code>{"type": "tool", "name": "extract_metadata"}</code></p>
-<p>D) Ajouter « always call this first » dans la <code>description</code> de l'outil.</p>
+<p><strong>Scenario:</strong> a compliance assistant must call <code>screen_sanctions</code> on the counterparty before it produces anything else on that turn.</p>
+<p><strong>Question:</strong> which <code>tool_choice</code> value guarantees it?</p>
+<p data-opt="a">A) <code>{"type": "auto"}</code></p>
+<p data-opt="b">B) <code>{"type": "any"}</code></p>
+<p data-opt="c">C) <code>{"type": "tool", "name": "screen_sanctions"}</code></p>
+<p data-opt="d">D) A sentence in the tool description stating that it must always run first.</p>
 <hr>
-<p class="correct">Réponse : C) {"type": "tool", "name": "extract_metadata"}</p>
-<p><strong>Explication :</strong> la forced selection impose exactement cet outil sur ce tour. Les étapes suivantes s'enchaînent ensuite dans les tours ultérieurs, une fois les métadonnées disponibles.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: forced selection naming the screening tool</p>
+<p><strong>Why:</strong> forced selection pins that exact tool for the turn. The rest of the workflow proceeds on later turns, once the screening result sits in context.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) <code>"auto"</code> autorise Claude à n'appeler aucun outil.</li>
-<li>B) <code>"any"</code> force un appel mais laisse le choix de l'outil — l'ordre n'est pas garanti.</li>
-<li>D) Une instruction dans la description reste probabiliste là où un paramètre est déterministe.</li>
+<li data-opt="a">The default mode lets Claude answer with no tool call at all.</li>
+<li data-opt="b">It forces a call but leaves the choice of tool open, so ordering is not guaranteed.</li>
+<li data-opt="d">Description text stays probabilistic where an API parameter is deterministic.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q5 (D2) — Contenu d'une réponse d'erreur exploitable <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<details id="d2-q5" data-domain="D2" data-task="2.2">
+<summary>Q5 (Scheduling) — What an actionable error response carries <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
-<p><strong>Situation :</strong> vous concevez les réponses d'erreur de vos outils MCP pour que l'agent puisse décider correctement de la suite. Quelles affirmations sont exactes ?</p>
-<p>A) Une erreur <code>{"isError": true, "content": "Operation failed"}</code> suffit à l'agent pour décider d'un retry.</p>
-<p>B) Une erreur transitoire (timeout, 503) doit porter <code>isRetryable: true</code> encodé dans le bloc <code>text</code> du content.</p>
-<p>C) Une erreur de permission doit être escaladée à un humain sans retry, quel que soit le contexte.</p>
-<p>D) Les catégories <code>transient</code>, <code>validation</code>, <code>business</code> et <code>permission</code> font partie de la spécification MCP officielle.</p>
-<p>E) Un résultat vide valide (zéro correspondance) doit être distingué d'un échec d'accès (timeout) dans la réponse.</p>
+<p><strong>Scenario:</strong> you are designing the error responses of the <code>book_appointment</code> MCP tool so the agent can decide what to do next.</p>
+<p><strong>Question:</strong> which statements are accurate?</p>
+<p data-opt="a">A) Returning <code>{"isError": true, "content": "Booking failed"}</code> already tells the agent enough to decide on a retry.</p>
+<p data-opt="b">B) A calendar backend answering <code>503</code> is a transient failure and should carry <code>isRetryable: true</code> encoded in the <code>text</code> block of the content.</p>
+<p data-opt="c">C) A permission failure must be escalated to a human with no retry, whatever the context.</p>
+<p data-opt="d">D) The <code>transient</code>, <code>validation</code>, <code>business</code> and <code>permission</code> categories come from the official MCP specification.</p>
+<p data-opt="e">E) A slot search that legitimately finds no availability must be reported differently from a backend timeout.</p>
 <hr>
-<p class="correct">Réponses : B, E.</p>
-<p><strong>Explication :</strong> l'agent a besoin de deux informations pour décider — le caractère rejouable de l'erreur, et la nature de ce qu'il a obtenu. Une requête valide sans résultat est un succès légitime ; un timeout appelle une décision de reprise. Les confondre conduit soit à des retries inutiles, soit à des lacunes silencieuses dans le rapport final.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b e">Answer: the retryability signal, and the split between an empty result and a failure</p>
+<p><strong>Why:</strong> the agent needs two things — whether the failure is worth repeating, and what it actually received. A valid search with no free slot is a success; a timeout demands a retry decision. Conflating them yields either pointless retries or silent gaps in the final report.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) C'est exactement l'anti-pattern : une erreur uniforme ne porte aucune base de décision.</li>
-<li>C) L'escalade est la bonne règle générale (<code>isRetryable: false</code>), mais « quel que soit le contexte » en fait un absolu que la conception ne pose pas.</li>
-<li>D) Ces catégories sont une convention de conception applicative, encodée dans le texte du content — pas un élément formel de la spec MCP.</li>
+<li data-opt="a">That is the anti-pattern itself: a uniform error carries no basis for any decision.</li>
+<li data-opt="c">Escalation is the right default (<code>isRetryable: false</code>), but "whatever the context" turns a design guideline into an absolute.</li>
+<li data-opt="d">They are an application-level convention encoded in the text block, not a formal part of the MCP spec.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q6 (D2) — Où déclarer deux serveurs MCP</summary>
+<details id="d2-q6" data-domain="D2" data-task="2.4">
+<summary>Q6 (Platform Team) — Two MCP servers, two audiences</summary>
 <div>
-<p><strong>Situation :</strong> votre équipe a besoin d'un serveur MCP Jira disponible pour tous les développeurs du projet. Par ailleurs, vous voulez tester chez vous un serveur expérimental qui indexe vos notes personnelles — personne d'autre ne doit l'avoir.</p>
-<p><strong>Question :</strong> où configurez-vous chacun ?</p>
-<p>A) Les deux dans <code>.mcp.json</code>, l'expérimental étant commenté pour les coéquipiers.</p>
-<p>B) Les deux dans <code>~/.claude.json</code>, en demandant à chaque coéquipier d'ajouter l'entrée Jira lui-même.</p>
-<p>C) Jira documenté dans <code>CLAUDE.md</code> ; l'expérimental dans <code>.mcp.json</code>.</p>
-<p>D) Jira dans <code>.mcp.json</code> à la racine du projet ; l'expérimental dans <code>~/.claude.json</code> au niveau utilisateur.</p>
+<p><strong>Scenario:</strong> the repository already tracks a <code>.mcp.json</code> carrying a <code>github</code> server. You now add a <code>confluence</code> server that every teammate must get on clone, plus a <code>bookmarks-index</code> server reading your own browser bookmarks, which must stay on your machine.</p>
+<p><strong>Question:</strong> where does each one go?</p>
+<p data-opt="a">A) Both in <code>.mcp.json</code>, keeping the personal entry out of history with a <code>.gitignore</code> rule.</p>
+<p data-opt="b">B) Both in <code>~/.claude.json</code>, asking every teammate to recreate the <code>confluence</code> entry.</p>
+<p data-opt="c">C) <code>confluence</code> in the project <code>.mcp.json</code>, <code>bookmarks-index</code> in the user-level <code>~/.claude.json</code>.</p>
+<p data-opt="d">D) <code>bookmarks-index</code> in <code>.mcp.json</code> and <code>confluence</code> in <code>~/.claude.json</code>, since the personal server changes more often.</p>
 <hr>
-<p class="correct">Réponse : D) Portée projet pour l'outillage partagé, portée utilisateur pour le personnel</p>
-<p><strong>Explication :</strong> <code>.mcp.json</code> est la portée projet, versionnée, que tout le monde obtient au clone ; <code>~/.claude.json</code> est la portée utilisateur, locale à votre machine. Les deux coexistent : les outils de tous les serveurs configurés sont découverts à la connexion et disponibles simultanément.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: project scope for shared tooling, user scope for the personal server</p>
+<p><strong>Why:</strong> the project scope is version controlled and arrives with the clone; the user scope stays local to one machine. Both are read at connection time, so every configured server is available at once.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Une entrée commentée dans un fichier partagé est une modification qui finira par être décommentée par accident.</li>
-<li>B) Fait dépendre l'outillage d'équipe d'une configuration manuelle par chacun — exactement ce que la portée projet évite.</li>
-<li>C) <code>CLAUDE.md</code> ne configure aucun serveur, et les deux portées sont inversées.</li>
+<li data-opt="a">A tracked file is ignored as a whole or not at all — a single entry cannot be excluded from it.</li>
+<li data-opt="b">Makes team tooling depend on manual setup by each developer, which is exactly what project scope removes.</li>
+<li data-opt="d">Inverts the two scopes: the personal server leaks to everyone and the shared one reaches nobody.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q7 (D2) — Edit échoue faute d'ancre unique</summary>
+<details id="d2-q7" data-domain="D2" data-task="2.5">
+<summary>Q7 (Developer Tooling) — Edit has no unique anchor</summary>
 <div>
-<p><strong>Situation :</strong> l'agent doit modifier une instruction <code>return null;</code> dans un fichier de 400 lignes. <code>Edit</code> échoue : la chaîne <code>return null;</code> apparaît onze fois dans ce fichier.</p>
-<p><strong>Question :</strong> quelle est la solution de repli correcte ?</p>
-<p>A) <code>Read</code> le fichier complet, modifier le contenu, puis <code>Write</code> pour le réécrire entièrement.</p>
-<p>B) Relancer <code>Edit</code> avec la même ancre jusqu'à ce qu'il tombe sur la bonne occurrence.</p>
-<p>C) Utiliser <code>Glob</code> pour localiser la ligne, puis <code>Edit</code> à nouveau.</p>
-<p>D) Supprimer le fichier et le recréer depuis zéro avec <code>Write</code>.</p>
+<p><strong>Scenario:</strong> the agent must change one <code>logger.debug(</code> call inside <code>src/telemetry/collector.ts</code>. <code>Edit</code> fails: that string appears 14 times in the file.</p>
+<p><strong>Question:</strong> what is the correct fallback?</p>
+<p data-opt="a">A) <code>Read</code> the whole file, apply the change to the returned content, then <code>Write</code> it back.</p>
+<p data-opt="b">B) Retry <code>Edit</code> with the same anchor until it lands on the intended occurrence.</p>
+<p data-opt="c">C) Run <code>Glob</code> on the file to get the line numbers, then call <code>Edit</code> again.</p>
+<p data-opt="d">D) Delete the file and recreate it from scratch with <code>Write</code>.</p>
 <hr>
-<p class="correct">Réponse : A) Read puis Write</p>
-<p><strong>Explication :</strong> quand <code>Edit</code> ne trouve pas de texte d'ancrage unique, charger le fichier entier et le réécrire est le repli documenté. Le contenu complet lève l'ambiguïté que l'ancre ne pouvait pas lever.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: read the whole file, then write it back</p>
+<p><strong>Why:</strong> when no unique anchor text exists, loading the full file and rewriting it is the documented fallback. Complete content resolves the ambiguity the anchor could not.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) <code>Edit</code> est déterministe : la même ancre ambiguë échoue à l'identique à chaque tentative.</li>
-<li>C) <code>Glob</code> apparie des chemins de fichiers ; il ne voit pas le contenu et ne localise aucune ligne.</li>
-<li>D) Supprimer d'abord fait courir le risque de perdre le contenu si l'écriture échoue, sans aucun avantage sur une réécriture en place.</li>
+<li data-opt="b">The tool is deterministic: the same ambiguous anchor fails identically on every attempt.</li>
+<li data-opt="c"><code>Glob</code> matches file paths; it never looks inside a file and returns no line numbers.</li>
+<li data-opt="d">Deleting first risks losing the content if the write fails, with no gain over rewriting in place.</li>
 </ul>
 </div>
 </details>

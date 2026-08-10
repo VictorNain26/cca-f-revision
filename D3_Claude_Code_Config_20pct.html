@@ -457,165 +457,171 @@ jobs:
 <!-- ================================================================== -->
 <div class="section-header"><h2 id="s8">8. Auto-évaluation</h2></div>
 
-<details>
-<summary>Q1 (D3) — Une instruction qui n'atteint pas le nouvel arrivant</summary>
+<details id="d3-q1" data-domain="D3" data-task="3.1">
+<summary>Q1 (D3) — An instruction that never reaches the new contractor</summary>
 <div>
-<p><strong>Situation :</strong> trois développeurs de l'équipe bénéficient de l'instruction « always include comprehensive error handling », mais un nouvel arrivant ne l'a pas. Tous travaillent sur le même dépôt. Cause probable ?</p>
-<p>A) L'instruction vit dans <code>~/.claude/CLAUDE.md</code> (niveau utilisateur) au lieu du niveau projet.</p>
-<p>B) Le <code>~/.claude/CLAUDE.md</code> du nouvel arrivant contient des instructions conflictuelles.</p>
-<p>C) Claude Code apprend les préférences par utilisateur au fil du temps.</p>
-<p>D) Le nouvel arrivant doit relancer Claude Code pour recharger la configuration.</p>
+<p><strong>Scenario:</strong> Every backend engineer gets Claude Code to register a new route in <code>openapi.yaml</code> before writing its handler. A contractor who cloned the repository this morning gets none of that. The rule was written by the platform lead in her own <code>~/.claude/CLAUDE.md</code>.</p>
+<p><strong>Question:</strong> What is the diagnosis and the fix?</p>
+<p data-opt="a">A) The rule sits at user scope and never travels with the repository; move it into a committed <code>.claude/CLAUDE.md</code>.</p>
+<p data-opt="b">B) The contractor runs a newer build of Claude Code; align everyone on one version.</p>
+<p data-opt="c">C) The rule file has grown past what gets loaded; split it first.</p>
+<p data-opt="d">D) Send the contractor a copy of the lead's file to drop into their own home directory.</p>
 <hr>
-<p class="correct">Réponse : A) L'instruction est au niveau utilisateur au lieu du niveau projet</p>
-<p><strong>Explication :</strong> <code>~/.claude/CLAUDE.md</code> est personnel et ne part pas dans le contrôle de version. Les anciens l'ont chacun dans leur configuration ; le nouveau n'a rien. La correction est de déplacer l'instruction au niveau projet, versionné et partagé. Le diagnostic de hiérarchie de configuration est exactement ce que teste ce scénario.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: the rule lives at user scope instead of project scope</p>
+<p><strong>Why:</strong> a user-scope file belongs to one machine and never travels through version control, so only the people who wrote it hold it. Team-wide rules belong at project scope; <code>/memory</code> then confirms what a session actually loaded.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Un conflit produirait un comportement divergent, pas une absence totale d'instruction.</li>
-<li>C) Claude Code ne mémorise pas de préférences implicites entre sessions.</li>
-<li>D) Un redémarrage ne crée pas un fichier que le poste ne contient pas.</li>
+<li data-opt="b">A version gap would not knock out one targeted instruction while everything else behaves.</li>
+<li data-opt="c">Excess length would degrade the whole team's sessions, not one newcomer's.</li>
+<li data-opt="d">Copying by hand reproduces what version control already does, and the copies drift apart at the first edit.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q2 (D3) — Conventions par type de fichier, tests co-localisés</summary>
+<details id="d3-q2" data-domain="D3" data-task="3.3">
+<summary>Q2 (D3) — Conventions for migration files nobody keeps in one place</summary>
 <div>
-<p><strong>Situation :</strong> votre codebase a des conventions distinctes pour React, les handlers d'API et les modèles de données. Les tests sont co-localisés avec le code qu'ils couvrent (<code>Button.test.tsx</code> à côté de <code>Button.tsx</code>), et vous voulez qu'ils suivent tous les mêmes conventions où qu'ils soient. Quelle approche ?</p>
-<p>A) Des fichiers <code>.claude/rules/</code> avec frontmatter YAML et des globs dans <code>paths</code>.</p>
-<p>B) Tout consolider dans le <code>CLAUDE.md</code> racine sous des titres par domaine.</p>
-<p>C) Des skills dans <code>.claude/skills/</code>, un par type de code.</p>
-<p>D) Un <code>CLAUDE.md</code> dans chaque sous-répertoire concerné.</p>
+<p><strong>Scenario:</strong> Each service owns its migration folder, so the files matching <code>services/*/migrations/*.sql</code> sit all over the tree. Every migration must be reversible and wrapped in a transaction, and you want that enforced whenever one is edited, without anyone having to ask for it.</p>
+<p><strong>Question:</strong> Which setup does that?</p>
+<p data-opt="a">A) A rule file <code>.claude/rules/migrations.md</code> whose frontmatter <code>paths</code> field lists the migration glob.</p>
+<p data-opt="b">B) A "Migrations" heading inside the root <code>.claude/CLAUDE.md</code>, left for the model to match against the file at hand.</p>
+<p data-opt="c">C) A <code>.claude/skills/migration/SKILL.md</code> that engineers run before writing a migration.</p>
+<p data-opt="d">D) One directory file per service, such as <code>services/billing/migrations/CLAUDE.md</code>.</p>
 <hr>
-<p class="correct">Réponse : A) Des fichiers .claude/rules/ avec globs dans paths</p>
-<p><strong>Explication :</strong> un glob comme <code>**/*.test.tsx</code> applique la convention à tous les fichiers de test quel que soit leur emplacement, et la règle ne se charge que quand on édite un fichier correspondant — moins de contexte inutile.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: a path-scoped rule file carrying the glob in its frontmatter</p>
+<p><strong>Why:</strong> the glob follows a file type wherever it sits, and the body loads only while a matching file is open — exactly the shape of a convention that crosses directories.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Repose sur l'inférence de la bonne section par Claude, donc non déterministe.</li>
-<li>C) Un skill demande une invocation ou un déclenchement sémantique, alors qu'on veut une application automatique liée au chemin.</li>
-<li>D) Un <code>CLAUDE.md</code> est lié à un répertoire — inadapté à des fichiers dispersés dans toute la codebase.</li>
+<li data-opt="b">Leans on the model picking the right heading rather than on an explicit path match.</li>
+<li data-opt="c">A skill waits to be invoked, and the requirement is that it apply on its own.</li>
+<li data-opt="d">Directory-bound files mean the same rules copied into every service, drifting one folder at a time.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q3 (D3) — Un skill verbeux qui pollue la session</summary>
+<details id="d3-q3" data-domain="D3" data-task="3.2">
+<summary>Q3 (D3) — A skill whose output crowds out the session</summary>
 <div>
-<p><strong>Situation :</strong> un skill <code>/analyze-codebase</code> fait une analyse approfondie. Après l'avoir lancé, Claude devient moins pertinent et perd le fil de la tâche d'origine. Comment corriger ?</p>
-<p>A) Ajouter <code>context: fork</code> dans le frontmatter du skill.</p>
-<p>B) Lancer <code>/compact</code> après chaque exécution du skill.</p>
-<p>C) Réduire le jeu d'outils du skill via <code>allowed-tools</code>.</p>
-<p>D) Découper le skill en plusieurs skills plus petits.</p>
+<p><strong>Scenario:</strong> Your <code>/license-audit</code> skill walks the dependency tree and prints every package it inspects before reaching its verdict. Reviewers want the verdict, but once the skill has run the main session drifts off the work it was doing.</p>
+<p><strong>Question:</strong> What fixes it?</p>
+<p data-opt="a">A) <code>context: fork</code>, so the skill runs in an isolated subagent and only its result comes back.</p>
+<p data-opt="b">B) An added line in the skill body telling it to stay brief.</p>
+<p data-opt="c">C) A follow-up <code>/compact</code> after every audit.</p>
+<p data-opt="d">D) One skill per package manager, replacing the single <code>.claude/skills/license-audit/SKILL.md</code>.</p>
 <hr>
-<p class="correct">Réponse : A) Ajouter context: fork dans le frontmatter</p>
-<p><strong>Explication :</strong> <code>context: fork</code> exécute le skill dans un contexte de subagent isolé : la sortie verbeuse de l'analyse reste chez le subagent, et seule sa conclusion revient. La session principale garde le fil de la tâche d'origine. C'est le cas d'usage type — analyse de codebase, exploration d'alternatives.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: run the skill in a forked context</p>
+<p><strong>Why:</strong> the intermediate output is worth producing, it simply belongs somewhere other than the main conversation. A forked context keeps it inside the subagent and returns only the conclusion.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) <code>/compact</code> compresse après coup, avec perte : la pollution a déjà eu lieu.</li>
-<li>C) <code>allowed-tools</code> agit sur les outils, pas sur le volume de sortie injecté en contexte.</li>
-<li>D) Plusieurs skills verbeux polluent autant qu'un seul, sans aucune isolation.</li>
+<li data-opt="b">Asks the model to write less rather than to write elsewhere, with no guarantee either way.</li>
+<li data-opt="c">Compacts after the damage is done, and compaction drops details.</li>
+<li data-opt="d">Several verbose skills crowd the session just as one did, and nothing is isolated.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q4 (D3) — Un job CI qui se bloque</summary>
+<details id="d3-q4" data-domain="D3" data-task="3.6">
+<summary>Q4 (D3) — A nightly job the runner has to kill</summary>
 <div>
-<p><strong>Situation :</strong> votre pipeline exécute <code>claude "Analyze this PR for security issues"</code> et le job reste bloqué indéfiniment. Les logs indiquent que Claude Code attend une saisie interactive. Quelle est la correction ?</p>
-<p>A) Ajouter le flag <code>--batch</code>.</p>
-<p>B) Ajouter le flag <code>-p</code> (alias <code>--print</code>).</p>
-<p>C) Rediriger stdin depuis <code>/dev/null</code>.</p>
-<p>D) Définir la variable d'environnement <code>CLAUDE_HEADLESS=true</code>.</p>
+<p><strong>Scenario:</strong> A nightly job runs <code>claude "Summarize the changes merged today"</code> and the runner kills it at the step timeout. The log shows Claude Code sitting at an interactive prompt.</p>
+<p><strong>Question:</strong> What makes the command usable in an unattended job?</p>
+<p data-opt="a">A) Export <code>CLAUDE_CI=1</code> in the job environment.</p>
+<p data-opt="b">B) Add <code>--no-tty</code> to the invocation.</p>
+<p data-opt="c">C) Add <code>-p</code> (spelled out as <code>--print</code>) to the invocation.</p>
+<p data-opt="d">D) Wrap the call in <code>timeout 600</code> so the runner is never the one to kill it.</p>
 <hr>
-<p class="correct">Réponse : B) Ajouter le flag -p</p>
-<p><strong>Explication :</strong> <code>-p</code> / <code>--print</code> est le mode non interactif documenté : Claude traite le prompt, écrit le résultat sur stdout et sort sans attendre de saisie. C'est exactement ce qu'exige une pipeline.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: the print flag, which is the documented non-interactive mode</p>
+<p><strong>Why:</strong> it processes the prompt, writes the result to stdout and exits without waiting on input — which is what an unattended job needs.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) <code>--batch</code> n'existe pas.</li>
-<li>C) Contournement Unix qui ne traite pas la syntaxe attendue par Claude Code.</li>
-<li>D) <code>CLAUDE_HEADLESS</code> n'existe pas.</li>
+<li data-opt="a">No such environment variable exists, so the command runs unchanged and still waits.</li>
+<li data-opt="b">No such flag exists either, and an unrecognized option does not switch the mode.</li>
+<li data-opt="d">Turns a long hang into a shorter one; the job still produces nothing.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q5 (D3) — Sortie CI exploitable par la pipeline</summary>
+<details id="d3-q5" data-domain="D3" data-task="3.6">
+<summary>Q5 (D3) — Release notes the publisher cannot read</summary>
 <div>
-<p><strong>Situation :</strong> votre job CI exécute <code>claude -p</code> pour la revue de PR. Le script qui doit poster des commentaires inline casse régulièrement : Claude répond tantôt en prose, tantôt en Markdown, avec des champs nommés différemment d'une exécution à l'autre. Quelle est la correction ?</p>
-<p>A) Ajouter au prompt « réponds uniquement en JSON valide, sans texte autour ».</p>
-<p>B) Combiner <code>--output-format json</code> et <code>--json-schema</code> pour contraindre la forme de la sortie.</p>
-<p>C) Écrire un parser tolérant qui extrait les findings quel que soit le format reçu.</p>
-<p>D) Poster un commentaire de synthèse unique plutôt que des commentaires inline.</p>
+<p><strong>Scenario:</strong> A release job runs <code>claude -p</code> to draft release notes into <code>changelog.json</code>, and <code>publish_notes.mjs</code> reads an <code>entries</code> array out of it. Some runs come back as prose, some as a Markdown list, and the field names move around, so the publish step fails more often than it works.</p>
+<p><strong>Question:</strong> What is the correct fix?</p>
+<p data-opt="a">A) Append "reply with valid JSON only, nothing around it" to the prompt.</p>
+<p data-opt="b">B) Run with <code>--output-format json</code> and <code>--json-schema</code>, then read the conforming payload from <code>structured_output</code>.</p>
+<p data-opt="c">C) Make the publisher tolerant: try <code>jq</code> first, fall back to a regular-expression sweep over the prose.</p>
+<p data-opt="d">D) Pin the job to one model version so the shape stops moving.</p>
 <hr>
-<p class="correct">Réponse : B) Combiner --output-format json et --json-schema</p>
-<p><strong>Explication :</strong> c'est à cela que servent ces deux flags en CI : <code>--output-format json</code> rend la réponse parsable et <code>--json-schema</code> impose les champs attendus. Le résultat conforme arrive dans le champ <code>structured_output</code>, directement exploitable par l'étape suivante.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: constrain the shape with the two structured-output flags</p>
+<p><strong>Why:</strong> those flags exist for this case: one makes the reply machine-readable, the other imposes the expected fields, and the conforming payload lands in a known place for the next step to consume.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Repose sur la conformité probabiliste du modèle — c'est ce qui échoue déjà.</li>
-<li>C) Traite le symptôme et déplace la fragilité dans votre code.</li>
-<li>D) Abandonne l'objectif fonctionnel au lieu de régler le problème de format.</li>
+<li data-opt="a">Rests on the model complying, which is the very thing already failing.</li>
+<li data-opt="c">Moves the fragility into your own script and leaves it there.</li>
+<li data-opt="d">Version drift is not what varies here; an unconstrained format varies within a single version.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q6 (D3) — Encapsuler un workflow d'équipe réutilisable <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<details id="d3-q6" data-domain="D3" data-task="3.2">
+<summary>Q6 (D3) — Packaging a workflow the whole team reuses <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
-<p><strong>Situation :</strong> votre équipe répète un workflow (analyse de performance, rapport technique, revue de sécurité). Il doit être réutilisable, partagé par l'équipe, et invocable en local comme en CI/CD. Quelles deux approches le permettent ?</p>
-<p>A) Créer un skill avec <code>context: fork</code>, le partager via <code>.claude/skills/</code> et le documenter dans <code>CLAUDE.md</code>.</p>
-<p>B) Mettre uniquement un slash command dans <code>.claude/commands/</code> — c'est suffisant pour la réutilisabilité d'équipe.</p>
-<p>C) L'invoquer en local par matching sémantique, ou en CI via <code>claude -p</code> avec <code>--output-format json</code> pour une sortie exploitable par la pipeline.</p>
-<p>D) Stocker l'instruction du workflow dans <code>~/.claude/CLAUDE.md</code> pour que les développeurs la voient automatiquement.</p>
-<p>E) Utiliser un hook <code>PostToolUse</code> pour déclencher le workflow après chaque édition de fichier.</p>
+<p><strong>Scenario:</strong> Your team runs the same accessibility audit over and over. It has to reach everyone, keep its verbose trace out of the working session, and run both at a developer's terminal and from the pipeline.</p>
+<p><strong>Question:</strong> Which two moves deliver that?</p>
+<p data-opt="a">A) Commit it as <code>.claude/skills/a11y-audit/SKILL.md</code> with <code>context: fork</code> in its frontmatter.</p>
+<p data-opt="b">B) Keep it as a personal <code>~/.claude/skills/a11y-audit/SKILL.md</code> so you can iterate without disturbing anyone.</p>
+<p data-opt="c">C) Invoke it by name at the terminal, and from the pipeline through <code>claude -p</code> with <code>--output-format json</code> so the next step can act on the result.</p>
+<p data-opt="d">D) Paste the audit steps into <code>~/.claude/CLAUDE.md</code> so every session carries them.</p>
+<p data-opt="e">E) Fire it from a <code>PostToolUse</code> hook after each file write.</p>
 <hr>
-<p class="correct">Réponses : A, C.</p>
-<p><strong>Explication :</strong> le skill couvre les trois exigences à la fois : versionné dans <code>.claude/skills/</code> donc partagé à l'équipe, isolé par <code>context: fork</code> pour ne pas polluer la session, et invocable des deux côtés — sémantiquement ou par nom en local, via <code>claude -p</code> en CI avec une sortie structurée.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a c">Answers: commit the forked skill with the repository, and invoke it by name locally or headless from the pipeline</p>
+<p><strong>Why:</strong> a committed skill meets all three requirements at once — versioned, so everyone gets it at clone time; forked, so its trace stays out of the session; and reachable from both sides, by name at the terminal and headless in the pipeline.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Un slash command reste valide, mais n'offre ni l'isolation de contexte ni le déclenchement sémantique dont ce workflow multi-étapes a besoin.</li>
-<li>D) <code>~/.claude/CLAUDE.md</code> est au niveau utilisateur : non partagé, et destiné aux standards permanents plutôt qu'aux workflows invocables.</li>
-<li>E) Un hook réagit à un événement d'outil ; il n'encapsule pas un workflow métier que l'on invoque à la demande.</li>
+<li data-opt="b">User scope is private and outside version control, which is the one requirement it cannot meet.</li>
+<li data-opt="d">User scope again, and that file carries standing instructions rather than an invocable workflow.</li>
+<li data-opt="e">A hook reacts to a tool event; it does not package a workflow somebody chooses to run.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q7 (D3) — Plan mode ou exécution directe</summary>
+<details id="d3-q7" data-domain="D3" data-task="3.4">
+<summary>Q7 (D3) — Two tickets, two modes</summary>
 <div>
-<p><strong>Situation :</strong> deux tickets. Le premier : une stack trace de production pointe une déréférence null dans <code>formatInvoiceDate()</code> quand la colonne <code>issued_at</code> est nulle — le correctif est une garde dans une fonction, dans un fichier. Le second : restructurer le monolithe en microservices, avec des décisions sur les frontières de service et des changements sur des dizaines de fichiers.</p>
-<p><strong>Question :</strong> quel mode pour chacun ?</p>
-<p>A) Plan mode pour les deux : toute modification de production mérite une revue de conception préalable.</p>
-<p>B) Plan mode pour le correctif afin de documenter le postmortem, exécution directe pour la restructuration.</p>
-<p>C) Exécution directe pour le correctif, plan mode pour la restructuration.</p>
-<p>D) Exécution directe pour les deux, en découpant la restructuration en petites étapes.</p>
+<p><strong>Scenario:</strong> Ticket one: a crash report pins a null dereference in <code>renderShippingLabel()</code> when <code>carrier_code</code> comes back empty — one guard, one file, scope already settled. Ticket two: split the shared database into one schema per service, which means deciding where ownership boundaries fall and touching dozens of files.</p>
+<p><strong>Question:</strong> Which mode for each?</p>
+<p data-opt="a">A) Plan mode for both, since anything reaching production deserves a design pass first.</p>
+<p data-opt="b">B) Direct execution for the crash, plan mode for the split.</p>
+<p data-opt="c">C) Plan mode for the crash so the postmortem is documented, direct execution for the split.</p>
+<p data-opt="d">D) Direct execution for both, taking the split one small step at a time.</p>
 <hr>
-<p class="correct">Réponse : C) Exécution directe pour le correctif, plan mode pour la restructuration</p>
-<p><strong>Explication :</strong> le plan mode rentabilise son coût sur les changements de grande ampleur, les approches concurrentes et les décisions d'architecture — ce que la restructuration réunit. Un correctif d'un fichier avec une stack trace claire n'a aucune décision de conception à instruire : le périmètre est déjà établi.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: execute the crash fix directly, plan the split</p>
+<p><strong>Why:</strong> planning earns its cost where boundaries are still open and many files move together. A one-file guard behind a crash report has nothing left to decide, and the scenario states as much.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Applique un processus lourd à un changement qui ne contient aucun arbitrage.</li>
-<li>B) Inverse les deux critères.</li>
-<li>D) Avancer par petits pas sans plan fait découvrir les dépendances tard, quand les reprendre coûte cher.</li>
+<li data-opt="a">Applies a heavy process by policy to a change that holds no design decision.</li>
+<li data-opt="c">Inverts both criteria at once.</li>
+<li data-opt="d">Small steps without a plan surface the dependencies late, when unwinding them costs most.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q8 (D3) — Une transformation interprétée différemment à chaque fois</summary>
+<details id="d3-q8" data-domain="D3" data-task="3.5">
+<summary>Q8 (D3) — One instruction, a different result every run</summary>
 <div>
-<p><strong>Situation :</strong> vous demandez de « normaliser les enregistrements clients legacy vers le nouveau schéma ». Chaque exécution interprète « normaliser » autrement : l'une aplatit les adresses imbriquées, l'autre les conserve ; l'une met les codes pays en majuscules, l'autre non. Vous avez déjà réécrit la consigne deux fois sans converger.</p>
-<p><strong>Question :</strong> quelle technique applique-t-on ?</p>
-<p>A) Réécrire la consigne une troisième fois, plus longue et plus précise.</p>
-<p>B) Découper la normalisation en une commande par champ.</p>
-<p>C) Demander au modèle d'expliquer son interprétation avant chaque exécution et la corriger à chaque fois.</p>
-<p>D) Fournir deux ou trois paires entrée/sortie concrètes montrant exactement à quoi ressemble un enregistrement normalisé.</p>
+<p><strong>Scenario:</strong> You ask for supplier catalog rows to be "cleaned up before import". One run strips the unit off <code>net_weight</code> and the next leaves it; one run merges rows sharing a <code>sku</code> and the next keeps both. You have rewritten the written spec twice without converging.</p>
+<p><strong>Question:</strong> What is the most effective next move?</p>
+<p data-opt="a">A) Rewrite the spec a third time, longer and more specific.</p>
+<p data-opt="b">B) Have the model state its reading of "cleaned up" before each run, and correct it every time.</p>
+<p data-opt="c">C) Supply two or three before/after row pairs showing exactly what a cleaned row looks like.</p>
+<p data-opt="d">D) Split the cleanup into one instruction per column.</p>
 <hr>
-<p class="correct">Réponse : D) Des exemples entrée/sortie concrets</p>
-<p><strong>Explication :</strong> quand une description en prose est interprétée de façon inconsistante, des exemples travaillés sont le moyen le plus efficace de communiquer la transformation attendue. Ils tranchent les cas que la prose laissait ouverts, au lieu de les décrire à nouveau.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: worked before/after pairs</p>
+<p><strong>Why:</strong> a worked example settles the cases the prose left open by showing the expected result rather than describing it again.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) C'est la démarche qui a déjà échoué deux fois ; plus de mots sur une ambiguïté ne la lèvent pas.</li>
-<li>B) Multiplie les invocations sans jamais définir ce que « normalisé » signifie.</li>
-<li>C) Transforme chaque exécution en négociation au lieu de corriger la spécification.</li>
+<li data-opt="a">This is the move that has already failed twice; more words about an ambiguity do not resolve it.</li>
+<li data-opt="b">Turns every run into a negotiation instead of fixing the specification once.</li>
+<li data-opt="d">Multiplies invocations without ever defining what the ambiguous word covers.</li>
 </ul>
 </div>
 </details>

@@ -530,185 +530,192 @@ Note : la couverture de cette section est limitée.
 <div class="quiz-section">
 <h3>9 questions pour tester votre compréhension</h3>
 
-<details>
-<summary>Q1 (D5) — Un montant perdu dans la summarization</summary>
+<details id="d5-q1" data-domain="D5" data-task="5.1">
+<summary>Q1 (D5) — A figure that summarization dilutes</summary>
 <div>
-<p><strong>Situation :</strong> un remboursement de 89,99 $ discuté 20 tours plus tôt est devenu « a promotional pricing was discussed » dans le résumé. Comment prévenir cette perte ?</p>
-<p>A) Augmenter la taille du context window.</p>
-<p>B) Extraire les faits transactionnels dans un bloc <code>case facts</code> inclus dans chaque prompt, en dehors de l'historique résumé.</p>
-<p>C) Utiliser <code>/compact</code> moins souvent.</p>
-<p>D) Ajouter des few-shot examples montrant des résumés qui conservent les montants.</p>
+<p><strong>Scenario:</strong> On a long travel rebooking case, the passenger accepted a fare-difference credit of $214.50 on booking <code>BK-4471</code>. Eighteen turns later, after the history has been summarized twice, the agent offers "a credit" with no amount and cannot name the booking.</p>
+<p><strong>Question:</strong> What prevents the loss?</p>
+<p data-opt="a">A) Extract the transactional facts — passenger ID, booking reference, amount, status — into a <code>case facts</code> block injected in every prompt, outside the summarized history.</p>
+<p data-opt="b">B) Move to a model with a wider context window so summarization is never triggered.</p>
+<p data-opt="c">C) Run <code>/compact</code> less often, so fewer details get compressed.</p>
+<p data-opt="d">D) Add few-shot examples of summaries that keep every amount.</p>
 <hr>
-<p class="correct">Réponse : B) Un bloc case facts en dehors de l'historique résumé</p>
-<p><strong>Explication :</strong> la summarization progressive condense par nature — montants, pourcentages, dates et attentes exprimées par le client sont exactement ce qu'elle dilue. Extraire ces faits dans un bloc persistant, hors de l'historique compressé, les met à l'abri : même après un <code>/compact</code>, ils restent dans le prompt.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: a case facts block held outside the summarized history</p>
+<p><strong>Why:</strong> progressive summarization compresses by nature, and amounts, dates and booking references are exactly what it dilutes. Facts kept in a block that is re-injected every turn sit out of the compressor's reach.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Repousse l'échéance sans traiter la cause ; la conversation finira par dépasser la nouvelle limite.</li>
-<li>C) Même logique : on retarde la compression au lieu de protéger les faits.</li>
-<li>D) Les few-shot agissent sur le format de sortie, pas sur la préservation de l'information en contexte.</li>
+<li data-opt="b">Postpones the deadline without protecting anything; a longer case reaches the wider limit too.</li>
+<li data-opt="c">Same move, phrased as frequency: compressing later does not change what compression destroys.</li>
+<li data-opt="d">Few-shot examples shape output format, not what survives in the input context.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q2 (D5) — Client mécontent : escalader ou résoudre ?</summary>
+<details id="d5-q2" data-domain="D5" data-task="5.2">
+<summary>Q2 (D5) — An angry message with an easy fix</summary>
 <div>
-<p><strong>Situation :</strong> le client écrit « This is outrageous, I'm very unhappy! ». Son problème est par ailleurs simple et dans les capacités de l'agent. Faut-il escalader immédiatement ?</p>
-<p>A) Oui, un sentiment négatif marqué justifie une escalade immédiate.</p>
-<p>B) Non — reconnaître l'émotion, proposer une résolution, et n'escalader que si le client réitère sa demande de parler à un humain.</p>
-<p>C) Oui, en s'appuyant sur une analyse de sentiment pour calibrer le seuil de déclenchement.</p>
-<p>D) Non — ignorer la charge émotionnelle et traiter uniquement le problème technique.</p>
+<p><strong>Scenario:</strong> A grocery delivery customer writes: "Unbelievable, the whole chilled order turned up warm again." No human has been asked for, and the goodwill credit that settles the case is within the agent's authority.</p>
+<p><strong>Question:</strong> What is the correct behavior?</p>
+<p data-opt="a">A) Escalate right away; wording that strong predicts an unsatisfactory outcome.</p>
+<p data-opt="b">B) Acknowledge the frustration, offer the credit, and escalate only if the customer then asks for a person.</p>
+<p data-opt="c">C) Score the message with a sentiment model and escalate above the configured threshold.</p>
+<p data-opt="d">D) Skip the emotional content and issue the credit, since that is what actually fixes the order.</p>
 <hr>
-<p class="correct">Réponse : B) Reconnaître, proposer une résolution, escalader si le client réitère</p>
-<p><strong>Explication :</strong> le sentiment ne corrèle pas avec la complexité du dossier. Le pattern nuancé — reconnaître la frustration, proposer la résolution puisqu'elle est à portée, escalader si le client insiste — respecte à la fois la préférence du client et l'objectif de résolution au premier contact.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: acknowledge, resolve, escalate only on reiteration</p>
+<p><strong>Why:</strong> anger is not a request for a human, and tone does not track case difficulty. The nuanced pattern honors the customer's experience while still resolving on first contact.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Escalader sur le ton conduit à transférer des cas simples et fait chuter la résolution au premier contact.</li>
-<li>C) L'analyse de sentiment est un proxy non fiable de la complexité réelle.</li>
-<li>D) Ignorer l'émotion dégrade l'interaction, même quand la réponse technique est juste.</li>
+<li data-opt="a">Hands off a case the agent can close, which is what drives first-contact resolution down.</li>
+<li data-opt="c">Turns an unreliable signal into a number without making it any more predictive of complexity.</li>
+<li data-opt="d">Settles the order and ignores the person; the acknowledgement costs one sentence.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q3 (D5) — Échec d'accès contre résultat vide légitime</summary>
+<details id="d5-q3" data-domain="D5" data-task="5.3">
+<summary>Q3 (D5) — An access failure next to an empty answer</summary>
 <div>
-<p><strong>Situation :</strong> trois catégories de sources renvoient des retours différents : bases académiques = 15 articles, rapports sectoriels = « 0 results », bases de brevets = « Connection timeout ». Comment propager cela au coordinateur ?</p>
-<p>A) Agréger en un indicateur unique de type « 67 % de couverture des sources ».</p>
-<p>B) Reporter le timeout et les 0 results comme deux échecs.</p>
-<p>C) Relancer automatiquement les défaillances transitoires jusqu'à obtenir un résultat.</p>
-<p>D) Distinguer l'échec d'accès (timeout, appelle une décision de reprise) du résultat vide valide (requête réussie, aucune correspondance).</p>
+<p><strong>Scenario:</strong> A due-diligence subagent queries three registries. Court records return eleven filings, the sanctions list returns no matches, and the corporate registry connector returns a connection timeout. The subagent reports the last two identically, as "source failure".</p>
+<p><strong>Question:</strong> How should these outcomes reach the coordinator?</p>
+<p data-opt="a">A) Merge the three into one source-coverage percentage for the run.</p>
+<p data-opt="b">B) Report both as failures, so the coordinator retries both and stays on the safe side.</p>
+<p data-opt="c">C) Separate the access failure (the timeout never completed, so a retry decision is open) from the valid empty answer (the query completed and matched nothing, which is coverage information).</p>
+<p data-opt="d">D) Report both as successes with empty result sets, so the run is not interrupted.</p>
 <hr>
-<p class="correct">Réponse : D) Distinguer échec d'accès et résultat vide valide</p>
-<p><strong>Explication :</strong> un timeout signifie que la requête n'a pas abouti — le coordinateur peut vouloir réessayer ou changer d'approche. Zéro résultat signifie que la requête a abouti et qu'il n'y a rien à trouver : c'est une information de couverture, pas une panne. Confondre les deux fait soit relancer inutilement, soit croire à une lacune inexistante.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: an access failure and a valid empty answer are different things</p>
+<p><strong>Why:</strong> the timeout means the question was never answered; no matches means it was answered and the answer is "nothing here". The structured error the coordinator needs carries <code>failure_type</code>, the attempted query, <code>partial_results</code> and alternatives, so it can retry, requery, or annotate the gap.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Un pourcentage agrégé détruit précisément la distinction dont le coordinateur a besoin.</li>
-<li>B) Traiter un résultat vide comme un échec fait passer une réponse valide pour une panne.</li>
-<li>C) Le retry aveugle ignore les cas non rejouables et consomme du budget sans décision.</li>
+<li data-opt="a">A single percentage destroys exactly the distinction the coordinator has to act on.</li>
+<li data-opt="b">Retrying a registry that legitimately matched nothing returns nothing again, at cost.</li>
+<li data-opt="d">Silent suppression: a real access failure is filed as an absence of evidence and no recovery fires.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q4 (D5) — Ce que masque une accuracy globale de 97 %</summary>
+<details id="d5-q4" data-domain="D5" data-task="5.5">
+<summary>Q4 (D5) — What one accuracy figure hides</summary>
 <div>
-<p><strong>Situation :</strong> l'accuracy globale de votre système d'extraction est de 97 %. Faut-il s'en satisfaire avant d'automatiser ?</p>
-<p>A) Oui, 97 % est un excellent niveau pour passer en automatique.</p>
-<p>B) Non — une accuracy agrégée peut masquer 40 % d'erreurs sur un type de document précis. Analyser par type de document et par champ.</p>
-<p>C) Oui, à condition que les tests unitaires du pipeline passent.</p>
-<p>D) Non — entraîner un classifieur dédié à la détection des erreurs.</p>
+<p><strong>Scenario:</strong> A clinical records extraction pipeline reports 94% accuracy across all documents and all fields. The team wants to drop human review for everything the pipeline handles.</p>
+<p><strong>Question:</strong> What has to be established first?</p>
+<p data-opt="a">A) Break the figure down by document type and by field with stratified random sampling, and confirm the level holds in every segment.</p>
+<p data-opt="b">B) Nothing: the figure already clears the bar agreed with the business.</p>
+<p data-opt="c">C) Re-measure the same aggregate on a bigger sample to tighten its confidence interval.</p>
+<p data-opt="d">D) Train a dedicated classifier that flags the extractions most likely to be wrong.</p>
 <hr>
-<p class="correct">Réponse : B) Analyser par type de document et par champ</p>
-<p><strong>Explication :</strong> une moyenne globale peut recouvrir des segments très dégradés — factures scannées, formulaires manuscrits, ou des champs précis comme les numéros de TVA. Un échantillonnage aléatoire stratifié révèle ces poches d'erreur avant qu'elles ne partent en production.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: break it down by document type and by field before automating</p>
+<p><strong>Why:</strong> an average hides segments that perform far worse — faxed handwritten intake forms at 62%, the <code>insurer_member_id</code> field at 58% — while the headline stays reassuring. Segment-level measurement is the precondition for reducing review, not a follow-up to it.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) C'est exactement le raisonnement que le scénario invite à remettre en cause.</li>
-<li>C) Les tests unitaires valident le pipeline, pas la justesse des extractions.</li>
-<li>D) Ajoute de l'infrastructure avant même d'avoir mesuré où sont les erreurs.</li>
+<li data-opt="b">Accepts the exact reasoning the scenario is built to challenge.</li>
+<li data-opt="c">A sharper aggregate is still an aggregate; precision does not reveal structure.</li>
+<li data-opt="d">Adds machinery before anyone has measured where the errors actually sit.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q5 (D5) — Deux sources crédibles qui se contredisent</summary>
+<details id="d5-q5" data-domain="D5" data-task="5.6">
+<summary>Q5 (D5) — Two figures that disagree</summary>
 <div>
-<p><strong>Situation :</strong> deux sources crédibles donnent des chiffres différents sur la part de musique générée par IA sur le streaming : 12 % (Spotify Annual Report, mars 2024) et 8 % (enquête sectorielle, juillet 2024), avec des méthodologies distinctes. Comment traiter cette divergence dans la synthèse ?</p>
-<p>A) Retenir la source la plus récente et écarter l'autre.</p>
-<p>B) Faire la moyenne des deux valeurs.</p>
-<p>C) Conserver les deux valeurs avec leur attribution complète (source, date, méthodologie), signaler le conflit, et laisser le coordinateur ou l'utilisateur trancher.</p>
-<p>D) Retirer la statistique du rapport pour éviter toute ambiguïté.</p>
+<p><strong>Scenario:</strong> A synthesis agent receives two readmission rates for the same procedure: 9.4% from a 2022 national registry built on claims data, and 6.1% from a 2025 hospital survey. Both sources are credible and the methods differ.</p>
+<p><strong>Question:</strong> What goes into the report?</p>
+<p data-opt="a">A) The more recent figure, with the older one dropped.</p>
+<p data-opt="b">B) The average of the two, labeled as an estimate.</p>
+<p data-opt="c">C) Neither, since contradictory data is not reportable.</p>
+<p data-opt="d">D) Both values with full attribution — source, date, method — flagged as a conflict for the coordinator or the reader to resolve.</p>
 <hr>
-<p class="correct">Réponse : C) Conserver les deux valeurs avec attribution et signaler le conflit</p>
-<p><strong>Explication :</strong> face à des statistiques contradictoires issues de sources crédibles, on annote le conflit avec son attribution plutôt que de choisir arbitrairement. Les dates et méthodologies transforment souvent le conflit apparent en information réelle — deux mesures différentes, à deux moments, par deux méthodes.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="d">Answer: keep both values, attributed, and flag the conflict</p>
+<p><strong>Why:</strong> conflicting statistics from credible sources get annotated, not silently resolved. The dates and the methodological gap are part of the finding: a claims-based count and a self-reported survey three years apart may not even be measuring the same thing.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Choisir sur le seul critère de récence est arbitraire et efface une donnée valide.</li>
-<li>B) Une moyenne fabrique un chiffre qu'aucune source n'avance.</li>
-<li>D) Supprimer l'information appauvrit le rapport au lieu de qualifier l'incertitude.</li>
+<li data-opt="a">Recency alone is an arbitrary tie-break, and it deletes valid evidence.</li>
+<li data-opt="b">An average manufactures a number no source reports.</li>
+<li data-opt="c">Dropping the statistic impoverishes the report instead of qualifying the uncertainty.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q6 (D5) — Contexte saturé, décisions anciennes à préserver</summary>
+<details id="d5-q6" data-domain="D5" data-task="5.1">
+<summary>Q6 (D5) — Early decisions in a saturated window</summary>
 <div>
-<p><strong>Situation :</strong> votre agent multi-tour approche de la limite du context window après 80 tours d'investigation. Les premiers tours contiennent des décisions architecturales que vous ne voulez pas perdre. Quelle stratégie ?</p>
-<p>A) Lancer <code>/compact</code> immédiatement et poursuivre.</p>
-<p>B) Combiner une summarization progressive des tours anciens avec un bloc <code>case facts</code> extérieur contenant les décisions architecturales clés.</p>
-<p>C) Augmenter <code>max_tokens</code>.</p>
-<p>D) Démarrer une nouvelle session en repartant de zéro.</p>
+<p><strong>Scenario:</strong> An incident-response agent is 80 turns into an outage investigation and close to the context limit. The opening turns hold the agreed rollback boundary and the mitigation the team explicitly ruled out.</p>
+<p><strong>Question:</strong> Which strategy keeps the session alive without losing those decisions?</p>
+<p data-opt="a">A) Run <code>/compact</code> now and carry on.</p>
+<p data-opt="b">B) Raise <code>max_tokens</code> so more fits.</p>
+<p data-opt="c">C) Summarize the older turns progressively, and hold the binding decisions in a <code>case facts</code> block outside the summarized history.</p>
+<p data-opt="d">D) Start a fresh session and rebuild the picture from scratch.</p>
 <hr>
-<p class="correct">Réponse : B) Summarization progressive plus un bloc case facts extérieur</p>
-<p><strong>Explication :</strong> la summarization libère du budget de contexte, le bloc <code>case facts</code> protège ce qui ne doit pas être dilué. C'est la combinaison des deux qui donne à la fois la longévité de session et la préservation des décisions structurantes.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: progressive summarization plus an external case facts block</p>
+<p><strong>Why:</strong> summarization buys context budget, the persistent block protects what must not be diluted. Only the pair delivers both session longevity and intact decisions.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) <code>/compact</code> seul dilue précisément les détails que vous cherchez à conserver.</li>
-<li>C) <code>max_tokens</code> borne la longueur de la réponse, pas la fenêtre de contexte.</li>
-<li>D) Repartir de zéro sans résumé injecté jette tout le travail d'investigation.</li>
+<li data-opt="a">Compaction on its own dilutes precisely the decisions you are trying to keep.</li>
+<li data-opt="b">That parameter bounds the length of the generated answer, not the input window.</li>
+<li data-opt="d">Restarting with no summary injected throws away the whole investigation.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q7 (D5) — Deux déclencheurs d'escalade fiables <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<details id="d5-q7" data-domain="D5" data-task="5.2">
+<summary>Q7 (D5) — Two signals that stop the agent deciding alone <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
-<p><strong>Situation :</strong> après 50 tours d'investigation, votre agent approche de la limite de contexte. Un policy gap a été identifié, et l'agent découvre 3 correspondances client possibles pour le même numéro de dossier. Quels deux patterns d'escalade appliquer immédiatement ?</p>
-<p>A) Escalader à cause de la limite de contexte qui approche.</p>
-<p>B) Demander des identifiants supplémentaires pour lever l'ambiguïté entre les 3 correspondances client.</p>
-<p>C) Lancer <code>/compact</code> pour libérer du contexte avant de continuer.</p>
-<p>D) Escalader à cause du policy gap identifié.</p>
-<p>E) Utiliser une analyse de sentiment pour décider si l'escalade est nécessaire.</p>
+<p><strong>Scenario:</strong> A software licensing support agent is deep into a long ticket. The renewal discount being asked for is neither allowed nor forbidden by the pricing policy, and the account lookup returns three companies sharing the same trading name.</p>
+<p><strong>Question:</strong> Which two responses does the escalation policy require here?</p>
+<p data-opt="a">A) Escalate on the policy gap the discount request falls into.</p>
+<p data-opt="b">B) Escalate because the ticket is long and the window is filling up.</p>
+<p data-opt="c">C) Ask for a further identifier — contract number or billing domain — before acting on any of the three accounts.</p>
+<p data-opt="d">D) Pick the account with the most recent renewal, as the likeliest match.</p>
+<p data-opt="e">E) Score the customer's tone and escalate if it reads negative.</p>
 <hr>
-<p class="correct">Réponses : B, D.</p>
-<p><strong>Explication :</strong> plusieurs correspondances imposent de demander un identifiant discriminant plutôt que de choisir par heuristique — se tromper de client a des conséquences réelles. Et un policy gap, c'est-à-dire une politique muette ou ambiguë sur le cas soumis, est un déclencheur d'escalade fiable.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a c">Answers: the policy gap, and the ambiguous account match</p>
+<p><strong>Why:</strong> policy silence on the case is a reliable trigger, because granting the discount is a commercial decision nobody delegated. Multiple matches call for a discriminating identifier, never a guess: acting on the wrong company's contract is the failure that identity checks exist to prevent.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) La limite de contexte est une contrainte technique, pas un motif d'escalade métier.</li>
-<li>C) <code>/compact</code> gère le contexte mais ne répond ni à l'ambiguïté client ni au policy gap.</li>
-<li>E) Le sentiment est un proxy non fiable, et rien ici ne relève de l'émotion du client.</li>
+<li data-opt="b">A filling window is a technical constraint with technical remedies, not a business reason to involve a human.</li>
+<li data-opt="d">"Most recent renewal" is a heuristic dressed as reasoning, and it can select the wrong account just as easily.</li>
+<li data-opt="e">Tone does not correlate with case complexity, and nothing here turns on how the customer feels.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q8 (D5) — Une session d'exploration qui se dégrade</summary>
+<details id="d5-q8" data-domain="D5" data-task="5.4">
+<summary>Q8 (D5) — An exploration session that drifts</summary>
 <div>
-<p><strong>Situation :</strong> après trois heures d'exploration d'un monolithe legacy, votre agent répond « les services de paiement suivent en général le pattern Strategy » alors qu'il avait identifié <code>PaymentProcessor</code> et ses trois appelants deux heures plus tôt. Vous devez continuer l'investigation sur les mêmes fichiers.</p>
-<p><strong>Question :</strong> quelle combinaison traite la cause ?</p>
-<p>A) Relancer l'exploration depuis le début dans une session neuve, sans rien conserver.</p>
-<p>B) Faire écrire à l'agent ses découvertes dans un fichier scratchpad qu'il relit ensuite, et déléguer les phases de découverte verbeuses à un subagent qui ne remonte qu'un résumé.</p>
-<p>C) Augmenter <code>max_tokens</code> pour que les réponses soient plus détaillées.</p>
-<p>D) Demander à l'agent de mieux se concentrer et de citer ses sources.</p>
+<p><strong>Scenario:</strong> Deep into an audit of a legacy inventory module, the agent answers that "stock reconciliation jobs usually follow the observer pattern", although it had located <code>StockLedgerSync</code> and its callers an hour earlier. The investigation has to continue on the same files.</p>
+<p><strong>Question:</strong> Which combination treats the cause?</p>
+<p data-opt="a">A) Raise <code>max_tokens</code> so the answers carry more detail.</p>
+<p data-opt="b">B) Have the agent write its findings to a scratchpad file it rereads later, and delegate the verbose discovery phases to a subagent that returns a summary only.</p>
+<p data-opt="c">C) Rerun the exploration in a clean session, keeping nothing.</p>
+<p data-opt="d">D) Tell the agent to concentrate on the real code and cite its sources.</p>
 <hr>
-<p class="correct">Réponse : B) Scratchpad relu + délégation à un subagent</p>
-<p><strong>Explication :</strong> le symptôme décrit — invoquer des « patterns typiques » au lieu des classes réellement découvertes — est la signature de la <code>context degradation</code>. Les deux parades sont complémentaires : le scratchpad rend les découvertes relisibles indépendamment du contexte, et la délégation empêche le contexte principal de se remplir de sorties de découverte verbeuses.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: a scratchpad it rereads, plus delegation to a subagent</p>
+<p><strong>Why:</strong> reaching for a "typical pattern" instead of the class it actually read is the signature of context degradation. The two remedies are complementary: the scratchpad makes findings readable again independently of the window, and delegation keeps verbose discovery output out of the main thread in the first place.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Repartir de zéro sans injecter de résumé jette trois heures de travail et reproduira la même dégradation.</li>
-<li>C) <code>max_tokens</code> borne la longueur de la réponse ; il n'a aucun effet sur ce que l'agent a retenu.</li>
-<li>D) Une consigne de comportement ne restaure pas une information qui n'est plus exploitable dans le contexte.</li>
+<li data-opt="a">That parameter bounds answer length; it has no effect on what the agent still holds.</li>
+<li data-opt="c">Starting over with no summary injected discards the audit and reproduces the same drift.</li>
+<li data-opt="d">An instruction cannot restore information that is no longer usable in the context.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q9 (D5) — Où envoyer les relecteurs humains</summary>
+<details id="d5-q9" data-domain="D5" data-task="5.5">
+<summary>Q9 (D5) — Where to point a small review team</summary>
 <div>
-<p><strong>Situation :</strong> votre pipeline d'extraction traite 5 000 documents par jour. Vous disposez de deux relecteurs humains, capables de traiter environ 200 documents quotidiens. Vous voulez que cette capacité serve à quelque chose.</p>
-<p><strong>Question :</strong> comment router la relecture ?</p>
-<p>A) Faire produire au modèle un score de confiance global par document et relire les 200 plus bas.</p>
-<p>B) Relire 200 documents tirés au hasard chaque jour, pour un échantillon non biaisé.</p>
-<p>C) Faire produire des scores de confiance <strong>par champ</strong>, calibrer le seuil sur un jeu de validation étiqueté, et router en priorité les champs sous le seuil ainsi que les documents ambigus ou contradictoires à la source.</p>
-<p>D) Demander au modèle de s'auto-évaluer de 1 à 10 sur la qualité de son extraction et relire tout ce qui est sous 7.</p>
+<p><strong>Scenario:</strong> A loan application extraction pipeline handles 4,200 documents a day. Your single reviewer gets through roughly 150 of them, and you want that capacity to earn its keep.</p>
+<p><strong>Question:</strong> How should review be routed?</p>
+<p data-opt="a">A) Emit one confidence score per document and review the lowest-scoring ones until the reviewer runs out of day.</p>
+<p data-opt="b">B) Draw the reviewed documents at random each day, for an unbiased sample.</p>
+<p data-opt="c">C) Emit confidence per field, calibrate the threshold against a labeled validation set, and route the fields below it along with documents whose source is ambiguous or self-contradictory.</p>
+<p data-opt="d">D) Have the model rate the quality of its own extraction and review whatever it rates poorly.</p>
 <hr>
-<p class="correct">Réponse : C) Scores par champ, seuil calibré sur un jeu étiqueté, routage des cas faibles et ambigus</p>
-<p><strong>Explication :</strong> la granularité par champ concentre l'effort là où il est utile — un document dont seul le numéro de TVA est douteux ne mérite pas une relecture intégrale. Et un seuil n'a de sens qu'après confrontation à une vérité terrain : c'est le jeu de validation étiqueté qui dit à quel niveau de confiance le taux d'erreur réel devient acceptable.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: per-field confidence, a threshold calibrated on labeled data, and the ambiguous sources</p>
+<p><strong>Why:</strong> field granularity spends the reviewer where the doubt is — a form whose only shaky value is <code>employer_tax_id</code> does not need a full reread. And a threshold means nothing until it has been set against ground truth: the labeled set is what says which confidence level carries an acceptable real error rate.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Un score global agrège les champs sûrs et les champs douteux ; il envoie en relecture des documents à 95 % corrects et laisse passer un champ critique isolé.</li>
-<li>B) Le tirage aléatoire est le bon outil pour <em>mesurer</em> un taux d'erreur (échantillonnage stratifié), pas pour <em>allouer</em> une capacité de relecture : il consacre l'essentiel des 200 relectures à des extractions correctes.</li>
-<li>D) C'est l'auto-évaluation non calibrée, mal corrélée à l'exactitude réelle — le modèle est confiant précisément là où il se trompe.</li>
+<li data-opt="a">One score per document averages the safe fields with the doubtful ones, so it queues near-perfect documents and waves through a single critical field.</li>
+<li data-opt="b">Random draw is the right tool to <em>measure</em> an error rate, not to <em>allocate</em> review: most of the reviewer's day goes to correct extractions.</li>
+<li data-opt="d">Uncalibrated self-assessment tracks real accuracy poorly, and the model is confident exactly where it is wrong.</li>
 </ul>
 </div>
 </details>

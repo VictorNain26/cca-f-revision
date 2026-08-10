@@ -429,103 +429,107 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </div>
 </details>
 
-<details>
-<summary>Q2 (D0) — Deux outils, une même description</summary>
+<details id="d0-q2" data-domain="D0" data-task="2.1">
+<summary>Q2 (D0) — Which part of a tool definition decides the routing</summary>
 <div>
-<p><strong>Situation :</strong> vos deux outils s'appellent <code>get_customer</code> (« Retrieves customer information ») et <code>lookup_order</code> (« Retrieves order details »). Ils acceptent des identifiants de format voisin. En production, le modèle appelle régulièrement le mauvais.</p>
-<p><strong>Question :</strong> quel élément de la définition d'un tool détermine ce choix ?</p>
-<p>A) L'ordre des tools dans le tableau <code>tools</code> de la requête.</p>
-<p>B) Le nom du tool, qui prime sur le reste de la définition.</p>
-<p>C) La <code>description</code> — c'est le mécanisme principal de sélection.</p>
-<p>D) La complexité de l'<code>input_schema</code> : le modèle préfère le schéma le plus simple.</p>
+<p><strong>Scenario:</strong> An HR assistant exposes <code>search_policy_doc</code> ("Retrieves policy content") and <code>search_payroll_record</code> ("Retrieves payroll data"). Both accept employee identifiers of a similar shape, and the model routinely picks the wrong one.</p>
+<p><strong>Question:</strong> Which part of a tool definition drives that choice?</p>
+<p data-opt="a">A) The position of each tool in the request's <code>tools</code> array.</p>
+<p data-opt="b">B) The tool name, which outranks the rest of the definition.</p>
+<p data-opt="c">C) The <code>description</code>, which is the primary selection mechanism.</p>
+<p data-opt="d">D) The size of the <code>input_schema</code>: the model prefers the simplest one.</p>
 <hr>
-<p class="correct">Réponse : C) La description</p>
-<p><strong>Explication :</strong> le modèle choisit ses outils en lisant leurs descriptions. Quand elles sont minimales, il n'a pas de quoi les distinguer et le misrouting devient structurel. La correction consiste à enrichir chaque description avec les formats d'entrée, des exemples de requêtes, les cas limites et la frontière avec les outils voisins. C'est le point de départ de tout D2.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: the description</p>
+<p><strong>Why:</strong> the model selects a tool by reading the definitions, and the description is where the meaning lives. Two one-line descriptions give it nothing to tell the tools apart, so misrouting becomes structural. The fix is to state input formats, example requests, edge cases and the boundary with neighboring tools.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) L'ordre de déclaration n'est pas un critère de sélection.</li>
-<li>B) Le nom aide, mais il ne porte pas les formats d'entrée, les cas limites ni les frontières d'usage — c'est la description qui les porte.</li>
-<li>D) Le schéma décrit les paramètres attendus une fois le tool choisi ; il n'entre pas dans la décision de choisir ce tool-là.</li>
+<li data-opt="a">Declaration order is not a selection criterion.</li>
+<li data-opt="b">The name helps, but it cannot carry input formats, edge cases or usage boundaries.</li>
+<li data-opt="d">The schema describes the arguments once a tool has been chosen; it does not decide which tool to choose.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q3 (D0) — API stateless et perte de tool_result</summary>
+<details id="d0-q3" data-domain="D0" data-task="1.3">
+<summary>Q3 (D0) — A stateless API and a vanished tool_result</summary>
 <div>
-<p><strong>Situation :</strong> votre pipeline CI appelle l'API Claude. Entre deux requêtes, un <code>tool_result</code> de l'appel précédent est perdu. Quelle est la cause la plus probable ?</p>
-<p>A) L'API est stateless : le développeur n'a pas renvoyé l'historique complet (avec les <code>tool_result</code>) dans la requête suivante.</p>
-<p>B) Le <code>tool_result</code> expire côté serveur Anthropic après quelques secondes.</p>
-<p>C) Le <code>max_tokens</code> est trop bas pour conserver le <code>tool_result</code>.</p>
-<p>D) Il manque un paramètre <code>session_id</code> pour persister l'état entre requêtes.</p>
+<p><strong>Scenario:</strong> A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.</p>
+<p><strong>Question:</strong> What is the most likely cause?</p>
+<p data-opt="a">A) The API keeps no state, and the caller did not resend the whole history, <code>tool_result</code> blocks included.</p>
+<p data-opt="b">B) A <code>tool_result</code> block expires server-side a few seconds after it is submitted.</p>
+<p data-opt="c">C) The <code>max_tokens</code> value is too low to retain the <code>tool_result</code>.</p>
+<p data-opt="d">D) A <code>session_id</code> parameter is missing, so state is not persisted between requests.</p>
 <hr>
-<p class="correct">Réponse : A) L'API est stateless, l'historique complet n'a pas été renvoyé</p>
-<p><strong>Explication :</strong> l'API Claude ne conserve aucun état entre les requêtes. À chaque appel, le tableau <code>messages</code> doit contenir l'intégralité de l'historique, <code>tool_result</code> compris. C'est au client de le reconstituer.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="a">Answer: the API is stateless and the history was not resent</p>
+<p><strong>Why:</strong> nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Rien n'expire côté serveur, puisque l'API ne stocke rien.</li>
-<li>C) <code>max_tokens</code> borne la longueur de la <em>sortie</em>, pas la taille de l'historique envoyé.</li>
-<li>D) Il n'existe pas de paramètre <code>session_id</code> sur l'API Messages.</li>
+<li data-opt="b">Nothing expires server-side, because nothing is stored there.</li>
+<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send.</li>
+<li data-opt="d">The Messages API has no such parameter.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q4 (D0) — System prompt keyword-sensitive</summary>
+<details id="d0-q4" data-domain="D0" data-task="4.1">
+<summary>Q4 (D0) — A system prompt line that keeps pulling a tool</summary>
 <div>
-<p><strong>Situation :</strong> le system prompt dit « always verify the customer's identity ». Vous constatez que <code>get_customer</code> est appelé même quand ce n'est pas nécessaire. Quelle est la cause racine ?</p>
-<p>A) La description de <code>get_customer</code> est trop large.</p>
-<p>B) La formulation du system prompt (« always verify ») crée une association non intentionnelle avec le tool <code>get_customer</code>.</p>
-<p>C) <code>tool_choice</code> est réglé sur <code>"any"</code>, forçant un appel d'outil.</p>
-<p>D) Le modèle appelle <code>get_customer</code> par défaut au premier tour.</p>
+<p><strong>Scenario:</strong> A travel booking assistant opens its system prompt with "Always confirm live availability before replying." Logs show <code>check_availability</code> firing on every turn, including questions about the cancellation policy. The tool definitions are detailed and clearly differentiated.</p>
+<p><strong>Question:</strong> What is the root cause?</p>
+<p data-opt="a">A) The <code>tools</code> array declares <code>check_availability</code> first, and the model falls back to the first entry when it hesitates.</p>
+<p data-opt="b">B) The unconditional wording binds the instruction to the closest matching tool; the fix is to say under which conditions availability must be confirmed.</p>
+<p data-opt="c">C) The tool returns a large payload, so the model keeps calling it to refill its context.</p>
+<p data-opt="d">D) The instruction sits in the <code>system</code> field instead of the first <code>user</code> message, which weakens its precedence.</p>
 <hr>
-<p class="correct">Réponse : B) La formulation du system prompt crée une association non intentionnelle</p>
-<p><strong>Explication :</strong> le modèle interprète « always verify the customer » comme une instruction déclenchant systématiquement le tool sémantiquement le plus proche — ici <code>get_customer</code>. C'est une instruction <em>keyword-sensitive</em> : elle prend le pas sur des descriptions d'outils pourtant bien écrites. La correction est de dire <em>quand</em> la vérification est nécessaire plutôt que « always ».</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: unconditional wording in the system prompt</p>
+<p><strong>Why:</strong> the model reads "always" as a standing trigger and attaches it to the semantically nearest tool. Such keyword-sensitive instructions override even well-written tool definitions, which is why the scenario tells you those definitions are fine. Replacing a blanket instruction with explicit conditions is what removes the trigger.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) C'est un symptôme plausible, pas la cause : rien dans l'énoncé n'indique une description trop large, et le déclencheur identifié est le mot <em>always</em>.</li>
-<li>C) Aucun <code>tool_choice</code> forcé n'est mentionné ; par défaut il vaut <code>"auto"</code>.</li>
-<li>D) Le modèle n'a pas de tool par défaut au premier tour — il choisit sur la base des descriptions et du system prompt.</li>
+<li data-opt="a">There is no first-entry default; selection comes from the definitions and the system prompt.</li>
+<li data-opt="c">Response size has no bearing on whether a tool is selected.</li>
+<li data-opt="d">The <code>system</code> field is exactly where standing instructions belong, and moving them would not stop the over-calling.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q5 (D0) — Garantir qu'un tool soit appelé</summary>
+<details id="d0-q5" data-domain="D0" data-task="2.3">
+<summary>Q5 (D0) — Keeping one turn free of tool calls</summary>
 <div>
-<p><strong>Situation :</strong> vous avez besoin d'une sortie structurée garantie de Claude. Quelle valeur de <code>tool_choice</code> garantit qu'un tool est toujours appelé, sans en imposer un précis ?</p>
-<p>A) <code>{"type": "auto"}</code></p>
-<p>B) <code>{"type": "any"}</code></p>
-<p>C) Omettre <code>tool_choice</code></p>
-<p>D) <code>{"type": "none"}</code></p>
+<p><strong>Scenario:</strong> The last turn of a workflow must produce the customer-facing message and nothing else. The tool definitions stay in the request because the same client code serves the earlier turns, and the model sometimes calls a tool on that final turn anyway.</p>
+<p><strong>Question:</strong> Which <code>tool_choice</code> value expresses that constraint?</p>
+<p data-opt="a">A) <code>{"type": "auto"}</code></p>
+<p data-opt="b">B) <code>{"type": "any"}</code></p>
+<p data-opt="c">C) <code>{"type": "none"}</code></p>
+<p data-opt="d">D) <code>{"type": "tool", "name": "send_reply"}</code></p>
 <hr>
-<p class="correct">Réponse : B) {"type": "any"}</p>
-<p><strong>Explication :</strong> <code>"any"</code> oblige le modèle à appeler au moins un tool tout en le laissant choisir lequel — c'est exactement le réglage quand plusieurs schémas d'extraction coexistent et que le type d'entrée n'est pas connu à l'avance. Pour imposer un outil <em>précis</em>, on utilise <code>{"type": "tool", "name": "..."}</code>.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: the setting that forbids tool calls outright</p>
+<p><strong>Why:</strong> it bars every tool call for that request while the definitions remain declared, so a single client can keep one request shape across the whole workflow and still guarantee a text-only turn.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) <code>"auto"</code> laisse le modèle répondre en texte libre sans appeler d'outil.</li>
-<li>C) Omettre le champ revient à <code>"auto"</code>, qui est le défaut dès que des <code>tools</code> sont fournis.</li>
-<li>D) <code>"none"</code> fait l'inverse : il interdit tout appel d'outil.</li>
+<li data-opt="a">That is the current behavior and the default whenever tools are supplied: the model may call one, which is the reported problem.</li>
+<li data-opt="b">This does the opposite and forces at least one call.</li>
+<li data-opt="d">Naming a tool also forces a call, and here no tool should run at all.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q6 (D0) — Champ required et fabrication de valeur</summary>
+<details id="d0-q6" data-domain="D0" data-task="4.3">
+<summary>Q6 (D0) — A mandatory field the source cannot fill</summary>
 <div>
-<p><strong>Situation :</strong> un tool d'extraction déclare <code>company_name</code> dans <code>required</code>, mais certains documents ne mentionnent aucune entreprise. Que se passe-t-il le plus souvent ?</p>
-<p>A) L'API renvoie une erreur 400 de validation.</p>
-<p>B) Le champ est automatiquement renvoyé à <code>null</code>.</p>
-<p>C) Le modèle fabrique une valeur pour satisfaire la contrainte <code>required</code>.</p>
-<p>D) Le tool n'est pas appelé du tout.</p>
+<p><strong>Scenario:</strong> An invoice extraction tool lists <code>discount_pct</code> among its <code>required</code> properties, yet plenty of invoices grant no discount. Reviewers keep finding discount figures that appear nowhere on the invoice.</p>
+<p><strong>Question:</strong> What is happening, and what removes the cause?</p>
+<p data-opt="a">A) The API rejects the call as schema-invalid, so nothing reaches the pipeline.</p>
+<p data-opt="b">B) The model invents a figure to satisfy the constraint; make the property nullable with <code>"type": ["number", "null"]</code> and drop it from the mandatory list.</p>
+<p data-opt="c">C) The model leaves the property empty, and the pipeline should read an empty value as absent.</p>
+<p data-opt="d">D) The model skips the tool call whenever a mandatory property has no source value.</p>
 <hr>
-<p class="correct">Réponse : C) Le modèle fabrique une valeur pour satisfaire la contrainte</p>
-<p><strong>Explication :</strong> un champ <code>required</code> place le modèle devant un choix entre violer le schéma et inventer — il invente. La correction est de rendre le champ <strong>nullable</strong> (<code>"type": ["string", "null"]</code>) et de le retirer de <code>required</code> : le modèle renvoie alors <code>null</code> honnêtement quand l'information est absente.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: the model invents a figure, so make the property nullable and optional</p>
+<p><strong>Why:</strong> a mandatory property leaves the model choosing between breaking the schema and making something up, and it makes something up. Declaring the property nullable and optional gives it an honest way to report absence.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) L'API valide la <em>conformité au schéma</em>, jamais la véracité du contenu — une valeur inventée est conforme.</li>
-<li>B) Rien ne renvoie automatiquement <code>null</code> tant que le champ reste <code>required</code>.</li>
-<li>D) Le tool est bien appelé ; c'est son contenu qui est faux.</li>
+<li data-opt="a">Validation covers schema conformance, never truthfulness: an invented number conforms perfectly.</li>
+<li data-opt="c">Nothing empties the property while the schema still demands a value.</li>
+<li data-opt="d">The tool does get called; it is the payload that is wrong.</li>
 </ul>
 </div>
 </details>

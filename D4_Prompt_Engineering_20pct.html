@@ -577,145 +577,151 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <div class="quiz-section">
 <h3>Questions de révision — Domain 4</h3>
 
-<details>
-<summary>Q1 (D4) — Instruction vague contre critères explicites</summary>
+<details id="d4-q1" data-domain="D4" data-task="4.1">
+<summary>Q1 (D4) — A rule the reviewer reads differently every run</summary>
 <div>
-<p><strong>Situation :</strong> le prompt de revue dit « Check code comments for accuracy. Be conservative. » Les résultats sont inconsistants : un même pattern est signalé dans une PR et ignoré dans la suivante. Quel changement ?</p>
-<p>A) Ajouter des few-shot examples de commentaires problématiques.</p>
-<p>B) Filtrer les TODO/FIXME avant l'analyse.</p>
-<p>C) Ajouter <code>git blame</code> pour identifier les commentaires anciens.</p>
-<p>D) Définir des critères explicites : ne signaler que lorsque le commentaire contredit le comportement réel du code.</p>
+<p><strong>Scenario:</strong> A reviewer inspects database migration scripts under the instruction "flag risky migrations, and be careful". The same <code>DROP COLUMN</code> statement is flagged on Monday and approved on Thursday.</p>
+<p><strong>Question:</strong> What change makes the verdicts stable?</p>
+<p data-opt="a">A) Add few-shot examples of migrations the team considers risky.</p>
+<p data-opt="b">B) Spell out the criteria: flag a migration only when it drops a column, rewrites a table in place, or backfills rows without batching.</p>
+<p data-opt="c">C) Run the check twice and keep only the findings that appear in both runs.</p>
+<p data-opt="d">D) Restrict the check to migrations that touch production schemas.</p>
 <hr>
-<p class="correct">Réponse : D) Définir des critères explicites</p>
-<p><strong>Explication :</strong> « be conservative » ne dit rien d'opérationnel — chaque exécution réinterprète le seuil. Un critère catégoriel (« le commentaire contredit le code ») définit précisément ce qui constitue un problème, et la classification devient stable.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: replace the adjective with named, testable conditions</p>
+<p><strong>Why:</strong> "risky" carries no operational meaning, so every run reinvents the threshold. Named conditions turn a matter of taste into something the model applies the same way twice.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Les few-shot aideraient, mais ils illustrent une règle qui n'est toujours pas définie — on traite le symptôme.</li>
-<li>B) Filtrer en amont réduit le volume sans rendre les décisions restantes plus cohérentes.</li>
-<li>C) L'ancienneté d'un commentaire ne dit rien de son exactitude.</li>
+<li data-opt="a">Illustrates a rule that still has not been defined.</li>
+<li data-opt="c">Intersecting two unstable verdicts drops genuine findings.</li>
+<li data-opt="d">Shrinks the volume without making any remaining decision consistent.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q2 (D4) — Batch API et workflow bloquant</summary>
+<details id="d4-q2" data-domain="D4" data-task="4.5">
+<summary>Q2 (D4) — Two workloads, one cost-cutting proposal</summary>
 <div>
-<p><strong>Situation :</strong> votre équipe veut réduire les coûts API. Deux workflows : un pre-merge check bloquant, et un rapport de dette technique généré la nuit. Le manager propose de passer les deux à la Message Batches API pour ses 50 % d'économies. Comment évaluer ?</p>
-<p>A) Batch pour le rapport de dette technique uniquement ; garder l'API synchrone pour le pre-merge.</p>
-<p>B) Passer les deux en batch avec du polling pour détecter la complétion.</p>
-<p>C) Garder l'API synchrone pour les deux, pour éviter les problèmes d'ordre des résultats.</p>
-<p>D) Passer les deux en batch avec un repli synchrone si le batch tarde trop.</p>
+<p><strong>Scenario:</strong> An insurer runs two workloads: a panel that drafts a reply while the customer is on the line, and a quarterly rescoring of archived claim notes. Finance wants both on the Message Batches API for the halved price.</p>
+<p><strong>Question:</strong> How do you answer?</p>
+<p data-opt="a">A) Move both; batches usually return in minutes, so the panel will rarely notice.</p>
+<p data-opt="b">B) Keep both synchronous, since batch results come back in an order you cannot control.</p>
+<p data-opt="c">C) Move the quarterly rescoring only, and keep the agent panel on the synchronous API.</p>
+<p data-opt="d">D) Move both, with a timer that reissues a synchronous call whenever a batch has not returned in time.</p>
 <hr>
-<p class="correct">Réponse : A) Batch pour le rapport nocturne, synchrone pour le pre-merge</p>
-<p><strong>Explication :</strong> la Message Batches API offre 50 % d'économies mais avec une fenêtre de traitement pouvant atteindre 24 heures et aucun SLA de latence garanti. Inacceptable quand un développeur attend le résultat pour merger ; idéal pour un rapport consulté le lendemain matin.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: batch the archive job, keep the live panel synchronous</p>
+<p><strong>Why:</strong> the batch window runs to a full day with no latency guarantee. Disqualifying when a human waits on the answer, free money on a job nobody is watching.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Compter sur un traitement « souvent plus rapide » n'est pas acceptable pour un workflow bloquant.</li>
-<li>C) Repose sur une idée fausse : les résultats se corrèlent par <code>custom_id</code>.</li>
-<li>D) Ajoute de la complexité là où faire correspondre chaque API à son usage suffit.</li>
+<li data-opt="a">Typical latency is not a commitment, and a live workload needs one.</li>
+<li data-opt="b">Misconception: each response carries back the correlation id you submitted.</li>
+<li data-opt="d">Two code paths for a problem that matching each API to its workload dissolves.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q3 (D4) — Le biais de l'auto-revue</summary>
+<details id="d4-q3" data-domain="D4" data-task="4.6">
+<summary>Q3 (D4) — The draft and its author</summary>
 <div>
-<p><strong>Situation :</strong> Claude génère du code, mais des problèmes subtils ne sont détectés que lorsqu'un collègue relit. Le raisonnement de Claude montre qu'il avait envisagé ces cas puis conclu que son approche était correcte. Quel correctif ?</p>
-<p>A) Lancer une seconde instance indépendante de Claude pour la revue, sans accès au raisonnement du générateur.</p>
-<p>B) Demander au modèle de relire son propre code avec une consigne d'esprit critique.</p>
-<p>C) Ajouter davantage de tests dans le contexte de génération.</p>
-<p>D) Ajouter des exemples d'erreurs subtiles au prompt de génération.</p>
+<p><strong>Scenario:</strong> A pipeline drafts an incident report, then asks the model in the same thread to check it for unsupported claims. The check almost always approves, yet an on-call engineer finds such claims minutes later.</p>
+<p><strong>Question:</strong> What fixes the detection?</p>
+<p data-opt="a">A) Tell the model, in the same thread, to assume its draft contains at least two unsupported claims.</p>
+<p data-opt="b">B) Give the checking step a longer thinking budget so it reasons further about the draft.</p>
+<p data-opt="c">C) Feed more incident telemetry into the drafting step so the draft is right the first time.</p>
+<p data-opt="d">D) Run the check in a fresh instance that receives the draft alone, without the reasoning that produced it.</p>
 <hr>
-<p class="correct">Réponse : A) Une seconde instance indépendante, sans le contexte de génération</p>
-<p><strong>Explication :</strong> dans la même session, le modèle conserve le raisonnement qui l'a conduit à ses choix et remet donc peu en cause ses propres décisions. Une instance indépendante aborde le code sans cet ancrage — c'est le principe de la revue par les pairs.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="d">Answer: an independent instance that never saw the drafting context</p>
+<p><strong>Why:</strong> the writer keeps the reasoning that justified every sentence, so rereading confirms those choices instead of challenging them. An instance that sees only the artifact reads it the way a peer reviewer does.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Une consigne d'auto-revue ne supprime pas l'ancrage : le raisonnement d'origine est toujours en contexte.</li>
-<li>C) Plus de tests aide à la génération, mais ne fait pas réexaminer les décisions déjà rationalisées.</li>
-<li>D) Agit en amont sur la génération, alors que le manque est du côté de la détection.</li>
+<li data-opt="a">A self-criticism instruction leaves the anchoring context in place.</li>
+<li data-opt="b">More reasoning in the same context reinforces the original conclusions.</li>
+<li data-opt="c">Acts on generation, while the gap is on detection.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q4 (D4) — Champ required et hallucination</summary>
+<details id="d4-q4" data-domain="D4" data-task="4.3">
+<summary>Q4 (D4) — A mandatory field the source cannot fill</summary>
 <div>
-<p><strong>Situation :</strong> un outil d'extraction déclare <code>company_name</code> dans <code>required</code>, mais certains documents ne mentionnent aucune entreprise. Le modèle invente un nom plausible. Comment corriger ?</p>
-<p>A) Ajouter des few-shot examples montrant des documents sans entreprise.</p>
-<p>B) Rendre le champ nullable (<code>"type": ["string", "null"]</code>) et le retirer de <code>required</code>.</p>
-<p>C) Ajouter une validation post-extraction qui rejette les noms suspects.</p>
-<p>D) Fournir davantage de documents en contexte pour désambiguïser.</p>
+<p><strong>Scenario:</strong> A conference tool extracts talk submissions into a schema where <code>co_speaker</code> is a mandatory string. Many talks are solo, and those extractions come back with plausible names found nowhere in the form.</p>
+<p><strong>Question:</strong> What is the fix?</p>
+<p data-opt="a">A) Add an instruction forbidding the model to invent a name.</p>
+<p data-opt="b">B) Let the field hold <code>null</code> and drop it from the mandatory list, so absence has a legal representation.</p>
+<p data-opt="c">C) Constrain the field to an enum built from the speakers already registered.</p>
+<p data-opt="d">D) Keep the field as it is and reject any extraction whose name is missing from the submission text.</p>
 <hr>
-<p class="correct">Réponse : B) Rendre le champ nullable et le retirer de required</p>
-<p><strong>Explication :</strong> tant que le champ est obligatoire, le modèle doit choisir entre violer le schéma et inventer. Le rendre nullable lui ouvre une troisième voie honnête. Règle de conception : ne marquer <code>required</code> que les champs dont l'information est toujours présente dans la source.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b">Answer: make the field nullable and optional</p>
+<p><strong>Why:</strong> while the field is compulsory, the model picks between breaking the schema and fabricating a value, and it fabricates. A field the source may not carry must let "nothing here" be expressed.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Les few-shot peuvent aider, mais la contrainte de schéma qui force l'invention reste en place.</li>
-<li>C) Détecter des « noms suspects » est arbitraire et fragile.</li>
-<li>D) Le problème n'est pas l'ambiguïté : l'information est simplement absente.</li>
+<li data-opt="a">Leaves the contradiction standing: the schema still demands a value.</li>
+<li data-opt="c">Forces a wrong pick when the honest answer is that there was no second speaker.</li>
+<li data-opt="d">Catches the fabrication afterwards, with no correct value to put in its place.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q5 (D4) — Erreur sémantique sur une facture <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<details id="d4-q5" data-domain="D4" data-task="4.4">
+<summary>Q5 (D4) — Hours that do not add up <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
-<p><strong>Situation :</strong> une extraction de facture retourne <code>{"stated_total": 150, "line_items": [...]}</code>, mais la somme des <code>line_items</code> vaut 145. De quel type d'erreur s'agit-il et comment la traiter ?</p>
-<p>A) C'est une erreur de syntaxe — utiliser <code>strict: true</code> sur la définition de l'outil pour forcer la conformité au schéma.</p>
-<p>B) C'est une erreur sémantique — implémenter une boucle validate-retry : valider avec Pydantic et, en cas d'écart, renvoyer le message d'erreur détaillé à Claude avec le document original.</p>
-<p>C) C'est une erreur de syntaxe — ajouter des few-shot examples pour éviter les calculs incorrects.</p>
-<p>D) C'est une erreur sémantique — ajouter un champ <code>calculated_total</code> et un booléen <code>conflict_detected</code> pour matérialiser l'incohérence, et laisser la logique aval décider.</p>
-<p>E) C'est une erreur de syntaxe — augmenter <code>max_tokens</code> pour laisser plus de place au raisonnement.</p>
+<p><strong>Scenario:</strong> A payroll extractor returns a timesheet whose <code>reported_hours</code> reads 38, while the daily entries sum to 41. The payload parses and matches the schema.</p>
+<p><strong>Question:</strong> Which two statements fit this situation?</p>
+<p data-opt="a">A) It is a syntax error; enforcing the tool schema more strictly removes it.</p>
+<p data-opt="b">B) It is a semantic error; validate programmatically and, on failure, resubmit with the document, the rejected extraction, and the exact discrepancy.</p>
+<p data-opt="c">C) It is a syntax error; more few-shot examples stop the arithmetic from drifting.</p>
+<p data-opt="d">D) It is a semantic error; carry <code>computed_hours</code> next to <code>reported_hours</code> with a <code>conflict_detected</code> flag, so downstream code sees the gap.</p>
+<p data-opt="e">E) It is a syntax error; a higher output token cap leaves room to finish the arithmetic.</p>
 <hr>
-<p class="correct">Réponses : B, D.</p>
-<p><strong>Explication :</strong> le JSON est syntaxiquement valide — c'est son contenu qui viole une règle métier. Deux traitements complémentaires : la boucle validate-retry, qui renvoie l'erreur précise au modèle pour auto-correction, et la conception d'un flux d'auto-vérification qui expose l'écart au lieu de le masquer.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b d">Answers: a semantic error, handled by a validate-retry loop and by an explicit conflict flag</p>
+<p><strong>Why:</strong> a forced tool call guarantees the shape of the payload, never the truth of its values. A message naming the field and the gap lets the model correct itself; carrying both figures plus a flag keeps the conflict visible.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) <code>strict: true</code> élimine les erreurs de syntaxe, jamais les erreurs de cohérence entre champs.</li>
-<li>C) Confond syntaxe et sémantique ; les few-shot ne corrigent pas une incohérence arithmétique systématique.</li>
-<li>E) <code>max_tokens</code> borne la longueur de sortie et n'a aucun rapport avec la justesse du calcul.</li>
+<li data-opt="a">Schema enforcement removes malformed payloads, not disagreement between fields.</li>
+<li data-opt="c">Confuses shape with meaning; examples do not repair a systematic arithmetic gap.</li>
+<li data-opt="e">The token cap bounds output length, not the correctness of a sum.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q6 (D4) — Extraction en volume sous contrainte de délai <strong>(Sélectionne les 2 réponses correctes.)</strong></summary>
+<details id="d4-q6" data-domain="D4" data-task="4.5">
+<summary>Q6 (D4) — What the batch endpoint will and will not do <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
-<p><strong>Situation :</strong> vous devez extraire 10 000 commandes e-commerce pour un rapport hebdomadaire attendu demain matin. Quelles affirmations sur l'usage de la Message Batches API sont correctes ?</p>
-<p>A) Utiliser le Batches API pour ses 50 % d'économies ; une latence jusqu'à 24 h est acceptable pour un rapport consulté demain matin.</p>
-<p>B) Utiliser le Batches API avec une boucle d'outils multi-tour, chaque requête pouvant escalader vers un service de validation client.</p>
-<p>C) Utiliser l'API synchrone, car la fenêtre de 24 h du batch empêcherait de livrer demain matin.</p>
-<p>D) Utiliser un <code>custom_id</code> unique par commande pour corréler résultats et documents source, et ne resoumettre que les échecs.</p>
-<p>E) Utiliser le Batches API parce qu'il est 50 % plus rapide que l'API synchrone.</p>
+<p><strong>Scenario:</strong> A media team scores the sentiment of 40,000 archived reviews every Sunday night through the Message Batches API.</p>
+<p><strong>Question:</strong> Which two statements about that run are correct?</p>
+<p data-opt="a">A) Results come back in submission order, so a response position is a safe key to its review.</p>
+<p data-opt="b">B) Results come back unordered, so each one is paired with its request through the <code>custom_id</code> the team set.</p>
+<p data-opt="c">C) A batch request is one pass and one answer, so a step needing your code to execute a tool and hand the result back to the model does not fit.</p>
+<p data-opt="d">D) The endpoint halves latency along with price, so the weekly job finishes sooner.</p>
+<p data-opt="e">E) Results are discarded once the batch completes, so the run must stream them out as they land.</p>
 <hr>
-<p class="correct">Réponses : A, D.</p>
-<p><strong>Explication :</strong> le profil correspond exactement au batch — non bloquant, tolérant à la latence, gros volume. Et le <code>custom_id</code> est le mécanisme prévu pour rattacher chaque réponse à sa requête, ce qui permet une reprise ciblée des seuls échecs.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="b c">Answers: pair results by their correlation key, and expect a single pass per request</p>
+<p><strong>Why:</strong> the two structural facts that decide whether a workload fits. The correlation key ties each response to its document and lets the team resubmit only the failures; a batch request buys one turn, never a tool loop.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>B) Le Batches API ne supporte pas le tool calling multi-tour au sein d'une requête.</li>
-<li>C) Une fenêtre de 24 h tient dans un délai « demain matin ».</li>
-<li>E) Confond prix et latence : 50 % moins cher, et sans SLA de latence garanti.</li>
+<li data-opt="a">Position is exactly what must not be trusted; results are unordered.</li>
+<li data-opt="d">Confuses price with latency: the discount is real, the latency is not guaranteed.</li>
+<li data-opt="e">Results stay retrievable for 29 days; no streaming workaround is needed.</li>
 </ul>
 </div>
 </details>
 
-<details>
-<summary>Q7 (D4) — Du code idiomatique signalé comme défaut</summary>
+<details id="d4-q7" data-domain="D4" data-task="4.2">
+<summary>Q7 (D4) — Quantities nobody can enumerate</summary>
 <div>
-<p><strong>Situation :</strong> votre revue automatisée signale comme problèmes des patterns délibérés de votre codebase : le helper maison d'encapsulation d'erreurs, l'usage assumé d'un builder mutable dans les chemins critiques, la convention de retour anticipé des validateurs. Vous ne pouvez pas énumérer à l'avance tous les patterns acceptés — de nouveaux apparaissent régulièrement.</p>
-<p><strong>Question :</strong> quelle correction ?</p>
-<p>A) Baisser la sensibilité de la revue pour qu'elle signale moins de choses en général.</p>
-<p>B) Fournir des few-shot examples opposant les patterns acceptés aux vrais défauts, pour que le modèle généralise la distinction aux patterns non listés.</p>
-<p>C) Maintenir une liste blanche explicite des patterns acceptés, mise à jour à chaque nouveau cas.</p>
-<p>D) Exclure de la revue les fichiers où ces patterns apparaissent.</p>
+<p><strong>Scenario:</strong> A recipe importer turns ingredient lines into structured quantities. Informal amounts such as "a couple of handfuls" or "a splash" come back empty or wildly wrong, and fresh phrasings appear with every new import.</p>
+<p><strong>Question:</strong> What is the most effective fix?</p>
+<p data-opt="a">A) Lower the extractor's sensitivity so it reports fewer questionable quantities.</p>
+<p data-opt="b">B) Keep a lookup table mapping every informal phrase to a quantity, extended as new phrases appear.</p>
+<p data-opt="c">C) Give two to four worked examples pairing an informal phrase with the converted quantity and the reasoning behind it, so the model generalizes to unseen phrasings.</p>
+<p data-opt="d">D) Reject ingredient lines that carry no numeric unit and route them to manual entry.</p>
 <hr>
-<p class="correct">Réponse : B) Des few-shot examples qui enseignent la distinction</p>
-<p><strong>Explication :</strong> les few-shot examples réduisent les faux positifs <em>tout en permettant la généralisation</em> : le modèle apprend le principe qui sépare un pattern intentionnel d'un défaut, au lieu d'apparier une liste figée. La contrainte de l'énoncé — de nouveaux patterns apparaissent sans cesse — est précisément ce qui rend la généralisation nécessaire.</p>
-<p class="incorrect"><strong>Pourquoi les autres sont faux :</strong></p>
+<p class="correct" data-answer="c">Answer: worked examples that teach the conversion, not a dictionary of phrases</p>
+<p><strong>Why:</strong> examples carrying their rationale teach a transferable rule, which is what a space of phrasings nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li>A) Supprime les vrais défauts au même rythme que les faux positifs.</li>
-<li>C) Une liste blanche ne couvre que ce qui y figure déjà, et l'énoncé dit qu'elle ne sera jamais complète.</li>
-<li>D) Retire des fichiers entiers de la revue pour contourner un problème de classification.</li>
+<li data-opt="a">Suppresses good extractions at the same rate as bad ones.</li>
+<li data-opt="b">Covers only what is listed, and the scenario says the list is never complete.</li>
+<li data-opt="d">Hands the hard cases back to humans rather than solving them.</li>
 </ul>
 </div>
 </details>
