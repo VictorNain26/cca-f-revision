@@ -13,6 +13,7 @@
     "check:links": "node tools/check-links.mjs",
     "check:diacritics": "node tools/check-diacritics.mjs",
     "check:quizzes": "node tools/check-quizzes.mjs",
+    "check:length": "node tools/check-length-tell.mjs",
     "test": "node --test tools/**/*.test.mjs"
   },
   "devDependencies": {
