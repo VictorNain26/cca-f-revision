@@ -585,22 +585,22 @@ jobs:
 </details>
 
 <details id="d3-q7" data-domain="D3" data-task="3.4">
-<summary>Q7 (D3) — A locale bug and a teammate who wants a plan</summary>
+<summary>Q7 (D3) — A stale scale factor and an unsettled ingest path</summary>
 <div>
-<p><strong>Scenario:</strong> German customers receive invoices whose amounts carry the wrong thousands and decimal separators. The trace names <code>formatAmount()</code>, which reads the process default rather than the request <code>locale</code> derived from <code>Accept-Language</code>; passing that value through is the whole change. A teammate wants the work run in plan mode because billing output is customer-visible.</p>
-<p><strong>Question:</strong> How should this run?</p>
-<p data-opt="a">A) Plan mode, with three candidate fixes drawn up and weighed before anything is written to the file.</p>
-<p data-opt="b">B) Direct execution — the trace names the function and the fix is one argument.</p>
-<p data-opt="c">C) Plan mode, on the grounds that other locales likely share the defect and one plan should cover them all.</p>
-<p data-opt="d">D) Direct execution, once the ticket is widened to audit every other formatter for the same class of defect.</p>
+<p><strong>Scenario:</strong> Two tickets open the same morning on a smart-metering platform. The first: a failing regression test pins <code>toKilowattHours()</code>, which still applies the scale the meters used before the current firmware shipped; the test states the value it expects, and the scale is a single constant, <code>METER_SCALE</code>. The second: retire the nightly polling job and have meters publish readings as they take them, which means settling where backpressure belongs, what becomes of readings buffered through a network outage, and how both paths run side by side while the fleet upgrades over months.</p>
+<p><strong>Question:</strong> Which mode fits which ticket?</p>
+<p data-opt="a">A) Plan mode for both, since a change that reaches customer meters should be designed before it is written.</p>
+<p data-opt="b">B) Plan mode for the scale factor so the firmware assumption gets recorded, and direct execution for the ingest change, revising the design as problems surface.</p>
+<p data-opt="c">C) Direct execution for the scale factor, plan mode for the ingest change.</p>
+<p data-opt="d">D) Direct execution for both, one meter model at a time.</p>
 <hr>
-<p class="correct" data-answer="b">Answer: run it directly, because nothing is left to decide</p>
-<p><strong>Why:</strong> planning pays where boundaries are open, approaches compete, or many files move together. A named function and a one-argument change offer none of that, and being customer-visible describes the output, not the difficulty of the decision.</p>
+<p class="correct" data-answer="c">Answer: run the scale factor directly, plan the ingest change</p>
+<p><strong>Why:</strong> deliberation pays where approaches compete, boundaries are unsettled, and one early decision propagates across many files. The ingest change carries three open questions before a line is written; the scale factor carries a failing test that already states the answer.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Manufactures alternatives where the trace has already settled the change.</li>
-<li data-opt="c">Speculation, and a plan built on it commits to work nobody has confirmed exists.</li>
-<li data-opt="d">Turns a settled fix into an open-ended audit, which is how a one-line change stops shipping today.</li>
+<li data-opt="a">Spends deliberation on a ticket whose expected value is already written down in the test.</li>
+<li data-opt="b">Reverses both readings at once, deliberating over the settled ticket and improvising the unsettled one.</li>
+<li data-opt="d">Incremental delivery still commits to a backpressure design nobody has chosen, and a fleet halfway through an upgrade is the worst place to discover that.</li>
 </ul>
 </div>
 </details>

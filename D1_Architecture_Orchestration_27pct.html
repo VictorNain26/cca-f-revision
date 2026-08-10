@@ -498,22 +498,22 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </details>
 
 <details id="d1-q2" data-domain="D1" data-task="1.2">
-<summary>Q2 (D1) — A clean audit that missed most of the rubric</summary>
+<summary>Q2 (D1) — Forty pages about one of five areas</summary>
 <div>
-<p><strong>Scenario:</strong> A multi-agent system was asked to audit a banking app for accessibility. Three auditor subagents ran, and each returned a clean, well-formed result. The coordinator's log preserves the assignments it wrote: color contrast on the login screen, color contrast on the transfer screen, color contrast on the statements screen. The delivered report says nothing about screen-reader labels, focus order, or touch-target size.</p>
-<p><strong>Question:</strong> Where does the gap come from?</p>
-<p data-opt="a">A) The three screens sampled do not represent the app's surface, so entire flows were never opened by any auditor.</p>
-<p data-opt="b">B) The report template offers one findings section per screen.</p>
-<p data-opt="c">C) Running the three auditors in isolation left none of them able to notice which criteria the others were leaving untouched.</p>
-<p data-opt="d">D) The coordinator wrote three assignments that all exercise a single criterion.</p>
+<p><strong>Scenario:</strong> A coordinator was asked for a pre-launch risk brief on a payments feature. The request names five areas to cover: regulatory exposure, fraud, support load, vendor dependencies, data residency. It mentions chargebacks once, as an example under fraud. Six workers ran over two rounds and each returned a well-formed section; the brief that came back is forty pages, all of them about chargebacks. The coordinator's plan is still in the log, and it opens by restating the job as chargeback exposure.</p>
+<p><strong>Question:</strong> Which change keeps this from recurring?</p>
+<p data-opt="a">A) Gate the delivery step: hold the brief back until every area named in the request has a section of its own, and send the job round again whenever one of them is missing.</p>
+<p data-opt="b">B) Split the work into five independent runs, one per area, and have the requester stitch the five briefs together afterwards.</p>
+<p data-opt="c">C) Have the coordinator derive one assignment per area named in the request, before it delegates.</p>
+<p data-opt="d">D) Raise the worker count so each round covers more ground.</p>
 <hr>
-<p class="correct" data-answer="d">Answer: the assignments the coordinator wrote all exercise one criterion</p>
-<p><strong>Why:</strong> the log names the defect. Screen-reader labels, focus order and target size were handed to nobody, so no amount of careful work downstream could surface them. The auditors did what they were given; the giving was the fault.</p>
+<p class="correct" data-answer="c">Answer: derive the assignments from the areas the request names, ahead of any delegation</p>
+<p><strong>Why:</strong> the plan in the log names the defect — a five-part request became a one-part job before any worker started. Coverage that was never assigned cannot be recovered by anything downstream, so the fix has to sit ahead of the delegation.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Three screens is thin coverage, but what is missing here is criteria, not screens — those same three screens went unchecked for focus order too.</li>
-<li data-opt="b">A template shapes where findings get written, not whether they exist, and there was nothing to place.</li>
-<li data-opt="c">Isolation is the point of a subagent, and mutual awareness would have changed nothing: no auditor held the missing criteria to share.</li>
+<li data-opt="a">The gate proves the brief incomplete only once six workers have been paid for, and it hands the job back to the same planning step that read five areas as one — so the next round can return just as narrow.</li>
+<li data-opt="b">Guarantees the coverage by removing the coordinator from the job. Whatever sits across two areas is lost, and the requester now does the merging on every request.</li>
+<li data-opt="d">Capacity was never the constraint. Six workers already produced forty pages; more of them widen nothing while every assignment points at the same area.</li>
 </ul>
 </div>
 </details>
@@ -625,22 +625,22 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 </details>
 
 <details id="d1-q8" data-domain="D1" data-task="1.5">
-<summary>Q8 (D1) — Three trackers, three ways to say urgent</summary>
+<summary>Q8 (D1) — One integer, three meanings</summary>
 <div>
-<p><strong>Scenario:</strong> A triage agent pulls open issues from three trackers. One reports priority as <code>P1</code> through <code>P4</code>, one as <code>critical</code>, <code>major</code> or <code>minor</code>, the third as an integer from 1 to 5 where 5 is the most urgent. The agent forwards to the on-call queue whatever it reads as top priority, and cosmetic issues keep arriving there while real outages wait.</p>
-<p><strong>Question:</strong> Which fix addresses the cause?</p>
-<p data-opt="a">A) Rewrite each connector to attach a <code>priority_scale</code> field naming the vocabulary it uses, and leave the mapping itself to the model.</p>
-<p data-opt="b">B) Ask the model to reason step by step about which scale a label belongs to before it routes anything.</p>
-<p data-opt="c">C) A <code>PostToolUse</code> hook that maps every returned label onto one scale.</p>
-<p data-opt="d">D) Re-open each issue in its own tracker before routing it.</p>
+<p><strong>Scenario:</strong> A storefront agent checks availability through <code>check_stock</code> before it confirms an order through <code>place_order</code>. The <code>available</code> field carries three meanings in one integer: a positive number is units on hand, <code>-1</code> marks an item the supplier ships on request, and <code>0</code> marks a SKU the warehouse does not track. The agent treats anything that is not positive as sold out, and it has spent a month declining orders that could have been filled.</p>
+<p><strong>Question:</strong> Where does the fix belong?</p>
+<p data-opt="a">A) Ask the inventory team to retire the overloaded integer and publish an explicit status field, since one number carrying three meanings will mislead every consumer of that API and not only this agent.</p>
+<p data-opt="b">B) A <code>PreToolUse</code> hook on <code>place_order</code> that blocks the confirmation whenever the availability figure behind it was not positive.</p>
+<p data-opt="c">C) Log every non-positive figure and review the pattern each week.</p>
+<p data-opt="d">D) A hook that rewrites the figure into an explicit state before the model reads the result.</p>
 <hr>
-<p class="correct" data-answer="c">Answer: fold the three vocabularies into one in a hook that runs after the tool returns</p>
-<p><strong>Why:</strong> three fixed vocabularies collapse onto one scale by a fixed table, so the mapping belongs in code that runs on every result rather than in a habit the model keeps most of the time. The hook fires once the tool has returned, before the model reads anything.</p>
+<p class="correct" data-answer="d">Answer: map the integer onto an explicit state in a hook, before the model reads the result</p>
+<p><strong>Why:</strong> the three readings are a fixed table, so applying them is a transformation and not a judgment call. A <code>PostToolUse</code> hook runs it on every result on the way back, which is the last moment at which the ambiguous integer can be kept out of what the model reads.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">Naming the scale still leaves the mapping to the model on every single issue, and now costs context to describe as well.</li>
-<li data-opt="b">Deliberation raises the hit rate on something with one right answer. The misroutes get rarer, not impossible.</li>
-<li data-opt="d">Adds a round trip per issue and hands back the same three vocabularies, unchanged.</li>
+<li data-opt="a">The right thing to fix and the wrong thing to wait for: the field belongs to another team, every existing consumer has to move with it, and orders keep being declined until that lands.</li>
+<li data-opt="b">Hardens the misreading rather than removing it. The confirmations it would block are precisely the ones that should go through, and the agent is still reading the same integer.</li>
+<li data-opt="c">Counts the symptom every week and changes nothing about what the model reads. The mapping is already known, which is what makes measurement the wrong instrument.</li>
 </ul>
 </div>
 </details>
