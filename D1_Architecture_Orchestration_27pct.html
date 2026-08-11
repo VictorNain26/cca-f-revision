@@ -312,7 +312,7 @@ Task 3 : "Rechercher des articles sur Z"
 <div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Task 1.4 &amp; 1.5)</h2></div>
 
 <h3>Le problème que cela résout</h3>
-<p>Dans un workflow de support client, il est critique de vérifier l'identité du client <em>avant</em> de traiter un remboursement. On peut l'écrire dans le prompt… mais les instructions dans le prompt ont un taux de conformité élevé, jamais garanti à 100 % — le guide officiel parle seulement d'un <em>non-zero failure rate</em> (le « 90-95 % » parfois cité en formation est illustratif, pas un chiffre officiel). Sur des milliers d'interactions, même un faible taux d'échec peut causer des remboursements versés au mauvais client.</p>
+<p>Dans un workflow de support client, il est critique de vérifier l'identité du client <em>avant</em> de traiter un remboursement. On peut l'écrire dans le prompt… mais une instruction de prompt reste probabiliste : le guide la chiffre à <em>&gt; 90 %, pas 100 %</em>. Sur des milliers d'interactions, ce reliquat suffit à verser des remboursements au mauvais client.</p>
 
 <p>Le <strong>programmatic enforcement</strong> résout ce problème en rendant la violation <em>impossible</em> par le code, plutôt qu'<em>improbable</em> par le prompt.</p>
 
@@ -348,7 +348,7 @@ def normalize_dates(tool_result):
 <p>C'est l'une des distinctions les plus testées à l'examen. La règle est simple :</p>
 <table>
 <tr><th></th><th>Hooks (programmatic enforcement)</th><th>Prompt instructions</th></tr>
-<tr><td><strong>Garantie</strong></td><td>Déterministe (100 %)</td><td>Probabiliste (non-zero failure rate — pas 100 % ; le guide ne donne pas de chiffre exact, le « &gt; 90 % » est illustratif)</td></tr>
+<tr><td><strong>Garantie</strong></td><td>Déterministe (100 %)</td><td>Probabiliste (&gt; 90 %, pas 100 %)</td></tr>
 <tr><td><strong>Quand les utiliser</strong></td><td>Business rules critiques, opérations financières, conformité réglementaire</td><td>Préférences générales, formatting, recommandations</td></tr>
 <tr><td><strong>Exemple</strong></td><td>Bloquer les remboursements supérieurs à 500 $</td><td>« Try to resolve the issue before escalating »</td></tr>
 </table>
