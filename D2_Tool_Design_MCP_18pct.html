@@ -461,7 +461,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <p><strong>Question:</strong> which statements are accurate?</p>
 <p data-opt="a">A) Returning <code>{"isError": true, "content": "Booking failed"}</code> already tells the agent enough to decide on a retry.</p>
 <p data-opt="b">B) A calendar backend answering <code>503</code> is a transient failure and should carry <code>isRetryable: true</code> encoded in the <code>text</code> block of the content.</p>
-<p data-opt="c">C) A permission failure must be escalated to a human with no retry, whatever the context.</p>
+<p data-opt="c">C) A validation failure — a required field left empty — is non-retryable like a permission denial, so the agent must hand the call over to a human.</p>
 <p data-opt="d">D) The <code>transient</code>, <code>validation</code>, <code>business</code> and <code>permission</code> categories come from the official MCP specification.</p>
 <p data-opt="e">E) A slot search that legitimately finds no availability must be reported differently from a backend timeout.</p>
 <hr>
@@ -470,7 +470,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">That is the anti-pattern itself: a uniform error carries no basis for any decision.</li>
-<li data-opt="c">Escalation is the right default (<code>isRetryable: false</code>), but "whatever the context" turns a design guideline into an absolute.</li>
+<li data-opt="c">A missing required field is the textbook <code>validation</code> case, and that category is retryable once the argument is fixed: the agent repairs its own input and calls again. Handing over to a human with no retry is the <code>permission</code> row.</li>
 <li data-opt="d">They are an application-level convention encoded in the text block, not a formal part of the MCP spec.</li>
 </ul>
 </div>

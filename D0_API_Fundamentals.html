@@ -419,7 +419,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <p data-opt="d">D) A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
-<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer.</p>
+<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer. Scope note: among stop reasons, the exam guide names only the pair that drives the agentic loop, and that loop is what the task this sheet prepares tests. <code>"max_tokens"</code>, <code>"refusal"</code> and <code>"pause_turn"</code> come from the API reference — D0 prerequisite material, not extra exam surface.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
@@ -471,7 +471,7 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </div>
 </details>
 
-<details id="d0-q4" data-domain="D0" data-task="4.1">
+<details id="d0-q4" data-domain="D0" data-task="2.1">
 <summary>Q4 (D0) — A standing rule that drags a tool onto every turn</summary>
 <div>
 <p><strong>Scenario:</strong> A greenhouse operations assistant opens its system prompt with "Every answer must reflect the current sensor readings." Logs show <code>read_sensors</code> firing on each turn, including when a grower asks how a cultivar name should be spelled in the planting log. Each tool definition spells out its inputs and where its job ends.</p>
@@ -493,22 +493,22 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 </details>
 
 <details id="d0-q5" data-domain="D0" data-task="2.3">
-<summary>Q5 (D0) — Keeping one turn free of tool calls</summary>
+<summary>Q5 (D0) — A triage loop that never writes its answer</summary>
 <div>
-<p><strong>Scenario:</strong> The last turn of a workflow must produce the customer-facing message and nothing else. The tool definitions stay in the request because the same client code serves the earlier turns, and the model sometimes calls a tool on that final turn anyway.</p>
-<p><strong>Question:</strong> Which <code>tool_choice</code> value expresses that constraint?</p>
-<p data-opt="a">A) <code>{"type": "auto"}</code></p>
-<p data-opt="b">B) <code>{"type": "any"}</code></p>
-<p data-opt="c">C) <code>{"type": "none"}</code></p>
-<p data-opt="d">D) <code>{"type": "tool", "name": "send_reply"}</code></p>
+<p><strong>Scenario:</strong> A ticket-triage client runs its own loop: send the request, run whatever tool comes back, append the result, send again. To stop the assistant from chatting while work remains, the client sets <code>tool_choice</code> to the value that guarantees a call — and it sets it on every request of the loop. Runs now end only when the client's iteration cap trips, and no written answer ever arrives.</p>
+<p><strong>Question:</strong> Why does the run never reach one?</p>
+<p data-opt="a">A) That value binds the first request alone; the later ones revert to the automatic setting, so the assistant keeps reaching for <code>lookup_account</code> long after the answer is available.</p>
+<p data-opt="b">B) Each tool result is appended as a user turn, and a request whose last turn came from the user can only be answered by another call.</p>
+<p data-opt="c">C) Repeating that value on every request removes the assistant's only way of finishing, which is a turn that ends in text; the client should guarantee the opening call and leave the remaining requests on the automatic setting.</p>
+<p data-opt="d">D) The iteration cap sits below the number of declared tools, so the client cuts the run short before <code>classify_ticket</code> and its neighbours have all been tried.</p>
 <hr>
-<p class="correct" data-answer="c">Answer: the setting that forbids tool calls outright</p>
-<p><strong>Why:</strong> it bars every tool call for that request while the definitions remain declared, so a single client can keep one request shape across the whole workflow and still guarantee a text-only turn.</p>
+<p class="correct" data-answer="c">Answer: the setting also forbids the text-only turn a run has to end on</p>
+<p><strong>Why:</strong> <code>tool_choice: "any"</code> promises exactly one thing, on every request that carries it: a tool will be called. Sent once, that pins the opening step. Sent on every request, it also outlaws the closing one, since a turn answering in prose is no longer permitted. Handing the later requests back to <code>tool_choice: "auto"</code> restores the choice between calling again and answering.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">That is the current behavior and the default whenever tools are supplied: the model may call one, which is the reported problem.</li>
-<li data-opt="b">This does the opposite and forces at least one call.</li>
-<li data-opt="d">Naming a tool also forces a call, and here no tool should run at all.</li>
+<li data-opt="a">The field is read afresh on each request; it neither expires nor decays, and the loop here restates it every time.</li>
+<li data-opt="b">A user turn carrying a tool result can be answered in prose just as readily as with another call — that is precisely what the automatic setting permits.</li>
+<li data-opt="d">The cap is what halts a run that would otherwise not halt at all; raising it buys further calls, never a written answer.</li>
 </ul>
 </div>
 </details>

@@ -605,15 +605,15 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <p><strong>Question:</strong> Where does the argument break?</p>
 <p data-opt="a">A) A live button submits one request at a time, and the endpoint prices a submission as a unit rather than per token, so a batch holding a single review would forfeit the discount that motivates the move.</p>
 <p data-opt="b">B) The nightly run clears in twenty minutes because it lands in the emptiest hours of the queue, while the button would submit all day long, when the same endpoint runs slower.</p>
-<p data-opt="c">C) Twenty minutes is a measurement, not a promise; the endpoint commits only to its outer ceiling.</p>
+<p data-opt="c">C) Twenty minutes is an observation, not a commitment: this endpoint publishes no latency guarantee at all, and the twenty-four hours it quotes bound how long processing may run rather than promise when any one submission will be handed back.</p>
 <p data-opt="d">D) The endpoint draws no line between a scheduled caller and an interactive one, so the button is entitled to whatever treatment the nightly job already gets.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: a measured time is not a service commitment</p>
-<p><strong>Why:</strong> the endpoint undertakes one thing, that a submission completes inside a window running to a full day. Nothing binds it to last quarter's twenty minutes. A shopper waiting in front of a button needs a bound the endpoint never offered.</p>
+<p><strong>Why:</strong> no latency is promised here at all. The twenty-four hours describe how long processing may run, not what a given run will take, and last quarter's twenty minutes records the queue those particular nights happened to meet. A shopper waiting in front of a button needs a bound this endpoint never offers.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">The discount applies per token, so a submission of one still earns it.</li>
-<li data-opt="b">Blames the hour, when the ceiling holds at every hour.</li>
+<li data-opt="b">Makes the flaw a matter of which hour it is, when no hour comes with a promised turnaround.</li>
 <li data-opt="d">True of the endpoint, and beside the point: the requirement lives in the workload.</li>
 </ul>
 </div>
@@ -711,12 +711,12 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <p><strong>Scenario:</strong> A recipe importer turns ingredient lines into structured quantities. Informal amounts such as "a couple of handfuls" or "a splash" come back empty or wildly wrong, and fresh phrasings appear with every new import.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
 <p data-opt="a">A) Lower the extractor's sensitivity so it reports fewer questionable quantities and the wildest values disappear.</p>
-<p data-opt="b">B) Keep a lookup table mapping every informal phrase to a quantity, extended as new phrases appear.</p>
-<p data-opt="c">C) Show a handful of worked examples pairing informal phrases with converted amounts.</p>
+<p data-opt="b">B) Keep a lookup table mapping every informal phrase to a quantity, extended by hand as new phrasings appear in the imports.</p>
+<p data-opt="c">C) Show two to four worked examples, each one carrying the reasoning that takes an informal phrase to a converted amount rather than the amount alone.</p>
 <p data-opt="d">D) Reject ingredient lines carrying no explicit unit and route them to manual entry, so no invented quantity ever reaches a published recipe.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: worked examples that teach the conversion, not a dictionary of phrases</p>
-<p><strong>Why:</strong> two to four examples are enough, and each should show the reasoning that led from the phrase to the amount, not just the pair. A rationale carried by the example teaches a transferable rule, so the model generalizes to phrasings it has never seen — which is what a space nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
+<p><strong>Why:</strong> two to four targeted examples are enough, and the reasoning each one carries is what does the teaching: the model reads how the phrase was resolved, not merely what it was resolved to. A rationale shown inside the example teaches a transferable rule, so the model generalizes to phrasings it has never seen — which is what a space nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Suppresses good extractions at the same rate as bad ones.</li>

@@ -460,7 +460,7 @@ jobs:
 <details id="d3-q1" data-domain="D3" data-task="3.1">
 <summary>Q1 (D3) — A rule the cloud workspaces never receive</summary>
 <div>
-<p><strong>Scenario:</strong> Half the team codes in ephemeral cloud workspaces rebuilt from a base image at every checkout. Payment calls written there go straight to the gateway, while laptops keep routing through <code>PaymentsClient</code> as agreed. The instruction sits in the staff engineer's <code>~/.claude/CLAUDE.md</code>.</p>
+<p><strong>Scenario:</strong> Half the team codes in ephemeral cloud workspaces rebuilt from a base image at every checkout. Payment calls written there go straight to the gateway, while laptops keep routing through <code>PaymentsClient</code> as agreed. The instruction ships in the onboarding dotfile bundle, which every new hire unpacks into <code>~/.claude/CLAUDE.md</code> on their laptop; the base image is built from another recipe and never runs that step.</p>
 <p><strong>Question:</strong> What is the diagnosis and the fix?</p>
 <p data-opt="a">A) The workspaces open their session below the repository root, so the file one level up never loads; start at the root.</p>
 <p data-opt="b">B) The wording reads as a preference rather than an obligation, and a fresh environment has no local habit to fall back on; make it imperative.</p>
@@ -468,7 +468,7 @@ jobs:
 <p data-opt="d">D) The repository never declares it; move the restriction into <code>settings.json</code>.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: the instruction lives at user scope instead of project scope</p>
-<p><strong>Why:</strong> a user-scope file belongs to one home directory and is never distributed with the repository, so an environment rebuilt from an image starts without it. Anything the whole team must follow belongs in a committed project file.</p>
+<p><strong>Why:</strong> a user-scope file belongs to a home directory and is never distributed with the repository, so it reaches a machine only through whatever copies it there and an environment rebuilt from an image starts without it. Anything the whole team must follow belongs in a committed project file.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Nothing is waiting further up the tree: the file is not in the image at all.</li>

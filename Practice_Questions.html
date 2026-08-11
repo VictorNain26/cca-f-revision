@@ -289,8 +289,8 @@
 <p><strong>Question:</strong> What is the correct approach to run Claude Code in an automated pipeline?</p>
 <p data-opt="a">A) Add the <code>-p</code> flag: <code>claude -p "Analyze this pull request for security issues"</code></p>
 <p data-opt="b">B) Set the environment variable <code>CLAUDE_HEADLESS=true</code> before running the command</p>
-<p data-opt="c">C) Redirect stdin from <code>/dev/null</code></p>
-<p data-opt="d">D) Add the <code>--batch</code> flag</p>
+<p data-opt="c">C) Redirect stdin from <code>/dev/null</code>: <code>claude "Analyze this pull request for security issues" &lt; /dev/null</code></p>
+<p data-opt="d">D) Add the <code>--batch</code> flag: <code>claude --batch "Analyze this pull request for security issues"</code></p>
 <hr>
 <p class="correct" data-answer="a">Answer: The <code>-p</code> (or <code>--print</code>) flag</p>
 <p><strong>Why:</strong> <code>-p</code> is the documented non-interactive mode: it processes the prompt, writes the result to stdout, and exits — which is exactly what a CI job needs (Task 3.6).</p>
@@ -682,7 +682,7 @@
 <ul>
 <li data-opt="a"><code>"auto"</code> is the current behaviour: the model may answer in text, which is the reported problem.</li>
 <li data-opt="b">Forcing one named tool works when you know which one should run; here it would misclassify every non-billing request.</li>
-<li data-opt="c"><code>"none"</code> forbids tool calls entirely, and free-text JSON reintroduces the syntax errors tool use eliminates.</li>
+<li data-opt="c">A prompt asking for JSON is guidance, not a guarantee — the reported failure over again. <code>"none"</code> is API vocabulary the guide never lists: its enumeration stops at <code>"auto"</code>, <code>"any"</code> and forced selection. The API reference defines it as preventing the model from using any tool, so this option forbids the very call the step depends on.</li>
 </ul>
 </div>
 </details>
@@ -1755,7 +1755,7 @@
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">Reinforces the very instruction that has already been shown not to work.</li>
-<li data-opt="c">Cuts the volume without making the underlying judgement better calibrated — confidence-based filtering is the guide's named alternative to criteria.</li>
+<li data-opt="c">Cuts the volume without changing what the model reports as a defect. Task 4.1 names the remedy the other way around: write specific review criteria "rather than relying on confidence-based filtering".</li>
 <li data-opt="d">Attention is not the constraint; the definition of a defect is.</li>
 </ul>
 </div>
@@ -1911,19 +1911,19 @@
 <details id="pq-q86" data-domain="D4" data-task="4.5">
 <summary>Q86 (CI/CD) — Batch submissions under a 30-hour SLA</summary>
 <div>
-<p><strong>Scenario:</strong> A nightly analysis processes documents through the Message Batches API. Your commitment to internal users is that any document submitted is analysed within 30 hours. Batch processing can take up to 24 hours.</p>
-<p><strong>Question:</strong> How often must you submit batches to guarantee the SLA?</p>
+<p><strong>Scenario:</strong> A nightly analysis processes documents through the Message Batches API. Your commitment to internal users is that any document submitted is analysed within 30 hours. Batch processing can take up to 24 hours. Once a batch completes, retrieving the results, re-running as a real-time call any document that came back as an error, and publishing the output take up to 2 more hours.</p>
+<p><strong>Question:</strong> How often must you submit batches to guarantee the SLA, resubmission of a failed document included?</p>
 <p data-opt="a">A) Once every 24 hours, matching the maximum processing time.</p>
-<p data-opt="b">B) Every 4 hours at most, keeping margin under the arithmetic ceiling.</p>
+<p data-opt="b">B) Every 4 hours at most, so that queueing, processing, and the post-batch retry window all fit inside the 30 hours.</p>
 <p data-opt="c">C) Every 6 hours at most — a document arriving just after a submission waits up to 6 hours, plus up to 24 hours of processing.</p>
 <p data-opt="d">D) The submission frequency is irrelevant, since batches usually complete in under an hour.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: Every 4 hours at most</p>
-<p><strong>Why:</strong> the worst case is queueing time plus processing time, so 30 − 24 leaves 6 hours of queueing. That 6 is a ceiling, not an operating window: a document arriving at exactly 6 hours consumes the entire budget, leaving nothing for a batch that runs to the 24-hour limit or for resubmitting a failed document identified by its <code>custom_id</code>. On this same 30-hour / 24-hour pair, the official example retains <strong>4-hour windows</strong> (Task 4.5).</p>
+<p><strong>Why:</strong> the worst case is queueing time, plus 24 hours of processing, plus the 2 hours it takes to retrieve results and re-run a document that failed and is identified by its <code>custom_id</code>. That leaves 30 − 24 − 2 = 4 hours of queueing, so a document arriving just after one submission is still delivered inside the commitment. On this same 30-hour / 24-hour pair, the official example retains <strong>4-hour windows</strong> (Task 4.5).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">24 + 24 = 48 hours worst case, a breach.</li>
-<li data-opt="c">The most attractive distractor: the subtraction is right, but 6 hours is the theoretical bound and leaves zero margin.</li>
+<li data-opt="c">The most attractive distractor, and the subtraction is right for queueing plus processing alone — but 6 + 24 already fills the 30 hours, so the failed document has no time left to be re-run and delivered.</li>
 <li data-opt="d">Typical latency is not a guarantee, and an SLA is a statement about the worst case.</li>
 </ul>
 </div>
@@ -2041,7 +2041,7 @@
 </details>
 
 <details id="pq-q92" data-domain="D4" data-task="4.3">
-<summary>Q92 (Structured Extraction) — Dates in six formats</summary>
+<summary>Q92 (Structured Extraction) — Dates in four formats</summary>
 <div>
 <p><strong>Scenario:</strong> Source documents write dates as "15/01/2025", "Jan 15, 2025", "2025-01-15" and "the fifteenth of January". Your schema types the field as a string, and the output preserves whichever form appeared in the document. Downstream systems expect ISO 8601.</p>
 <p><strong>Question:</strong> What is the right combination?</p>

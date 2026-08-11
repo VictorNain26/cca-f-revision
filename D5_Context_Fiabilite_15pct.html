@@ -641,15 +641,15 @@ Note : la couverture de cette section est limitée.
 <p><strong>Scenario:</strong> A hardware bring-up assistant is 120 turns into debugging a prototype board and near the context limit. Turn 3 recorded the errata in the pin mapping and the supply rail the team agreed nobody would touch. The work has to continue in this session.</p>
 <p><strong>Question:</strong> Which strategy keeps the session going without losing those two constraints?</p>
 <p data-opt="a">A) Move the older turns into a transcript file the assistant can open when it needs them, so the window holds only recent exchanges.</p>
-<p data-opt="b">B) Compress the older turns for budget, and pin the two constraints outside that compression.</p>
+<p data-opt="b">B) Compress the older turns to recover budget, and hold the two constraints in a pinned block that sits outside the region the compression is allowed to rewrite.</p>
 <p data-opt="c">C) Trim every tool result down to its closing lines as it arrives, so the window fills more slowly from here.</p>
 <p data-opt="d">D) Hand each remaining subsystem to its own fresh subagent, briefed on that subsystem alone, and keep only their reports in the main thread.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: compression for budget, a pinned block for what must not be diluted</p>
-<p><strong>Why:</strong> the session has two problems and each needs its own answer. Compression buys room; it cannot promise that any particular line survives it. Pinning the errata and the untouchable rail outside the compressed region is what guarantees they are still there at turn 200.</p>
+<p><strong>Why:</strong> the session has two problems and each needs its own answer. Compression buys room; it cannot promise that any particular line survives it. Pinning the errata and the untouchable rail outside the compressed region is what guarantees they are still there at turn 200. That is the line to hold: a prohibition has to sit in the context whenever an action is chosen, because the assistant cannot look up a rail it does not know it is about to touch, while a notes file answers a question the agent knows it has.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="a">A file the assistant has to remember to open is no guarantee, and a degraded assistant is the one that stops opening it.</li>
+<li data-opt="a">Archives the transcript whole instead of distilling anything: the errata and the rail stay buried in 120 turns of debugging, no more prominent in the file than they were in the window. Written notes earn their keep on findings someone has boiled down and goes back to read, which is a different job from keeping a standing prohibition in force.</li>
 <li data-opt="c">Slows saturation and protects nothing: turn 3 still sits in the part that gets compressed.</li>
 <li data-opt="d">Every brief that omits the untouchable rail is a subagent free to touch it.</li>
 </ul>
@@ -682,14 +682,14 @@ Note : la couverture de cette section est limitée.
 <summary>Q8 (D5) — An exploration session that drifts</summary>
 <div>
 <p><strong>Scenario:</strong> Deep into an audit of a legacy inventory module, the agent answers that "stock reconciliation jobs usually follow the observer pattern", although it had located <code>StockLedgerSync</code> and its callers an hour earlier. The investigation has to continue on the same files.</p>
-<p><strong>Question:</strong> Which combination treats the cause?</p>
-<p data-opt="a">A) Raise <code>max_tokens</code>, so the answers have room to carry the detail that went missing.</p>
-<p data-opt="b">B) Have the agent write findings to a scratchpad file it rereads, and delegate verbose discovery to a subagent.</p>
-<p data-opt="c">C) Rerun the exploration in a clean session, keeping nothing, so the window is uncluttered again.</p>
+<p><strong>Question:</strong> Which response treats the cause?</p>
+<p data-opt="a">A) Raise <code>max_tokens</code> and ask for fuller answers, so the replies have room to carry the detail that went missing.</p>
+<p data-opt="b">B) Have the agent boil its findings down into a scratchpad file it rereads, and hand verbose discovery to a subagent that returns only a summary.</p>
+<p data-opt="c">C) Rerun the exploration in a clean session and carry nothing over from this one, so the window is uncluttered again.</p>
 <p data-opt="d">D) Tell the agent to concentrate on the real code it read and to cite its sources for every claim.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: a scratchpad it rereads, plus delegation to a subagent</p>
-<p><strong>Why:</strong> reaching for a "typical pattern" instead of the class it actually read is the signature of context degradation. The two remedies are complementary: the scratchpad makes findings readable again independently of the window, and a subagent that hands back a summary only keeps verbose discovery output out of the main thread in the first place.</p>
+<p><strong>Why:</strong> reaching for a "typical pattern" instead of the class it actually read is the signature of context degradation. The two remedies are complementary: the scratchpad holds findings the agent has already boiled down, so what the audit learned stays readable once the window no longer holds it, and a subagent that hands back a summary only keeps verbose discovery output out of the main thread in the first place.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">That parameter bounds answer length; it has no effect on what the agent still holds.</li>
