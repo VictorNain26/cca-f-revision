@@ -12,7 +12,10 @@
  *     affiché, en diagnostic.
  *
  * Les douze questions officielles sont mesurées et affichées à part, hors
- * verdict : leur indice vient du guide, pas de nous.
+ * verdict : leurs options ne sont pas réécrivables sans trahir le guide. Hors
+ * verdict ne veut pas dire hors de notre fait — un indice qui y apparaît peut
+ * venir de la transcription, et se recoupe contre le PDF avant d'être imputé à
+ * l'examen.
  * Requiert jsdom (devDependency) et Node >= 20.11.
  */
 import fs from 'node:fs';
@@ -148,7 +151,11 @@ for (const { question, margin } of hits.slice(0, 15)) {
   console.log(`    - ${name(question)} — ${margin} ${best.metric === 'words' ? 'mots' : 'car.'} (${question.label.slice(0, 44)})`);
 }
 
-console.log(`\n  Officielles pq-q1..pq-q12 — indice repris du guide d'examen, non corrigible.`);
+console.log(`\n  Officielles pq-q1..pq-q12 — hors verdict : leurs options ne se réécrivent pas sans`);
+console.log(`  trahir le guide. Ce n'est pas une attestation que l'indice mesuré ici soit celui du`);
+console.log(`  guide : la transcription peut l'avoir introduit — pq-q10 sortait à 2.294 sur deux`);
+console.log(`  options tronquées, 1.083 sur le texte du guide. Recouper contre le PDF avant`);
+console.log(`  d'imputer un indice à l'examen.`);
 for (const s of rankProfile(official)) {
   console.log(`    ${s.label.padEnd(38)} ${cell(s)}`);
 }

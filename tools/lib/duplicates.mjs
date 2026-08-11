@@ -10,9 +10,9 @@
  * à une traduction, ce pour quoi elle avait été taillée. Or la passe de
  * réécriture a modifié exactement ces deux catégories et rien d'autre :
  * `d5-q4` est passée de « 97 % » à « 94 % », situation et options intactes, et
- * son recouvrement mesuré est tombé à 0,00. Sur ce corpus, le maximum que cette
- * empreinte produit est 0,250 pour un plafond à 0,300 : le contrôle ne peut
- * plus se déclencher.
+ * son recouvrement mesuré est tombé à 0,00. Cette empreinte plafonnait alors à
+ * 0,250 sur le corpus pour un `OVERLAP_MAX` à 0,300 : le contrôle historique ne
+ * pouvait pas se déclencher.
  *
  * Le renversement. On mesure ce que la réécriture paresseuse ne touche PAS.
  * `contentWords` retire les trois catégories qu'elle modifie — contenu des
@@ -28,13 +28,19 @@
  * Aucune I/O ici : tout se teste sur fixtures. Le module consomme le type
  * Question de questions.mjs, options comprises (`text` et `html`).
  *
- * À FAIRE après la passe de réécriture. `OVERLAP_MAX` reste à 0,30 dans
- * question-contract.mjs alors que le corpus plafonne à 0,250 : le contrôle
- * historique ne peut pas se déclencher. Le descendre maintenant ferait échouer
- * `npm run check` sur les doublons encore présents et bloquerait le chantier.
- * Deux gestes, dans cet ordre : réécrire les paires que ce module signale,
- * puis descendre `OVERLAP_MAX` sous le maximum résiduel et brancher ce
- * contrôle-ci dans la chaîne `check`.
+ * État courant, et sa limite. La passe de réécriture est faite, `OVERLAP_MAX`
+ * est descendu à 0,25 (question-contract.mjs) et ce contrôle-ci est branché en
+ * `--enforce` dans `npm run check`. Mais les deux seuils restent AU-DESSUS du
+ * maximum que le corpus produit aujourd'hui : 0,25 contre 0,2222 mesuré pour
+ * l'empreinte, 0,20 contre 0,1702 pour l'écho d'options. Aucun des deux ne peut
+ * donc se déclencher en l'état. Ils attestent la situation présente ; ils ne
+ * protègent d'aucune régression tant qu'une question n'a pas franchi l'écart.
+ * Qui reprend ce code doit le savoir : leur vert est celui d'un thermomètre
+ * gradué au-dessus de la température ambiante, pas celui d'une garantie.
+ * Le geste utile n'est pas de baisser les seuils au ras du maximum — 0,20 sur
+ * l'empreinte avait produit trois faux positifs sur du vocabulaire de config
+ * partagé — mais de remesurer ces deux maxima à chaque ajout de question, et de
+ * les rapprocher quand le corpus le permet.
  */
 import { overlap } from './questions.mjs';
 

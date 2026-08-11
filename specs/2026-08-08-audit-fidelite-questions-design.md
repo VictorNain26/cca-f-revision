@@ -12,9 +12,11 @@ Six mesures cadrent le problème.
 
 **Les auto-évaluations sont en français.** Les 45 quiz des fiches `D0`–`D5` le sont intégralement — énoncé, options, marqueur `Réponse :`, explication. Seules les 112 questions de `Practice_Questions.html` sont en anglais. L'examen se passe en anglais : une auto-évaluation en français n'entraîne pas la lecture des énoncés et des distracteurs tels qu'ils se présenteront.
 
-**Un quiz sur deux rejoue une question de la banque.** Sur les 45 auto-évaluations, **18** recouvrent un QCM de la banque à 0,50 ou plus, et **6** de plus se situent entre 0,30 et 0,49. Le plafond retenu étant 0,30, ce sont **24 questions de fiche** qui dépassent le seuil et doivent être réécrites. Mesure faite sur l'empreinte des identifiants de code et des valeurs chiffrées — les deux éléments qui survivent à une traduction. Le corpus annonce 157 questions ; il en compte **133** distinctes.
+**Un quiz sur deux rejoue une question de la banque.** Sur les 45 auto-évaluations, **18** recouvrent un QCM de la banque à 0,50 ou plus, et **6** de plus se situent entre 0,30 et 0,49. Ces fiches dépassent le plafond et doivent être réécrites. Mesure faite sur l'empreinte des identifiants de code et des valeurs chiffrées — les deux éléments qui survivent à une traduction.
 
-> Ces valeurs ont été recalculées après l'implémentation du module d'index. Les premières mesures du design utilisaient une empreinte qui laissait tomber le signe `%` : les fiches françaises écrivant « 12 % » avec une espace, leur pourcentage n'entrait pas dans l'empreinte. L'empreinte retenue normalise « 12 % » et « 12% » vers le même token, ce qui est la condition pour apparier une fiche française et son jumeau anglais.
+> **Chiffres réétablis.** L'inventaire d'origine annonçait « 24 questions de fiche » à réécrire et « 133 questions distinctes » : il datait de l'empreinte appliquée au corpus français d'avant traduction et s'est révélé périmé. Le recomptage sur le corpus migré donne **29 paires** au-dessus du seuil pour **23 fiches distinctes** — une même fiche rejouant parfois plusieurs questions de banque. Les « 24 » et « 19 » cités plus bas dans ce document sont ces chiffres de conception, conservés tels quels comme trace de la décision.
+>
+> Rappel de méthode, antérieur : les premières mesures utilisaient une empreinte qui laissait tomber le signe `%` — les fiches françaises écrivant « 12 % » avec une espace, leur pourcentage n'entrait pas dans l'empreinte. L'empreinte retenue normalise « 12 % » et « 12% » vers le même token, ce qui est la condition pour apparier une fiche française et son jumeau anglais.
 
 **Quatre des douze questions officielles sont déjà servies en fiche.** Q1, Q6, Q10 et Q11 du guide apparaissent en auto-évaluation avant d'être rencontrées dans la banque. Il n'existe que douze questions officielles : ce sont les items les plus précieux du corpus, et ils ne testent plus rien une fois vus.
 
@@ -108,7 +110,7 @@ Si une question ne se rattache à aucun task, c'est qu'elle est hors référenti
 
 Règle : même task statement, même principe discriminant, situation métier différente.
 
-La contrainte est vérifiable automatiquement. L'empreinte d'une question est l'ensemble de ses identifiants de code (contenu des `<code>`, en minuscules) et de ses valeurs chiffrées, pourcentages compris — les deux seuls éléments qui survivent à une traduction. Le recouvrement entre deux questions est l'indice de Jaccard de leurs empreintes : intersection sur union. La variante doit tomber **sous 0,30** face à chaque question de la banque. Les 12 officielles restent exclusives à la banque.
+La contrainte est vérifiable automatiquement. L'empreinte d'une question est l'ensemble de ses identifiants de code (contenu des `<code>`, en minuscules) et de ses valeurs chiffrées, pourcentages compris — les deux seuls éléments qui survivent à une traduction. Le recouvrement entre deux questions est l'indice de Jaccard de leurs empreintes : intersection sur union. La variante doit tomber **sous 0,25** face à chaque question de la banque (`OVERLAP_MAX`, `tools/lib/question-contract.mjs`). Le plafond de conception était 0,30 ; il est descendu à 0,25 une fois les réécritures faites, parce que le recouvrement résiduel maximum mesuré sur les 157 questions migrées est 0,2222 — un plafond que rien n'atteint ne déclenche rien, et 0,25 laisse juste la marge qui absorbe une coïncidence de vocabulaire de configuration sans se rallumer à vide. Les 12 officielles restent exclusives à la banque.
 
 Les variantes de fiche restent plus courtes que celles de la banque : une auto-évaluation diagnostique, elle n'entraîne pas.
 
@@ -135,7 +137,7 @@ Il reconstruit un index des 157 questions en mémoire à chaque exécution, sans
 | `data-answer` référence des `data-opt` existants, et le paragraphe « Answer: » ne contient aucune lettre en dur | Deux sources de vérité pour la bonne réponse, qui divergeront |
 | Nombre d'options entre 4 et 5 | Question tronquée |
 | Absence de français dans les blocs quiz — mots-outils et diacritiques, hors `<code>` | Traduction oubliée |
-| Recouvrement fiches ↔ banque sous 0,30 | Doublon recréé |
+| Recouvrement fiches ↔ banque sous 0,25 | Doublon recréé |
 | Les 30 task statements couverts | Régression de couverture |
 | `TOTALS` de `home-progress.js` égal au compte réel par page | La valeur codée en dur qui, si elle dérive, empêche un domaine d'atteindre « Terminé » |
 
@@ -173,7 +175,7 @@ Il vérifie aujourd'hui que l'énoncé et les choix sont visibles et que la rép
 
 1. `npm run check` vert à chaque commit, les quatre contrôles existants plus le nouveau en mode progressif. Le dernier commit du chantier fait passer `check-questions.mjs` en mode strict et doit être vert lui aussi.
 2. Contrôle manuel dans le navigateur sur une fiche et sur la banque : énoncé visible, options cliquables, lettre correcte devant chaque option, devant chaque explication et dans le corrigé, réponse masquée avant le clic. Vérifié sur une page migrée **et** sur une page non migrée, tant que les deux coexistent.
-3. Remesure du recouvrement fiches ↔ banque après réécriture des 24 variantes : plus aucun couple au-dessus de 0,30.
+3. Remesure du recouvrement fiches ↔ banque après réécriture des variantes : plus aucun couple au-dessus de 0,25.
 4. Recomptage du nombre de questions distinctes : 157 attendues.
 
 ## Ordre d'exécution
