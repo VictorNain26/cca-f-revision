@@ -414,17 +414,17 @@ Le modèle traite de manière fiable les informations en <strong>début</strong>
 <p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
 <p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
 <p data-opt="a">A) The response is complete; <code>"max_tokens"</code> caps the size of the request being sent, not the length of the output.</p>
-<p data-opt="b">B) The token budget ran out before the model finished generating; only <code>stop_reason: "end_turn"</code> means the response is complete.</p>
-<p data-opt="c">C) The model refused to continue for safety reasons; check <code>stop_details</code> instead of showing anything.</p>
-<p data-opt="d">D) A server-side tool call was interrupted mid-turn; resend the request unchanged so it can finish.</p>
+<p data-opt="b">B) The token budget ran out mid-generation; only <code>"end_turn"</code> means the response is complete.</p>
+<p data-opt="c">C) The model refused to continue for safety reasons, so nothing should be shown and the attempt should be escalated for human review instead.</p>
+<p data-opt="d">D) A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
 <p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
-<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause.</li>
-<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget.</li>
+<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause. Nothing was refused here, so withholding the draft and escalating would stall a run that only needs continuing.</li>
+<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget. Nothing is paused waiting to resume, so an identical resend would simply regenerate the same truncated draft.</li>
 </ul>
 </div>
 </details>

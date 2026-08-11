@@ -419,7 +419,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <p><strong>Question:</strong> why does this design block the agent?</p>
 <p data-opt="a">A) It cannot tell a valid empty result from an access failure, so retrying is guesswork.</p>
 <p data-opt="b">B) A timeout is a delay, not a real failure, so the error flag should stay unset.</p>
-<p data-opt="c">C) The payload is malformed JSON, so the runtime discards it before the agent can act.</p>
+<p data-opt="c">C) The payload is malformed JSON, so the runtime discards it before the agent ever sees a result and the failure never reaches the retry logic at all.</p>
 <p data-opt="d">D) The message is too short for the technician to act on in the field.</p>
 <hr>
 <p class="correct" data-answer="a">Answer: an empty result and an access failure become indistinguishable</p>
@@ -427,7 +427,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">The timeout is a genuine failure and the flag belongs there; what is missing is everything around it.</li>
-<li data-opt="c">The payload parses. Its shape could be tighter, but reformatting alone would not make the message actionable.</li>
+<li data-opt="c">The payload parses and reaches the agent intact — nothing is discarded on the way. Its shape could be tighter, but reformatting alone would not make the message actionable.</li>
 <li data-opt="d">Length is not the problem; the absence of decision metadata is.</li>
 </ul>
 </div>

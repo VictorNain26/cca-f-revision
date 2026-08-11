@@ -7,15 +7,15 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "check": "npm run check:chapters && npm run check:questions && npm run check:links && npm run check:diacritics && npm run check:quizzes",
+    "check": "npm run check:chapters && npm run check:questions && npm run check:length && npm run check:dupes && npm run check:links && npm run check:diacritics && npm run check:quizzes",
     "check:chapters": "node tools/check-chapters.mjs",
     "check:questions": "node tools/check-questions.mjs",
     "check:links": "node tools/check-links.mjs",
     "check:diacritics": "node tools/check-diacritics.mjs",
     "check:quizzes": "node tools/check-quizzes.mjs",
-    "check:length": "node tools/check-length-tell.mjs",
+    "check:length": "node tools/check-length-tell.mjs --enforce",
     "test": "node --test tools/**/*.test.mjs",
-    "check:dupes": "node tools/check-duplicates.mjs"
+    "check:dupes": "node tools/check-duplicates.mjs --enforce"
   },
   "devDependencies": {
     "jsdom": "^29.1.1"

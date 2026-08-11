@@ -712,16 +712,16 @@ review --scope="$(git diff --name-only main...HEAD)" \
 <p><strong>Question:</strong> What is the most effective fix?</p>
 <p data-opt="a">A) Lower the extractor's sensitivity so it reports fewer questionable quantities and the wildest values disappear.</p>
 <p data-opt="b">B) Keep a lookup table mapping every informal phrase to a quantity, extended as new phrases appear.</p>
-<p data-opt="c">C) Give two to four worked examples pairing an informal phrase with its converted quantity and the reasoning.</p>
-<p data-opt="d">D) Reject ingredient lines carrying no numeric unit and route them to manual entry for a human call.</p>
+<p data-opt="c">C) Show a handful of worked examples pairing informal phrases with converted amounts.</p>
+<p data-opt="d">D) Reject ingredient lines carrying no explicit unit and route them to manual entry, so no invented quantity ever reaches a published recipe.</p>
 <hr>
 <p class="correct" data-answer="c">Answer: worked examples that teach the conversion, not a dictionary of phrases</p>
-<p><strong>Why:</strong> examples carrying their rationale teach a transferable rule, so the model generalizes to phrasings it has never seen — which is what a space nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
+<p><strong>Why:</strong> two to four examples are enough, and each should show the reasoning that led from the phrase to the amount, not just the pair. A rationale carried by the example teaches a transferable rule, so the model generalizes to phrasings it has never seen — which is what a space nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Suppresses good extractions at the same rate as bad ones.</li>
 <li data-opt="b">Covers only what is listed, and the scenario says the list is never complete.</li>
-<li data-opt="d">Hands the hard cases back to humans rather than solving them.</li>
+<li data-opt="d">Buys correctness by refusing to do the work: every informal line becomes a manual task, and informal lines are most of the corpus.</li>
 </ul>
 </div>
 </details>

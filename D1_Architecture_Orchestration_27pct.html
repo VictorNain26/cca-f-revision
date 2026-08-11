@@ -545,16 +545,16 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <p><strong>Scenario:</strong> A migration agent needs to run <code>read_schema</code>, then <code>plan_changes</code>, then <code>apply_migration</code> for each table. To keep the process predictable, the orchestrator pre-computes this exact call sequence before the first request and feeds each tool result into the next hardcoded step, never letting the model's own response decide what happens next. When a table turns out to need an extra validation step the sequence doesn't account for, the agent has no way to trigger it.</p>
 <p><strong>Question:</strong> What should change about how the loop is driven?</p>
 <p data-opt="a">A) Keep the fixed sequence, but add a fourth hardcoded step for validation, since the gap that appeared today is now a known case.</p>
-<p data-opt="b">B) Let the model decide the next action each turn from the latest <code>tool_result</code>, continuing while it requests tools and stopping when it signals completion.</p>
-<p data-opt="c">C) Run all three tools on every turn regardless of need, so the missing step is always covered and no case can slip through.</p>
+<p data-opt="b">B) Let the model choose the next action each turn from the latest <code>tool_result</code>, and stop when it stops requesting tools.</p>
+<p data-opt="c">C) Run all three tools on every turn regardless of need, so the missing step is always covered and no table can slip through, accepting the wasted work as the price of completeness.</p>
 <p data-opt="d">D) Keep the fixed sequence, but let the orchestrator retry a failed step before moving to the next one.</p>
 <hr>
 <p class="correct" data-answer="b">Answer: hand control back to the model, turn by turn</p>
-<p><strong>Why:</strong> a sequence fixed in advance by the orchestrator is a hardcoded decision tree — it can only be as flexible as whoever wrote it anticipated. An agentic loop is model-driven: the model reads each tool result and decides the next action itself, which is what lets it insert a step nobody hardcoded.</p>
+<p><strong>Why:</strong> a sequence fixed in advance by the orchestrator is a hardcoded decision tree — it can only be as flexible as whoever wrote it anticipated. An agentic loop is model-driven: the model reads each tool result and decides the next action itself, the loop continues for as long as it keeps requesting tools, and it ends when the model signals it is done. That is what lets it insert a step nobody hardcoded.</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">Fixes this one gap but leaves the orchestrator guessing every future case in advance — the same limitation returns with the next table that needs something different.</li>
-<li data-opt="c">Running every tool regardless of need does not add judgment, it just hides the missing decision behind unconditional execution.</li>
+<li data-opt="c">Running every tool regardless of need does not add judgment, it just hides the missing decision behind unconditional execution — and the completeness it buys is an illusion, since it still only covers steps that were written down.</li>
 <li data-opt="d">A retry addresses a step failing, not a step nobody planned for.</li>
 </ul>
 </div>
