@@ -75,6 +75,19 @@
     return { letters, multi: letters.length > 1, opts };
   };
 
+  // ---------- Verrou du corrigé ----------
+  // `pointer-events: none` (styles.css) ne ferme que la souris. Le <summary>
+  // reste dans l'ordre de tabulation, et Entrée l'active nativement : sans ce
+  // preventDefault, un utilisateur au clavier ouvre le corrigé sans répondre.
+  const unlockReveal = (revealEl) => {
+    if (!revealEl) return;
+    revealEl.classList.remove('is-locked');
+    const revSummary = revealEl.querySelector(':scope > summary');
+    if (!revSummary) return;
+    revSummary.innerHTML = 'Voir la réponse complète';
+    revSummary.removeAttribute('aria-disabled');
+  };
+
   // ---------- Wrap réponse dans <details class="answer-reveal"> ----------
   const wrapAnswerInReveal = (detailsEl) => {
     let holder = detailsEl.querySelector(':scope > div');
@@ -110,6 +123,10 @@
     reveal.className = 'answer-reveal is-locked';
     const revSummary = document.createElement('summary');
     revSummary.innerHTML = '<span class="lock-hint">🔒 Réponds d\'abord pour voir l\'explication</span>';
+    revSummary.setAttribute('aria-disabled', 'true');
+    revSummary.addEventListener('click', (ev) => {
+      if (reveal.classList.contains('is-locked')) ev.preventDefault();
+    });
     reveal.appendChild(revSummary);
     const revBody = document.createElement('div');
     for (const el of bodyParas) revBody.appendChild(el);
@@ -128,13 +145,6 @@
   const attachChoiceHandlers = (detailsEl, correct, revealEl, qid) => {
     const ul = detailsEl.querySelector('.choices');
     if (!ul) return;
-
-    const unlockReveal = () => {
-      if (!revealEl) return;
-      revealEl.classList.remove('is-locked');
-      const revSummary = revealEl.querySelector(':scope > summary');
-      if (revSummary) revSummary.innerHTML = 'Voir la réponse complète';
-    };
 
     const persist = (picked, isCorrect) => {
       const state = loadState();
@@ -173,7 +183,7 @@
           else if (!chosen && good) { li.classList.add('is-correct'); allCorrect = false; }
         }
         btn.disabled = true;
-        unlockReveal();
+        unlockReveal(revealEl);
         persist([...picked].sort().join(''), allCorrect);
       };
 
@@ -211,7 +221,7 @@
           const correctLi = ul.querySelector(`li[data-letter="${correctLetter}"]`);
           if (correctLi && correctLi !== li) correctLi.classList.add('is-correct');
         }
-        unlockReveal();
+        unlockReveal(revealEl);
         persist(picked, isCorrect);
       };
 
@@ -318,11 +328,7 @@
         }
       }
     }
-    if (revealEl) {
-      revealEl.classList.remove('is-locked');
-      const rs = revealEl.querySelector(':scope > summary');
-      if (rs) rs.innerHTML = 'Voir la réponse complète';
-    }
+    unlockReveal(revealEl);
   };
 
   // ---------- Widget de progression (bottom-left) ----------
