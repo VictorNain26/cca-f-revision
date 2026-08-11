@@ -91,35 +91,17 @@
   };
 
   // Retourne { letters: ['A', ...], multi: bool }.
-  // Marqueur prioritaire : <p class="correct"> (Practice_Questions + nouvelles
-  // questions multi). Fallback pour les fiches de domaine : le premier <p> dont le
-  // texte commence par « Réponse(s) » (format <strong>Réponse : X.</strong> sans
-  // classe). Le multi est détecté quand plusieurs lettres suivent le marqueur
-  // (« Réponses : A, C »). Scopé au marqueur pour ne pas matcher un « Réponse : X »
-  // cité dans une narration.
+  // data-answer sur <p class="correct"> est la source unique : le contrat retire
+  // la lettre du texte du corrigé, elle est réinjectée depuis la position
+  // courante des options nommées dans data-answer.
   const findCorrect = (detailsEl) => {
     const correctP = detailsEl.querySelector('p.correct');
-    // data-answer est la source unique dès qu'il existe : le contrat retire la
-    // lettre du texte du corrigé, donc le parsing ci-dessous n'y trouverait
-    // plus rien. Le fallback ne sert qu'aux questions pas encore migrées.
-    if (correctP?.dataset.answer) {
-      const opts = correctP.dataset.answer.split(/\s+/).filter(Boolean);
-      const letters = opts
-        .map((o) => detailsEl.querySelector(`.choices li[data-opt="${o}"]`)?.dataset.letter)
-        .filter(Boolean);
-      return { letters, multi: letters.length > 1, opts };
-    }
-    let labelledP = correctP;
-    if (!labelledP) {
-      labelledP = [...detailsEl.querySelectorAll(':scope > p, :scope > div > p')]
-        .find((p) => ANSWER_LABEL.test(p.textContent || ''));
-    }
-    if (!labelledP) return { letters: [], multi: false, opts: [] };
-    const text = (labelledP.textContent || '').replace(/\s+/g, ' ');
-    const seg = text.match(/(?:R[ée]ponses?|Answers?)\s*:?\s*([A-E](?:\s*(?:,|et|and|&|\/|ou|or)\s*[A-E])*)/i);
-    if (!seg) return { letters: [], multi: false, opts: [] };
-    const letters = [...new Set((seg[1].match(/[A-E]/gi) || []).map((c) => c.toUpperCase()))];
-    return { letters, multi: letters.length > 1, opts: [] };
+    if (!correctP?.dataset.answer) return { letters: [], multi: false, opts: [] };
+    const opts = correctP.dataset.answer.split(/\s+/).filter(Boolean);
+    const letters = opts
+      .map((o) => detailsEl.querySelector(`.choices li[data-opt="${o}"]`)?.dataset.letter)
+      .filter(Boolean);
+    return { letters, multi: letters.length > 1, opts };
   };
 
   // ---------- Wrap réponse dans <details class="answer-reveal"> ----------
@@ -272,7 +254,7 @@
   // ---------- Process ----------
   const extractChoicesFromBody = (body2) => {
     const ps = [...body2.querySelectorAll(':scope > p')];
-    const choicesPs = ps.filter((p) => p.dataset.opt || /^\s*[A-E]\)/.test(p.textContent || ''));
+    const choicesPs = ps.filter((p) => p.dataset.opt);
 
     if (choicesPs.length >= 2) {
       const ul = document.createElement('ul');
@@ -280,11 +262,8 @@
       choicesPs.forEach((p, index) => {
         const li = document.createElement('li');
         // L'identité d'une option est son data-opt ; sa lettre est sa position.
-        // Sans data-opt (question non encore migrée), on retombe sur la lettre
-        // lue dans le texte, qui est alors la seule identité disponible.
-        const letterInText = ((p.textContent || '').match(/^\s*([A-E])\)/) || [, null])[1];
-        if (p.dataset.opt) li.dataset.opt = p.dataset.opt;
-        li.dataset.letter = p.dataset.opt ? LETTERS[index] : letterInText;
+        li.dataset.opt = p.dataset.opt;
+        li.dataset.letter = LETTERS[index];
         li.innerHTML = p.innerHTML.replace(/^\s*[A-E]\)\s*/, '').replace(/[.,]\s*$/, '');
         ul.appendChild(li);
       });

@@ -9,7 +9,7 @@
   "scripts": {
     "check": "npm run check:chapters && npm run check:questions && npm run check:length && npm run check:dupes && npm run check:links && npm run check:diacritics && npm run check:quizzes",
     "check:chapters": "node tools/check-chapters.mjs",
-    "check:questions": "node tools/check-questions.mjs",
+    "check:questions": "node tools/check-questions.mjs --strict",
     "check:links": "node tools/check-links.mjs",
     "check:diacritics": "node tools/check-diacritics.mjs",
     "check:quizzes": "node tools/check-quizzes.mjs",

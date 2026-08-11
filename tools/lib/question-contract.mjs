@@ -90,7 +90,15 @@ export const checkQuestion = (q) => {
   return out;
 };
 
-export const OVERLAP_MAX = 0.30;
+/* Seuil retenu sur l'empreinte fp (code + valeurs chiffrées, cf. questions.mjs).
+ * Mesuré sur les 157 questions migrées : le recouvrement maximum entre une
+ * question de fiche et une question de banque est 0,2222 (3 paires, ex.
+ * d2-q6/pq-q64 sur ".mcp.json" + "~/.claude.json" — du vocabulaire de config
+ * partagé, pas un doublon). 0,20 ferait donc échouer le contrôle sur du faux
+ * positif ; 0,25 reste sous l'ancien 0,30 tout en laissant une marge
+ * (~0,03) au-dessus du maximum mesuré pour absorber une future coïncidence de
+ * ce type sans se redéclencher à vide. */
+export const OVERLAP_MAX = 0.25;
 
 // Identité : deux questions ne peuvent pas partager un id.
 export const checkIds = (questions) => {
