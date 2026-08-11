@@ -1,6 +1,6 @@
 /* CCA-F Revision — quiz UX enhancer (ESNext)
  * Post-traite les blocs <details> de quiz au chargement :
- *   - extrait les choix A/B/C/D du <summary> ou du <div> body vers une <ul class="choices">
+ *   - extrait les choix A/B/C/D des <p data-opt> du body vers une <ul class="choices">
  *   - rend les choix cliquables (feedback immédiat correct / wrong)
  *   - le bouton « Voir la réponse » apparaît seulement APRÈS un clic
  *   - persiste le score par page dans localStorage
@@ -59,35 +59,6 @@
     const qnum = m[1].replace(/\s+/g, '');
     const rest = (m[2] || '').replace(/^\s*<\/?strong>\s*/i, '');
     summary.innerHTML = `<span class="q-tag">${qnum}</span>${rest}`;
-  };
-
-  const splitChoicesInSummary = (summary) => {
-    const html = summary.innerHTML;
-    const aIdx = html.search(/\b\s*A\)\s/);
-    if (aIdx < 0) return null;
-    const questionPart = html.slice(0, aIdx).trim();
-    const choicesPart = html.slice(aIdx);
-    const choices = [];
-    let cursor = 0;
-    let current = LETTERS[0];
-    for (let i = 1; i < LETTERS.length; i++) {
-      const pat = new RegExp(`\\b${LETTERS[i]}\\)\\s`, 'g');
-      pat.lastIndex = cursor;
-      const m = pat.exec(choicesPart);
-      if (!m) break;
-      const raw = choicesPart.slice(cursor, m.index)
-        .replace(new RegExp(`^\\s*${current}\\)\\s*`), '').trim()
-        .replace(/[.,]\s*$/, '');
-      choices.push({ letter: current, html: raw });
-      cursor = m.index;
-      current = LETTERS[i];
-    }
-    const lastRaw = choicesPart.slice(cursor)
-      .replace(new RegExp(`^\\s*${current}\\)\\s*`), '').trim()
-      .replace(/[.,]\s*$/, '');
-    if (lastRaw) choices.push({ letter: current, html: lastRaw });
-    if (choices.length < 2) return null;
-    return { questionHtml: questionPart, choices };
   };
 
   // Retourne { letters: ['A', ...], multi: bool }.
@@ -252,50 +223,26 @@
   };
 
   // ---------- Process ----------
-  const extractChoicesFromBody = (body2) => {
-    const ps = [...body2.querySelectorAll(':scope > p')];
-    const choicesPs = ps.filter((p) => p.dataset.opt);
-
-    if (choicesPs.length >= 2) {
-      const ul = document.createElement('ul');
-      ul.className = 'choices';
-      choicesPs.forEach((p, index) => {
-        const li = document.createElement('li');
-        // L'identité d'une option est son data-opt ; sa lettre est sa position.
-        li.dataset.opt = p.dataset.opt;
-        li.dataset.letter = LETTERS[index];
-        li.innerHTML = p.innerHTML.replace(/^\s*[A-E]\)\s*/, '').replace(/[.,]\s*$/, '');
-        ul.appendChild(li);
-      });
-      choicesPs[0].parentNode.replaceChild(ul, choicesPs[0]);
-      for (let k = 1; k < choicesPs.length; k++) choicesPs[k].remove();
-      return;
-    }
-
-    // Cas alternatif : un seul <p> avec "A) ... <br> B) ... <br> ..."
-    const brP = ps.find((p) => {
-      const t = p.textContent || '';
-      return /\bA\)\s/.test(t) && /\bB\)\s/.test(t);
-    });
-    if (!brP) return;
-
-    const split = splitChoicesInSummary({ innerHTML: brP.innerHTML });
-    if (!split || split.choices.length < 2) return;
+  // Le contrat de question impose un <p data-opt> par option : c'est la seule
+  // forme d'où les choix se lisent, et findCorrect n'apparie la clé que par ce
+  // data-opt. Reconstruire des choix d'après un « A) » du texte donnerait des
+  // <li> sans data-opt, donc une question sans clé, sans que rien le signale.
+  const extractChoicesFromBody = (body) => {
+    const choicesPs = [...body.querySelectorAll(':scope > p')].filter((p) => p.dataset.opt);
+    if (choicesPs.length < 2) return;
 
     const ul = document.createElement('ul');
     ul.className = 'choices';
-    for (const c of split.choices) {
+    choicesPs.forEach((p, index) => {
       const li = document.createElement('li');
-      li.dataset.letter = c.letter;
-      li.innerHTML = c.html.replace(/^(<br\s*\/?>)+/i, '').trim();
+      // L'identité d'une option est son data-opt ; sa lettre est sa position.
+      li.dataset.opt = p.dataset.opt;
+      li.dataset.letter = LETTERS[index];
+      li.innerHTML = p.innerHTML.replace(/^\s*[A-E]\)\s*/, '').replace(/[.,]\s*$/, '');
       ul.appendChild(li);
-    }
-    if (split.questionHtml && split.questionHtml.replace(/<[^>]+>/g, '').trim()) {
-      brP.innerHTML = split.questionHtml;
-      brP.parentNode.insertBefore(ul, brP.nextSibling);
-    } else {
-      brP.parentNode.replaceChild(ul, brP);
-    }
+    });
+    choicesPs[0].parentNode.replaceChild(ul, choicesPs[0]);
+    for (let k = 1; k < choicesPs.length; k++) choicesPs[k].remove();
   };
 
   const processQuiz = (detailsEl, idx) => {
@@ -305,41 +252,12 @@
     const summary = detailsEl.querySelector(':scope > summary');
     if (!summary) return;
     const qid = quizId(detailsEl, idx);
-    // Capturé avant toute décoration/mutation du summary (q-tag, split des choix).
+    // Capturé avant toute décoration du summary (q-tag).
     detailsEl.dataset.qid = qid;
 
-    // 1) Choix depuis le summary, sinon depuis le body
-    const split = splitChoicesInSummary(summary);
-    if (split) {
-      summary.innerHTML = split.questionHtml;
-      const ul = document.createElement('ul');
-      ul.className = 'choices';
-      for (const c of split.choices) {
-        const li = document.createElement('li');
-        li.dataset.letter = c.letter;
-        li.innerHTML = c.html;
-        ul.appendChild(li);
-      }
-      const body = detailsEl.querySelector(':scope > div');
-      if (body) {
-        body.insertBefore(ul, body.firstChild);
-      } else {
-        const wrap = document.createElement('div');
-        wrap.appendChild(ul);
-        const nodes = [];
-        let cur = summary.nextSibling;
-        while (cur) {
-          const nxt = cur.nextSibling;
-          if (cur.nodeType === 1) nodes.push(cur);
-          cur = nxt;
-        }
-        for (const n of nodes) wrap.appendChild(n);
-        detailsEl.appendChild(wrap);
-      }
-    } else {
-      const body2 = detailsEl.querySelector(':scope > div');
-      if (body2) extractChoicesFromBody(body2);
-    }
+    // 1) Choix depuis les <p data-opt> du body
+    const body = detailsEl.querySelector(':scope > div');
+    if (body) extractChoicesFromBody(body);
 
     // 2) Réponse correcte : lue via .choices li[data-opt=…], donc APRÈS que le
     // ul.choices ci-dessus existe.
