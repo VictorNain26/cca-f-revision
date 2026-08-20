@@ -37,7 +37,7 @@
 <div class="toc">
 <strong>Sommaire</strong>
 <ol>
-<li><a href="#s1">Workflows vs. agents : le choix fondamental</a></li>
+<li><a href="#s1">Déléguer à un subagent, ou garder la main</a></li>
 <li><a href="#s2">L'agentic loop (boucle agentique)</a></li>
 <li><a href="#s3">L'architecture hub-and-spoke</a></li>
 <li><a href="#s4">Les stratégies de décomposition</a></li>
@@ -49,24 +49,7 @@
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header"><h2 id="s1">1. Workflows vs. agents : le cadrage (hors task statements)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Concevoir un système avec Claude impose un choix : <strong>workflow</strong> (étapes prédéfinies, orchestrées par le code) ou <strong>agent</strong> (étapes décidées dynamiquement par le modèle). Se tromper donne soit un système rigide, soit un système imprévisible et difficile à tester.</p>
-
-<table>
-<tr><th></th><th>Workflows</th><th>Agents</th></tr>
-<tr><td><strong>Étapes</strong></td><td>Prédéterminées par le développeur</td><td>Choisies dynamiquement par le modèle</td></tr>
-<tr><td><strong>Testability</strong></td><td>Facile (séquence connue)</td><td>Difficile (chemin imprévisible)</td></tr>
-<tr><td><strong>Reliability</strong></td><td>Taux de completion élevé</td><td>Plus bas (complexité déléguée au modèle)</td></tr>
-<tr><td><strong>Quand les utiliser</strong></td><td>Les étapes exactes sont connues à l'avance</td><td>Les détails de la tâche sont flous ou variables</td></tr>
-</table>
-
-<div class="key-concept">
-<strong>Règle de décision :</strong> privilégiez les workflows pour la reliability. N'utilisez un agent que lorsque la flexibilité est réellement nécessaire. Les utilisateurs veulent des produits fiables, pas des agents impressionnants.
-</div>
-
-<p>L'essai Anthropic <em>« Building effective agents »</em> nomme cinq patterns de workflow (prompt chaining, routing, parallelization, orchestrator-workers, evaluator-optimizer). Le référentiel n'en retient que deux stratégies de décomposition, traitées en <a href="#s4">section 4</a>, et le pattern coordinateur-subagents, traité en <a href="#s3">section 3</a> : les autres noms ne sont pas matière d'examen.</p>
+<div class="section-header"><h2 id="s1">1. Déléguer à un subagent, ou garder la main (hors task statements)</h2></div>
 
 <h3>Quand les subagents sont utiles — et quand ils nuisent</h3>
 <p>La question clé : <strong>est-ce que le travail intermédiaire m'intéresse ?</strong></p>
@@ -87,20 +70,6 @@
 
 <div class="key-concept">
 <strong>Cadre officiel :</strong> le guide décrit l'<code>agentic loop lifecycle</code> piloté par <code>stop_reason</code> — envoyer une requête à Claude, exécuter les outils demandés, renvoyer les <code>tool_result</code>, itérer jusqu'à <code>"end_turn"</code>. Le découpage ci-dessous décrit ce qui se passe à chaque tour.
-</div>
-
-<p>Chaque itération de la boucle se décompose en quatre phases conceptuelles, exposées au modèle de manière implicite :</p>
-
-<table>
-<tr><th>Phase</th><th>Ce que fait le modèle</th><th>Élément de l'API</th></tr>
-<tr><td><strong>Lecture du contexte</strong></td><td>Lit le contexte courant : messages historiques, tool results récents, system prompt</td><td>Tableau <code>messages</code> (avec <code>tool_result</code> blocks)</td></tr>
-<tr><td><strong>Raisonnement</strong></td><td>Raisonne sur l'état courant avant de décider de l'action suivante</td><td>raisonnement produit dans la génération</td></tr>
-<tr><td><strong>Action</strong></td><td>Décide d'appeler un outil ou de produire une réponse finale</td><td><code>tool_use</code> block ou <code>text</code> block</td></tr>
-<tr><td><strong>Boucle ou fin</strong></td><td>Soit attend le <code>tool_result</code> (la boucle continue), soit termine</td><td><code>stop_reason</code> : <code>"tool_use"</code> ou <code>"end_turn"</code></td></tr>
-</table>
-
-<div class="key-concept">
-<strong>Le cadrage d'examen passe par <code>stop_reason</code></strong> (<code>"tool_use"</code> vs <code>"end_turn"</code>), pas par un découpage en phases nommées. Ce découpage reste utile pour situer les hooks : un hook <code>PreToolUse</code> intercepte entre la décision d'appel (le bloc <code>tool_use</code> est émis) et l'exécution de l'outil par ton code ; un hook <code>PostToolUse</code> intercepte une fois le <code>tool_result</code> obtenu, avant le tour suivant.
 </div>
 
 <h3>Comment ça fonctionne</h3>
@@ -281,7 +250,6 @@ Task 3 : "Rechercher des articles sur Z"
 # → Les trois s'exécutent simultanément (parallel execution).</pre>
 
 <h3>La configuration AgentDefinition</h3>
-<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>agent = AgentDefinition(
     name="customer_support",
     description="Handles customer returns and order issues",
@@ -329,7 +297,6 @@ Task 3 : "Rechercher des articles sur Z"
 
 <h3><code>PreToolUse</code> : bloquer les actions non conformes</h3>
 <p>Ce hook intercepte un tool call <em>avant</em> son exécution et peut le bloquer ou le rediriger :</p>
-<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>@hook("PreToolUse")
 def enforce_refund_limit(tool_call):
     if tool_call.name == "process_refund" and tool_call.args.amount > 500:
@@ -337,7 +304,6 @@ def enforce_refund_limit(tool_call):
 
 <h3><code>PostToolUse</code> : normaliser les données avant qu'elles n'atteignent Claude</h3>
 <p>Ce hook intercepte le tool result <em>après</em> l'exécution de l'outil, mais <em>avant</em> que le modèle ne le traite :</p>
-<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
 <pre>@hook("PostToolUse")
 def normalize_dates(tool_result):
     # Unix timestamp  →  ISO 8601
@@ -432,12 +398,6 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <div class="section-header page-break"><h2 id="s8">8. Synthèse + questions d'auto-évaluation</h2></div>
 
 <p>Si vous ne deviez retenir que l'essentiel de ce domaine :</p>
-
-<h3>Workflows vs. agents</h3>
-<ul>
-<li>Privilégier les workflows (reliability) ; réserver les agents aux situations où la flexibilité est indispensable.</li>
-<li>5 workflow patterns : prompt chaining, routing, parallelization, orchestrator-workers (voir section 3, hub-and-spoke), evaluator-optimizer.</li>
-</ul>
 
 <h3>L'agentic loop</h3>
 <ul>
