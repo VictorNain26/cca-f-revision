@@ -12,9 +12,10 @@
     ['D3_Claude_Code_Config_20pct.html', 'D3', 'D3 — Configuration Claude Code (20 %)'],
     ['D4_Prompt_Engineering_20pct.html', 'D4', 'D4 — Prompt engineering (20 %)'],
     ['D5_Context_Fiabilite_15pct.html', 'D5', 'D5 — Context et reliability (15 %)'],
-    ['Practice_Questions.html', 'QCM', 'Practice Questions — 87 QCM corrigés'],
+    ['Practice_Questions.html', 'QCM', 'Practice Questions — 112 QCM corrigés, en anglais'],
     ['Scenarios_Exam.html', 'Scénarios', "Les 6 scénarios d'examen"],
     ['Exam_Strategy.html', 'Stratégie', 'Stratégie jour J + cheat sheet'],
+    ['CCA-F_Exam_Guide_v1.0.pdf', 'Guide', "Le guide d'examen officiel (PDF) — la seule source qui fait foi"],
   ];
 
   const nav = document.querySelector('nav.navbar');
@@ -28,7 +29,8 @@
   let html = '<a class="home" href="index.html">CCA-F</a>';
   for (const [href, label, title] of LINKS) {
     const t = title ? ` title="${esc(title)}"` : '';
-    html += `<a${href === cur ? ' class="current"' : ''} href="${href}"${t}>${label}</a>`;
+    const ext = href.endsWith('.pdf') ? ' target="_blank" rel="noopener"' : '';
+    html += `<a${href === cur ? ' class="current"' : ''} href="${href}"${t}${ext}>${label}</a>`;
   }
   nav.innerHTML = html;
 })();

@@ -24,6 +24,8 @@ TODO.local.md
 
 # Sources de référence (non commitées dans le repo public Pages)
 *.pdf
+# Sauf le guide officiel : la page d'accueil le sert en téléchargement direct
+!CCA-F_Exam_Guide_v1.0.pdf
 docs/
 
 # Espace de travail des plans (subagent-driven development)
