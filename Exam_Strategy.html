@@ -41,7 +41,7 @@
 <li><a href="#methodo">Méthodologie QCM (jour J)</a></li>
 <li><a href="#distractors">Les 7 patterns de distracteurs à éliminer en 5 secondes</a></li>
 <li><a href="#traps">Top pièges par domaine (vérités à connaître par cœur)</a></li>
-<li><a href="#guide-vs-doc">Le guide fait loi — quatre écarts avec la doc actuelle</a></li>
+<li><a href="#guide-vs-doc">Le guide fait loi — cinq écarts avec la doc actuelle</a></li>
 <li><a href="#décision">Arbres de décision pour les questions ambiguës</a></li>
 <li><a href="#cheat">Cheat sheet : 1 page par domaine</a></li>
 <li><a href="#crossdomain">Connexions inter-domaines (les ponts qui tombent souvent)</a></li>
@@ -59,9 +59,13 @@
 <li>Score de passage : <strong>720/1000</strong> (échelle 100–1000)</li>
 <li>Type d'items : <strong>QCM</strong> — chaque item indique le nombre de réponses à sélectionner (une ou plusieurs)</li>
 <li>Structure : <strong>6 scénarios</strong>, dont <strong>4 tirés au sort</strong> à l'examen</li>
-<li>Plateforme : <strong>Pearson VUE</strong> (test center ou OnVUE) — jusqu'à <strong>4 tentatives / 12 mois</strong> (délais 14/30/90 jours)</li>
+<li>Plateforme : <strong>Pearson VUE</strong> — proctoring en ligne ou centre d'examen — jusqu'à <strong>4 tentatives / 12 mois</strong> (délais 14/30/90 jours)</li>
 <li>Recertification : validité <strong>12 mois</strong>, renouvellement gratuit via une évaluation non proctorée sur l'<strong>Anthropic Partner Academy</strong></li>
 </ul>
+</div>
+
+<div class="anti-pattern">
+<strong>La FAQ CCA-F contredit ces chiffres — elle est périmée.</strong> Le document <em>« Claude Certified Architect – Foundations (CCA-F) FAQs »</em> annonce un examen à <strong>99 $</strong>, <strong>une seule tentative</strong> et un proctoring assuré par <strong>ProctorFree</strong>. Il date de <strong>mars 2026</strong> ; le guide v1.0 est de <strong>juillet 2026</strong> et le remplace sur ces trois points. Si vous retombez dessus la veille, ne changez rien à votre préparation.
 </div>
 
 <div class="tldr">
@@ -235,9 +239,9 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 </div>
 
 <!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="guide-vs-doc">5. Le guide fait loi — quatre écarts avec la doc actuelle</h2></div>
+<div class="section-header page-break"><h2 id="guide-vs-doc">5. Le guide fait loi — cinq écarts avec la doc actuelle</h2></div>
 
-<p>Le guide officiel fige l'état de l'outillage en <strong>juillet 2026</strong>. La documentation Anthropic, elle, continue d'évoluer. Sur quatre points au moins, elle a bougé <em>après</em> la rédaction du guide. Si vous révisez sur la doc à jour, vous répondrez faux.</p>
+<p>Le guide officiel fige l'état de l'outillage en <strong>juillet 2026</strong>. La documentation Anthropic, elle, continue d'évoluer. Sur cinq points au moins, elle a bougé <em>après</em> la rédaction du guide. Si vous révisez sur la doc à jour, vous répondrez faux.</p>
 
 <div class="anti-pattern">
 <strong>La règle :</strong> le jour J, répondez selon le <strong>guide</strong>. Ce n'est pas de l'obsolescence à corriger, c'est le référentiel sur lequel les questions ont été écrites et validées.
@@ -261,6 +265,11 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
   <td>Décrit comme une <em>pré-approbation de permissions</em> : les outils listés s'exécutent sans confirmation. La doc précise même que le champ « does not restrict tools available ».</td>
 </tr>
 <tr>
+  <td><strong>Déclenchement d'une règle <code>.claude/rules/</code></strong></td>
+  <td>La règle se charge quand Claude Code <strong>édite</strong> un fichier correspondant au glob : « path-scoped rules load only when <em>editing</em> matching files ».</td>
+  <td>Le déclencheur est la <strong>lecture</strong>, pas l'édition : « Path-scoped rules trigger when Claude <em>reads</em> files matching the pattern, not on every tool use. » En pratique la règle est donc déjà en contexte avant la première modification.</td>
+</tr>
+<tr>
   <td><strong>Obtenir une sortie structurée</strong></td>
   <td><strong><code>tool_use</code> avec un JSON Schema</strong> est « the most reliable approach for guaranteed schema-compliant structured output ».</td>
   <td>Les <strong>Structured Outputs natifs</strong> (<code>output_config.format</code> avec <code>type: "json_schema"</code>) sont désormais la méthode recommandée ; le paramètre bêta <code>output_format</code> a migré vers <code>output_config.format</code>.</td>
@@ -268,7 +277,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 </table>
 
 <div class="exam-tip">
-<strong>Ce qui n'a pas bougé</strong> et que vous pouvez réviser sans arrière-pensée : <code>allowedTools</code> comme nom d'option, <code>AgentDefinition</code>, l'isolation de contexte des subagents (ils n'héritent jamais de la conversation parente), <code>context: fork</code>, <code>.claude/rules/</code> avec <code>paths:</code> et globs, <code>-p</code> / <code>--output-format json</code> / <code>--json-schema</code>, la portée <code>.mcp.json</code> (projet) contre <code>~/.claude.json</code> (perso), et la Message Batches API (50 %, fenêtre 24 h, <code>custom_id</code>, pas de tool calling multi-tour).
+<strong>Ce qui n'a pas bougé</strong> et que vous pouvez réviser sans arrière-pensée : <code>allowedTools</code> comme nom d'option, <code>AgentDefinition</code>, l'isolation de contexte des subagents (ils n'héritent jamais de la conversation parente), <code>context: fork</code>, le mécanisme <code>.claude/rules/</code> lui-même — <code>paths:</code>, globs, chargement conditionnel — dont seul le déclencheur a bougé, <code>-p</code> / <code>--output-format json</code> / <code>--json-schema</code>, la portée <code>.mcp.json</code> (projet) contre <code>~/.claude.json</code> (perso), et la Message Batches API (50 %, fenêtre 24 h, <code>custom_id</code>, pas de tool calling multi-tour).
 </div>
 
 <div class="section-header page-break"><h2 id="décision">6. Arbres de décision pour les questions ambiguës</h2></div>
@@ -418,7 +427,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <ul>
 <li>Survol rapide de ce cheat sheet (sections 4 et 6 surtout)</li>
 <li>Pas de bourrage — privilégier le sommeil</li>
-<li>Vérifier la connexion Pearson VUE (test center ou OnVUE), webcam, micro, environnement de l'examen</li>
+<li>Vérifier la connexion Pearson VUE (centre d'examen ou proctoring en ligne), webcam, micro, environnement de l'examen</li>
 <li>Préparer un espace de travail dégagé (l'examen est proctoré — pas de notes physiques)</li>
 <li>Coucher tôt</li>
 </ul>

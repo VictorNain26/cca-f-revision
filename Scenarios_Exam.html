@@ -68,7 +68,7 @@
 <tr><td>Type de questions</td><td><strong>QCM</strong> — chaque item indique le nombre de réponses à sélectionner (une ou plusieurs)</td></tr>
 <tr><td>Score</td><td>Échelle de <strong>100 à 1000</strong>, passing score = <strong>720</strong></td></tr>
 <tr><td>Scénarios</td><td><strong>4 scénarios sélectionnés aléatoirement</strong> sur les 6 possibles</td></tr>
-<tr><td>Plateforme</td><td>Proctored via <strong>Pearson VUE</strong> (test center ou OnVUE)</td></tr>
+<tr><td>Plateforme</td><td>Proctored via <strong>Pearson VUE</strong> — proctoring en ligne ou centre d'examen</td></tr>
 <tr><td>Tentatives</td><td>Jusqu'à <strong>4 tentatives par période de 12 mois</strong>, délais de repassage 14/30/90 jours après échecs successifs</td></tr>
 </table>
 
@@ -370,19 +370,23 @@
 <div class="page-break"></div>
 <div class="section-header"><h2 id="hors-scope">4. Hors-scope — ne révise pas ça</h2></div>
 
-<p><strong>Ce qui N'EST PAS testé par l'examen CCA-F :</strong> Les topics suivants n'apparaissent pas (ou très marginalement) dans les 6 scénarios. Les ignorer permet de concentrer ta révision sur ce qui compte vraiment.</p>
+<p><strong>Ce qui N'EST PAS testé par l'examen CCA-F :</strong> la liste ci-dessous reprend l'intégralité des <em>Out-of-Scope Topics</em> de l'appendice du guide (deux entrées voisines y sont regroupées en une puce). Les ignorer permet de concentrer ta révision sur ce qui compte vraiment.</p>
 
 <ul>
 <li><strong>Fine-tuning / entraînement de modèles</strong> : l'examen se concentre sur l'utilisation d'API et d'agents, pas sur comment entraîner Claude.</li>
+<li><strong>Architecture interne de Claude, processus d'entraînement, poids du modèle</strong> : rien de ce qui se passe sous le capot n'est testé.</li>
+<li><strong>Constitutional AI, RLHF, méthodes de safety training</strong> : les méthodologies d'alignement sont explicitement hors périmètre.</li>
+<li><strong>Détails d'implémentation d'un langage ou d'un framework</strong> : au-delà de ce qu'exige la configuration d'un tool et de son schéma, aucune question ne porte sur la syntaxe d'un langage particulier.</li>
 <li><strong>Embeddings &amp; vector databases (RAG détaillé)</strong> : le contexte et la retrieval sont couverts, mais pas l'architecture vectorielle profonde ni les stores spécialisés.</li>
 <li><strong>Computer use</strong> : interactions browser ou contrôle de desktop ne sont pas des sujets d'examen.</li>
 <li><strong>Vision / image processing</strong> : pas de vision multimodale dans les domaines évalués.</li>
 <li><strong>Streaming API</strong> : les appels API standard et Batch API oui, mais pas le streaming détaillé.</li>
 <li><strong>Hébergement de serveurs MCP / AWS Bedrock / GCP Vertex</strong> : les MCP tools locaux et Claude API sont couverts, mais pas le déploiement d'infrastructures ou de services cloud concurrents.</li>
 <li><strong>Auth, billing, gestion de compte</strong> : les aspects opérationnels API (clés, authentification basique) sont hors périmètre.</li>
+<li><strong>OAuth, rotation de clés d'API, protocoles d'authentification</strong> : entrée distincte du guide — un distracteur qui propose un flow OAuth est hors sujet par construction.</li>
 <li><strong>Rate limiting, quotas, calcul de pricing</strong> : la facturation détaillée et les limitations d'usage ne sont pas testées.</li>
 <li><strong>Tokenization &amp; token counting (détails internes)</strong> : savoir que les tokens existent oui, mais pas les algos de tokenization ou les outils de counting avancés.</li>
-<li><strong>Détails internes du prompt caching (au-delà de savoir qu'il existe)</strong> : le context reuse est covert, mais pas les mécanismes internes ou l'optimisation fine-grained.</li>
+<li><strong>Détails internes du prompt caching (au-delà de savoir qu'il existe)</strong> : le context reuse est couvert, mais pas les mécanismes internes ou l'optimisation fine-grained.</li>
 <li><strong>Benchmarking / comparaison de modèles</strong> : focus sur Claude, pas sur comparatifs avec d'autres LLM.</li>
 </ul>
 
