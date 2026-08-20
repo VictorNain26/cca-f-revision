@@ -127,7 +127,7 @@
 <p>Dans un <code>CallToolResult</code> MCP, <code>content</code> est toujours un <strong>tableau</strong> de content blocks (jamais un objet ni une string). Les champs <code>errorCategory</code>/<code>isRetryable</code> ne font pas partie de la spécification MCP : c'est une <strong>convention de conception applicative</strong>, à encoder dans le texte du bloc <code>text</code> (ou en JSON stringifié dans ce texte), pas des champs officiels du protocole.</p>
 
 <div class="anti-pattern">
-<strong>Anti-pattern — erreur générique :</strong> <code>{"isError": true, "content": "Operation failed"}</code>. L'agent ne peut pas décider s'il doit faire un retry, reformuler la requête ou escalader. Ce type d'erreur générique empêche toute récupération intelligente. C'est le principal anti-pattern testé à l'examen.
+<strong>Anti-pattern — erreur générique :</strong> <code>{"isError": true, "content": [{"type": "text", "text": "Operation failed"}]}</code>. L'agent ne peut pas décider s'il doit faire un retry, reformuler la requête ou escalader. Ce type d'erreur générique empêche toute récupération intelligente. C'est le principal anti-pattern testé à l'examen.
 </div>
 
 <h3>Les quatre catégories d'erreurs</h3>
@@ -144,7 +144,7 @@
 </div>
 
 <div class="exam-tip">
-<strong>Pattern complémentaire — local error recovery dans les <code>subagent</code>s :</strong> un <code>subagent</code> ne doit pas propager au coordinateur chaque erreur MCP individuelle. Il tente une récupération locale (1-2 retries sur les erreurs <code>transient</code>), et ne remonte que les erreurs <strong>irrécupérables</strong> — avec les résultats partiels déjà obtenus et la requête tentée (<code>attempted_query</code>). Détail complet et exemple de payload : voir D5 §3 (Task 5.3, « La propagation d'erreurs dans les systèmes multi-agents »), qui traite explicitement ce pattern comme complément de D1 (hub-and-spoke) et D2 (erreurs structurées MCP).
+<strong>Pattern complémentaire — local error recovery dans les <code>subagent</code>s :</strong> un <code>subagent</code> ne doit pas propager au coordinateur chaque erreur MCP individuelle. Il tente une récupération locale sur les erreurs <code>transient</code>, et ne remonte que les erreurs <strong>irrécupérables</strong> — avec les résultats partiels déjà obtenus et la requête tentée (<code>attempted_query</code>). Détail complet et exemple de payload : voir D5 §3 (Task 5.3, « La propagation d'erreurs dans les systèmes multi-agents »), qui traite explicitement ce pattern comme complément de D1 (hub-and-spoke) et D2 (erreurs structurées MCP).
 </div>
 
 <!-- ================================================================== -->
@@ -416,7 +416,7 @@ Grep "analyzeDocument"  // rate les appels via l'alias importé
 <details id="d2-q3" data-domain="D2" data-task="2.2">
 <summary>Q3 (Field Service) — One error payload for two different outcomes</summary>
 <div>
-<p><strong>Scenario:</strong> the <code>search_parts</code> tool answers <code>{"isError": true, "content": "Operation failed"}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.</p>
+<p><strong>Scenario:</strong> the <code>search_parts</code> tool answers <code>{"isError": true, "content": [{"type": "text", "text": "Operation failed"}]}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.</p>
 <p><strong>Question:</strong> why does this design block the agent?</p>
 <p data-opt="a">A) It cannot tell a valid empty result from an access failure, so retrying is guesswork.</p>
 <p data-opt="b">B) A timeout is a delay, not a real failure, so the error flag should stay unset.</p>

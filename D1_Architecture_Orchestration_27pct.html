@@ -298,7 +298,7 @@ Task 3 : "Rechercher des articles sur Z"
 <table>
 <tr><th>#</th><th>Caractéristique</th><th>Pourquoi c'est important</th></tr>
 <tr><td>1</td><td><strong>Une description spécifique</strong></td><td>Elle contrôle quand le subagent est lancé et influence la qualité du prompt d'entrée.</td></tr>
-<tr><td>2</td><td><strong>Un structured output format</strong></td><td>C'est l'amélioration n° 1 : cela crée des points d'arrêt naturels et empêche le subagent de tourner trop longtemps.</td></tr>
+<tr><td>2</td><td><strong>Un structured output format</strong></td><td>Il crée des points d'arrêt naturels et empêche le subagent de tourner trop longtemps. Ce que le guide retient, ce sont les formats structurés qui séparent le contenu des métadonnées lors du context passing — pas un classement des leviers.</td></tr>
 <tr><td>3</td><td><strong>Le signalement des obstacles</strong></td><td>Si le subagent découvre un contournement (dépendance manquante, flag spécial), cette information doit remonter pour éviter que le thread principal ne la redécouvre.</td></tr>
 <tr><td>4</td><td><strong>Des outils limités au strict nécessaire</strong></td><td>Un subagent de recherche n'a besoin que de <code>Glob, Grep, Read</code>. Un reviewer y ajoute <code>Bash</code>. Trop d'outils (18 au lieu de 4-5) dégrade la fiabilité de sélection.</td></tr>
 </table>
@@ -472,7 +472,7 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 <h3>Les sessions</h3>
 <ul>
 <li><code>--resume</code> si le contexte est encore valide, <code>fork_session</code> pour comparer, nouvelle session si les données sont obsolètes.</li>
-<li>4-5 outils maximum par subagent ; un structured output format est l'amélioration n° 1.</li>
+<li>4-5 outils maximum par subagent ; un structured output format pour borner sa sortie.</li>
 </ul>
 
 <h3>Questions d'auto-évaluation</h3>
