@@ -51,7 +51,7 @@
 </li>
 <li><a href="#croise">Tableau croisé Scénario × Domaine</a></li>
 <li><a href="#hors-scope">Hors-scope — ne révise pas ça</a></li>
-<li><a href="#distracteurs">Les 7 patterns de distracteurs récurrents</a></li>
+<li><a href="#distracteurs">Les patterns de distracteurs récurrents</a></li>
 </ol>
 </div>
 
@@ -102,7 +102,7 @@
 <ul>
 <li><code>stop_reason</code> pour contrôler l'agentic loop</li>
 <li><strong>Programmatic enforcement</strong> : bloquer <code>process_refund</code> sans <code>get_customer</code> vérifié au préalable</li>
-<li><strong>Escalation triggers fiables</strong> : explicit request du client, policy gap</li>
+<li><strong>Escalation triggers fiables</strong> : explicit request du client, policy gap, no progress — les trois, pas deux</li>
 <li><strong>Escalation triggers NON fiables</strong> : sentiment analysis, self-rated confidence</li>
 <li><strong>Structured handoff protocol</strong> : transmettre le contexte complet à l'humain</li>
 <li><strong>Tool descriptions</strong> précises pour éviter le misrouting entre <code>get_customer</code> et <code>lookup_order</code></li>
@@ -402,56 +402,7 @@
 
 <p>À travers les 6 scénarios, certains types de mauvaises réponses reviennent systématiquement. Reconnaître ces patterns permet d'éliminer rapidement les distracteurs.</p>
 
-<table>
-<tr>
-<th>#</th>
-<th>Distracteur typique</th>
-<th>Pourquoi c'est faux</th>
-<th>Bonne approche</th>
-</tr>
-<tr>
-<td>1</td>
-<td><em>"Improve / strengthen the system prompt"</em></td>
-<td>Insuffisant quand les conséquences sont financières, légales ou de sécurité. Le prompt n'est pas une barrière fiable.</td>
-<td><strong>Hooks</strong> et <strong>programmatic enforcement</strong></td>
-</tr>
-<tr>
-<td>2</td>
-<td><em>"Add a routing classifier"</em> / <em>"trained classifier"</em></td>
-<td>Overengineering. Ajouter un composant complexe quand un correctif simple suffit.</td>
-<td>Améliorer les <strong>tool descriptions</strong> ou les <strong>explicit criteria</strong></td>
-</tr>
-<tr>
-<td>3</td>
-<td><em>"Sentiment analysis"</em> / <em>"self-rated confidence (1-10)"</em></td>
-<td>Proxy peu fiable. Le sentiment ne prédit pas le besoin d'escalation. La self-confidence n'est pas calibrée.</td>
-<td><strong>Explicit triggers</strong> : client demande un humain, policy gap identifié</td>
-</tr>
-<tr>
-<td>4</td>
-<td><em>"Abort the whole workflow"</em></td>
-<td>Disproportionné. Un échec partiel ne justifie pas d'abandonner tout le travail.</td>
-<td>Continuer avec <strong>partial results</strong> + signaler le gap avec <strong>structured error</strong></td>
-</tr>
-<tr>
-<td>5</td>
-<td><em>"Move everything to Batch API"</em></td>
-<td>Le Batch API a une latence jusqu'à 24h et ne supporte pas le multi-turn tool calling.</td>
-<td><strong>Synchronous</strong> pour blocking checks, <strong>Batch</strong> uniquement pour non-blocking (overnight)</td>
-</tr>
-<tr>
-<td>6</td>
-<td><em>"Larger context window"</em></td>
-<td>Plus de contexte ne résout pas les problèmes d'attention (lost-in-the-middle effect).</td>
-<td><strong>Multi-pass review</strong>, <strong>subagent delegation</strong>, <strong>scratchpad files</strong></td>
-</tr>
-<tr>
-<td>7</td>
-<td><em>"Add a separate X agent / layer"</em></td>
-<td>Overengineering quand une solution plus simple existe.</td>
-<td>D'abord essayer : meilleures <strong>descriptions</strong>, <strong>explicit criteria</strong>, <strong>few-shot examples</strong></td>
-</tr>
-</table>
+<p>Ces patterns sont détaillés dans la <a href="Exam_Strategy.html#distractors">Stratégie d'examen, section 3</a> — sept entrées avec, pour chacune, la raison pour laquelle elle est presque toujours fausse et le cas rare où elle ne l'est pas. Une seule liste, pour ne pas en réviser deux versions.</p>
 
 <div class="exam-tip">
 <strong>Règle d'or :</strong> Quand une option de réponse propose d'ajouter de la complexité (classifier, agent, couche supplémentaire), demande-toi d'abord si un correctif simple (meilleure description, critère explicite, hook) ne suffirait pas. L'examen privilégie la solution la plus directe et la plus fiable.
