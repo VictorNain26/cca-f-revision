@@ -76,7 +76,7 @@
 Les standards de code sont décrits dans @./standards/coding-style.md
 Les exigences de test sont dans @./standards/testing-requirements.md
 La vue d'ensemble du projet est dans @README.md</pre>
-<p>Le <code>@</code> se place immédiatement avant le path (sans espace). Les paths relatifs sont résolus par rapport au fichier contenant l'import. La profondeur maximale d'imbrication est de <strong>4 niveaux</strong> (« four hops »).</p>
+<p>Le <code>@</code> se place immédiatement avant le path (sans espace). Les paths relatifs sont résolus par rapport au fichier contenant l'import. La profondeur maximale d'imbrication est de <strong>4 niveaux</strong> (« four hops ») — précision de la documentation, absente du guide.</p>
 
 <h3>Le répertoire <code>.claude/rules/</code></h3>
 <p>Une alternative au <code>CLAUDE.md</code> monolithique : des fichiers thématiques dont le chargement dépend des fichiers en cours d'édition.</p>
@@ -146,7 +146,7 @@ Quand tu rédiges une description de PR :
 <table>
 <tr><th>Paramètre</th><th>Obligatoire</th><th>Rôle</th></tr>
 <tr><td><code>name</code></td><td>Optionnel — défaut = nom du dossier du skill</td><td>Display name (identifiant optionnel). Par défaut, le nom du dossier du skill sert de nom de commande (ex. <code>/review</code> pour <code>.claude/skills/review/SKILL.md</code>).</td></tr>
-<tr><td><code>description</code></td><td>Recommandée — si omise, le premier paragraphe du corps sert de description</td><td>Détermine <em>quand</em> Claude active le skill (matching sémantique) — <code>description</code> + <code>when_to_use</code> tronqués à ~1536 caractères dans le listing — et influence <em>comment</em> il rédige le prompt. C'est le champ le plus déterminant pour le déclenchement.</td></tr>
+<tr><td><code>description</code></td><td>Recommandée — si omise, le premier paragraphe du corps sert de description</td><td>Détermine <em>quand</em> Claude active le skill (matching sémantique) et influence <em>comment</em> il rédige le prompt. C'est le champ le plus déterminant pour le déclenchement.</td></tr>
 <tr><td><code>context: fork</code></td><td>Non</td><td>Exécute le skill dans un contexte isolé de subagent. La sortie verbeuse ne pollue pas la session principale.</td></tr>
 <tr><td><code>allowed-tools</code></td><td>Non</td><td><strong>Restreint l'accès aux outils</strong> pendant l'exécution du skill — par exemple limiter aux opérations d'écriture de fichiers pour empêcher toute action destructrice. C'est la formulation du référentiel, et celle à retenir pour l'examen. <em>Nuance terrain : la doc actuelle décrit ce champ comme une pré-approbation de permissions plutôt qu'une restriction stricte. À l'examen, répondez « restriction d'accès aux outils ».</em></td></tr>
 <tr><td><code>argument-hint</code></td><td>Non</td><td>Indice affiché à l'autocomplétion pour réclamer le paramètre attendu quand le développeur invoque le skill sans argument.</td></tr>
@@ -422,7 +422,7 @@ jobs:
 <ul>
 <li>Trois niveaux : user (personnel), project (équipe), directory (local).</li>
 <li>Erreur classique : mettre les instructions au user-level au lieu du project-level.</li>
-<li>Syntaxe <code>@path</code> pour les imports modulaires (profondeur max : 4 niveaux).</li>
+<li>Syntaxe <code>@path</code> pour les imports modulaires. (La profondeur max de 4 niveaux vient de la doc, pas du guide.)</li>
 <li><code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> et glob patterns pour le chargement conditionnel.</li>
 <li>Glob patterns préférables pour les conventions cross-directory ; directory <code>CLAUDE.md</code> pour les règles strictement locales.</li>
 <li><code>/memory</code> pour persister des notes entre sessions ; <code>/compact</code> pour compresser le contexte.</li>

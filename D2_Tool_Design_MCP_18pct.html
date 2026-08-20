@@ -133,7 +133,7 @@
 <h3>Les quatre catégories d'erreurs</h3>
 <table>
 <tr><th><code>errorCategory</code></th><th>Exemples</th><th><code>isRetryable</code></th><th>Action de l'agent</th></tr>
-<tr><td><strong><code>transient</code></strong></td><td>Timeout, erreur 503, panne réseau</td><td><code>true</code></td><td>Retry avec backoff exponentiel</td></tr>
+<tr><td><strong><code>transient</code></strong></td><td>Timeout, erreur 503, panne réseau</td><td><code>true</code></td><td>Retry, puis propager si l'échec persiste</td></tr>
 <tr><td><strong><code>validation</code></strong></td><td>Entrée invalide, champ requis manquant</td><td><code>true</code> (après correction)</td><td>Corriger l'entrée et retenter</td></tr>
 <tr><td><strong><code>business</code></strong></td><td>Violation de politique, seuil dépassé</td><td><code>false</code></td><td>Expliquer à l'utilisateur, proposer une alternative</td></tr>
 <tr><td><strong><code>permission</code></strong></td><td>Accès refusé, privilège insuffisant</td><td><code>false</code></td><td>Escalader à un humain</td></tr>

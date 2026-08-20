@@ -125,7 +125,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 </ol>
 
 <div class="key-concept">
-<strong>Règle d'or :</strong> dans 80 % des cas, l'examen oppose une solution <em>déterministe</em> (hook, schéma, contrainte) à une solution <em>probabiliste</em> (instruction prompt, few-shot supplémentaire). Pour toute conséquence financière, sécurité, conformité → la réponse est <strong>déterministe</strong>.
+<strong>Règle d'or :</strong> le plus souvent, l'examen oppose une solution <em>déterministe</em> (hook, schéma, contrainte) à une solution <em>probabiliste</em> (instruction prompt, few-shot supplémentaire). Pour toute conséquence financière, sécurité, conformité → la réponse est <strong>déterministe</strong>.
 </div>
 
 <h3>Gestion du temps</h3>
@@ -150,7 +150,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><th>#</th><th>Pattern</th><th>Pourquoi c'est presque toujours faux</th><th>Quand c'est correct (rare)</th></tr>
 <tr><td>1</td><td>"Add a routing classifier" / "Add a separate X layer"</td><td>Over-engineering ; nécessite des données d'entraînement souvent indisponibles</td><td>D'abord : meilleures descriptions, critères explicites, few-shot</td></tr>
 <tr><td>2</td><td>"Improve / strengthen the system prompt"</td><td>Probabiliste, insuffisant pour les conséquences financières/légales</td><td>Hooks et programmatic enforcement pour le déterministe</td></tr>
-<tr><td>3</td><td>"Use sentiment analysis" / "Self-rated confidence (1-10)"</td><td>Le sentiment ne corrèle pas avec la complexité ; confiance non calibrée</td><td>Explicit triggers : demande, policy gap, no progress, threshold</td></tr>
+<tr><td>3</td><td>"Use sentiment analysis" / "Self-rated confidence (1-10)"</td><td>Le sentiment ne corrèle pas avec la complexité ; confiance non calibrée</td><td>Explicit triggers : demande d'un humain, policy gap, no progress</td></tr>
 <tr><td>4</td><td>"Abort the whole workflow" / "Blame the downstream agent"</td><td>Disproportionné ; chercher la cause racine. Graceful degradation requise</td><td>Continuer avec partial results + structured error context</td></tr>
 <tr><td>5</td><td>"Use a larger context window to fix attention"</td><td>Faux. Context plus grand n'améliore pas l'attention sur le milieu (lost-in-the-middle)</td><td>Multi-pass review, subagent delegation, scratchpad files</td></tr>
 <tr><td>6</td><td>"Suppress errors" / "Kill the entire workflow"</td><td>Vide n'est pas succès. Masquer l'erreur ou tout avorter sont des extrêmes</td><td>Retry-with-feedback, partial results avec coverage annotations</td></tr>
@@ -227,7 +227,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <li><strong>case facts block</strong> en dehors du summarized history → faits transactionnels préservés.</li>
 <li><strong>Lost-in-the-middle :</strong> conclusions en haut, actions en bas. Plus de context window n'aide pas.</li>
 <li><strong>Tool result trimming via hook PostToolUse</strong> (pas PreToolUse).</li>
-<li><strong>Escalation triggers fiables :</strong> demande explicite humain / policy gap / no progress / financial threshold. NON fiables : sentiment, self-rated confidence, automatic classifier.</li>
+<li><strong>Escalation triggers fiables :</strong> demande explicite d'un humain / policy gap / no progress — <strong>trois</strong>, pas quatre. Un seuil financier n'est pas un déclencheur de la Task 5.2 ; il se traite par un hook (D1 §6). NON fiables : sentiment, self-rated confidence, automatic classifier.</li>
 <li><strong>3 patterns escalation :</strong> immediate / after attempt / nuanced (acknowledge → resolve → escalate on reiteration).</li>
 <li><strong>Calibration escalation = critères explicites + few-shot examples</strong> (les deux, jamais l'un sans l'autre).</li>
 <li><strong>Structured handoff :</strong> l'humain n'a pas le transcript — le résumé doit être autosuffisant.</li>
@@ -246,21 +246,14 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
          ├─ OUI  → HOOK
          └─ NON  → Instruction dans CLAUDE.md ou system prompt</pre>
 
-<h3>Arbre 2 — Workflow ou agent ?</h3>
-<pre>Les étapes sont-elles connues à l'avance ?
-├─ OUI  → WORKFLOW (chaînage, routage, parallélisation, evaluator-optimizer)
-└─ NON  → Le contexte change-t-il à chaque exécution ?
-         ├─ OUI  → AGENT (boucle agentique avec stop_reason)
-         └─ NON  → Probablement un workflow plus malin (routing en haut)</pre>
-
-<h3>Arbre 3 — Subagent ou thread principal ?</h3>
+<h3>Arbre 2 — Subagent ou thread principal ?</h3>
 <pre>Le travail intermédiaire (chemin pris, fichiers lus) m'intéresse-t-il ?
 ├─ OUI  → THREAD PRINCIPAL (exécuter dans le contexte courant)
 └─ NON  → Le travail produit-il beaucoup de tokens verbeux ?
          ├─ OUI  → SUBAGENT (Explore)
          └─ NON  → Thread principal (overhead du subagent inutile)</pre>
 
-<h3>Arbre 4 — Synchrone ou Batch API ?</h3>
+<h3>Arbre 3 — Synchrone ou Batch API ?</h3>
 <pre>Y a-t-il un humain qui attend la réponse ?
 ├─ OUI  → SYNCHRONE (jamais de batch pour du bloquant)
 └─ NON  → Y a-t-il du multi-turn tool calling ?
@@ -269,9 +262,9 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
                   ├─ OUI  → BATCH (50 % d'économies)
                   └─ NON  → Synchrone</pre>
 
-<h3>Arbre 5 — Erreur MCP : retry, escalate ou continuer ?</h3>
+<h3>Arbre 4 — Erreur MCP : retry, escalate ou continuer ?</h3>
 <pre>Quel errorCategory ?
-├─ transient (timeout, 503)     → RETRY avec backoff exponentiel
+├─ transient (timeout, 503)     → RETRY, puis propager ce qui reste
 ├─ validation (input invalide)  → CORRIGER l'input et retry
 ├─ business (policy violation)  → EXPLIQUER au user, proposer alternative
 └─ permission (auth refusé)     → ESCALATE à un humain</pre>
@@ -306,7 +299,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <table>
 <tr><th>Concept</th><th>A retenir</th></tr>
 <tr><td>Hiérarchie CLAUDE.md</td><td>user / project / directory. Erreur classique : mettre en user ce qui doit être en project</td></tr>
-<tr><td>@path imports</td><td>Profondeur max 4 niveaux (« four hops »)</td></tr>
+<tr><td>@path imports</td><td>Rend le <code>CLAUDE.md</code> modulaire. (La limite de quatre niveaux vient de la doc, pas du guide.)</td></tr>
 <tr><td>.claude/rules/ + glob</td><td>Conventions cross-directory (tests co-localisés) ; chargement conditionnel</td></tr>
 <tr><td>Skills frontmatter</td><td><code>context: fork</code> (isolation en subagent) / <code>allowed-tools</code> (restriction d'outils) / <code>argument-hint</code> (paramètres attendus)</td></tr>
 <tr><td>Skills vs CLAUDE.md</td><td>Skill = invocation à la demande, workflow ponctuel. CLAUDE.md = standards universels, toujours chargés</td></tr>
@@ -337,8 +330,7 @@ Active recall &gt; relecture passive. Ne pas relire les docs en boucle ; faire l
 <tr><td>Case facts block</td><td>En dehors du summarized history. Survit au /compact.</td></tr>
 <tr><td>Lost-in-the-middle</td><td>Conclusions en haut, actions en bas. Plus de context window n'aide pas.</td></tr>
 <tr><td>Tool result trimming</td><td>Hook <strong>PostToolUse</strong> (pas PreToolUse)</td></tr>
-<tr><td>Memory tool</td><td>Primitive API pour persister entre sessions (≠ <code>/memory</code> de Claude Code qui édite CLAUDE.md)</td></tr>
-<tr><td>Escalation fiables</td><td>Demande explicite humain / policy gap / no progress / threshold financier</td></tr>
+<tr><td>Escalation fiables</td><td>Demande explicite d'un humain / policy gap / no progress — les trois du guide. Le seuil financier relève du hook, pas de cette liste</td></tr>
 <tr><td>Escalation NON fiables</td><td>Sentiment / self-rated confidence / automatic classifier</td></tr>
 <tr><td>3 patterns escalation</td><td>Immediate / after attempt / nuanced (acknowledge → resolve → escalate on reiteration)</td></tr>
 <tr><td>Calibration escalation</td><td>Critères explicites + few-shot (les DEUX)</td></tr>
