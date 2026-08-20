@@ -207,6 +207,8 @@ Les backends d'état sont déclarés en S3 avec verrouillage DynamoDB.</pre>
 <div class="key-concept">
 <strong>Chargement conditionnel :</strong> la règle ne se charge que lorsque Claude Code édite un fichier correspondant au glob pattern. Cela économise du contexte et des tokens : les conventions non pertinentes ne sont jamais chargées.
 <br><br>
+<strong>Le guide fait loi sur ce point.</strong> Le référentiel écrit que la règle se charge <em>« when editing matching files »</em> — c'est ce mot qu'il faut retenir, et une option qui parle d'édition est celle attendue. <em>Nuance terrain : la documentation actuelle déclenche la règle à la <strong>lecture</strong> (« path-scoped rules trigger when Claude reads files matching the pattern »), donc en pratique elle est déjà en contexte avant votre première modification. Le mécanisme est identique — <code>paths</code>, globs, chargement conditionnel — seul le déclencheur diffère. À l'examen, répondez « édition ».</em>
+<br><br>
 <strong>Glob patterns vs. directory <code>CLAUDE.md</code> :</strong> les glob patterns sont préférables pour les conventions cross-directory (tests co-localisés, fichiers de migration dispersés). Un directory <code>CLAUDE.md</code> convient pour les règles strictement locales à un sous-dossier.
 </div>
 
