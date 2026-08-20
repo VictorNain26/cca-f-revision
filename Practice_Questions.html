@@ -113,7 +113,7 @@
 <summary>Q2 (Customer Support) — Minimal tool descriptions</summary>
 <div>
 <p><strong>Scenario:</strong> Production logs show the agent frequently calls <code>get_customer</code> when users ask about orders (e.g. "check my order #12345"), instead of calling <code>lookup_order</code>. Both tools have minimal descriptions ("Retrieves customer information" / "Retrieves order details") and accept similar identifier formats.</p>
-<p><strong>Question:</strong> What is the most effective first step to improve tool selection reliability?</p>
+<p><strong>Question:</strong> What&rsquo;s the most effective first step to improve tool selection reliability?</p>
 <p data-opt="a">A) Add few-shot examples to the system prompt demonstrating correct tool selection patterns, with 5–8 examples showing order-related queries routing to <code>lookup_order</code>.</p>
 <p data-opt="b">B) Expand each tool's description to include input formats it handles, example queries, edge cases, and boundaries explaining when to use it versus similar tools.</p>
 <p data-opt="c">C) Implement a routing layer that parses user input before each turn and pre-selects the appropriate tool based on detected keywords and identifier patterns.</p>
@@ -134,7 +134,7 @@
 <summary>Q3 (Customer Support) — Escalation calibration</summary>
 <div>
 <p><strong>Scenario:</strong> Your agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions.</p>
-<p><strong>Question:</strong> What is the most effective way to improve escalation calibration?</p>
+<p><strong>Question:</strong> What&rsquo;s the most effective way to improve escalation calibration?</p>
 <p data-opt="a">A) Add explicit escalation criteria to your system prompt with few-shot examples demonstrating when to escalate versus resolve autonomously.</p>
 <p data-opt="b">B) Have the agent self-report a confidence score (1–10) before each response and automatically route requests to humans when confidence falls below a threshold.</p>
 <p data-opt="c">C) Deploy a separate classifier model trained on historical tickets to predict which requests need escalation before the main agent begins processing.</p>
@@ -177,7 +177,7 @@
 <details id="pq-q5" data-domain="D3" data-task="3.4">
 <summary>Q5 (Code Generation) — Plan mode versus direct execution</summary>
 <div>
-<p><strong>Scenario:</strong> You have been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies.</p>
+<p><strong>Scenario:</strong> You&rsquo;ve been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies.</p>
 <p><strong>Question:</strong> Which approach should you take?</p>
 <p data-opt="a">A) Enter plan mode to explore the codebase, understand dependencies, and design an implementation approach before making changes.</p>
 <p data-opt="b">B) Start with direct execution and make changes incrementally, letting the implementation reveal the natural service boundaries.</p>
@@ -199,7 +199,7 @@
 <summary>Q6 (Code Generation) — Conventions for files spread across directories</summary>
 <div>
 <p><strong>Scenario:</strong> Your codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g. <code>Button.test.tsx</code> next to <code>Button.tsx</code>), and you want all tests to follow the same conventions regardless of location.</p>
-<p><strong>Question:</strong> What is the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?</p>
+<p><strong>Question:</strong> What&rsquo;s the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?</p>
 <p data-opt="a">A) Create rule files in <code>.claude/rules/</code> with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths</p>
 <p data-opt="b">B) Consolidate all conventions in the root <code>CLAUDE.md</code> file under headers for each area, relying on Claude to infer which section applies</p>
 <p data-opt="c">C) Create skills in <code>.claude/skills/</code> for each code type that include the relevant conventions in their <code>SKILL.md</code> files</p>
@@ -221,7 +221,7 @@
 <details id="pq-q7" data-domain="D1" data-task="1.2">
 <summary>Q7 (Multi-Agent Research) — Reports that cover only part of the topic</summary>
 <div>
-<p><strong>Scenario:</strong> After running the system on the topic "impact of AI on creative industries", you observe that each subagent completes successfully: the web search agent finds relevant articles, the document analysis agent summarises papers correctly, and the synthesis agent produces coherent output. However, the final reports cover only visual arts, completely missing music, writing, and film production. When you examine the coordinator's logs, you see it decomposed the topic into three subtasks: "AI in digital art creation", "AI in graphic design", and "AI in photography".</p>
+<p><strong>Scenario:</strong> After running the system on the topic "impact of AI on creative industries," you observe that each subagent completes successfully: the web search agent finds relevant articles, the document analysis agent summarizes papers correctly, and the synthesis agent produces coherent output. However, the final reports cover only visual arts, completely missing music, writing, and film production. When you examine the coordinator's logs, you see it decomposed the topic into three subtasks: "AI in digital art creation," "AI in graphic design," and "AI in photography."</p>
 <p><strong>Question:</strong> What is the most likely root cause?</p>
 <p data-opt="a">A) The synthesis agent lacks instructions for identifying coverage gaps in the findings it receives from other agents.</p>
 <p data-opt="b">B) The coordinator agent's task decomposition is too narrow, resulting in subagent assignments that don't cover all relevant domains of the topic.</p>
@@ -263,8 +263,8 @@
 <details id="pq-q9" data-domain="D2" data-task="2.3">
 <summary>Q9 (Multi-Agent Research) — Round-trips for fact verification</summary>
 <div>
-<p><strong>Scenario:</strong> The synthesis agent frequently needs to verify specific claims while combining findings. Today it returns control to the coordinator, which invokes the web search agent, then re-invokes synthesis with the results. This adds 2–3 round trips per task and increases latency by 40%. Evaluation shows 85% of these verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation.</p>
-<p><strong>Question:</strong> What is the most effective approach to reduce overhead while maintaining system reliability?</p>
+<p><strong>Scenario:</strong> During testing, you observe that the synthesis agent frequently needs to verify specific claims while combining findings. Currently, when verification is needed, the synthesis agent returns control to the coordinator, which invokes the web search agent, then re-invokes synthesis with results. This adds 2-3 round trips per task and increases latency by 40%. Your evaluation shows that 85% of these verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation.</p>
+<p><strong>Question:</strong> What's the most effective approach to reduce overhead while maintaining system reliability?</p>
 <p data-opt="a">A) Give the synthesis agent a scoped <code>verify_fact</code> tool for simple lookups, while complex verifications continue delegating to the web search agent through the coordinator.</p>
 <p data-opt="b">B) Have the synthesis agent accumulate all verification needs and return them as a batch to the coordinator at the end of its pass, which then sends them all to the web search agent at once.</p>
 <p data-opt="c">C) Give the synthesis agent access to all web search tools so it can handle any verification need directly without round-trips through the coordinator.</p>
@@ -287,7 +287,7 @@
 <summary>Q10 (CI/CD) — The pipeline job hangs</summary>
 <div>
 <p><strong>Scenario:</strong> Your pipeline script runs <code>claude "Analyze this pull request for security issues"</code> but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input.</p>
-<p><strong>Question:</strong> What is the correct approach to run Claude Code in an automated pipeline?</p>
+<p><strong>Question:</strong> What&rsquo;s the correct approach to run Claude Code in an automated pipeline?</p>
 <p data-opt="a">A) Add the <code>-p</code> flag: <code>claude -p "Analyze this pull request for security issues"</code></p>
 <p data-opt="b">B) Set the environment variable <code>CLAUDE_HEADLESS=true</code> before running the command</p>
 <p data-opt="c">C) Redirect stdin from <code>/dev/null</code>: <code>claude "Analyze this pull request for security issues" &lt; /dev/null</code></p>
@@ -307,7 +307,7 @@
 <details id="pq-q11" data-domain="D4" data-task="4.5">
 <summary>Q11 (CI/CD) — Which workflows can move to the Batches API</summary>
 <div>
-<p><strong>Scenario:</strong> Your team wants to reduce API costs. Real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings.</p>
+<p><strong>Scenario:</strong> Your team wants to reduce API costs for automated analysis. Currently, real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings.</p>
 <p><strong>Question:</strong> How should you evaluate this proposal?</p>
 <p data-opt="a">A) Use batch processing for the technical debt reports only; keep real-time calls for pre-merge checks.</p>
 <p data-opt="b">B) Switch both workflows to batch processing with status polling to check for completion.</p>
@@ -328,7 +328,7 @@
 <details id="pq-q12" data-domain="D1" data-task="1.6">
 <summary>Q12 (CI/CD) — Inconsistent review of a 14-file pull request</summary>
 <div>
-<p><strong>Scenario:</strong> A pull request modifies 14 files across the stock tracking module. Your single-pass review analysing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback — flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR.</p>
+<p><strong>Scenario:</strong> A pull request modifies 14 files across the stock tracking module. Your single-pass review analyzing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback—flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR.</p>
 <p><strong>Question:</strong> How should you restructure the review?</p>
 <p data-opt="a">A) Split into focused passes: analyse each file individually for local issues, then run a separate integration-focused pass examining cross-file data flow.</p>
 <p data-opt="b">B) Require developers to split large PRs into smaller submissions of 3–4 files before the automated review runs.</p>
