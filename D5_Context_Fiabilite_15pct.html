@@ -222,18 +222,19 @@ Rationale: Frustration ≠ human request. Escalate only on reiteration.</pre>
 
 <table>
 <tr><th>Situation</th><th>Type</th><th>Action du coordinateur</th></tr>
-<tr><td>Connection timeout</td><td>Access failure</td><td>Retry décision (1-2 tentatives), puis propager si l'échec persiste</td></tr>
+<tr><td>Connection timeout</td><td>Access failure</td><td>Décider d'un retry, puis propager si l'échec persiste</td></tr>
 <tr><td>0 results retournés</td><td>Valid empty result</td><td>Accepter comme résultat légitime, annoter dans la synthèse</td></tr>
 </table>
 
-<h3>Les 4 anti-patterns de gestion d'erreur</h3>
+<h3>Les 3 anti-patterns de gestion d'erreur</h3>
 <table>
 <tr><th>Anti-pattern</th><th>Pourquoi c'est un problème</th><th>Approche correcte</th></tr>
 <tr><td>Statut générique (« search unavailable »)</td><td>Le coordinateur ne peut pas choisir sa stratégie de récupération</td><td>Retourner <code>failure_type</code>, <code>query</code>, <code>partial_results</code>, <code>alternatives</code></td></tr>
 <tr><td>Suppression silencieuse (silent suppression : résultat vide = succès)</td><td>Le coordinateur croit qu'il n'y a pas de résultats</td><td>Distinguer « 0 results » (valid query) de « access failure »</td></tr>
 <tr><td>Abandon du workflow entier (abort whole workflow)</td><td>On perd tous les résultats partiels obtenus</td><td>Continuer avec les résultats disponibles, annoter les lacunes</td></tr>
-<tr><td>Retries infinis (infinite retries) dans le <code>subagent</code></td><td>Latence excessive et gaspillage de ressources</td><td>Récupération locale (1-2 retries), puis propagation au coordinateur</td></tr>
+<tr><td>Retries infinis (infinite retries) dans le <code>subagent</code> <em>— hors liste du guide</em></td><td>Latence excessive et gaspillage de ressources</td><td>Récupération locale, puis propagation au coordinateur</td></tr>
 </table>
+<p>Le guide n'en nomme que <strong>trois</strong> : le statut générique, la suppression silencieuse et l'abandon du workflow entier. La quatrième ligne est un défaut réel, mais ne la comptez pas parmi celles du référentiel.</p>
 
 <h3>Les <code>coverage annotations</code> dans la synthèse</h3>
 <p>Quand la synthèse est produite à partir de résultats incomplets, elle doit l'indiquer explicitement :</p>
@@ -500,7 +501,7 @@ Note : la couverture de cette section est limitée.
 <ul>
 <li>Retourner un contexte d'erreur structuré : <code>failure_type</code>, <code>query</code>, <code>partial_results</code>, <code>alternatives</code>.</li>
 <li>Distinguer timeout (access failure → retry décision) de empty results (valid query → résultat légitime).</li>
-<li>4 anti-patterns : generic status, silent suppression, abort whole workflow, infinite retries.</li>
+<li>3 anti-patterns du guide : generic status, silent suppression, abort whole workflow. (Les retries infinis sont un défaut réel, mais hors liste.)</li>
 <li><code>Coverage annotations</code> dans la synthèse : FULL COVERAGE / PARTIAL COVERAGE.</li>
 </ul>
 
