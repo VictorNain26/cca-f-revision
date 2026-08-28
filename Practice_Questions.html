@@ -10,6 +10,7 @@
 <script>(function(){try{var t=localStorage.getItem('cca-theme');if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="theme.js" defer></script>
 <script src="toc.js" defer></script>
+<script src="site.js" defer></script>
 </head>
 <body id="top">
 
@@ -2544,22 +2545,6 @@ CCA Révision — Practice Questions · 112 items · Source : guide officiel CCA
 
 
 <a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
-<script>
-(function() {
-  var btn = document.getElementById('back-to-top');
-  if (!btn) return;
-  function toggle() {
-    if (window.scrollY > 600) btn.classList.add('visible');
-    else btn.classList.remove('visible');
-  }
-  window.addEventListener('scroll', toggle, { passive: true });
-  toggle();
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-})();
-</script>
 
 </body>
 </html>
