@@ -10,6 +10,7 @@
 <script>(function(){try{var t=localStorage.getItem('cca-theme');if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 <script src="theme.js" defer></script>
 <script src="toc.js" defer></script>
+<script src="site.js" defer></script>
 </head>
 <body id="top">
 
@@ -17,14 +18,14 @@
 <nav class="navbar">
   <a class="home" href="index.html">CCA-F</a>
   <a href="index.html">Accueil</a>
-  <a href="D0_API_Fundamentals.html" title="D0 — Fondamentaux de l&#39;API">D0</a>
+  <a href="D0_API_Fundamentals.html" title="D0 — Fondamentaux de l'API">D0</a>
   <a href="D1_Architecture_Orchestration_27pct.html" title="D1 — Architecture et orchestration (27 %)">D1</a>
   <a href="D2_Tool_Design_MCP_18pct.html" title="D2 — Tool design et MCP (18 %)">D2</a>
   <a href="D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
   <a class="current" href="D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
   <a href="D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
   <a href="Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
-  <a href="Scenarios_Exam.html" title="Les 6 scénarios d&#39;examen">Scénarios</a>
+  <a href="Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
   <a href="anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf" title="Le guide d'examen officiel (PDF) — la seule source qui fait foi" target="_blank" rel="noopener">Guide</a>
 </nav>
@@ -741,22 +742,6 @@ CCA Révision — D4 Prompt engineering et sorties structurées · Sources : gui
 
 
 <a href="#top" class="back-to-top" aria-label="Retour en haut" id="back-to-top">↑</a>
-<script>
-(function() {
-  var btn = document.getElementById('back-to-top');
-  if (!btn) return;
-  function toggle() {
-    if (window.scrollY > 600) btn.classList.add('visible');
-    else btn.classList.remove('visible');
-  }
-  window.addEventListener('scroll', toggle, { passive: true });
-  toggle();
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-})();
-</script>
 
 </body>
 </html>
