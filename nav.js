@@ -15,7 +15,7 @@
     ['Practice_Questions.html', 'QCM', 'Practice Questions — 112 QCM corrigés, en anglais'],
     ['Scenarios_Exam.html', 'Scénarios', "Les 6 scénarios d'examen"],
     ['Exam_Strategy.html', 'Stratégie', 'Stratégie jour J + cheat sheet'],
-    ['CCA-F_Exam_Guide_v1.0.pdf', 'Guide', "Le guide d'examen officiel (PDF) — la seule source qui fait foi"],
+    ['anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf', 'Guide', "Le guide d'examen officiel (PDF) — la seule source qui fait foi"],
   ];
 
   const nav = document.querySelector('nav.navbar');
