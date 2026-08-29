@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cca-f-revision\n"
-"POT-Creation-Date: 2026-08-29 22:30+0200\n"
+"POT-Creation-Date: 2026-08-29 23:18+0200\n"
 "PO-Revision-Date: 2026-08-29 20:27+0200\n"
 "Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
 "Language-Team: French\n"
@@ -2599,3 +2599,1847 @@ msgstr ""
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.7\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.7\"`.\n"
+
+#. type: Title #
+#: courses/en/03-claude-code-config.md:1
+#, no-wrap
+msgid "D3 — Claude Code configuration and workflows (20 %)"
+msgstr "D3 — Configuration et workflows de Claude Code (20 %)"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:4
+#, no-wrap
+msgid "<!-- src:exam guide domain 3 (the six task statements) ; 01claudecodeinaction L1-L3, L6-L8 ; 04agentskills L1-L6 ; 06claudecode101 L4-L9, L12 ; code.claude.com/docs (memory, skills, sub-agents, headless, cli-reference) for the facts no lesson carries -->\n"
+msgstr "<!-- src:exam guide domain 3 (the six task statements) ; 01claudecodeinaction L1-L3, L6-L8 ; 04agentskills L1-L6 ; 06claudecode101 L4-L9, L12 ; code.claude.com/docs (memory, skills, sub-agents, headless, cli-reference) for the facts no lesson carries -->\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:9
+#, no-wrap
+msgid ""
+"Twenty per cent of the score, six task statements, and a subject that looks\n"
+"deceptively soft: files in a repository. One section per task statement, in the\n"
+"guide's own order and under the guide's own wording — so that a question spotted\n"
+"on exam day maps to a section here without translation.\n"
+msgstr ""
+"Vingt pour cent de la note, six task statements, et un sujet trompeusement\n"
+"anodin : des fichiers dans un dépôt. Une section par task statement, dans\n"
+"l'ordre du guide et sous le libellé du guide — pour qu'une question repérée le\n"
+"jour J renvoie ici sans traduction.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:14
+#, no-wrap
+msgid ""
+"D0 and D1 are assumed. D1 taught the machinery *inside* an agent: the loop,\n"
+"subagents, hooks as SDK callbacks, sessions. D3 is the layer above it — the\n"
+"files and flags that configure a running Claude Code, and the working habits\n"
+"that decide whether a session goes well.\n"
+msgstr ""
+"D0 et D1 sont supposés acquis. D1 a enseigné la mécanique *interne* d'un agent :\n"
+"la boucle, les subagents, les hooks comme callbacks du SDK, les sessions. D3 est\n"
+"la couche au-dessus — les fichiers et les flags qui configurent un Claude Code en\n"
+"marche, et les habitudes de travail qui décident si une session se passe bien.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:23
+#, no-wrap
+msgid ""
+"The guide places neighbouring notions elsewhere, and this course honours that.\n"
+"The hook mechanism — events, `permissionDecision`, `updatedInput` — is tested in\n"
+"TS 1.5; subagent context isolation in TS 1.2 and 1.3; sessions, `--resume` and\n"
+"`fork_session` in TS 1.7; the context window in D0 and its management, `/compact`\n"
+"included, in domain 5. Each of those gets a sentence and a pointer here, never a\n"
+"second development. What D1 explicitly deferred to this course — subagent\n"
+"definitions under `.claude/agents/`, and hooks as a *place to put a rule* rather\n"
+"than as an API — lands in 3.2.\n"
+msgstr ""
+"Le guide place les notions voisines ailleurs, et ce cours le respecte. Le\n"
+"mécanisme des hooks — événements, `permissionDecision`, `updatedInput` — est\n"
+"testé en TS 1.5 ; l'isolation de contexte des subagents en TS 1.2 et 1.3 ; les\n"
+"sessions, `--resume` et `fork_session` en TS 1.7 ; la fenêtre de contexte en D0\n"
+"et sa gestion, `/compact` compris, dans le domaine 5. Chacune reçoit ici une\n"
+"phrase et un renvoi, jamais un second développement. Ce que D1 a explicitement\n"
+"renvoyé à ce cours — les définitions de subagents sous `.claude/agents/`, et les\n"
+"hooks comme *endroit où poser une règle* plutôt que comme API — atterrit en 3.2.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/03-claude-code-config.md:24
+#, no-wrap
+msgid "3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization"
+msgstr "3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:27
+#, no-wrap
+msgid ""
+"<!-- ts:3.1 | src:exam guide TS 3.1 (the three levels, user-level not shared by version control, @import, .claude/rules/ as the modular alternative, /memory) ; 06claudecode101 L8 (what CLAUDE.md solves, its contents are appended to the prompt, project versus user, @path references) ; 01claudecodeinaction L2 (CLAUDE.md is guidance and not enforced configuration, every line competes with every other, imports expand inline and do not reduce context, specific and checkable rules, naming the replacement, the emphasis budget, hard rules belong in a hook) ; code.claude.com/docs/en/memory (four-hop import depth, .claude/rules/ layout, what /memory lists and what /context confirms) -->\n"
+"<!-- owns:claude-md -->\n"
+msgstr ""
+"<!-- ts:3.1 | src:exam guide TS 3.1 (the three levels, user-level not shared by version control, @import, .claude/rules/ as the modular alternative, /memory) ; 06claudecode101 L8 (what CLAUDE.md solves, its contents are appended to the prompt, project versus user, @path references) ; 01claudecodeinaction L2 (CLAUDE.md is guidance and not enforced configuration, every line competes with every other, imports expand inline and do not reduce context, specific and checkable rules, naming the replacement, the emphasis budget, hard rules belong in a hook) ; code.claude.com/docs/en/memory (four-hop import depth, .claude/rules/ layout, what /memory lists and what /context confirms) -->\n"
+"<!-- owns:claude-md -->\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:33
+#, no-wrap
+msgid ""
+"Open Claude Code in a repository it has never seen and it starts from nothing:\n"
+"it must rediscover the build command, the test runner, where handlers live, what\n"
+"was tried last month. **CLAUDE.md** is the file that stops the rediscovery. It\n"
+"is Markdown, Claude Code reads it at the start of every session, and its\n"
+"contents are appended to your prompt.\n"
+msgstr ""
+"Ouvrez Claude Code dans un dépôt qu'il n'a jamais vu et il part de rien : il doit\n"
+"redécouvrir la commande de build, le lanceur de tests, où vivent les handlers, ce\n"
+"qui a été tenté le mois dernier. **CLAUDE.md** est le fichier qui arrête cette\n"
+"redécouverte. C'est du Markdown, Claude Code le lit au début de chaque session,\n"
+"et son contenu est ajouté à votre prompt.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:36
+#, no-wrap
+msgid ""
+"Which file, though. The guide tests three levels, and they differ on exactly one\n"
+"axis: **who receives them**.\n"
+msgstr ""
+"Reste à savoir lequel. Le guide teste trois niveaux, et ils diffèrent sur un seul\n"
+"axe : **qui les reçoit**.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:42
+#, no-wrap
+msgid ""
+"| Level | Location | Shared with |\n"
+"|---|---|---|\n"
+"| User | `~/.claude/CLAUDE.md` | Just you, across all your projects — **never** travels through version control |\n"
+"| Project | `./CLAUDE.md` or `./.claude/CLAUDE.md` | The whole team, through the repository |\n"
+"| Directory | `CLAUDE.md` in a subdirectory | The whole team; loaded when Claude works in that subdirectory |\n"
+msgstr ""
+"| Niveau | Emplacement | Partagé avec |\n"
+"|---|---|---|\n"
+"| User | `~/.claude/CLAUDE.md` | Vous seul, sur tous vos projets — ne passe **jamais** par le versionnage |\n"
+"| Project | `./CLAUDE.md` ou `./.claude/CLAUDE.md` | Toute l'équipe, par le dépôt |\n"
+"| Directory | `CLAUDE.md` dans un sous-répertoire | Toute l'équipe ; chargé quand Claude travaille dans ce sous-répertoire |\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:47
+#, no-wrap
+msgid ""
+"That third column is the entire task statement. A user-level file lives in a\n"
+"home directory. Committing the repository does not carry it; cloning the\n"
+"repository does not produce it. It reaches a second machine only if something\n"
+"copies it there.\n"
+msgstr ""
+"Cette troisième colonne est tout le task statement. Un fichier de niveau user vit\n"
+"dans un répertoire personnel. Committer le dépôt ne l'emporte pas ; cloner le\n"
+"dépôt ne le produit pas. Il n'atteint une seconde machine que si quelque chose l'y\n"
+"recopie.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/03-claude-code-config.md:48
+#, no-wrap
+msgid ""
+"The signature of a hierarchy fault is **\"it works for everyone except the newest\n"
+"person\"** — or except the machine rebuilt from an image, or except CI. An\n"
+"instruction the veterans apply and the last arrival never received is sitting at\n"
+"user level. The fix is to move it to the project level and commit it.\n"
+"\n"
+"The distractors name real things and explain nothing. A different Claude Code\n"
+"version would not remove one targeted instruction. A CLAUDE.md that has grown\n"
+"too long degrades adherence *for the whole team*, not for one workstation. Having\n"
+"everyone copy the file by hand reproduces manually what committing already does,\n"
+"and diverges again at the first edit.\n"
+msgstr ""
+"La signature d'un défaut de hiérarchie, c'est **« ça marche pour tout le monde\n"
+"sauf pour le dernier arrivé »** — ou sauf pour la machine reconstruite depuis une\n"
+"image, ou sauf en CI. Une instruction que les anciens appliquent et que le dernier\n"
+"embauché n'a jamais reçue vit au niveau user. Le correctif est de la déplacer au\n"
+"niveau projet et de la committer.\n"
+"\n"
+"Les distracteurs nomment des choses réelles et n'expliquent rien. Une version\n"
+"différente de Claude Code ne supprimerait pas une instruction ciblée. Un CLAUDE.md\n"
+"devenu trop long dégrade l'adhérence *pour toute l'équipe*, pas pour un seul\n"
+"poste. Faire recopier le fichier à la main par chacun reproduit manuellement ce\n"
+"que le commit fait déjà, et redivergera au premier changement.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:61
+#, no-wrap
+msgid "Keeping the file modular"
+msgstr "Garder le fichier modulaire"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:64
+#, no-wrap
+msgid "Two mechanisms, and the guide names both.\n"
+msgstr "Deux mécanismes, et le guide nomme les deux.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:68
+#, no-wrap
+msgid ""
+"**`@import`.** A path preceded by `@`, anywhere in the file, pulls another file\n"
+"in. Relative paths resolve against the file containing the import, not the\n"
+"working directory, and imports may nest to a maximum depth of four hops.\n"
+msgstr ""
+"**`@import`.** Un chemin précédé de `@`, n'importe où dans le fichier, y attire un\n"
+"autre fichier. Les chemins relatifs sont résolus par rapport au fichier qui\n"
+"contient l'import, pas au répertoire de travail, et les imports s'imbriquent\n"
+"jusqu'à une profondeur maximale de quatre niveaux.\n"
+
+#. type: Fenced code block (markdown)
+#: courses/en/03-claude-code-config.md:69
+#, no-wrap
+msgid ""
+"# packages/api/CLAUDE.md\n"
+"\n"
+"This package owns the public REST surface.\n"
+"\n"
+"@../../standards/http-errors.md\n"
+"@../../standards/database-migrations.md\n"
+msgstr ""
+"# packages/api/CLAUDE.md\n"
+"\n"
+"Ce package possède la surface REST publique.\n"
+"\n"
+"@../../standards/http-errors.md\n"
+"@../../standards/database-migrations.md\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:81
+#, no-wrap
+msgid ""
+"This is the guide's own skill: a monorepo maintainer imports into each package's\n"
+"CLAUDE.md the standards that package actually needs, instead of loading every\n"
+"standard everywhere.\n"
+msgstr ""
+"C'est la compétence énoncée par le guide : dans un monorepo, le mainteneur importe\n"
+"dans le CLAUDE.md de chaque package les standards dont ce package a réellement\n"
+"besoin, au lieu de charger tous les standards partout.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:83
+#, no-wrap
+msgid "**`.claude/rules/`.** Instead of one growing file, one file per topic:\n"
+msgstr "**`.claude/rules/`.** Au lieu d'un seul fichier qui grossit, un fichier par sujet :\n"
+
+#. type: Fenced code block (text)
+#: courses/en/03-claude-code-config.md:84
+#, no-wrap
+msgid ""
+".claude/\n"
+"├── CLAUDE.md            # what is true of the whole project\n"
+"└── rules/\n"
+"    ├── testing.md\n"
+"    ├── api-conventions.md\n"
+"    └── deployment.md\n"
+msgstr ""
+".claude/\n"
+"├── CLAUDE.md            # ce qui est vrai de tout le projet\n"
+"└── rules/\n"
+"    ├── testing.md\n"
+"    ├── api-conventions.md\n"
+"    └── deployment.md\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:97
+#, no-wrap
+msgid ""
+"Rules without path scoping load at launch, with the same standing as\n"
+"`.claude/CLAUDE.md`. Adding a `paths` field to a rule makes it conditional —\n"
+"that is TS 3.3, below, and it is the only thing that actually shrinks what gets\n"
+"loaded.\n"
+msgstr ""
+"Les règles sans scoping par chemin se chargent au démarrage, au même rang que\n"
+"`.claude/CLAUDE.md`. Ajouter un champ `paths` à une règle la rend conditionnelle —\n"
+"c'est le TS 3.3, plus bas, et c'est la seule chose qui réduise vraiment ce qui se\n"
+"charge.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/03-claude-code-config.md:98
+#, no-wrap
+msgid ""
+"**Reaching for `@import` to reduce context.** Imported files are expanded inline\n"
+"at launch, right where you referenced them. Imports buy you *organization*, not\n"
+"a smaller context: every byte still loads. A question that asks how to stop\n"
+"irrelevant conventions from consuming the window is asking for path-scoped rules\n"
+"(3.3), and `@import` is the distractor placed next to them.\n"
+msgstr ""
+"**Prendre `@import` pour réduire le contexte.** Les fichiers importés sont\n"
+"expansés en place au démarrage, exactement là où vous les avez référencés. Les\n"
+"imports achètent de l'*organisation*, pas un contexte plus petit : chaque octet se\n"
+"charge quand même. Une question qui demande comment empêcher des conventions non\n"
+"pertinentes de consommer la fenêtre demande des règles scopées par chemin (3.3), et\n"
+"`@import` est le distracteur posé à côté d'elles.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:106
+#, no-wrap
+msgid "Why the file stops working"
+msgstr "Pourquoi le fichier cesse de fonctionner"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:112
+#, no-wrap
+msgid ""
+"CLAUDE.md is **guidance, not enforced configuration**. Every line competes with\n"
+"every other line for attention, so the longer the file grows the less reliably\n"
+"any single rule is followed. That is not a defect to work around; it is the\n"
+"property that dictates how you write.\n"
+msgstr ""
+"CLAUDE.md est de la **guidance, pas de la configuration appliquée de force**.\n"
+"Chaque ligne entre en concurrence avec toutes les autres pour l'attention : plus le\n"
+"fichier grossit, moins une règle donnée est suivie de façon fiable. Ce n'est pas un\n"
+"défaut à contourner, c'est la propriété qui dicte votre façon d'écrire.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:115
+#, no-wrap
+msgid ""
+"Three habits follow from it, and they are worth knowing because they are also\n"
+"the shape of the wrong answers:\n"
+msgstr ""
+"Trois habitudes en découlent, et elles méritent d'être connues parce qu'elles\n"
+"donnent aussi la forme des mauvaises réponses :\n"
+
+#. type: Bullet: '- '
+#: courses/en/03-claude-code-config.md:123
+#, no-wrap
+msgid ""
+"**Specific and checkable.** \"Put new API routes in `src/api/handlers`, one per\n"
+"file\" — not \"follow best practices for API routes\". If you cannot verify\n"
+"whether a rule was followed, neither can Claude.\n"
+msgstr ""
+"**Spécifique et vérifiable.** « Placer les nouvelles routes API dans\n"
+"`src/api/handlers`, une par fichier » — pas « suivre les bonnes pratiques pour les\n"
+"routes API ». Si vous ne pouvez pas vérifier qu'une règle a été suivie, Claude non\n"
+"plus.\n"
+
+#. type: Bullet: '- '
+#: courses/en/03-claude-code-config.md:123
+#, no-wrap
+msgid ""
+"**Name the replacement.** \"Use named exports, not default exports\" closes the\n"
+"question; \"don't use default exports\" leaves it open.\n"
+msgstr ""
+"**Nommer le remplacement.** « Utiliser des exports nommés, pas des exports par\n"
+"défaut » ferme la question ; « ne pas utiliser d'exports par défaut » la laisse\n"
+"ouverte.\n"
+
+#. type: Bullet: '- '
+#: courses/en/03-claude-code-config.md:123
+#, no-wrap
+msgid ""
+"**Emphasis is a budget.** `IMPORTANT` and `YOU MUST` raise a rule's priority\n"
+"only relative to the quieter rules around them. If every line shouts, none does.\n"
+msgstr ""
+"**L'emphase est un budget.** `IMPORTANT` et `YOU MUST` élèvent la priorité d'une\n"
+"règle, mais seulement par rapport aux règles plus discrètes autour d'elle. Si\n"
+"chaque ligne crie, plus aucune ne se distingue.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:128
+#, no-wrap
+msgid ""
+"And the rule that does not belong in the file at all: anything that must *never*\n"
+"happen. \"Never push to `main`\" written in CLAUDE.md is a hope. A hook is code\n"
+"that runs at a fixed point and can refuse the action — the mechanism is D1's\n"
+"TS 1.5; where a given rule belongs is 3.2, below.\n"
+msgstr ""
+"Et la règle qui n'a pas sa place dans ce fichier du tout : ce qui ne doit *jamais*\n"
+"arriver. « Ne jamais pousser sur `main` » écrit dans CLAUDE.md est un espoir. Un\n"
+"hook est du code qui s'exécute en un point fixe et peut refuser l'action — le\n"
+"mécanisme est le TS 1.5 de D1 ; savoir où va telle règle est le 3.2, plus bas.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/03-claude-code-config.md:129
+#, no-wrap
+msgid ""
+"`/memory` is the diagnostic command of this task statement: it lists your memory\n"
+"file locations across user and project scope and lets you open them, which is\n"
+"how you check whether the instruction you are looking for is where you think it\n"
+"is.\n"
+"\n"
+"**The guide is the law here.** Its skill reads \"using the `/memory` command to\n"
+"verify which memory files are loaded and diagnose inconsistent behavior across\n"
+"sessions\" — answer `/memory`. Field nuance, so you are not surprised at a\n"
+"terminal: the current documentation splits the job, with `/memory` listing and\n"
+"opening the files and `/context` reporting which ones actually loaded into the\n"
+"running session.\n"
+msgstr ""
+"`/memory` est la commande de diagnostic de ce task statement : elle liste les\n"
+"emplacements de vos fichiers mémoire aux portées user et project et permet de les\n"
+"ouvrir, ce qui est la manière de vérifier si l'instruction que vous cherchez est là\n"
+"où vous le croyez.\n"
+"\n"
+"**Le guide fait loi ici.** Sa compétence dit « using the `/memory` command to\n"
+"verify which memory files are loaded and diagnose inconsistent behavior across\n"
+"sessions » — répondez `/memory`. Nuance terrain, pour ne pas être surpris devant un\n"
+"terminal : la documentation actuelle scinde le travail, `/memory` listant et\n"
+"ouvrant les fichiers, `/context` rapportant lesquels ont réellement été chargés\n"
+"dans la session en cours.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:144
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"3.1\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.1\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/03-claude-code-config.md:145
+#, no-wrap
+msgid "3.2 — Create and configure custom slash commands and skills"
+msgstr "3.2 — Create and configure custom slash commands and skills"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:148
+#, no-wrap
+msgid ""
+"<!-- ts:3.2 | src:exam guide TS 3.2 (project versus user scope for commands, SKILL.md frontmatter with context: fork, allowed-tools and argument-hint, personal variants under a different name, choosing skills against CLAUDE.md) ; 04agentskills L1 (a skill is a folder with SKILL.md, the description drives matching, personal versus project locations, load-on-demand against CLAUDE.md and slash commands), L2 (only names and descriptions load at startup, the Enterprise > Personal > Project > Plugins priority), L3 (required and optional frontmatter fields, allowed-tools, progressive disclosure, scripts run without being read), L4 (skills against CLAUDE.md, subagents, hooks and MCP), L5 (project skills shared through git, the subagent skills field, built-in agents cannot reach skills), L6 (a shadowed personal skill, rename as the usual fix) ; 01claudecodeinaction L3 (the verification skill, a skill folder carries reference files and scripts, which instruction surface owns which rule), L5 (exit 2 is the blocking code and stderr goes back to Claude as context; exit 1 feels like an error and does not block), L8 (a stop hook exiting 2 feeds the failure straight back to Claude) ; 06claudecode101 L9 (/agents and subagent definition files), L12 (a Claude Code hook is declared in settings and receives the tool name and input as JSON on stdin; exit 0 proceeds, exit 2 blocks and feeds stderr back, any other code blocks nothing) ; code.claude.com/docs/en/skills (context: fork, argument-hint, allowed-tools as pre-approval, .claude/commands/) -->\n"
+"<!-- owns:skills -->\n"
+msgstr ""
+"<!-- ts:3.2 | src:exam guide TS 3.2 (project versus user scope for commands, SKILL.md frontmatter with context: fork, allowed-tools and argument-hint, personal variants under a different name, choosing skills against CLAUDE.md) ; 04agentskills L1 (a skill is a folder with SKILL.md, the description drives matching, personal versus project locations, load-on-demand against CLAUDE.md and slash commands), L2 (only names and descriptions load at startup, the Enterprise > Personal > Project > Plugins priority), L3 (required and optional frontmatter fields, allowed-tools, progressive disclosure, scripts run without being read), L4 (skills against CLAUDE.md, subagents, hooks and MCP), L5 (project skills shared through git, the subagent skills field, built-in agents cannot reach skills), L6 (a shadowed personal skill, rename as the usual fix) ; 01claudecodeinaction L3 (the verification skill, a skill folder carries reference files and scripts, which instruction surface owns which rule), L5 (exit 2 is the blocking code and stderr goes back to Claude as context; exit 1 feels like an error and does not block), L8 (a stop hook exiting 2 feeds the failure straight back to Claude) ; 06claudecode101 L9 (/agents and subagent definition files), L12 (a Claude Code hook is declared in settings and receives the tool name and input as JSON on stdin; exit 0 proceeds, exit 2 blocks and feeds stderr back, any other code blocks nothing) ; code.claude.com/docs/en/skills (context: fork, argument-hint, allowed-tools as pre-approval, .claude/commands/) -->\n"
+"<!-- owns:skills -->\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:152
+#, no-wrap
+msgid ""
+"When you have typed the same multi-step instruction twice, it should stop being\n"
+"something you type. The guide keeps two mechanisms for that, and treats them as\n"
+"distinct.\n"
+msgstr ""
+"Quand vous avez tapé deux fois la même instruction en plusieurs étapes, elle doit\n"
+"cesser d'être quelque chose que vous tapez. Le guide retient deux mécanismes pour\n"
+"cela, et les traite comme distincts.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:159
+#, no-wrap
+msgid ""
+"| | Slash command | Skill |\n"
+"|---|---|---|\n"
+"| Lives in | `.claude/commands/review.md` | `.claude/skills/review/SKILL.md` |\n"
+"| Invoked | Explicitly, `/review` | Explicitly, or automatically when Claude matches your request to its `description` |\n"
+"| Carries | A prompt | A folder: instructions, reference files, scripts |\n"
+"| Configurable | — | Frontmatter: `context`, `allowed-tools`, `argument-hint`, and more |\n"
+msgstr ""
+"| | Slash command | Skill |\n"
+"|---|---|---|\n"
+"| Vit dans | `.claude/commands/review.md` | `.claude/skills/review/SKILL.md` |\n"
+"| Invoqué | Explicitement, `/review` | Explicitement, ou automatiquement quand Claude apparie votre demande à sa `description` |\n"
+"| Porte | Un prompt | Un dossier : instructions, fichiers de référence, scripts |\n"
+"| Configurable | — | Frontmatter : `context`, `allowed-tools`, `argument-hint`, et d'autres |\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:161
+#, no-wrap
+msgid "Both come in two scopes, and the split is the same one as 3.1:\n"
+msgstr "Les deux existent en deux portées, et le partage est le même qu'en 3.1 :\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:166
+#, no-wrap
+msgid ""
+"| Scope | Commands | Skills | Shared with |\n"
+"|---|---|---|---|\n"
+"| Project | `.claude/commands/` | `.claude/skills/` | The team, through version control |\n"
+"| Personal | `~/.claude/commands/` | `~/.claude/skills/` | Just you |\n"
+msgstr ""
+"| Portée | Commands | Skills | Partagé avec |\n"
+"|---|---|---|---|\n"
+"| Projet | `.claude/commands/` | `.claude/skills/` | L'équipe, par le versionnage |\n"
+"| Personnel | `~/.claude/commands/` | `~/.claude/skills/` | Vous seul |\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/03-claude-code-config.md:167
+#, no-wrap
+msgid ""
+"As soon as the scenario says a command must be available to everyone after a\n"
+"clone, the guide's answer is `.claude/commands/`. Three wrong answers are\n"
+"available to be offered: `~/.claude/commands/`, which produces a working command\n"
+"that no colleague ever sees; CLAUDE.md, which carries standing instructions and\n"
+"not invocable definitions; and a `commands` array declared in some\n"
+"`.claude/config.json`, which sounds like tool configuration and names nothing\n"
+"that exists.\n"
+msgstr ""
+"Dès que l'énoncé dit qu'une commande doit être disponible pour tout le monde après\n"
+"un clone, la réponse du guide est `.claude/commands/`. Trois mauvaises réponses\n"
+"sont disponibles : `~/.claude/commands/`, qui produit une commande fonctionnelle\n"
+"qu'aucun collègue ne voit jamais ; le CLAUDE.md, qui porte des instructions\n"
+"permanentes et non des définitions invocables ; et un tableau `commands` déclaré\n"
+"dans un `.claude/config.json`, qui ressemble à une configuration d'outil et ne\n"
+"désigne rien qui existe.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:177
+#, no-wrap
+msgid "The frontmatter the guide tests"
+msgstr "Le frontmatter que le guide teste"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:181
+#, no-wrap
+msgid ""
+"A skill is a directory holding a `SKILL.md`: YAML frontmatter, then the\n"
+"procedure.\n"
+msgstr ""
+"Un skill est un répertoire contenant un `SKILL.md` : frontmatter YAML, puis la\n"
+"procédure.\n"
+
+#. type: Fenced code block (markdown)
+#: courses/en/03-claude-code-config.md:182
+#, no-wrap
+msgid ""
+"---\n"
+"name: dependency-audit\n"
+"description: Audits third-party dependencies for unused, outdated and duplicated\n"
+"  packages. Use when reviewing dependencies or before a release.\n"
+"context: fork\n"
+"allowed-tools: Read, Grep, Glob, Bash\n"
+"argument-hint: \"[package-manager] — npm, pnpm or cargo\"\n"
+"---\n"
+"\n"
+"1. Read the lockfile and list every direct dependency.\n"
+"2. Grep the source for each one and flag those with no import.\n"
+"3. Report unused, outdated and duplicated packages in three tables.\n"
+msgstr ""
+"---\n"
+"name: dependency-audit\n"
+"description: Audite les dépendances tierces à la recherche de paquets inutilisés,\n"
+"  obsolètes ou dupliqués. À utiliser lors d'une revue de dépendances ou avant une\n"
+"  livraison.\n"
+"context: fork\n"
+"allowed-tools: Read, Grep, Glob, Bash\n"
+"argument-hint: \"[package-manager] — npm, pnpm ou cargo\"\n"
+"---\n"
+"\n"
+"1. Lire le lockfile et lister chaque dépendance directe.\n"
+"2. Chercher chacune dans les sources et signaler celles qui ne sont jamais importées.\n"
+"3. Rapporter les paquets inutilisés, obsolètes et dupliqués en trois tableaux.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:201
+#, no-wrap
+msgid ""
+"The `description` is the field everything hinges on: Claude loads only names and\n"
+"descriptions at startup and matches your request against them semantically. A\n"
+"skill that never fires almost always has a description that does not overlap the\n"
+"way you actually phrase requests.\n"
+msgstr ""
+"La `description` est le champ dont tout dépend : Claude ne charge au démarrage que\n"
+"les noms et les descriptions, et apparie sémantiquement votre demande à ces\n"
+"descriptions. Un skill qui ne se déclenche jamais a presque toujours une\n"
+"description qui ne recoupe pas votre façon réelle de formuler vos demandes.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:203
+#, no-wrap
+msgid "Three optional fields carry the task statement.\n"
+msgstr "Trois champs facultatifs portent ce task statement.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:210
+#, no-wrap
+msgid ""
+"**`context: fork`** runs the skill in an isolated subagent context. The skill's\n"
+"own content becomes the prompt driving that subagent; it does not inherit your\n"
+"conversation, and what comes back to the main session is the result rather than\n"
+"the whole trace. That is the answer whenever a skill's *output volume* is the\n"
+"problem: codebase-wide analysis that prints every path it inspected,\n"
+"brainstorming that explores five options you did not keep.\n"
+msgstr ""
+"**`context: fork`** exécute le skill dans un contexte de subagent isolé. Le contenu\n"
+"du skill devient le prompt qui pilote ce subagent ; il n'hérite pas de votre\n"
+"conversation, et ce qui revient à la session principale est le résultat plutôt que\n"
+"toute la trace. C'est la réponse chaque fois que le *volume de sortie* d'un skill\n"
+"est le problème : une analyse de codebase qui imprime chaque chemin inspecté, un\n"
+"brainstorming qui explore cinq options que vous n'avez pas retenues.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:218
+#, no-wrap
+msgid ""
+"**`allowed-tools`** restricts tool access during skill execution — for example\n"
+"limiting a skill to file-write operations so it cannot do anything destructive.\n"
+"That is the guide's wording and the one to answer with. Field nuance, for your\n"
+"own machine: the current documentation describes the field as *pre-approving*\n"
+"the listed tools for the invoking turn, so Claude may use them without asking,\n"
+"rather than removing the others; the field that actually removes a tool from the\n"
+"pool is `disallowed-tools`.\n"
+msgstr ""
+"**`allowed-tools`** restreint l'accès aux outils pendant l'exécution du skill —\n"
+"par exemple limiter un skill aux opérations d'écriture de fichiers pour qu'il ne\n"
+"puisse rien faire de destructeur. C'est la formulation du guide, et c'est elle\n"
+"qu'il faut répondre. Nuance terrain, pour votre propre machine : la documentation\n"
+"actuelle décrit ce champ comme une *pré-approbation* des outils listés pour le\n"
+"tour d'invocation, de sorte que Claude peut les employer sans demander, plutôt\n"
+"que comme un retrait des autres ; le champ qui retire réellement un outil du lot\n"
+"est `disallowed-tools`.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:221
+#, no-wrap
+msgid ""
+"**`argument-hint`** is the hint shown at autocomplete time, so a developer who\n"
+"invokes the skill without arguments is told which parameter it expects.\n"
+msgstr ""
+"**`argument-hint`** est l'indice affiché à l'autocomplétion, de sorte qu'un\n"
+"développeur qui invoque le skill sans argument se voit dire quel paramètre il\n"
+"attend.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/03-claude-code-config.md:222
+#, no-wrap
+msgid ""
+"A skill runs, produces a wall of output, and the session that follows has visibly\n"
+"lost the thread. The answer is `context: fork`. Two neighbouring options are\n"
+"plausible and neither moves the output. `allowed-tools` changes what the skill\n"
+"may *do*, not where what it writes lands. And a \"be concise\" line added to the\n"
+"skill body asks the model to write less rather than to write elsewhere —\n"
+"reduced or not, the output still arrives in the main session.\n"
+msgstr ""
+"Un skill s'exécute, produit un mur de sortie, et la session qui suit a visiblement\n"
+"perdu le fil. La réponse est `context: fork`. Deux options voisines sont\n"
+"plausibles et aucune ne déplace la sortie. `allowed-tools` change ce que le skill\n"
+"peut *faire*, pas l'endroit où atterrit ce qu'il écrit. Et une consigne « sois\n"
+"concis » ajoutée au corps du skill demande au modèle d'écrire moins au lieu\n"
+"d'écrire ailleurs — réduite ou non, la sortie arrive toujours dans la session\n"
+"principale.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:231
+#, no-wrap
+msgid "Personal variants, and why the name matters"
+msgstr "Les variantes personnelles, et pourquoi le nom compte"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:237
+#, no-wrap
+msgid ""
+"Skills with the same name are resolved by source, and a personal skill wins over\n"
+"a project skill. Clone a repository that ships `.claude/skills/review/`, keep\n"
+"your own `~/.claude/skills/review/`, and `/review` runs yours — silently, on your\n"
+"machine only.\n"
+msgstr ""
+"Les skills de même nom sont départagés par leur source, et un skill personnel\n"
+"l'emporte sur un skill projet. Clonez un dépôt qui livre `.claude/skills/review/`,\n"
+"gardez votre propre `~/.claude/skills/review/`, et `/review` exécute le vôtre —\n"
+"silencieusement, sur votre machine seulement.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/03-claude-code-config.md:238
+#, no-wrap
+msgid ""
+"The guide's instruction is to give a personal variant **a different name**:\n"
+"`~/.claude/skills/review-strict/` rather than a second `review`. Reusing the\n"
+"team's name does not modify their configuration, but it does mean you and your\n"
+"colleagues run different procedures under one command and nothing in either\n"
+"setup says so. Renaming is also the usual fix when a skill of yours is being\n"
+"shadowed and you cannot work out why it never fires.\n"
+msgstr ""
+"L'instruction du guide est de donner à une variante personnelle **un nom\n"
+"différent** : `~/.claude/skills/review-strict/` plutôt qu'un second `review`.\n"
+"Reprendre le nom de l'équipe ne modifie pas leur configuration, mais cela signifie\n"
+"que vos collègues et vous exécutez des procédures différentes sous une même\n"
+"commande, et que rien dans aucune des deux installations ne le dit. Renommer est\n"
+"aussi le correctif habituel quand un de vos skills est masqué et que vous ne\n"
+"comprenez pas pourquoi il ne se déclenche jamais.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:247
+#, no-wrap
+msgid "Which surface owns which rule"
+msgstr "Quelle surface possède quelle règle"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:252
+#, no-wrap
+msgid ""
+"The guide's last skill on this task statement is choosing between a skill and\n"
+"CLAUDE.md. The full picture is worth holding, because the wrong answers on this\n"
+"topic are always *another real mechanism*:\n"
+msgstr ""
+"La dernière compétence du guide sur ce task statement est le choix entre un skill\n"
+"et CLAUDE.md. Le tableau complet mérite d'être gardé en tête, parce que les\n"
+"mauvaises\n"
+"réponses sur ce sujet sont toujours *un autre mécanisme réel* :\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:260
+#, no-wrap
+msgid ""
+"| Surface | Loads | Fires on | Use it for |\n"
+"|---|---|---|---|\n"
+"| CLAUDE.md | Every session, always | Nothing — it is simply present | Universal standards: naming, layout, \"always do X\" |\n"
+"| Skill | On demand | Explicit `/name`, or a semantic match on its description | Task-specific procedures and reference material |\n"
+"| Slash command | On invocation | Explicit `/name` | A repeatable prompt |\n"
+"| Hook | — | A lifecycle event | A rule Claude must not be able to skip |\n"
+"| Subagent | On delegation | An explicit hand-off | Work you want done in an isolated context |\n"
+msgstr ""
+"| Surface | Se charge | Se déclenche sur | À utiliser pour |\n"
+"|---|---|---|---|\n"
+"| CLAUDE.md | Chaque session, toujours | Rien — il est simplement présent | Les standards universels : nommage, structure, « toujours faire X » |\n"
+"| Skill | À la demande | Un `/nom` explicite, ou un appariement sémantique sur sa description | Les procédures et le matériel de référence propres à une tâche |\n"
+"| Slash command | À l'invocation | Un `/nom` explicite | Un prompt répétable |\n"
+"| Hook | — | Un événement du cycle de vie | Une règle que Claude ne doit pas pouvoir sauter |\n"
+"| Subagent | À la délégation | Une délégation explicite | Un travail à faire dans un contexte isolé |\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:265
+#, no-wrap
+msgid ""
+"The line between the first two is the guide's: **always-loaded universal\n"
+"standards versus on-demand task-specific workflows**. Detailed procedures placed\n"
+"in CLAUDE.md pay their token cost in every conversation, including the ones they\n"
+"have nothing to do with.\n"
+msgstr ""
+"La frontière entre les deux premiers est celle du guide : **standards universels\n"
+"toujours chargés contre workflows propres à une tâche chargés à la demande**. Une\n"
+"procédure détaillée placée dans CLAUDE.md paie son coût en tokens dans chaque\n"
+"conversation, y compris celles qui n'ont rien à voir avec elle.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:269
+#, no-wrap
+msgid ""
+"The line to the hook is different in kind. CLAUDE.md and skills are instructions\n"
+"Claude follows; a hook is code that runs. If skipping the rule is unacceptable,\n"
+"it does not belong to instruction-following at all.\n"
+msgstr ""
+"La frontière avec le hook est d'une autre nature. CLAUDE.md et les skills sont des\n"
+"instructions que Claude suit ; un hook est du code qui s'exécute. Si sauter la\n"
+"règle est inacceptable, elle ne relève pas du suivi d'instructions.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:278
+#, no-wrap
+msgid ""
+"The events, and `PreToolUse` as the enforcement primitive, are D1's TS 1.5 and\n"
+"are not re-taught here. What differs on this side of the line is *how a hook\n"
+"says no*. A Claude Code hook is a command declared in settings, so it answers\n"
+"with an **exit code**: `2` blocks, and what it wrote on standard error is fed\n"
+"back to Claude as the reason. An Agent SDK hook is a callback in your process\n"
+"and answers with a JSON `permissionDecision`. Same event, same intent, two\n"
+"conventions — and `exit 1` is the trap on the Claude Code side: it looks like\n"
+"failure and blocks nothing.\n"
+msgstr ""
+"Les événements, et `PreToolUse` comme primitive d'application, sont le TS 1.5 de\n"
+"D1 et ne sont pas réenseignés ici. Ce qui diffère de ce côté de la frontière,\n"
+"c'est *la façon dont un hook dit non*. Un hook Claude Code est une commande\n"
+"déclarée dans les settings : il répond donc par un **code de sortie**, `2`\n"
+"bloque, et ce qu'il a écrit sur la sortie d'erreur est renvoyé à Claude comme\n"
+"motif. Un hook de l'Agent SDK est un callback dans votre processus et répond par\n"
+"un `permissionDecision` en JSON. Même événement, même intention, deux\n"
+"conventions — et `exit 1` est le piège côté Claude Code : il a l'air d'un échec\n"
+"et ne bloque rien.\n"
+
+#. type: Fenced code block (bash)
+#: courses/en/03-claude-code-config.md:279
+#, no-wrap
+msgid ""
+"# .claude/hooks/protect-main.sh — refuse a push to main, every time.\n"
+"# A PreToolUse hook receives the tool name and its input as JSON on stdin.\n"
+"if grep -qE 'git +push.*\\bmain\\b'; then\n"
+"  echo \"Pushing to main is not allowed; open a pull request instead.\" >&2\n"
+"  exit 2          # 2 blocks and explains. 0 allows. 1 does neither.\n"
+"fi\n"
+msgstr ""
+"# .claude/hooks/protect-main.sh — refuser un push sur main, à chaque fois.\n"
+"# Un hook PreToolUse reçoit le nom de l'outil et son entrée en JSON sur stdin.\n"
+"if grep -qE 'git +push.*\\bmain\\b'; then\n"
+"  echo \"Pousser sur main est interdit ; ouvrez une pull request.\" >&2\n"
+"  exit 2          # 2 bloque et explique. 0 laisse passer. 1 ne fait ni l'un ni l'autre.\n"
+"fi\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:293
+#, no-wrap
+msgid ""
+"Subagents are the other neighbour. They are defined as Markdown files with YAML\n"
+"frontmatter under `.claude/agents/`, and `/agents` creates one interactively.\n"
+"Two facts belong to this task statement rather than to D1: a subagent does not\n"
+"inherit your skills, and a custom subagent loads only the skills its `skills`\n"
+"frontmatter field names.\n"
+msgstr ""
+"Les subagents sont l'autre voisin. Ils se définissent comme des fichiers Markdown à\n"
+"frontmatter YAML sous `.claude/agents/`, et `/agents` en crée un de façon\n"
+"interactive. Deux faits appartiennent à ce task statement plutôt qu'à D1 : un\n"
+"subagent n'hérite pas de vos skills, et un subagent personnalisé ne charge que les\n"
+"skills que nomme son champ de frontmatter `skills`.\n"
+
+#. type: Fenced code block (markdown)
+#: courses/en/03-claude-code-config.md:294
+#, no-wrap
+msgid ""
+"---\n"
+"name: accessibility-reviewer\n"
+"description: Reviews frontend changes for accessibility regressions.\n"
+"tools: Read, Grep, Glob\n"
+"skills: accessibility-audit, contrast-check\n"
+"---\n"
+"\n"
+"Review the diff for WCAG violations. Report findings; never edit files.\n"
+msgstr ""
+"---\n"
+"name: accessibility-reviewer\n"
+"description: Relit les changements frontend à la recherche de régressions d'accessibilité.\n"
+"tools: Read, Grep, Glob\n"
+"skills: accessibility-audit, contrast-check\n"
+"---\n"
+"\n"
+"Relire le diff à la recherche de violations WCAG. Rapporter les constats ; ne jamais éditer de fichier.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:307
+#, no-wrap
+msgid ""
+"The rest — why a subagent's isolated context is the point, and what must travel\n"
+"in the prompt because of it — is D1's TS 1.2 and 1.3.\n"
+msgstr ""
+"Le reste — pourquoi le contexte isolé d'un subagent est le point, et ce qui doit\n"
+"voyager dans le prompt à cause de cela — est le TS 1.2 et le TS 1.3 de D1.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/03-claude-code-config.md:308
+#, no-wrap
+msgid ""
+"**Putting a long procedure in CLAUDE.md so it is \"always available\".** It is\n"
+"always *loaded*, which is not the same benefit and is a permanent cost. A PR\n"
+"review checklist has no business in context while you are debugging.\n"
+"\n"
+"**Reaching for a hook to package a workflow.** A hook reacts to a tool event; it\n"
+"is not something a developer chooses to run. If the scenario says a person\n"
+"invokes the thing, a hook is not the answer.\n"
+msgstr ""
+"**Mettre une longue procédure dans CLAUDE.md pour qu'elle soit « toujours\n"
+"disponible ».** Elle est toujours *chargée*, ce qui n'est pas le même bénéfice et\n"
+"constitue un coût permanent. Une checklist de revue de PR n'a rien à faire en\n"
+"contexte pendant que vous déboguez.\n"
+"\n"
+"**Prendre un hook pour empaqueter un workflow.** Un hook réagit à un événement\n"
+"d'outil ; ce n'est pas quelque chose qu'un développeur choisit de lancer. Si\n"
+"l'énoncé dit qu'une personne l'invoque, le hook n'est pas la réponse.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:319
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"3.2\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.2\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/03-claude-code-config.md:320
+#, no-wrap
+msgid "3.3 — Apply path-specific rules for conditional convention loading"
+msgstr "3.3 — Apply path-specific rules for conditional convention loading"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:322
+#, no-wrap
+msgid "<!-- ts:3.3 | src:exam guide TS 3.3 (rules files with a YAML paths field of glob patterns, loading only when editing matching files to cut irrelevant context and tokens, the advantage of globs over directory-level CLAUDE.md for conventions spanning several directories, the paths: [\"terraform/**/*\"] and **/*.test.tsx examples) ; code.claude.com/docs/en/memory#path-specific-rules (the paths frontmatter, the glob table, rules without paths loading unconditionally, the read-time trigger, ~/.claude/rules/) -->\n"
+msgstr "<!-- ts:3.3 | src:exam guide TS 3.3 (rules files with a YAML paths field of glob patterns, loading only when editing matching files to cut irrelevant context and tokens, the advantage of globs over directory-level CLAUDE.md for conventions spanning several directories, the paths: [\"terraform/**/*\"] and **/*.test.tsx examples) ; code.claude.com/docs/en/memory#path-specific-rules (the paths frontmatter, the glob table, rules without paths loading unconditionally, the read-time trigger, ~/.claude/rules/) -->\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:326
+#, no-wrap
+msgid ""
+"3.1 left one problem open. Splitting CLAUDE.md into `.claude/rules/` files makes\n"
+"the instructions maintainable, and loads exactly as many tokens as before.\n"
+"Adding a `paths` field to a rule is what makes the loading conditional.\n"
+msgstr ""
+"Le 3.1 a laissé un problème ouvert. Découper CLAUDE.md en fichiers\n"
+"`.claude/rules/` rend les instructions maintenables, et charge exactement autant de\n"
+"tokens qu'avant. C'est l'ajout d'un champ `paths` à une règle qui rend le\n"
+"chargement conditionnel.\n"
+
+#. type: Fenced code block (markdown)
+#: courses/en/03-claude-code-config.md:327
+#, no-wrap
+msgid ""
+"---\n"
+"paths:\n"
+"  - \"**/*.test.ts\"\n"
+"  - \"**/*.test.tsx\"\n"
+"---\n"
+"\n"
+"# Test conventions\n"
+"\n"
+"- One `describe` per exported symbol, `it` sentences in the present tense.\n"
+"- Build fixtures with the factories in `test/factories`; never inline literals.\n"
+"- Never mock the database — use the test database from `test/db.ts`.\n"
+msgstr ""
+"---\n"
+"paths:\n"
+"  - \"**/*.test.ts\"\n"
+"  - \"**/*.test.tsx\"\n"
+"---\n"
+"\n"
+"# Conventions de test\n"
+"\n"
+"- Un `describe` par symbole exporté, des phrases `it` au présent.\n"
+"- Construire les fixtures avec les factories de `test/factories` ; jamais de littéral en ligne.\n"
+"- Ne jamais mocker la base — utiliser la base de test de `test/db.ts`.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:345
+#, no-wrap
+msgid ""
+"`paths` takes a list of glob patterns. The rule's body enters context only when\n"
+"Claude is working with a file that matches one of them; the rest of the time it\n"
+"costs nothing. A rule file with no `paths` field loads unconditionally, like the\n"
+"project CLAUDE.md.\n"
+msgstr ""
+"`paths` prend une liste de glob patterns. Le corps de la règle n'entre en contexte\n"
+"que lorsque Claude travaille sur un fichier qui correspond à l'un d'eux ; le reste\n"
+"du temps il ne coûte rien. Un fichier de règle sans champ `paths` se charge\n"
+"inconditionnellement, comme le CLAUDE.md du projet.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:347
+#, no-wrap
+msgid "The globs are ordinary:\n"
+msgstr "Les globs sont ordinaires :\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:354
+#, no-wrap
+msgid ""
+"| Pattern | Matches |\n"
+"|---|---|\n"
+"| `**/*.ts` | Every TypeScript file, any directory |\n"
+"| `src/**/*` | Everything under `src/` |\n"
+"| `*.md` | Markdown files at the project root only |\n"
+"| `terraform/**/*` | Everything under `terraform/` |\n"
+msgstr ""
+"| Pattern | Correspond à |\n"
+"|---|---|\n"
+"| `**/*.ts` | Tous les fichiers TypeScript, dans n'importe quel répertoire |\n"
+"| `src/**/*` | Tout ce qui est sous `src/` |\n"
+"| `*.md` | Les fichiers Markdown à la racine du projet seulement |\n"
+"| `terraform/**/*` | Tout ce qui est sous `terraform/` |\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:355
+#, no-wrap
+msgid "Why not a CLAUDE.md in the subdirectory"
+msgstr "Pourquoi pas un CLAUDE.md dans le sous-répertoire"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:359
+#, no-wrap
+msgid ""
+"Both mechanisms scope instructions. They scope them by different things, and the\n"
+"guide tests the difference.\n"
+msgstr ""
+"Les deux mécanismes scopent des instructions. Ils les scopent selon des choses\n"
+"différentes, et le guide teste cette différence.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:363
+#, no-wrap
+msgid ""
+"A subdirectory CLAUDE.md is attached to a **place**. It is the right answer when\n"
+"the convention really is local: everything under `terraform/` obeys these tagging\n"
+"rules, and nothing outside does.\n"
+msgstr ""
+"Un CLAUDE.md de sous-répertoire est attaché à un **lieu**. C'est la bonne réponse\n"
+"quand la convention est réellement locale : tout ce qui est sous `terraform/` obéit\n"
+"à ces règles de tagging, et rien en dehors.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:370
+#, no-wrap
+msgid ""
+"A path-scoped rule is attached to a **pattern**. It is the right answer when the\n"
+"files sharing a convention do not share a directory — and the canonical case is\n"
+"test files, colocated with the code they cover and therefore scattered through\n"
+"the whole tree. Writing a CLAUDE.md in each of forty directories to say the same\n"
+"three things about tests is unmaintainable, and a single root CLAUDE.md saying\n"
+"them costs every session that never opens a test.\n"
+msgstr ""
+"Une règle scopée par chemin est attachée à un **motif**. C'est la bonne réponse\n"
+"quand les fichiers qui partagent une convention ne partagent pas de répertoire — et\n"
+"le cas canonique est celui des fichiers de test, colocalisés avec le code qu'ils\n"
+"couvrent et donc dispersés dans tout l'arbre. Écrire un CLAUDE.md dans chacun de\n"
+"quarante répertoires pour y dire les mêmes trois choses sur les tests est\n"
+"impossible à maintenir, et un unique CLAUDE.md racine qui les dit coûte à chaque\n"
+"session qui\n"
+"n'ouvre jamais un test.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/03-claude-code-config.md:371
+#, no-wrap
+msgid ""
+"Read the scenario for one word: **where do the files live?**\n"
+"\n"
+"\"Test files colocated throughout the codebase\", \"Terraform files under\n"
+"`infra/<product>/` in a dozen folders\", \"migration scripts spread across\n"
+"services\" → path-scoped rule with a glob. \"Everything in this one package\" →\n"
+"a directory CLAUDE.md is defensible.\n"
+"\n"
+"Three wrong answers are available here. A CLAUDE.md per subdirectory, seductive\n"
+"because it sounds more local, but bound to the folder and unable to follow a\n"
+"file type. Consolidating into the root CLAUDE.md under section headings, which\n"
+"replaces an\n"
+"explicit match with the model's inference and loads everything anyway. And a\n"
+"skill per file type, which fails on the word *automatically* in the scenario:\n"
+"a skill is invoked or matched against a request, not against the file being\n"
+"edited.\n"
+msgstr ""
+"Lisez l'énoncé pour une seule chose : **où vivent les fichiers ?**\n"
+"\n"
+"« Fichiers de test colocalisés dans tout le codebase », « fichiers Terraform sous\n"
+"`infra/<produit>/` dans une douzaine de dossiers », « scripts de migration\n"
+"dispersés entre les services » → règle scopée par chemin avec un glob. « Tout ce\n"
+"qui est dans ce package » → un CLAUDE.md de répertoire se défend.\n"
+"\n"
+"Trois mauvaises réponses sont disponibles ici. Un CLAUDE.md par sous-répertoire,\n"
+"séduisant parce qu'il paraît plus local, mais lié au dossier et incapable de\n"
+"suivre un type de fichier. Tout consolider dans le CLAUDE.md racine sous des\n"
+"titres de section, ce qui remplace un appariement explicite par l'inférence du\n"
+"modèle et charge tout de même l'ensemble. Et un skill par type de fichier, qui\n"
+"échoue sur le mot *automatiquement* de l'énoncé : un skill s'invoque ou\n"
+"s'apparie à une demande, pas au fichier en cours d'édition.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/03-claude-code-config.md:389
+#, no-wrap
+msgid ""
+"**The guide is the law here.** It writes that path-scoped rules load \"when\n"
+"editing matching files\" — if an option turns on the word *editing*, that is the\n"
+"one. Field nuance, for your own machine: the current documentation says\n"
+"path-scoped rules trigger when Claude *reads* a file matching the pattern, so in\n"
+"practice the rule is already in context before your first edit. Same mechanism,\n"
+"same `paths`, same globs; only the trigger differs.\n"
+msgstr ""
+"**Le guide fait loi ici.** Il écrit que les règles scopées par chemin se chargent\n"
+"« when editing matching files » — si une option porte le mot *édition*, c'est\n"
+"celle-là. Nuance terrain, pour votre propre machine : la documentation actuelle dit\n"
+"que les règles scopées par chemin se déclenchent quand Claude *lit* un fichier\n"
+"correspondant au motif, donc en pratique la règle est déjà en contexte avant votre\n"
+"première modification. Même mécanisme, mêmes `paths`, mêmes globs ; seul le\n"
+"déclencheur diffère.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/03-claude-code-config.md:398
+#, no-wrap
+msgid ""
+"**Using path scoping to enforce something.** A rule that loads is still a rule\n"
+"Claude reads, with the adherence properties of any instruction. \"Every Terraform\n"
+"resource must carry a `cost_center` tag\" as a path-scoped rule shapes the writing;\n"
+"it does not guarantee the outcome. If the requirement is a gate, it is a hook or\n"
+"a CI check — and the two are complements, not alternatives: the rule gets it\n"
+"right most of the time, the gate catches the rest.\n"
+msgstr ""
+"**Se servir du scoping par chemin pour faire appliquer quelque chose.** Une règle\n"
+"qui se charge reste une règle que Claude lit, avec les propriétés d'adhérence de\n"
+"n'importe quelle instruction. « Toute ressource Terraform doit porter un tag\n"
+"`cost_center` » comme règle scopée par chemin oriente l'écriture ; elle ne garantit\n"
+"pas le résultat. Si l'exigence est un verrou, c'est un hook ou un contrôle en CI —\n"
+"et les deux sont complémentaires, pas alternatifs : la règle fait juste la plupart\n"
+"du temps, le verrou attrape le reste.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:408
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"3.3\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.3\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/03-claude-code-config.md:409
+#, no-wrap
+msgid "3.4 — Determine when to use plan mode vs direct execution"
+msgstr "3.4 — Determine when to use plan mode vs direct execution"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:412
+#, no-wrap
+msgid ""
+"<!-- ts:3.4 | src:exam guide TS 3.4 (plan mode for large-scale changes, several valid approaches, architectural decisions and multi-file modifications; direct execution for simple well-scoped changes; plan mode as safe exploration before committing; the Explore subagent for verbose discovery; the microservice, 45-file migration and integration-choice examples against the single-file stack trace and the date validation; combining planning with direct execution) ; 06claudecode101 L4 (plan mode uses read-only tools, analyses the codebase, asks clarifying questions and returns a plan), L5 (explore → plan → code → commit, plan mode is where course-correction is cheap, the explore subagent can run outside plan mode), L6 (subagents run in a separate context window and return only a summary), L9 (subagent isolation and the returned summary) ; 01claudecodeinaction L1 (scope the work before Claude starts, read the plan rather than skim it, iterating on a plan beats cleaning up after a run), L4 (plan is a permission mode: reads only, proposes without editing) ; code.claude.com/docs/en/permission-modes (entering plan mode with Shift+Tab, prefixing a single prompt with /plan, or --permission-mode plan from the CLI) ; code.claude.com/docs/en/sub-agents (Explore is read-only, Write and Edit denied) -->\n"
+"<!-- owns:plan-mode -->\n"
+msgstr ""
+"<!-- ts:3.4 | src:exam guide TS 3.4 (plan mode for large-scale changes, several valid approaches, architectural decisions and multi-file modifications; direct execution for simple well-scoped changes; plan mode as safe exploration before committing; the Explore subagent for verbose discovery; the microservice, 45-file migration and integration-choice examples against the single-file stack trace and the date validation; combining planning with direct execution) ; 06claudecode101 L4 (plan mode uses read-only tools, analyses the codebase, asks clarifying questions and returns a plan), L5 (explore → plan → code → commit, plan mode is where course-correction is cheap, the explore subagent can run outside plan mode), L6 (subagents run in a separate context window and return only a summary), L9 (subagent isolation and the returned summary) ; 01claudecodeinaction L1 (scope the work before Claude starts, read the plan rather than skim it, iterating on a plan beats cleaning up after a run), L4 (plan is a permission mode: reads only, proposes without editing) ; code.claude.com/docs/en/permission-modes (entering plan mode with Shift+Tab, prefixing a single prompt with /plan, or --permission-mode plan from the CLI) ; code.claude.com/docs/en/sub-agents (Explore is read-only, Write and Edit denied) -->\n"
+"<!-- owns:plan-mode -->\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:417
+#, no-wrap
+msgid ""
+"**Plan mode** is a permission mode in which Claude reads, searches and runs\n"
+"read-only commands, asks its clarifying questions, and returns a plan — without\n"
+"editing anything. **Direct execution** is the ordinary mode: you describe the\n"
+"change and Claude makes it.\n"
+msgstr ""
+"Le **plan mode** est un mode de permission dans lequel Claude lit, cherche et lance\n"
+"des commandes en lecture seule, pose ses questions de clarification, et renvoie un\n"
+"plan — sans rien modifier. L'**exécution directe** est le mode ordinaire : vous\n"
+"décrivez le changement et Claude le fait.\n"
+
+#. type: Fenced code block (bash)
+#: courses/en/03-claude-code-config.md:418
+#, no-wrap
+msgid ""
+"# Enter it for a whole session…\n"
+"claude --permission-mode plan \"Restructure the billing monolith into services\"\n"
+"\n"
+"# …or press Shift+Tab to cycle into it mid-session, /plan for a single prompt.\n"
+msgstr ""
+"# Y entrer pour toute une session…\n"
+"claude --permission-mode plan \"Restructurer le monolithe de facturation en services\"\n"
+"\n"
+"# …ou presser Shift+Tab pour y basculer en cours de session, /plan pour un seul prompt.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:426
+#, no-wrap
+msgid "The choice is not about caution, it is about **where the decisions are**.\n"
+msgstr ""
+"Le choix ne porte pas sur la prudence, il porte sur **l'endroit où sont les\n"
+"décisions**.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:434
+#, no-wrap
+msgid ""
+"| The scenario says | Mode | Because |\n"
+"|---|---|---|\n"
+"| \"Dozens of files\", \"45+ files\" | Plan | The blast radius has to be mapped before it is created |\n"
+"| \"Several valid approaches\", \"different infrastructure requirements\" | Plan | Something must be chosen, and choosing after writing means rewriting |\n"
+"| \"Service boundaries\", \"restructuring\" | Plan | Architectural decisions propagate |\n"
+"| \"A clear stack trace\", \"one function\" | Direct | The scope is already established |\n"
+"| \"Add a date validation check\" | Direct | Understood change, nothing to arbitrate |\n"
+msgstr ""
+"| L'énoncé dit | Mode | Parce que |\n"
+"|---|---|---|\n"
+"| « Des dizaines de fichiers », « 45+ fichiers » | Plan | Le rayon d'impact doit être cartographié avant d'être créé |\n"
+"| « Plusieurs approches valides », « des prérequis d'infrastructure différents » | Plan | Il faut trancher, et trancher après avoir écrit veut dire réécrire |\n"
+"| « Frontières de service », « restructuration » | Plan | Les décisions d'architecture se propagent |\n"
+"| « Une stack trace claire », « une seule fonction » | Direct | Le périmètre est déjà établi |\n"
+"| « Ajouter une validation de date » | Direct | Changement compris, rien à arbitrer |\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:439
+#, no-wrap
+msgid ""
+"Plan mode earns its keep for one reason: iterating on a plan is far cheaper than\n"
+"letting a run happen and cleaning up after it. The place to course-correct is\n"
+"before a line is written. And when the plan comes back, read it rather than skim\n"
+"it — an unread plan is an approval you did not actually give.\n"
+msgstr ""
+"Le plan mode gagne son coût pour une raison : itérer sur un plan est bien moins\n"
+"cher que laisser une exécution avoir lieu puis nettoyer derrière. L'endroit où\n"
+"corriger le tir est avant qu'une ligne soit écrite. Et quand le plan revient,\n"
+"lisez-le au lieu de le parcourir — un plan non lu est une approbation que vous\n"
+"n'avez pas réellement donnée.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:440
+#, no-wrap
+msgid "The Explore subagent"
+msgstr "Le subagent Explore"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:445
+#, no-wrap
+msgid ""
+"A subagent runs in its own context window and returns a summary; the reads, the\n"
+"searches and the dead ends stay with it. That isolation is D1's subject (TS 1.2\n"
+"and 1.3). What belongs here is what the guide asks of it in this task statement.\n"
+msgstr ""
+"Un subagent s'exécute dans sa propre fenêtre de contexte et renvoie un résumé ; les\n"
+"lectures, les recherches et les impasses restent avec lui. Cette isolation est le\n"
+"sujet de D1 (TS 1.2 et 1.3). Ce qui relève d'ici, c'est ce que le guide lui demande\n"
+"dans ce task statement.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:452
+#, no-wrap
+msgid ""
+"**Explore** is the built-in read-only subagent for discovery. Claude delegates\n"
+"to it to search or understand a codebase without changing it, and only its\n"
+"summary reaches the main conversation. That is the answer whenever a multi-phase\n"
+"task is running out of window during its *discovery* phase: the exploration cost\n"
+"is paid in a context you are going to throw away, and the main window stays\n"
+"available for planning and then implementing.\n"
+msgstr ""
+"**Explore** est le subagent intégré, en lecture seule, dédié à la découverte.\n"
+"Claude lui délègue la recherche ou la compréhension d'un codebase sans le modifier,\n"
+"et seul son résumé atteint la conversation principale. C'est la réponse chaque fois\n"
+"qu'une tâche en plusieurs phases épuise sa fenêtre pendant la phase de\n"
+"*découverte* : le coût de l'exploration est payé dans un contexte que vous allez\n"
+"jeter, et la fenêtre principale reste disponible pour planifier puis implémenter.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:455
+#, no-wrap
+msgid ""
+"It is not tied to plan mode. You can ask for exploration through the subagent\n"
+"outside plan mode when all you want is a summary of how something works.\n"
+msgstr ""
+"Il n'est pas lié au plan mode. Vous pouvez demander une exploration via le subagent\n"
+"hors plan mode quand tout ce que vous voulez est un résumé du fonctionnement de\n"
+"quelque chose.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:456
+#, no-wrap
+msgid "The combination the guide asks about"
+msgstr "La combinaison sur laquelle le guide interroge"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:462
+#, no-wrap
+msgid ""
+"Plan mode and direct execution are not a permanent allegiance. The common shape\n"
+"is both, in order: plan the library migration, approve the plan, then execute it\n"
+"directly. The approved plan becomes the scope of the writing phase — the\n"
+"arbitration happened before any file changed.\n"
+msgstr ""
+"Le plan mode et l'exécution directe ne sont pas une allégeance définitive. La forme\n"
+"courante est les deux, dans l'ordre : planifier la migration de bibliothèque,\n"
+"approuver le plan, puis l'exécuter directement. Le plan approuvé devient le\n"
+"périmètre de la phase d'écriture — l'arbitrage a eu lieu avant qu'un fichier\n"
+"change.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/03-claude-code-config.md:463
+#, no-wrap
+msgid ""
+"The complexity is **stated in the scenario**; it is never something you infer.\n"
+"Count the signals: multiple files, competing approaches, boundaries to draw →\n"
+"plan mode. A stack trace, one file, a change everybody already understands →\n"
+"direct execution.\n"
+"\n"
+"The subtlest distractor proposes starting in direct execution and switching to\n"
+"plan mode if it turns out to be complicated. It sounds prudent and it ignores\n"
+"that the scenario has already established the complexity — you would be\n"
+"discovering, at cost, something you were told. Two blunter ones: plan mode\n"
+"everywhere on principle, which spends deliberation on a one-line fix; and giving\n"
+"exhaustive instructions up front in direct execution, which assumes you know the\n"
+"right structure before anyone has read the code.\n"
+msgstr ""
+"La complexité est **énoncée dans le scénario** ; elle ne se devine jamais. Comptez\n"
+"les signaux : plusieurs fichiers, des approches concurrentes, des frontières à\n"
+"tracer → plan mode. Une stack trace, un seul fichier, un changement que tout le\n"
+"monde comprend déjà → exécution directe.\n"
+"\n"
+"Le distracteur le plus fin propose de commencer en exécution directe et de basculer\n"
+"en plan mode si cela s'avère compliqué. Il a l'air prudent et il ignore que\n"
+"l'énoncé a déjà établi la complexité — vous iriez découvrir, à vos frais, ce qu'on\n"
+"vous a dit. Deux plus grossiers : le plan mode partout par principe, qui dépense de\n"
+"la délibération sur une correction d'une ligne ; et donner des instructions\n"
+"exhaustives d'emblée en exécution directe, ce qui suppose de connaître la bonne\n"
+"structure avant que quiconque ait lu le code.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/03-claude-code-config.md:478
+#, no-wrap
+msgid ""
+"**Treating plan mode as a safety feature and direct execution as the risky one.**\n"
+"They answer a question about the *task*, not about your appetite for risk. When\n"
+"a scenario carries two tickets, answering plan mode for both costs you the\n"
+"settled one: a failing test that states the expected value has already written\n"
+"down the answer that planning would go looking for.\n"
+msgstr ""
+"**Traiter le plan mode comme un dispositif de sécurité et l'exécution directe comme\n"
+"le mode risqué.** Ils répondent à une question sur la *tâche*, pas sur votre\n"
+"appétit pour le risque. Quand un scénario porte deux tickets, répondre plan mode\n"
+"pour les deux vous coûte celui qui est tranché : un test en échec qui énonce la\n"
+"valeur attendue a déjà écrit la réponse que la planification irait chercher.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:487
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"3.4\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.4\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/03-claude-code-config.md:488
+#, no-wrap
+msgid "3.5 — Apply iterative refinement techniques for progressive improvement"
+msgstr "3.5 — Apply iterative refinement techniques for progressive improvement"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:490
+#, no-wrap
+msgid ""
+"<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
+msgstr ""
+"<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:494
+#, no-wrap
+msgid ""
+"The four techniques in this task statement come from the guide's own list. They\n"
+"answer four different failures, and the exam question is always *which failure\n"
+"is this*.\n"
+msgstr ""
+"Les quatre techniques de ce task statement viennent de la liste du guide\n"
+"lui-même. Elles répondent à quatre défaillances différentes, et la question\n"
+"d'examen est toujours *de quelle défaillance il s'agit*.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:495
+#, no-wrap
+msgid "Concrete input/output examples"
+msgstr "Des exemples entrée/sortie concrets"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:500
+#, no-wrap
+msgid ""
+"The failure: the same prose instruction produces a different result each run.\n"
+"The remedy the guide calls most effective is not more prose. It is two or three\n"
+"concrete pairs showing the transformation.\n"
+msgstr ""
+"La défaillance : la même consigne en prose produit un résultat différent à chaque\n"
+"exécution. Le remède que le guide dit le plus efficace n'est pas plus de prose.\n"
+"C'est deux ou trois paires concrètes montrant la transformation.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/03-claude-code-config.md:501
+#, no-wrap
+msgid ""
+"Normalise these customer records.\n"
+"\n"
+"  \"Dupont,  Marie-Claire\"  →  { first: \"Marie-Claire\", last: \"Dupont\" }\n"
+"  \"jean pierre MARTIN\"     →  { first: \"Jean Pierre\", last: \"Martin\" }\n"
+"  \"O'Brien, Sean (Jr.)\"    →  { first: \"Sean\", last: \"O'Brien\", suffix: \"Jr.\" }\n"
+msgstr ""
+"Normalise ces fiches client.\n"
+"\n"
+"  \"Dupont,  Marie-Claire\"  →  { first: \"Marie-Claire\", last: \"Dupont\" }\n"
+"  \"jean pierre MARTIN\"     →  { first: \"Jean Pierre\", last: \"Martin\" }\n"
+"  \"O'Brien, Sean (Jr.)\"    →  { first: \"Sean\", last: \"O'Brien\", suffix: \"Jr.\" }\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:513
+#, no-wrap
+msgid ""
+"Three pairs settle what a paragraph of definition left open: where the comma\n"
+"goes, what happens to casing, that a suffix gets its own field. An example shows\n"
+"the result instead of describing it, and the boundary cases you choose to\n"
+"include are the ones you were worried about.\n"
+msgstr ""
+"Trois paires tranchent ce qu'un paragraphe de définition laissait ouvert : où va la\n"
+"virgule, ce qu'il advient de la casse, qu'un suffixe reçoit son propre champ. Un\n"
+"exemple montre le résultat au lieu de le décrire, et les cas limites que vous\n"
+"choisissez d'y inclure sont exactement ceux qui vous inquiétaient.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/03-claude-code-config.md:514
+#, no-wrap
+msgid ""
+"When the scenario says a written instruction was rewritten once or twice and the\n"
+"output still varies, the answer is worked examples. The distractors are all\n"
+"plausible next moves and all repeat the failure. Rewriting the prose more\n"
+"precisely is the approach that has already failed twice; more words on an\n"
+"ambiguity do not resolve it. Asking the model to explain its interpretation\n"
+"before each run turns every invocation into a negotiation instead of fixing the\n"
+"specification once. Splitting the transformation into one call per field\n"
+"multiplies invocations without ever defining the ambiguous term. And a validator\n"
+"that rejects bad output catches one shape of error and re-runs the same\n"
+"unconstrained request.\n"
+msgstr ""
+"Quand l'énoncé dit qu'une instruction écrite a été réécrite une ou deux fois et que\n"
+"la sortie varie encore, la réponse est les exemples travaillés. Les distracteurs\n"
+"sont tous des suites plausibles et rejouent tous la défaillance. Réécrire la prose\n"
+"plus précisément est la démarche qui a déjà échoué deux fois ; plus de mots sur une\n"
+"ambiguïté ne la tranchent pas. Demander au modèle d'expliquer son interprétation\n"
+"avant chaque exécution transforme chaque lancement en négociation au lieu de figer\n"
+"la spécification une fois pour toutes. Découper la transformation en un appel par\n"
+"champ multiplie les invocations sans jamais définir le terme ambigu. Et un\n"
+"validateur qui rejette les mauvaises sorties attrape une forme d'erreur et relance\n"
+"la même demande non contrainte.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:527
+#, no-wrap
+msgid "Test-driven iteration"
+msgstr "L'itération guidée par les tests"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:533
+#, no-wrap
+msgid ""
+"The failure: you cannot tell whether the code is right, so neither can Claude.\n"
+"Write the test suite first — expected behaviour, edge cases, performance\n"
+"requirements — then have the implementation written against it, then iterate by\n"
+"handing back the failures.\n"
+msgstr ""
+"La défaillance : vous ne pouvez pas dire si le code est juste, donc Claude non plus.\n"
+"Écrivez la suite de tests d'abord — comportement attendu, cas limites, exigences de\n"
+"performance — puis faites écrire l'implémentation contre elle, puis itérez en\n"
+"renvoyant les échecs.\n"
+
+# invariant: sortie brute de pytest — noms de tests et messages d'assertion produits par l'outil, que traduire rendrait faux
+#. type: Fenced code block (bash)
+#: courses/en/03-claude-code-config.md:534
+#, no-wrap
+msgid ""
+"$ pytest tests/test_migration.py\n"
+"FAILED test_null_effective_date - AssertionError: expected None, got '1970-01-01'\n"
+"FAILED test_duplicate_account_ids - KeyError: 'legacy_id'\n"
+msgstr ""
+"$ pytest tests/test_migration.py\n"
+"FAILED test_null_effective_date - AssertionError: expected None, got '1970-01-01'\n"
+"FAILED test_duplicate_account_ids - KeyError: 'legacy_id'\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:544
+#, no-wrap
+msgid ""
+"Two conditions make this work rather than merely feel rigorous. The tests must\n"
+"be a **reliable source of truth**: a suite that passes on broken code turns\n"
+"iteration into false confidence. And \"done\" has to be the gates having run and\n"
+"been observed, not a summary that says they passed.\n"
+msgstr ""
+"Deux conditions font que cela fonctionne au lieu de simplement paraître rigoureux.\n"
+"Les tests doivent être une **source de vérité fiable** : une suite qui passe sur du\n"
+"code cassé transforme l'itération en fausse confiance. Et « terminé » doit vouloir\n"
+"dire que les portes ont été franchies et observées, pas qu'un résumé affirme\n"
+"qu'elles l'ont été.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:548
+#, no-wrap
+msgid ""
+"The guide's sharpest version of this is for edge cases: rather than describing\n"
+"the problem, supply the specific case — this input, this expected output, for\n"
+"instance the null value your migration script mishandles.\n"
+msgstr ""
+"La version la plus tranchante qu'en donne le guide concerne les cas limites :\n"
+"plutôt que de décrire le problème, fournissez le cas précis — cette entrée, cette\n"
+"sortie attendue, par exemple la valeur nulle que votre script de migration traite\n"
+"mal.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:549
+#, no-wrap
+msgid "The interview pattern"
+msgstr "L'interview pattern"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:553
+#, no-wrap
+msgid ""
+"The failure: the specification is incomplete and nobody knows it yet. Ask Claude\n"
+"to interview you before implementing.\n"
+msgstr ""
+"La défaillance : la spécification est incomplète et personne ne le sait encore.\n"
+"Demandez à Claude de vous interroger avant d'implémenter.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/03-claude-code-config.md:554
+#, no-wrap
+msgid ""
+"Before implementing the cache for the pricing API, ask me whatever you need to\n"
+"settle the design. Don't write code until I've answered.\n"
+"\n"
+"  1. Invalidation by TTL, or on write events?\n"
+"  2. Is stale data acceptable while the cache is unreachable?\n"
+"  3. Per-tenant or global?\n"
+"  4. What read volume should this hold at?\n"
+msgstr ""
+"Avant d'implémenter le cache de l'API de tarification, pose-moi les questions dont\n"
+"tu as besoin pour trancher la conception. N'écris pas de code avant mes réponses.\n"
+"\n"
+"  1. Invalidation par TTL, ou sur événement d'écriture ?\n"
+"  2. Des données périmées sont-elles acceptables si le cache est injoignable ?\n"
+"  3. Par locataire ou global ?\n"
+"  4. Quel volume de lecture doit-il tenir ?\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:569
+#, no-wrap
+msgid ""
+"Its value is question 2. You had not thought about the cache being unreachable,\n"
+"and you would have found out in production. Reach for it in unfamiliar domains,\n"
+"where the implications are not obvious — cache invalidation strategies, failure\n"
+"modes — and where several approaches are valid and the right one depends on\n"
+"context you have not stated.\n"
+msgstr ""
+"Sa valeur, c'est la question 2. Vous n'aviez pas pensé au cache injoignable, et\n"
+"vous l'auriez découvert en production. Prenez-le dans les domaines peu familiers,\n"
+"là où les implications ne sont pas évidentes — stratégies d'invalidation de cache,\n"
+"modes de défaillance — et là où plusieurs approches sont valides et où la bonne\n"
+"dépend d'un contexte que vous n'avez pas énoncé.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:570
+#, no-wrap
+msgid "One message, or one at a time"
+msgstr "Un seul message, ou un à la fois"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:573
+#, no-wrap
+msgid "The failure: several problems at once, and the fixes fight each other.\n"
+msgstr "La défaillance : plusieurs problèmes à la fois, et les correctifs se combattent.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:578
+#, no-wrap
+msgid ""
+"| The problems are | Give feedback | Because |\n"
+"|---|---|---|\n"
+"| Interacting — fixing one changes what the others need | **All in one detailed message** | The model has to see the interaction to reconcile it; fixing them one at a time means re-doing the first fix |\n"
+"| Independent — each stands alone | **Sequentially** | You validate each step, and nothing you approve gets undone by the next round |\n"
+msgstr ""
+"| Les problèmes sont | Donner le feedback | Parce que |\n"
+"|---|---|---|\n"
+"| Interdépendants — corriger l'un change ce dont les autres ont besoin | **Tous dans un seul message détaillé** | Le modèle doit voir l'interaction pour la réconcilier ; les corriger un par un revient à refaire la première correction |\n"
+"| Indépendants — chacun se tient seul | **Séquentiellement** | Vous validez chaque étape, et rien de ce que vous approuvez n'est défait par le tour suivant |\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:582
+#, no-wrap
+msgid ""
+"Error handling that is missing *and* input validation that is wrong are one\n"
+"message: a unified answer has to place them together. Renaming a variable and\n"
+"changing a return type are two conversations.\n"
+msgstr ""
+"Une gestion d'erreurs manquante *et* une validation d'entrée fausse font un seul\n"
+"message : une réponse unifiée doit les placer ensemble. Renommer une variable et\n"
+"changer un type de retour font deux conversations.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/03-claude-code-config.md:583
+#, no-wrap
+msgid ""
+"**Batching independent problems to save round-trips.** It is more token-efficient\n"
+"and it gives up the per-step validation that made sequential feedback worth\n"
+"choosing — you find out at the end which of the five changes was wrong.\n"
+"\n"
+"**Splitting interacting problems for control.** Each fix is made without sight\n"
+"of the others, so the second one dismantles the first. The criterion is\n"
+"interdependence, never the number of problems.\n"
+msgstr ""
+"**Regrouper des problèmes indépendants pour économiser des allers-retours.** C'est\n"
+"plus économe en tokens et cela abandonne la validation pas à pas qui faisait tout\n"
+"l'intérêt du feedback séquentiel — vous découvrez à la fin lequel des cinq\n"
+"changements était faux.\n"
+"\n"
+"**Découper des problèmes interdépendants pour garder le contrôle.** Chaque\n"
+"correction se fait sans voir les autres, si bien que la seconde démonte la\n"
+"première. Le critère est l'interdépendance, jamais le nombre de problèmes.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:594
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"3.5\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.5\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/03-claude-code-config.md:595
+#, no-wrap
+msgid "3.6 — Integrate Claude Code into CI/CD pipelines"
+msgstr "3.6 — Integrate Claude Code into CI/CD pipelines"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:597
+#, no-wrap
+msgid ""
+"<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
+msgstr ""
+"<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:601
+#, no-wrap
+msgid ""
+"Claude Code is interactive by default. Invoked in a pipeline with no one to\n"
+"answer a prompt, it waits — and the runner eventually kills it at the step\n"
+"timeout. Everything in this task statement follows from that.\n"
+msgstr ""
+"Claude Code est interactif par défaut. Invoqué dans une pipeline sans personne pour\n"
+"répondre à une invite, il attend — et le runner finit par le tuer au timeout de\n"
+"l'étape. Tout ce task statement découle de là.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:602
+#, no-wrap
+msgid "`-p`, and the shape of the output"
+msgstr "`-p`, et la forme de la sortie"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:607
+#, no-wrap
+msgid ""
+"`-p`, spelled out `--print`, runs Claude Code as a one-shot command: it processes\n"
+"the prompt, writes the result to standard output, and exits. It reads stdin and\n"
+"writes stdout, so it pipes like any other shell tool.\n"
+msgstr ""
+"`-p`, écrit en toutes lettres `--print`, exécute Claude Code comme une commande à\n"
+"un coup : il traite le prompt, écrit le résultat sur la sortie standard, et se\n"
+"termine. Il lit l'entrée standard et écrit sur la sortie standard, donc il se\n"
+"branche en pipe comme n'importe quel outil shell.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:613
+#, no-wrap
+msgid ""
+"That gets the job to finish. Getting something the *next step* can act on takes\n"
+"two more flags: `--output-format json` makes the reply a JSON envelope, and\n"
+"`--json-schema` constrains the payload to a schema you supply. The conforming\n"
+"object lands in the envelope's `structured_output` field, at a fixed place, so\n"
+"nothing downstream has to parse prose.\n"
+msgstr ""
+"Cela fait aboutir le job. Obtenir quelque chose que l'*étape suivante* peut\n"
+"exploiter demande deux flags de plus : `--output-format json` fait de la réponse\n"
+"une enveloppe JSON, et `--json-schema` contraint la charge utile à un schéma que\n"
+"vous fournissez. L'objet conforme atterrit dans le champ `structured_output` de\n"
+"l'enveloppe, à un endroit fixe, si bien que rien en aval n'a de prose à parser.\n"
+
+#. type: Fenced code block (yaml)
+#: courses/en/03-claude-code-config.md:614
+#, no-wrap
+msgid ""
+"- name: Review the diff\n"
+"  env:\n"
+"    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n"
+"  run: |\n"
+"    claude -p \"Review $(git diff origin/main...HEAD) for security issues and bugs.\" \\\n"
+"      --output-format json \\\n"
+"      --json-schema '{\n"
+"        \"type\": \"object\",\n"
+"        \"properties\": {\n"
+"          \"issues\": {\"type\": \"array\", \"items\": {\n"
+"            \"type\": \"object\",\n"
+"            \"properties\": {\n"
+"              \"severity\": {\"enum\": [\"critical\", \"major\", \"minor\"]},\n"
+"              \"file\": {\"type\": \"string\"},\n"
+"              \"line\": {\"type\": \"integer\"},\n"
+"              \"message\": {\"type\": \"string\"}\n"
+"            },\n"
+"            \"required\": [\"severity\", \"file\", \"message\"]\n"
+"          }}\n"
+"        }\n"
+"      }' \\\n"
+"      | jq '.structured_output.issues' > findings.json\n"
+msgstr ""
+"- name: Revue du diff\n"
+"  env:\n"
+"    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}\n"
+"  run: |\n"
+"    claude -p \"Relis $(git diff origin/main...HEAD) à la recherche de failles de sécurité et de bugs.\" \\\n"
+"      --output-format json \\\n"
+"      --json-schema '{\n"
+"        \"type\": \"object\",\n"
+"        \"properties\": {\n"
+"          \"issues\": {\"type\": \"array\", \"items\": {\n"
+"            \"type\": \"object\",\n"
+"            \"properties\": {\n"
+"              \"severity\": {\"enum\": [\"critical\", \"major\", \"minor\"]},\n"
+"              \"file\": {\"type\": \"string\"},\n"
+"              \"line\": {\"type\": \"integer\"},\n"
+"              \"message\": {\"type\": \"string\"}\n"
+"            },\n"
+"            \"required\": [\"severity\", \"file\", \"message\"]\n"
+"          }}\n"
+"        }\n"
+"      }' \\\n"
+"      | jq '.structured_output.issues' > findings.json\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:642
+#, no-wrap
+msgid ""
+"`findings.json` is now a list a later step can post as inline pull-request\n"
+"comments through the GitHub API. The API key comes from the repository secrets,\n"
+"never from the workflow file.\n"
+msgstr ""
+"`findings.json` est maintenant une liste qu'une étape ultérieure peut poster en\n"
+"commentaires inline sur la pull request via l'API GitHub. La clé d'API vient des\n"
+"secrets du dépôt, jamais du fichier de workflow.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:643
+#, no-wrap
+msgid "What the CI instance knows"
+msgstr "Ce que l'instance CI sait"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:652
+#, no-wrap
+msgid ""
+"A CI-invoked Claude Code has no session history and nobody to ask. The guide's\n"
+"answer to that is **CLAUDE.md**: the committed project file is the mechanism that\n"
+"carries testing standards, fixture conventions and review criteria to the\n"
+"instance running in the pipeline. Document which fixtures exist and what makes a\n"
+"test worth writing, and test generation stops producing low-value tests that\n"
+"re-cover ground the suite already holds — which is also why you put the existing\n"
+"test files in context when you ask for new ones.\n"
+msgstr ""
+"Un Claude Code invoqué en CI n'a pas d'historique de session et personne à qui\n"
+"demander. La réponse du guide à cela est **CLAUDE.md** : le fichier projet\n"
+"versionné est le mécanisme qui porte à l'instance qui tourne dans la pipeline les\n"
+"standards de test, les conventions de fixtures et les critères de revue. Documentez\n"
+"quelles fixtures existent et ce qui fait qu'un test vaut la peine d'être écrit, et\n"
+"la génération de tests cesse de produire des tests de faible valeur qui recouvrent\n"
+"un terrain que la suite tient déjà — c'est aussi pourquoi vous mettez les fichiers\n"
+"de test existants en contexte quand vous en demandez de nouveaux.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/03-claude-code-config.md:653
+#, no-wrap
+msgid ""
+"`claude -p` loads the same project context an interactive session would,\n"
+"CLAUDE.md included. Bare mode — the `--bare` flag — is the opt-out: it skips\n"
+"auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md to start\n"
+"faster and run deterministically.\n"
+"\n"
+"Be deliberate here, because a widely-taught version of this is wrong: the\n"
+"*Claude Code in Action* lesson on headless mode attributes that skipping to `-p`\n"
+"itself. The documentation attributes it to `--bare` and states that without it,\n"
+"`claude -p` loads the same context an interactive session would — and the guide's\n"
+"own TS 3.6 depends on CLAUDE.md reaching the CI instance, which it could not do\n"
+"if `-p` dropped it. The pipeline gets your CLAUDE.md unless you asked for bare\n"
+"mode; and if you did ask for it, you also gave up the standards the guide is\n"
+"telling you to rely on.\n"
+msgstr ""
+"`claude -p` charge le même contexte projet qu'une session interactive, CLAUDE.md\n"
+"compris. Le mode bare — le flag `--bare` — en est le retrait : il saute\n"
+"l'auto-découverte des hooks, des skills, des plugins, des serveurs MCP et du\n"
+"CLAUDE.md pour démarrer plus vite et s'exécuter de façon déterministe.\n"
+"\n"
+"Soyez précis ici, car une version largement enseignée de ce point est fausse : la\n"
+"leçon de *Claude Code in Action* sur le mode headless attribue ce saut à `-p`\n"
+"lui-même. La documentation l'attribue à `--bare` et précise que sans lui,\n"
+"`claude -p` charge le même contexte qu'une session interactive — et le TS 3.6 du\n"
+"guide lui-même suppose que CLAUDE.md atteint l'instance CI, ce qu'il ne pourrait\n"
+"pas faire si `-p` le laissait tomber. La pipeline reçoit votre CLAUDE.md sauf si\n"
+"vous avez demandé le mode bare ; et si vous l'avez demandé, vous avez aussi\n"
+"renoncé aux standards sur lesquels le guide vous dit de vous appuyer.\n"
+
+#. type: Title ###
+#: courses/en/03-claude-code-config.md:669
+#, no-wrap
+msgid "Reviewing is a second instance's job"
+msgstr "Relire est le travail d'une seconde instance"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:676
+#, no-wrap
+msgid ""
+"The session that wrote the code is the worst reviewer of it. It carries the\n"
+"reasoning that produced the code and questions its own decisions least — the\n"
+"same bias as an author proof-reading their own text. Review runs in an\n"
+"**independent instance**: a separate session, or a subagent with no memory of how\n"
+"the code was built. Fresh eyes catch what the original run talked itself past.\n"
+msgstr ""
+"La session qui a écrit le code en est le plus mauvais relecteur. Elle porte le\n"
+"raisonnement qui a produit ce code et remet le moins en question ses propres\n"
+"décisions — le même biais qu'un auteur relisant son propre texte. La revue tourne\n"
+"dans une **instance indépendante** : une session séparée, ou un subagent sans\n"
+"mémoire de la façon dont le code a été construit. Un œil neuf attrape ce que\n"
+"l'exécution d'origine s'est raconté pour passer outre.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:678
+#, no-wrap
+msgid "Two operational rules complete the picture, and both are guide skills:\n"
+msgstr ""
+"Deux règles opérationnelles complètent le tableau, et toutes deux sont des\n"
+"compétences du guide :\n"
+
+#. type: Bullet: '- '
+#: courses/en/03-claude-code-config.md:685
+#, no-wrap
+msgid ""
+"**Re-running a review after new commits, pass the previous findings in** and\n"
+"instruct Claude to report only what is new or still unaddressed. Otherwise\n"
+"every push re-raises the same issues, the pull request fills with duplicate\n"
+"comments, and developers stop reading them.\n"
+msgstr ""
+"**En relançant une revue après de nouveaux commits, passez-lui les constats\n"
+"précédents** et demandez à Claude de ne rapporter que ce qui est nouveau ou encore\n"
+"non traité. Sinon chaque push soulève de nouveau les mêmes problèmes, la pull\n"
+"request se\n"
+"remplit de commentaires dupliqués, et les développeurs cessent de les lire.\n"
+
+#. type: Bullet: '- '
+#: courses/en/03-claude-code-config.md:685
+#, no-wrap
+msgid ""
+"**Pass the existing test files** when generating tests, so the new ones do not\n"
+"duplicate scenarios already covered.\n"
+msgstr ""
+"**Passez les fichiers de test existants** lors de la génération de tests, pour que\n"
+"les nouveaux ne dupliquent pas des scénarios déjà couverts.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/03-claude-code-config.md:686
+#, no-wrap
+msgid ""
+"Four associations settle most CI questions. A job hanging on input → `-p`. A\n"
+"pipeline that has to parse findings → `--output-format json` with `--json-schema`.\n"
+"A CI instance ignoring the project's testing conventions → the committed\n"
+"CLAUDE.md carries them. Reviewing code Claude just wrote → an independent\n"
+"instance.\n"
+"\n"
+"The distractors come in two families. **Invented mechanisms**: a `CLAUDE_HEADLESS`\n"
+"environment variable, a `--batch` flag, a `--no-tty` option. They are plausible\n"
+"because *headless* and *batch* really are the vocabulary of this domain, and none\n"
+"of the three exists — an unrecognised option does not change the mode.\n"
+"**Workarounds**: redirecting stdin from `/dev/null`, which treats the symptom\n"
+"without turning on the documented mode; wrapping the call in `timeout`, which\n"
+"turns a long hang into a short one and still produces nothing; and regex-parsing\n"
+"the prose, which moves the fragility into your own code instead of removing it.\n"
+msgstr ""
+"Quatre associations tranchent la plupart des questions CI. Un job qui se bloque en\n"
+"attente de saisie → `-p`. Une pipeline qui doit parser des constats →\n"
+"`--output-format json` avec `--json-schema`. Une instance CI qui ignore les\n"
+"conventions de test du projet → le CLAUDE.md versionné les lui porte. Relire du\n"
+"code que Claude vient d'écrire → une instance indépendante.\n"
+"\n"
+"Les distracteurs viennent de deux familles. **Les mécanismes inventés** : une\n"
+"variable d'environnement `CLAUDE_HEADLESS`, un flag `--batch`, une option\n"
+"`--no-tty`. Ils sont plausibles parce que *headless* et *batch* sont bien le\n"
+"vocabulaire du domaine, et aucun des trois n'existe — un flag que le binaire ne\n"
+"connaît pas ne change pas le mode. **Les contournements** : rediriger l'entrée\n"
+"standard depuis `/dev/null`, qui traite le symptôme sans activer le mode\n"
+"documenté ; envelopper l'appel dans un `timeout`, qui transforme un long blocage\n"
+"en un blocage court et ne produit toujours rien ; et parser la prose à coups de\n"
+"regex, qui déplace la fragilité dans votre propre code au lieu de la supprimer.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/03-claude-code-config.md:703
+#, no-wrap
+msgid ""
+"**Re-running the review from scratch on every push.** Claude has no memory\n"
+"between runs, so it re-reports everything it found last time. The pull request\n"
+"accumulates duplicates until nobody reads the bot. The fix is not to review less\n"
+"often — it is to include the prior findings and ask for the delta.\n"
+"\n"
+"**Using the generating session to review its own diff to save a call.** The\n"
+"saving is real and the review is worth less than the call it saved.\n"
+msgstr ""
+"**Relancer la revue de zéro à chaque push.** Claude n'a pas de mémoire entre les\n"
+"exécutions, donc il resignale tout ce qu'il avait trouvé la fois précédente. La\n"
+"pull request accumule les doublons jusqu'à ce que plus personne ne lise le bot. Le\n"
+"correctif n'est pas de relire moins souvent — c'est d'inclure les constats\n"
+"antérieurs et de demander le delta.\n"
+"\n"
+"**Utiliser la session génératrice pour relire son propre diff afin d'économiser un\n"
+"appel.** L'économie est réelle et la revue vaut moins que l'appel qu'elle a\n"
+"économisé.\n"
+
+#. type: Plain text
+#: courses/en/03-claude-code-config.md:713
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"3.6\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.6\"`.\n"

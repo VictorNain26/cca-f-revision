@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D3 — Claude Code configuration and workflows (20 %)</title>
+<link rel="stylesheet" href="../styles.css">
+<script src="../nav.js" defer></script>
+<script src="../quiz.js" defer></script>
+<script>(function(){try{var t=localStorage.getItem('cca-theme');if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="../theme.js" defer></script>
+<script src="../toc.js" defer></script>
+<script src="../site.js" defer></script>
+</head>
+<body id="top">
+
+
+<nav class="navbar">
+  <a class="home" href="../index.html">CCA-F</a>
+  <a href="../index.html">Accueil</a>
+  <a href="../D0_API_Fundamentals.html" title="D0 — Fondamentaux de l'API">D0</a>
+  <a href="../D1_Architecture_Orchestration_27pct.html" title="D1 — Architecture et orchestration (27 %)">D1</a>
+  <a href="../D2_Tool_Design_MCP_18pct.html" title="D2 — Tool design et MCP (18 %)">D2</a>
+  <a class="current" href="../D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
+  <a href="../D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
+  <a href="../D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
+  <a href="../Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
+  <a href="../Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
+  <a href="../Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
+  <a href="../anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf" title="Le guide d'examen officiel (PDF) — la seule source qui fait foi" target="_blank" rel="noopener">Guide</a>
+</nav>
+
+<div class="header-bar">
+<h1>D3 — Claude Code configuration and workflows (20 %)</h1>
+<p>Twenty per cent of the score, six task statements, and a subject that looks
+deceptively soft: files in a repository. One section per task statement, in the
+guide's own order and under the guide's own wording — so that a question spotted
+on exam day maps to a section here without translation.</p>
+<p>D0 and D1 are assumed. D1 taught the machinery <em>inside</em> an agent: the loop,
+subagents, hooks as SDK callbacks, sessions. D3 is the layer above it — the
+files and flags that configure a running Claude Code, and the working habits
+that decide whether a session goes well.</p>
+<p>The guide places neighbouring notions elsewhere, and this course honours that.
+The hook mechanism — events, <code>permissionDecision</code>, <code>updatedInput</code> — is tested in
+TS 1.5; subagent context isolation in TS 1.2 and 1.3; sessions, <code>--resume</code> and
+<code>fork_session</code> in TS 1.7; the context window in D0 and its management, <code>/compact</code>
+included, in domain 5. Each of those gets a sentence and a pointer here, never a
+second development. What D1 explicitly deferred to this course — subagent
+definitions under <code>.claude/agents/</code>, and hooks as a <em>place to put a rule</em> rather
+than as an API — lands in 3.2.</p>
+</div>
+
+<div class="toc">
+<strong>Table of contents</strong>
+<ol>
+<li><a href="#s1">3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</a></li>
+<li><a href="#s2">3.2 — Create and configure custom slash commands and skills</a></li>
+<li><a href="#s3">3.3 — Apply path-specific rules for conditional convention loading</a></li>
+<li><a href="#s4">3.4 — Determine when to use plan mode vs direct execution</a></li>
+<li><a href="#s5">3.5 — Apply iterative refinement techniques for progressive improvement</a></li>
+<li><a href="#s6">3.6 — Integrate Claude Code into CI/CD pipelines</a></li>
+<li><a href="#s7">Self-assessment questions</a></li>
+</ol>
+</div>
+
+<div class="section-header"><h2 id="s1">1. 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</h2></div>
+
+<p>Open Claude Code in a repository it has never seen and it starts from nothing:
+it must rediscover the build command, the test runner, where handlers live, what
+was tried last month. <strong>CLAUDE.md</strong> is the file that stops the rediscovery. It
+is Markdown, Claude Code reads it at the start of every session, and its
+contents are appended to your prompt.</p>
+<p>Which file, though. The guide tests three levels, and they differ on exactly one
+axis: <strong>who receives them</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Location</th>
+<th>Shared with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User</td>
+<td><code>~/.claude/CLAUDE.md</code></td>
+<td>Just you, across all your projects — <strong>never</strong> travels through version control</td>
+</tr>
+<tr>
+<td>Project</td>
+<td><code>./CLAUDE.md</code> or <code>./.claude/CLAUDE.md</code></td>
+<td>The whole team, through the repository</td>
+</tr>
+<tr>
+<td>Directory</td>
+<td><code>CLAUDE.md</code> in a subdirectory</td>
+<td>The whole team; loaded when Claude works in that subdirectory</td>
+</tr>
+</tbody>
+</table>
+<p>That third column is the entire task statement. A user-level file lives in a
+home directory. Committing the repository does not carry it; cloning the
+repository does not produce it. It reaches a second machine only if something
+copies it there.</p>
+<div class="exam-tip">
+<p>The signature of a hierarchy fault is <strong>&quot;it works for everyone except the newest
+person&quot;</strong> — or except the machine rebuilt from an image, or except CI. An
+instruction the veterans apply and the last arrival never received is sitting at
+user level. The fix is to move it to the project level and commit it.</p>
+<p>The distractors name real things and explain nothing. A different Claude Code
+version would not remove one targeted instruction. A CLAUDE.md that has grown
+too long degrades adherence <em>for the whole team</em>, not for one workstation. Having
+everyone copy the file by hand reproduces manually what committing already does,
+and diverges again at the first edit.</p>
+</div>
+<h3>Keeping the file modular</h3>
+<p>Two mechanisms, and the guide names both.</p>
+<p><strong><code>@import</code>.</strong> A path preceded by <code>@</code>, anywhere in the file, pulls another file
+in. Relative paths resolve against the file containing the import, not the
+working directory, and imports may nest to a maximum depth of four hops.</p>
+<pre><code class="language-markdown"># packages/api/CLAUDE.md
+
+This package owns the public REST surface.
+
+@../../standards/http-errors.md
+@../../standards/database-migrations.md
+</code></pre>
+<p>This is the guide's own skill: a monorepo maintainer imports into each package's
+CLAUDE.md the standards that package actually needs, instead of loading every
+standard everywhere.</p>
+<p><strong><code>.claude/rules/</code>.</strong> Instead of one growing file, one file per topic:</p>
+<pre><code class="language-text">.claude/
+├── CLAUDE.md            # what is true of the whole project
+└── rules/
+    ├── testing.md
+    ├── api-conventions.md
+    └── deployment.md
+</code></pre>
+<p>Rules without path scoping load at launch, with the same standing as
+<code>.claude/CLAUDE.md</code>. Adding a <code>paths</code> field to a rule makes it conditional —
+that is TS 3.3, below, and it is the only thing that actually shrinks what gets
+loaded.</p>
+<div class="anti-pattern">
+<p><strong>Reaching for <code>@import</code> to reduce context.</strong> Imported files are expanded inline
+at launch, right where you referenced them. Imports buy you <em>organization</em>, not
+a smaller context: every byte still loads. A question that asks how to stop
+irrelevant conventions from consuming the window is asking for path-scoped rules
+(3.3), and <code>@import</code> is the distractor placed next to them.</p>
+</div>
+<h3>Why the file stops working</h3>
+<p>CLAUDE.md is <strong>guidance, not enforced configuration</strong>. Every line competes with
+every other line for attention, so the longer the file grows the less reliably
+any single rule is followed. That is not a defect to work around; it is the
+property that dictates how you write.</p>
+<p>Three habits follow from it, and they are worth knowing because they are also
+the shape of the wrong answers:</p>
+<ul>
+<li><strong>Specific and checkable.</strong> &quot;Put new API routes in <code>src/api/handlers</code>, one per
+file&quot; — not &quot;follow best practices for API routes&quot;. If you cannot verify
+whether a rule was followed, neither can Claude.</li>
+<li><strong>Name the replacement.</strong> &quot;Use named exports, not default exports&quot; closes the
+question; &quot;don't use default exports&quot; leaves it open.</li>
+<li><strong>Emphasis is a budget.</strong> <code>IMPORTANT</code> and <code>YOU MUST</code> raise a rule's priority
+only relative to the quieter rules around them. If every line shouts, none does.</li>
+</ul>
+<p>And the rule that does not belong in the file at all: anything that must <em>never</em>
+happen. &quot;Never push to <code>main</code>&quot; written in CLAUDE.md is a hope. A hook is code
+that runs at a fixed point and can refuse the action — the mechanism is D1's
+TS 1.5; where a given rule belongs is 3.2, below.</p>
+<div class="key-concept">
+<p><code>/memory</code> is the diagnostic command of this task statement: it lists your memory
+file locations across user and project scope and lets you open them, which is
+how you check whether the instruction you are looking for is where you think it
+is.</p>
+<p><strong>The guide is the law here.</strong> Its skill reads &quot;using the <code>/memory</code> command to
+verify which memory files are loaded and diagnose inconsistent behavior across
+sessions&quot; — answer <code>/memory</code>. Field nuance, so you are not surprised at a
+terminal: the current documentation splits the job, with <code>/memory</code> listing and
+opening the files and <code>/context</code> reporting which ones actually loaded into the
+running session.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.1&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s2">2. 3.2 — Create and configure custom slash commands and skills</h2></div>
+
+<p>When you have typed the same multi-step instruction twice, it should stop being
+something you type. The guide keeps two mechanisms for that, and treats them as
+distinct.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Slash command</th>
+<th>Skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lives in</td>
+<td><code>.claude/commands/review.md</code></td>
+<td><code>.claude/skills/review/SKILL.md</code></td>
+</tr>
+<tr>
+<td>Invoked</td>
+<td>Explicitly, <code>/review</code></td>
+<td>Explicitly, or automatically when Claude matches your request to its <code>description</code></td>
+</tr>
+<tr>
+<td>Carries</td>
+<td>A prompt</td>
+<td>A folder: instructions, reference files, scripts</td>
+</tr>
+<tr>
+<td>Configurable</td>
+<td>—</td>
+<td>Frontmatter: <code>context</code>, <code>allowed-tools</code>, <code>argument-hint</code>, and more</td>
+</tr>
+</tbody>
+</table>
+<p>Both come in two scopes, and the split is the same one as 3.1:</p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Commands</th>
+<th>Skills</th>
+<th>Shared with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Project</td>
+<td><code>.claude/commands/</code></td>
+<td><code>.claude/skills/</code></td>
+<td>The team, through version control</td>
+</tr>
+<tr>
+<td>Personal</td>
+<td><code>~/.claude/commands/</code></td>
+<td><code>~/.claude/skills/</code></td>
+<td>Just you</td>
+</tr>
+</tbody>
+</table>
+<div class="exam-tip">
+<p>As soon as the scenario says a command must be available to everyone after a
+clone, the guide's answer is <code>.claude/commands/</code>. Three wrong answers are
+available to be offered: <code>~/.claude/commands/</code>, which produces a working command
+that no colleague ever sees; CLAUDE.md, which carries standing instructions and
+not invocable definitions; and a <code>commands</code> array declared in some
+<code>.claude/config.json</code>, which sounds like tool configuration and names nothing
+that exists.</p>
+</div>
+<h3>The frontmatter the guide tests</h3>
+<p>A skill is a directory holding a <code>SKILL.md</code>: YAML frontmatter, then the
+procedure.</p>
+<pre><code class="language-markdown">---
+name: dependency-audit
+description: Audits third-party dependencies for unused, outdated and duplicated
+  packages. Use when reviewing dependencies or before a release.
+context: fork
+allowed-tools: Read, Grep, Glob, Bash
+argument-hint: &quot;[package-manager] — npm, pnpm or cargo&quot;
+---
+
+1. Read the lockfile and list every direct dependency.
+2. Grep the source for each one and flag those with no import.
+3. Report unused, outdated and duplicated packages in three tables.
+</code></pre>
+<p>The <code>description</code> is the field everything hinges on: Claude loads only names and
+descriptions at startup and matches your request against them semantically. A
+skill that never fires almost always has a description that does not overlap the
+way you actually phrase requests.</p>
+<p>Three optional fields carry the task statement.</p>
+<p><strong><code>context: fork</code></strong> runs the skill in an isolated subagent context. The skill's
+own content becomes the prompt driving that subagent; it does not inherit your
+conversation, and what comes back to the main session is the result rather than
+the whole trace. That is the answer whenever a skill's <em>output volume</em> is the
+problem: codebase-wide analysis that prints every path it inspected,
+brainstorming that explores five options you did not keep.</p>
+<p><strong><code>allowed-tools</code></strong> restricts tool access during skill execution — for example
+limiting a skill to file-write operations so it cannot do anything destructive.
+That is the guide's wording and the one to answer with. Field nuance, for your
+own machine: the current documentation describes the field as <em>pre-approving</em>
+the listed tools for the invoking turn, so Claude may use them without asking,
+rather than removing the others; the field that actually removes a tool from the
+pool is <code>disallowed-tools</code>.</p>
+<p><strong><code>argument-hint</code></strong> is the hint shown at autocomplete time, so a developer who
+invokes the skill without arguments is told which parameter it expects.</p>
+<div class="exam-tip">
+<p>A skill runs, produces a wall of output, and the session that follows has visibly
+lost the thread. The answer is <code>context: fork</code>. Two neighbouring options are
+plausible and neither moves the output. <code>allowed-tools</code> changes what the skill
+may <em>do</em>, not where what it writes lands. And a &quot;be concise&quot; line added to the
+skill body asks the model to write less rather than to write elsewhere —
+reduced or not, the output still arrives in the main session.</p>
+</div>
+<h3>Personal variants, and why the name matters</h3>
+<p>Skills with the same name are resolved by source, and a personal skill wins over
+a project skill. Clone a repository that ships <code>.claude/skills/review/</code>, keep
+your own <code>~/.claude/skills/review/</code>, and <code>/review</code> runs yours — silently, on your
+machine only.</p>
+<div class="key-concept">
+<p>The guide's instruction is to give a personal variant <strong>a different name</strong>:
+<code>~/.claude/skills/review-strict/</code> rather than a second <code>review</code>. Reusing the
+team's name does not modify their configuration, but it does mean you and your
+colleagues run different procedures under one command and nothing in either
+setup says so. Renaming is also the usual fix when a skill of yours is being
+shadowed and you cannot work out why it never fires.</p>
+</div>
+<h3>Which surface owns which rule</h3>
+<p>The guide's last skill on this task statement is choosing between a skill and
+CLAUDE.md. The full picture is worth holding, because the wrong answers on this
+topic are always <em>another real mechanism</em>:</p>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Loads</th>
+<th>Fires on</th>
+<th>Use it for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLAUDE.md</td>
+<td>Every session, always</td>
+<td>Nothing — it is simply present</td>
+<td>Universal standards: naming, layout, &quot;always do X&quot;</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>On demand</td>
+<td>Explicit <code>/name</code>, or a semantic match on its description</td>
+<td>Task-specific procedures and reference material</td>
+</tr>
+<tr>
+<td>Slash command</td>
+<td>On invocation</td>
+<td>Explicit <code>/name</code></td>
+<td>A repeatable prompt</td>
+</tr>
+<tr>
+<td>Hook</td>
+<td>—</td>
+<td>A lifecycle event</td>
+<td>A rule Claude must not be able to skip</td>
+</tr>
+<tr>
+<td>Subagent</td>
+<td>On delegation</td>
+<td>An explicit hand-off</td>
+<td>Work you want done in an isolated context</td>
+</tr>
+</tbody>
+</table>
+<p>The line between the first two is the guide's: <strong>always-loaded universal
+standards versus on-demand task-specific workflows</strong>. Detailed procedures placed
+in CLAUDE.md pay their token cost in every conversation, including the ones they
+have nothing to do with.</p>
+<p>The line to the hook is different in kind. CLAUDE.md and skills are instructions
+Claude follows; a hook is code that runs. If skipping the rule is unacceptable,
+it does not belong to instruction-following at all.</p>
+<p>The events, and <code>PreToolUse</code> as the enforcement primitive, are D1's TS 1.5 and
+are not re-taught here. What differs on this side of the line is <em>how a hook
+says no</em>. A Claude Code hook is a command declared in settings, so it answers
+with an <strong>exit code</strong>: <code>2</code> blocks, and what it wrote on standard error is fed
+back to Claude as the reason. An Agent SDK hook is a callback in your process
+and answers with a JSON <code>permissionDecision</code>. Same event, same intent, two
+conventions — and <code>exit 1</code> is the trap on the Claude Code side: it looks like
+failure and blocks nothing.</p>
+<pre><code class="language-bash"># .claude/hooks/protect-main.sh — refuse a push to main, every time.
+# A PreToolUse hook receives the tool name and its input as JSON on stdin.
+if grep -qE 'git +push.*\bmain\b'; then
+  echo &quot;Pushing to main is not allowed; open a pull request instead.&quot; &gt;&amp;2
+  exit 2          # 2 blocks and explains. 0 allows. 1 does neither.
+fi
+</code></pre>
+<p>Subagents are the other neighbour. They are defined as Markdown files with YAML
+frontmatter under <code>.claude/agents/</code>, and <code>/agents</code> creates one interactively.
+Two facts belong to this task statement rather than to D1: a subagent does not
+inherit your skills, and a custom subagent loads only the skills its <code>skills</code>
+frontmatter field names.</p>
+<pre><code class="language-markdown">---
+name: accessibility-reviewer
+description: Reviews frontend changes for accessibility regressions.
+tools: Read, Grep, Glob
+skills: accessibility-audit, contrast-check
+---
+
+Review the diff for WCAG violations. Report findings; never edit files.
+</code></pre>
+<p>The rest — why a subagent's isolated context is the point, and what must travel
+in the prompt because of it — is D1's TS 1.2 and 1.3.</p>
+<div class="anti-pattern">
+<p><strong>Putting a long procedure in CLAUDE.md so it is &quot;always available&quot;.</strong> It is
+always <em>loaded</em>, which is not the same benefit and is a permanent cost. A PR
+review checklist has no business in context while you are debugging.</p>
+<p><strong>Reaching for a hook to package a workflow.</strong> A hook reacts to a tool event; it
+is not something a developer chooses to run. If the scenario says a person
+invokes the thing, a hook is not the answer.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.2&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s3">3. 3.3 — Apply path-specific rules for conditional convention loading</h2></div>
+
+<p>3.1 left one problem open. Splitting CLAUDE.md into <code>.claude/rules/</code> files makes
+the instructions maintainable, and loads exactly as many tokens as before.
+Adding a <code>paths</code> field to a rule is what makes the loading conditional.</p>
+<pre><code class="language-markdown">---
+paths:
+  - &quot;**/*.test.ts&quot;
+  - &quot;**/*.test.tsx&quot;
+---
+
+# Test conventions
+
+- One `describe` per exported symbol, `it` sentences in the present tense.
+- Build fixtures with the factories in `test/factories`; never inline literals.
+- Never mock the database — use the test database from `test/db.ts`.
+</code></pre>
+<p><code>paths</code> takes a list of glob patterns. The rule's body enters context only when
+Claude is working with a file that matches one of them; the rest of the time it
+costs nothing. A rule file with no <code>paths</code> field loads unconditionally, like the
+project CLAUDE.md.</p>
+<p>The globs are ordinary:</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>**/*.ts</code></td>
+<td>Every TypeScript file, any directory</td>
+</tr>
+<tr>
+<td><code>src/**/*</code></td>
+<td>Everything under <code>src/</code></td>
+</tr>
+<tr>
+<td><code>*.md</code></td>
+<td>Markdown files at the project root only</td>
+</tr>
+<tr>
+<td><code>terraform/**/*</code></td>
+<td>Everything under <code>terraform/</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Why not a CLAUDE.md in the subdirectory</h3>
+<p>Both mechanisms scope instructions. They scope them by different things, and the
+guide tests the difference.</p>
+<p>A subdirectory CLAUDE.md is attached to a <strong>place</strong>. It is the right answer when
+the convention really is local: everything under <code>terraform/</code> obeys these tagging
+rules, and nothing outside does.</p>
+<p>A path-scoped rule is attached to a <strong>pattern</strong>. It is the right answer when the
+files sharing a convention do not share a directory — and the canonical case is
+test files, colocated with the code they cover and therefore scattered through
+the whole tree. Writing a CLAUDE.md in each of forty directories to say the same
+three things about tests is unmaintainable, and a single root CLAUDE.md saying
+them costs every session that never opens a test.</p>
+<div class="exam-tip">
+<p>Read the scenario for one word: <strong>where do the files live?</strong></p>
+<p>&quot;Test files colocated throughout the codebase&quot;, &quot;Terraform files under
+<code>infra/&lt;product&gt;/</code> in a dozen folders&quot;, &quot;migration scripts spread across
+services&quot; → path-scoped rule with a glob. &quot;Everything in this one package&quot; →
+a directory CLAUDE.md is defensible.</p>
+<p>Three wrong answers are available here. A CLAUDE.md per subdirectory, seductive
+because it sounds more local, but bound to the folder and unable to follow a
+file type. Consolidating into the root CLAUDE.md under section headings, which
+replaces an
+explicit match with the model's inference and loads everything anyway. And a
+skill per file type, which fails on the word <em>automatically</em> in the scenario:
+a skill is invoked or matched against a request, not against the file being
+edited.</p>
+</div>
+<div class="key-concept">
+<p><strong>The guide is the law here.</strong> It writes that path-scoped rules load &quot;when
+editing matching files&quot; — if an option turns on the word <em>editing</em>, that is the
+one. Field nuance, for your own machine: the current documentation says
+path-scoped rules trigger when Claude <em>reads</em> a file matching the pattern, so in
+practice the rule is already in context before your first edit. Same mechanism,
+same <code>paths</code>, same globs; only the trigger differs.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Using path scoping to enforce something.</strong> A rule that loads is still a rule
+Claude reads, with the adherence properties of any instruction. &quot;Every Terraform
+resource must carry a <code>cost_center</code> tag&quot; as a path-scoped rule shapes the writing;
+it does not guarantee the outcome. If the requirement is a gate, it is a hook or
+a CI check — and the two are complements, not alternatives: the rule gets it
+right most of the time, the gate catches the rest.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.3&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s4">4. 3.4 — Determine when to use plan mode vs direct execution</h2></div>
+
+<p><strong>Plan mode</strong> is a permission mode in which Claude reads, searches and runs
+read-only commands, asks its clarifying questions, and returns a plan — without
+editing anything. <strong>Direct execution</strong> is the ordinary mode: you describe the
+change and Claude makes it.</p>
+<pre><code class="language-bash"># Enter it for a whole session…
+claude --permission-mode plan &quot;Restructure the billing monolith into services&quot;
+
+# …or press Shift+Tab to cycle into it mid-session, /plan for a single prompt.
+</code></pre>
+<p>The choice is not about caution, it is about <strong>where the decisions are</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>The scenario says</th>
+<th>Mode</th>
+<th>Because</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&quot;Dozens of files&quot;, &quot;45+ files&quot;</td>
+<td>Plan</td>
+<td>The blast radius has to be mapped before it is created</td>
+</tr>
+<tr>
+<td>&quot;Several valid approaches&quot;, &quot;different infrastructure requirements&quot;</td>
+<td>Plan</td>
+<td>Something must be chosen, and choosing after writing means rewriting</td>
+</tr>
+<tr>
+<td>&quot;Service boundaries&quot;, &quot;restructuring&quot;</td>
+<td>Plan</td>
+<td>Architectural decisions propagate</td>
+</tr>
+<tr>
+<td>&quot;A clear stack trace&quot;, &quot;one function&quot;</td>
+<td>Direct</td>
+<td>The scope is already established</td>
+</tr>
+<tr>
+<td>&quot;Add a date validation check&quot;</td>
+<td>Direct</td>
+<td>Understood change, nothing to arbitrate</td>
+</tr>
+</tbody>
+</table>
+<p>Plan mode earns its keep for one reason: iterating on a plan is far cheaper than
+letting a run happen and cleaning up after it. The place to course-correct is
+before a line is written. And when the plan comes back, read it rather than skim
+it — an unread plan is an approval you did not actually give.</p>
+<h3>The Explore subagent</h3>
+<p>A subagent runs in its own context window and returns a summary; the reads, the
+searches and the dead ends stay with it. That isolation is D1's subject (TS 1.2
+and 1.3). What belongs here is what the guide asks of it in this task statement.</p>
+<p><strong>Explore</strong> is the built-in read-only subagent for discovery. Claude delegates
+to it to search or understand a codebase without changing it, and only its
+summary reaches the main conversation. That is the answer whenever a multi-phase
+task is running out of window during its <em>discovery</em> phase: the exploration cost
+is paid in a context you are going to throw away, and the main window stays
+available for planning and then implementing.</p>
+<p>It is not tied to plan mode. You can ask for exploration through the subagent
+outside plan mode when all you want is a summary of how something works.</p>
+<h3>The combination the guide asks about</h3>
+<p>Plan mode and direct execution are not a permanent allegiance. The common shape
+is both, in order: plan the library migration, approve the plan, then execute it
+directly. The approved plan becomes the scope of the writing phase — the
+arbitration happened before any file changed.</p>
+<div class="exam-tip">
+<p>The complexity is <strong>stated in the scenario</strong>; it is never something you infer.
+Count the signals: multiple files, competing approaches, boundaries to draw →
+plan mode. A stack trace, one file, a change everybody already understands →
+direct execution.</p>
+<p>The subtlest distractor proposes starting in direct execution and switching to
+plan mode if it turns out to be complicated. It sounds prudent and it ignores
+that the scenario has already established the complexity — you would be
+discovering, at cost, something you were told. Two blunter ones: plan mode
+everywhere on principle, which spends deliberation on a one-line fix; and giving
+exhaustive instructions up front in direct execution, which assumes you know the
+right structure before anyone has read the code.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Treating plan mode as a safety feature and direct execution as the risky one.</strong>
+They answer a question about the <em>task</em>, not about your appetite for risk. When
+a scenario carries two tickets, answering plan mode for both costs you the
+settled one: a failing test that states the expected value has already written
+down the answer that planning would go looking for.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.4&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s5">5. 3.5 — Apply iterative refinement techniques for progressive improvement</h2></div>
+
+<p>The four techniques in this task statement come from the guide's own list. They
+answer four different failures, and the exam question is always <em>which failure
+is this</em>.</p>
+<h3>Concrete input/output examples</h3>
+<p>The failure: the same prose instruction produces a different result each run.
+The remedy the guide calls most effective is not more prose. It is two or three
+concrete pairs showing the transformation.</p>
+<pre><code class="language-text">Normalise these customer records.
+
+  &quot;Dupont,  Marie-Claire&quot;  →  { first: &quot;Marie-Claire&quot;, last: &quot;Dupont&quot; }
+  &quot;jean pierre MARTIN&quot;     →  { first: &quot;Jean Pierre&quot;, last: &quot;Martin&quot; }
+  &quot;O'Brien, Sean (Jr.)&quot;    →  { first: &quot;Sean&quot;, last: &quot;O'Brien&quot;, suffix: &quot;Jr.&quot; }
+</code></pre>
+<p>Three pairs settle what a paragraph of definition left open: where the comma
+goes, what happens to casing, that a suffix gets its own field. An example shows
+the result instead of describing it, and the boundary cases you choose to
+include are the ones you were worried about.</p>
+<div class="exam-tip">
+<p>When the scenario says a written instruction was rewritten once or twice and the
+output still varies, the answer is worked examples. The distractors are all
+plausible next moves and all repeat the failure. Rewriting the prose more
+precisely is the approach that has already failed twice; more words on an
+ambiguity do not resolve it. Asking the model to explain its interpretation
+before each run turns every invocation into a negotiation instead of fixing the
+specification once. Splitting the transformation into one call per field
+multiplies invocations without ever defining the ambiguous term. And a validator
+that rejects bad output catches one shape of error and re-runs the same
+unconstrained request.</p>
+</div>
+<h3>Test-driven iteration</h3>
+<p>The failure: you cannot tell whether the code is right, so neither can Claude.
+Write the test suite first — expected behaviour, edge cases, performance
+requirements — then have the implementation written against it, then iterate by
+handing back the failures.</p>
+<pre><code class="language-bash">$ pytest tests/test_migration.py
+FAILED test_null_effective_date - AssertionError: expected None, got '1970-01-01'
+FAILED test_duplicate_account_ids - KeyError: 'legacy_id'
+</code></pre>
+<p>Two conditions make this work rather than merely feel rigorous. The tests must
+be a <strong>reliable source of truth</strong>: a suite that passes on broken code turns
+iteration into false confidence. And &quot;done&quot; has to be the gates having run and
+been observed, not a summary that says they passed.</p>
+<p>The guide's sharpest version of this is for edge cases: rather than describing
+the problem, supply the specific case — this input, this expected output, for
+instance the null value your migration script mishandles.</p>
+<h3>The interview pattern</h3>
+<p>The failure: the specification is incomplete and nobody knows it yet. Ask Claude
+to interview you before implementing.</p>
+<pre><code class="language-text">Before implementing the cache for the pricing API, ask me whatever you need to
+settle the design. Don't write code until I've answered.
+
+  1. Invalidation by TTL, or on write events?
+  2. Is stale data acceptable while the cache is unreachable?
+  3. Per-tenant or global?
+  4. What read volume should this hold at?
+</code></pre>
+<p>Its value is question 2. You had not thought about the cache being unreachable,
+and you would have found out in production. Reach for it in unfamiliar domains,
+where the implications are not obvious — cache invalidation strategies, failure
+modes — and where several approaches are valid and the right one depends on
+context you have not stated.</p>
+<h3>One message, or one at a time</h3>
+<p>The failure: several problems at once, and the fixes fight each other.</p>
+<table>
+<thead>
+<tr>
+<th>The problems are</th>
+<th>Give feedback</th>
+<th>Because</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interacting — fixing one changes what the others need</td>
+<td><strong>All in one detailed message</strong></td>
+<td>The model has to see the interaction to reconcile it; fixing them one at a time means re-doing the first fix</td>
+</tr>
+<tr>
+<td>Independent — each stands alone</td>
+<td><strong>Sequentially</strong></td>
+<td>You validate each step, and nothing you approve gets undone by the next round</td>
+</tr>
+</tbody>
+</table>
+<p>Error handling that is missing <em>and</em> input validation that is wrong are one
+message: a unified answer has to place them together. Renaming a variable and
+changing a return type are two conversations.</p>
+<div class="anti-pattern">
+<p><strong>Batching independent problems to save round-trips.</strong> It is more token-efficient
+and it gives up the per-step validation that made sequential feedback worth
+choosing — you find out at the end which of the five changes was wrong.</p>
+<p><strong>Splitting interacting problems for control.</strong> Each fix is made without sight
+of the others, so the second one dismantles the first. The criterion is
+interdependence, never the number of problems.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.5&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s6">6. 3.6 — Integrate Claude Code into CI/CD pipelines</h2></div>
+
+<p>Claude Code is interactive by default. Invoked in a pipeline with no one to
+answer a prompt, it waits — and the runner eventually kills it at the step
+timeout. Everything in this task statement follows from that.</p>
+<h3><code>-p</code>, and the shape of the output</h3>
+<p><code>-p</code>, spelled out <code>--print</code>, runs Claude Code as a one-shot command: it processes
+the prompt, writes the result to standard output, and exits. It reads stdin and
+writes stdout, so it pipes like any other shell tool.</p>
+<p>That gets the job to finish. Getting something the <em>next step</em> can act on takes
+two more flags: <code>--output-format json</code> makes the reply a JSON envelope, and
+<code>--json-schema</code> constrains the payload to a schema you supply. The conforming
+object lands in the envelope's <code>structured_output</code> field, at a fixed place, so
+nothing downstream has to parse prose.</p>
+<pre><code class="language-yaml">- name: Review the diff
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  run: |
+    claude -p &quot;Review $(git diff origin/main...HEAD) for security issues and bugs.&quot; \
+      --output-format json \
+      --json-schema '{
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;issues&quot;: {&quot;type&quot;: &quot;array&quot;, &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {
+              &quot;severity&quot;: {&quot;enum&quot;: [&quot;critical&quot;, &quot;major&quot;, &quot;minor&quot;]},
+              &quot;file&quot;: {&quot;type&quot;: &quot;string&quot;},
+              &quot;line&quot;: {&quot;type&quot;: &quot;integer&quot;},
+              &quot;message&quot;: {&quot;type&quot;: &quot;string&quot;}
+            },
+            &quot;required&quot;: [&quot;severity&quot;, &quot;file&quot;, &quot;message&quot;]
+          }}
+        }
+      }' \
+      | jq '.structured_output.issues' &gt; findings.json
+</code></pre>
+<p><code>findings.json</code> is now a list a later step can post as inline pull-request
+comments through the GitHub API. The API key comes from the repository secrets,
+never from the workflow file.</p>
+<h3>What the CI instance knows</h3>
+<p>A CI-invoked Claude Code has no session history and nobody to ask. The guide's
+answer to that is <strong>CLAUDE.md</strong>: the committed project file is the mechanism that
+carries testing standards, fixture conventions and review criteria to the
+instance running in the pipeline. Document which fixtures exist and what makes a
+test worth writing, and test generation stops producing low-value tests that
+re-cover ground the suite already holds — which is also why you put the existing
+test files in context when you ask for new ones.</p>
+<div class="key-concept">
+<p><code>claude -p</code> loads the same project context an interactive session would,
+CLAUDE.md included. Bare mode — the <code>--bare</code> flag — is the opt-out: it skips
+auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md to start
+faster and run deterministically.</p>
+<p>Be deliberate here, because a widely-taught version of this is wrong: the
+<em>Claude Code in Action</em> lesson on headless mode attributes that skipping to <code>-p</code>
+itself. The documentation attributes it to <code>--bare</code> and states that without it,
+<code>claude -p</code> loads the same context an interactive session would — and the guide's
+own TS 3.6 depends on CLAUDE.md reaching the CI instance, which it could not do
+if <code>-p</code> dropped it. The pipeline gets your CLAUDE.md unless you asked for bare
+mode; and if you did ask for it, you also gave up the standards the guide is
+telling you to rely on.</p>
+</div>
+<h3>Reviewing is a second instance's job</h3>
+<p>The session that wrote the code is the worst reviewer of it. It carries the
+reasoning that produced the code and questions its own decisions least — the
+same bias as an author proof-reading their own text. Review runs in an
+<strong>independent instance</strong>: a separate session, or a subagent with no memory of how
+the code was built. Fresh eyes catch what the original run talked itself past.</p>
+<p>Two operational rules complete the picture, and both are guide skills:</p>
+<ul>
+<li><strong>Re-running a review after new commits, pass the previous findings in</strong> and
+instruct Claude to report only what is new or still unaddressed. Otherwise
+every push re-raises the same issues, the pull request fills with duplicate
+comments, and developers stop reading them.</li>
+<li><strong>Pass the existing test files</strong> when generating tests, so the new ones do not
+duplicate scenarios already covered.</li>
+</ul>
+<div class="exam-tip">
+<p>Four associations settle most CI questions. A job hanging on input → <code>-p</code>. A
+pipeline that has to parse findings → <code>--output-format json</code> with <code>--json-schema</code>.
+A CI instance ignoring the project's testing conventions → the committed
+CLAUDE.md carries them. Reviewing code Claude just wrote → an independent
+instance.</p>
+<p>The distractors come in two families. <strong>Invented mechanisms</strong>: a <code>CLAUDE_HEADLESS</code>
+environment variable, a <code>--batch</code> flag, a <code>--no-tty</code> option. They are plausible
+because <em>headless</em> and <em>batch</em> really are the vocabulary of this domain, and none
+of the three exists — an unrecognised option does not change the mode.
+<strong>Workarounds</strong>: redirecting stdin from <code>/dev/null</code>, which treats the symptom
+without turning on the documented mode; wrapping the call in <code>timeout</code>, which
+turns a long hang into a short one and still produces nothing; and regex-parsing
+the prose, which moves the fragility into your own code instead of removing it.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Re-running the review from scratch on every push.</strong> Claude has no memory
+between runs, so it re-reports everything it found last time. The pull request
+accumulates duplicates until nobody reads the bot. The fix is not to review less
+often — it is to include the prior findings and ask for the delta.</p>
+<p><strong>Using the generating session to review its own diff to save a call.</strong> The
+saving is real and the review is worth less than the call it saved.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.6&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s7" class="page-break">7. Self-assessment questions</h2></div>
+
+<details id="d3-q1" data-domain="D3" data-task="3.1">
+<summary>Q1 (D3) — A rule the cloud workspaces never receive</summary>
+<div>
+<p><strong>Scenario:</strong> Half the team codes in ephemeral cloud workspaces rebuilt from a base image at every checkout. Payment calls written there go straight to the gateway, while laptops keep routing through <code>PaymentsClient</code> as agreed. The instruction ships in the onboarding dotfile bundle, which every new hire unpacks into <code>~/.claude/CLAUDE.md</code> on their laptop; the base image is built from another recipe and never runs that step.</p>
+<p><strong>Question:</strong> What is the diagnosis and the fix?</p>
+<p data-opt="a">A) The workspaces open their session below the repository root, so the file one level up never loads; start at the root.</p>
+<p data-opt="b">B) The wording reads as a preference rather than an obligation, and a fresh environment has no local habit to fall back on; make it imperative.</p>
+<p data-opt="c">C) It sits at user scope, outside version control; commit it at project scope instead.</p>
+<p data-opt="d">D) The repository never declares it; move the restriction into <code>settings.json</code>.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: the instruction lives at user scope instead of project scope</p>
+<p><strong>Why:</strong> a user-scope file belongs to a home directory and is never distributed with the repository, so it reaches a machine only through whatever copies it there and an environment rebuilt from an image starts without it. Anything the whole team must follow belongs in a committed project file.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Nothing is waiting further up the tree: the file is not in the image at all.</li>
+<li data-opt="b">Wording cannot decide the behavior of a session that never read the text.</li>
+<li data-opt="d">That file governs permissions, hooks and tool access; it is not where standing instructions to the model live.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q2" data-domain="D3" data-task="3.3">
+<summary>Q2 (D3) — Standards for files that sit in every product folder</summary>
+<div>
+<p><strong>Scenario:</strong> Every product team keeps its own infrastructure under <code>infra/&lt;product&gt;/</code>, so the Terraform files matching <code>infra/**/*.tf</code> are scattered across a dozen folders. Each resource must pin its provider version and carry a <code>cost_center</code> tag, and you want that applied whenever one of those files is edited, without anyone invoking anything.</p>
+<p><strong>Question:</strong> Which setup delivers that?</p>
+<p data-opt="a">A) A <code>PostToolUse</code> hook that fires after each write and appends the tagging standards to the session.</p>
+<p data-opt="b">B) A <code>.claude/rules/terraform.md</code> whose frontmatter <code>paths</code> glob covers those files.</p>
+<p data-opt="c">C) A <code>tflint</code> policy in CI that fails the build whenever a resource is untagged or its provider is unpinned.</p>
+<p data-opt="d">D) The standards written up in <code>docs/infrastructure-standards.md</code>, the place engineers already look.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: a path-scoped rule file whose glob follows the file type across the tree</p>
+<p><strong>Why:</strong> the glob matches on the file being edited, wherever it sits, and the body loads only while such a file is in play — which is what a convention attached to a file type rather than to a directory needs.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">A hook runs a command on a tool event, once the write has already happened; it is not a channel for standards meant to shape the writing.</li>
+<li data-opt="c">Rejection after the fact, not guidance during: the loop becomes a red build somebody has to go back and fix.</li>
+<li data-opt="d">A document no session opens shapes nothing that gets written.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q3" data-domain="D3" data-task="3.2">
+<summary>Q3 (D3) — A skill that floods the window it runs in</summary>
+<div>
+<p><strong>Scenario:</strong> Your <code>/orphan-assets</code> skill walks the media bucket and the codebase to list images nothing references. It prints every path it checks on the way, and the work that follows in the same session has visibly lost the thread.</p>
+<p><strong>Question:</strong> What is the right change?</p>
+<p data-opt="a">A) Restrict the skill's <code>allowed-tools</code> to <code>Read</code> and <code>Glob</code>, so the run produces less to read.</p>
+<p data-opt="b">B) Have the skill append each inspected path to <code>reports/orphans.log</code> and print only the total it found.</p>
+<p data-opt="c">C) Run it in a second terminal and paste the verdict back.</p>
+<p data-opt="d">D) Declare <code>context: fork</code> in the skill's frontmatter, so only the verdict returns.</p>
+<hr>
+<p class="correct" data-answer="d">Answer: run the skill in a forked context</p>
+<p><strong>Why:</strong> the path-by-path trace is worth producing, it simply does not belong in the conversation. A forked context runs the walk inside an isolated subagent and hands back the conclusion alone.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Tool permissions decide what the skill may do, not how much it narrates.</li>
+<li data-opt="b">The listing still crosses the session on its way to disk.</li>
+<li data-opt="c">Isolation by hand, unrepeatable, and nothing carries it to the next person.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q4" data-domain="D3" data-task="3.6">
+<summary>Q4 (D3) — A nightly job the runner has to kill</summary>
+<div>
+<p><strong>Scenario:</strong> A nightly job runs <code>claude "Summarize the changes merged today"</code> and the runner kills it at the step timeout. The log shows Claude Code sitting at an interactive prompt.</p>
+<p><strong>Question:</strong> What makes the command usable in an unattended job?</p>
+<p data-opt="a">A) Export <code>CLAUDE_CI=1</code> in the job environment.</p>
+<p data-opt="b">B) Add <code>--no-tty</code> to the invocation.</p>
+<p data-opt="c">C) Add <code>-p</code> (spelled out as <code>--print</code>) to the invocation.</p>
+<p data-opt="d">D) Wrap the call in <code>timeout 600</code> so the runner is never the one to kill it.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: the print flag, which is the documented non-interactive mode</p>
+<p><strong>Why:</strong> it processes the prompt, writes the result to stdout and exits without waiting on input — which is what an unattended job needs.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">No such environment variable exists, so the command runs unchanged and still waits.</li>
+<li data-opt="b">No such flag exists either, and an unrecognized option does not switch the mode.</li>
+<li data-opt="d">Turns a long hang into a shorter one; the job still produces nothing.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q5" data-domain="D3" data-task="3.6">
+<summary>Q5 (D3) — The flag-retirement job cannot read its own input</summary>
+<div>
+<p><strong>Scenario:</strong> A weekly job runs <code>claude -p</code> to list the feature flags that are safe to remove, and <code>retire_flags.mjs</code> expects records carrying <code>flag</code>, <code>owner</code> and <code>last_seen</code>. Some runs come back as a bulleted list, some as a paragraph, and the field names move between runs, so the job fails more often than it succeeds.</p>
+<p><strong>Question:</strong> What is the correct fix?</p>
+<p data-opt="a">A) Append "reply with a JSON array and nothing else" to the prompt, and retry the step whenever the parse fails.</p>
+<p data-opt="b">B) Feed the first run's prose into a second <code>claude -p</code> call whose only job is to turn it into the record shape.</p>
+<p data-opt="c">C) Run with <code>--output-format json</code> and <code>--json-schema</code>, then read <code>structured_output</code>.</p>
+<p data-opt="d">D) Keep a run that parsed cleanly and paste it into the prompt as a worked example of the layout.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: constrain the shape with the two structured-output flags</p>
+<p><strong>Why:</strong> the flags exist for exactly this — one makes the reply machine-readable, the other imposes the fields, and the conforming payload arrives in a fixed place. Nothing downstream has to guess.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Rests on the model complying, which is what already fails; a retry repeats the same unconstrained request.</li>
+<li data-opt="b">The second call is as unconstrained as the first, and now two shapes can drift.</li>
+<li data-opt="d">An example nudges the layout without guaranteeing it, and the field names are exactly what moves.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q6" data-domain="D3" data-task="3.2">
+<summary>Q6 (D3) — Packaging a workflow the whole team reuses <strong>(Select the 2 correct answers.)</strong></summary>
+<div>
+<p><strong>Scenario:</strong> Your team runs the same accessibility audit over and over. It has to reach everyone, keep its verbose trace out of the working session, and run both at a developer's terminal and from the pipeline.</p>
+<p><strong>Question:</strong> Which two moves deliver that?</p>
+<p data-opt="a">A) Commit it as <code>.claude/skills/a11y-audit/SKILL.md</code> with <code>context: fork</code> in its frontmatter.</p>
+<p data-opt="b">B) Keep it as a personal <code>~/.claude/skills/a11y-audit/SKILL.md</code> so you can iterate without disturbing anyone.</p>
+<p data-opt="c">C) Invoke it by name at the terminal, and headless from the pipeline through <code>claude -p</code>.</p>
+<p data-opt="d">D) Paste the audit steps into <code>~/.claude/CLAUDE.md</code> so every session carries them.</p>
+<p data-opt="e">E) Fire it from a <code>PostToolUse</code> hook after each write, so nobody has to remember it.</p>
+<hr>
+<p class="correct" data-answer="a c">Answers: commit the forked skill with the repository, and invoke it by name locally or headless from the pipeline</p>
+<p><strong>Why:</strong> a committed skill meets all three requirements at once — versioned, so everyone gets it at clone time; forked, so its trace stays out of the session; and reachable from both sides, by name at the terminal and headless in the pipeline, where <code>--output-format json</code> hands the next step something it can act on.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">User scope is private and outside version control, which is the one requirement it cannot meet.</li>
+<li data-opt="d">User scope again, and that file carries standing instructions rather than an invocable workflow.</li>
+<li data-opt="e">A hook reacts to a tool event; it does not package a workflow somebody chooses to run.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q7" data-domain="D3" data-task="3.4">
+<summary>Q7 (D3) — A stale scale factor and an unsettled ingest path</summary>
+<div>
+<p><strong>Scenario:</strong> Two tickets open the same morning on a smart-metering platform. The first: a failing regression test pins <code>toKilowattHours()</code>, which still applies the scale the meters used before the current firmware shipped; the test states the value it expects, and the scale is a single constant, <code>METER_SCALE</code>. The second: retire the nightly polling job and have meters publish readings as they take them, which means settling where backpressure belongs, what becomes of readings buffered through a network outage, and how both paths run side by side while the fleet upgrades over months.</p>
+<p><strong>Question:</strong> Which mode fits which ticket?</p>
+<p data-opt="a">A) Plan mode for both, since a change that reaches customer meters should be designed before it is written.</p>
+<p data-opt="b">B) Plan mode for the scale factor so the firmware assumption gets recorded, and direct execution for the ingest change, revising the design as problems surface.</p>
+<p data-opt="c">C) Direct execution for the scale factor, plan mode for the ingest change.</p>
+<p data-opt="d">D) Direct execution for both, one meter model at a time.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: run the scale factor directly, plan the ingest change</p>
+<p><strong>Why:</strong> deliberation pays where approaches compete, boundaries are unsettled, and one early decision propagates across many files. The ingest change carries three open questions before a line is written; the scale factor carries a failing test that already states the answer.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Spends deliberation on a ticket whose expected value is already written down in the test.</li>
+<li data-opt="b">Reverses both readings at once, deliberating over the settled ticket and improvising the unsettled one.</li>
+<li data-opt="d">Incremental delivery still commits to a backpressure design nobody has chosen, and a fleet halfway through an upgrade is the worst place to discover that.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q8" data-domain="D3" data-task="3.5">
+<summary>Q8 (D3) — Redaction that lands differently every time</summary>
+<div>
+<p><strong>Scenario:</strong> You ask for support transcripts to be "stripped of anything personal" before they reach the analytics store. One pass masks the order number and the next leaves it; one pass swaps the customer's first name for a token and the next deletes the whole sentence. Two rewrites of the written instruction have not converged.</p>
+<p><strong>Question:</strong> What is the most effective next move?</p>
+<p data-opt="a">A) Point the prompt at the company's data-classification policy and tell it to apply the categories defined there.</p>
+<p data-opt="b">B) Add a check that rejects any output still containing a long digit sequence, and re-run the ones it rejects.</p>
+<p data-opt="c">C) Have a second instance grade each redaction.</p>
+<p data-opt="d">D) Supply two or three excerpts paired with their redacted form.</p>
+<hr>
+<p class="correct" data-answer="d">Answer: worked excerpt pairs, before and after</p>
+<p><strong>Why:</strong> an example settles what prose left open by showing the result rather than describing it again, and a handful of pairs cover far more of the boundary than another paragraph of definition.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">A classification policy names categories; it never says what to do with a sentence that happens to contain one.</li>
+<li data-opt="b">Catches one shape of leak and says nothing about the rest, and the re-run repeats the same ambiguous request.</li>
+<li data-opt="c">The grader inherits the same undefined standard, so it flags by the same guesswork.</li>
+</ul>
+</div>
+</details>
+
+<nav class="doc-nav">
+  <a class="prev" href="../D2_Tool_Design_MCP_18pct.html"><span class="label">Previous</span><span class="title">D2 — Tool design et MCP</span></a>
+  <a class="next" href="../D4_Prompt_Engineering_20pct.html"><span class="label">Next</span><span class="title">D4 — Prompt engineering</span></a>
+</nav>
+
+<hr>
+<p style="text-align:center;color:#888;font-size:9pt;">
+CCA Revision — D3 — Claude Code configuration and workflows (20 %) · 2026
+</p>
+
+
+<a href="#top" class="back-to-top" aria-label="Back to top" id="back-to-top">↑</a>
+
+</body>
+</html>

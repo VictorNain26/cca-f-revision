@@ -68,3 +68,22 @@ test('renderCourse rend lead vide quand rien ne précède le premier ##', () => 
   const { lead } = renderCourse('## Une\n\nA.\n');
   assert.equal(lead, '');
 });
+
+/* po4a réécrit une liste serrée de courses/en/ en liste « lâche » dans
+ * courses/fr/ : il sépare les puces par une ligne vide, parce qu'il les
+ * traduit comme des blocs distincts. Markdown y voit alors une autre
+ * structure, et la page française enveloppe chaque puce dans un <p> que
+ * l'anglaise n'a pas. Le corpus en portait douze, sur D1 et D3. */
+test('renderCourse rend identiquement une liste serrée et sa jumelle espacée par po4a', () => {
+  const tight = '## S\n\n- **Un.** Premier point.\n- **Deux.** Second point.\n';
+  const loose = '## S\n\n- **Un.** Premier point.\n\n- **Deux.** Second point.\n';
+  assert.equal(renderCourse(loose).sections[0].html, renderCourse(tight).sections[0].html);
+});
+
+test('renderCourse ne colle pas deux paragraphes d une même puce', () => {
+  const md = '## S\n\n- Premier paragraphe.\n\n  Second paragraphe de la même puce.\n';
+  const { html } = renderCourse(md).sections[0];
+  assert.match(html, /<p>Premier paragraphe\.<\/p>/,
+    'une puce à plusieurs paragraphes garde ses <p>, sinon le texte se retrouve aboutÃ©');
+  assert.match(html, /<p>Second paragraphe de la même puce\.<\/p>/);
+});

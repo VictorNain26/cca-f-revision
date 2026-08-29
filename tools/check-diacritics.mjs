@@ -14,6 +14,16 @@
  * liste est incomplète par construction et se complète quand une coquille
  * échappe au contrôle.
  *
+ * Ce critère est aussi le test d'admission d'une entrée, et quatre l'avaient
+ * franchi à tort : « reconnue », « retenue », « obtenue » et « introduite »
+ * sont les participes passés de reconnaître, retenir, obtenir et introduire —
+ * ils n'ont pas de contrepartie accentuée, leur forme nue EST la bonne. Le
+ * contrôle réclamait donc un accent qui n'existe pas, sur une phrase juste, et
+ * le rédacteur qui s'y heurte reformule au lieu de corriger. Avant d'ajouter un
+ * mot : vérifier que sa forme accentuée existe. Un mot comme « anticipe », lui,
+ * reste dans la liste à dessein — « anticipé » existe, l'entrée attrape cette
+ * coquille-là au prix d'un faux positif sur le présent de l'indicatif.
+ *
  * Les blocs <details> de quiz sont rédigés en anglais : hors périmètre. La
  * prose qui les entoure est contrôlée, y compris dans Practice_Questions.html.
  *
@@ -51,22 +61,22 @@ generalement generee generer gerable geree gerer guidee heritee heterogene
 heterogenes hierarchie homogene homogenes identifiee immediatement implementee
 imposee incrementale independante indexee indiquee inferieur inferieure
 ingenierie initialisee integralite integree integrer interet intermediaire
-intermediaires interrogee introduite irreversible isolee legere legerement
+intermediaires interrogee irreversible isolee legere legerement
 liberee limitee liee liees lisibilite litteralement maitrise maitrisee
 mecanisme mecanismes memoire memoires mentionnee mesuree methode methodes
 modele modeles modifiee necessaire necessaires necessite necessitent
-negligeable nommee normalisee numerotee observee obtenue operationnelle
+negligeable nommee normalisee numerotee observee operationnelle
 optimisee ordonnee organisee orientee parallele parallelisme parametre
 parametres partagee particuliere penalite pensee periode periodes persistee
 piege pieges planifiee ponderation ponderee possibilite precedemment precedent
 precedente precis precisement preferee premiere prerequis presentee preservee
 prevue priorite priorites privilegiee probabilite problematique programmee
 prononcee proposee protegee prouvee publiee qualite quantifiee realisee realite
-recente recentes recherchee recommandee reconnue redigee reduite reelle
+recente recentes recherchee recommandee redigee reduite reelle
 reellement referencee reformulee regenere regle regles regroupee reguliere
 regulierement rejetee relevee remplacee rencontree renforcee renseignee repetee
 repetition repliquee reponse reponses representee requete requetes reservee
-resolue respectee resultat resultats resumee retenue reussite reutilisable
+resolue respectee resultat resultats resumee reussite reutilisable
 reutilisation reutilisee revelee revisee schematisee securite selectionnee
 separee severite signalee simplifiee specialisee specifie specifiee specifier
 specifique specifiques stabilite stockee strategie strategies structuree

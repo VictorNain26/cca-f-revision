@@ -30,6 +30,9 @@ export const OWNED_CONCEPTS = {
   'task-decomposition': '1',
   'structured-errors': '2',
   'mcp-resources': '2',
+  'claude-md': '3',
+  'skills': '3',
+  'plan-mode': '3',
   'tool-choice': '4',
   'stop-reason': '0',
   'content-blocks': '0',
@@ -581,6 +584,55 @@ export function checkTranslationCompleteness({ fuzzyFiles, untranslatedFiles, de
   return { problems, notices };
 }
 
+/* po4a pré-remplit une entrée neuve avec la traduction de l'entrée existante
+ * la plus proche (appariement flou de msgmerge), et la marque « fuzzy ». Sur
+ * une ligne aussi répétitive que « **To test** — bank questions tagged
+ * `data-task="X.Y"`. », la plus proche est celle d'un AUTRE task statement :
+ * la traduction proposée renvoie alors le lecteur vers les questions d'un
+ * autre domaine. Quinze cas sur les deux premiers cours, tous rattrapés à la
+ * relecture — c'est-à-dire par la vigilance, sur un dépôt qui a dix contrôles.
+ *
+ * Retirer l'appariement flou (--no-fuzzy-matching) fermerait le défaut et
+ * coûterait plus qu'il ne rapporte : c'est lui qui retrouve une traduction
+ * quand on retouche un paragraphe existant, ce qui arrive à chaque cycle de
+ * correction. Le contrôle vise donc le cas exact, où l'erreur est mécanique
+ * et non une affaire de jugement : un renvoi vers un task statement dans la
+ * traduction qui ne correspond pas à celui de la source.
+ *
+ * Comparaison par ensembles, pas par listes : une traduction peut légitimement
+ * réordonner deux renvois dans une phrase. Ce qu'aucune traduction ne peut
+ * faire, c'est citer un numéro que la source ne cite pas, ou en perdre un. */
+/* parsePoEntries conserve l'échappement PO : dans le catalogue, un renvoi
+ * s'écrit data-task=\"3.1\" et non data-task="3.1". La barre oblique inverse
+ * est donc optionnelle ici — sans elle, le contrôle ne matcherait jamais rien
+ * et serait vert sur tout, y compris sur les quinze cas qu'il doit attraper. */
+const PO_TASK_REF = /data-task=\\?"([0-5]\.\d)\\?"/g;
+
+const taskRefsIn = (text) => new Set([...text.matchAll(PO_TASK_REF)].map((m) => m[1]));
+
+export function checkTaskReferenceDrift(entries, { poPath = 'courses/po/fr.po' } = {}) {
+  const problems = [];
+
+  const sorted = (set) => [...set].sort().join(', ');
+  const say = (set) => (set.size ? `data-task ${sorted(set)}` : 'aucun data-task');
+
+  for (const e of entries) {
+    if (norm(e.msgstr) === '') continue;
+
+    /* Aucun filtre sur une source sans renvoi : le cas « la source n'en cite
+     * aucun, la traduction en cite un » est la même faute vue de l'autre
+     * côté — po4a a rempli un paragraphe neuf avec la traduction d'une ligne
+     * « À tester » voisine. L'écarter laisserait passer la moitié du défaut. */
+    const source = taskRefsIn(e.msgid);
+    const target = taskRefsIn(e.msgstr);
+    if (sorted(source) === sorted(target)) continue;
+
+    problems.push(`${poPath}:${e.line} — la traduction renvoie vers ${say(target)} là où la source renvoie vers ${say(source)} : appariement flou de po4a sur une entrée voisine, relire l'entrée et corriger le renvoi plutôt que retirer le drapeau fuzzy.`);
+  }
+
+  return { problems };
+}
+
 /* L'ordre est la substance : le snapshot « avant » (frBefore) doit être pris
  * avant la régénération par po4a, sinon diffRenderedFiles compare le rendu à
  * lui-même et toute dérive passe en silence. Cette fonction ne fait aucune
@@ -621,6 +673,7 @@ export function auditCorpus({
       }).problems,
       ...diffRenderedFiles(frBefore, frAfter).problems,
       ...checkInvariantMarkers(poEntries, { expectedCount: expectedPoEntryCount }).problems,
+      ...checkTaskReferenceDrift(poEntries).problems,
       ...completeness.problems,
     ],
     notices: completeness.notices,

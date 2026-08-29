@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CCA Révision — D3 — Configuration et workflows de Claude Code (20 %)</title>
+<title>D3 — Configuration et workflows de Claude Code (20 %)</title>
 <link rel="stylesheet" href="styles.css">
 <script src="nav.js" defer></script>
 <script src="quiz.js" defer></script>
@@ -32,434 +32,796 @@
 
 <div class="header-bar">
 <h1>D3 — Configuration et workflows de Claude Code (20 %)</h1>
-<p>6 Task Statements (3.1 à 3.6) · Source : guide officiel CCAR-F v1.0, domaine 3 · exactitude technique vérifiée sur code.claude.com/docs</p>
+<p>Vingt pour cent de la note, six task statements, et un sujet trompeusement
+anodin : des fichiers dans un dépôt. Une section par task statement, dans
+l'ordre du guide et sous le libellé du guide — pour qu'une question repérée le
+jour J renvoie ici sans traduction.</p>
+<p>D0 et D1 sont supposés acquis. D1 a enseigné la mécanique <em>interne</em> d'un agent :
+la boucle, les subagents, les hooks comme callbacks du SDK, les sessions. D3 est
+la couche au-dessus — les fichiers et les flags qui configurent un Claude Code en
+marche, et les habitudes de travail qui décident si une session se passe bien.</p>
+<p>Le guide place les notions voisines ailleurs, et ce cours le respecte. Le
+mécanisme des hooks — événements, <code>permissionDecision</code>, <code>updatedInput</code> — est
+testé en TS 1.5 ; l'isolation de contexte des subagents en TS 1.2 et 1.3 ; les
+sessions, <code>--resume</code> et <code>fork_session</code> en TS 1.7 ; la fenêtre de contexte en D0
+et sa gestion, <code>/compact</code> compris, dans le domaine 5. Chacune reçoit ici une
+phrase et un renvoi, jamais un second développement. Ce que D1 a explicitement
+renvoyé à ce cours — les définitions de subagents sous <code>.claude/agents/</code>, et les
+hooks comme <em>endroit où poser une règle</em> plutôt que comme API — atterrit en 3.2.</p>
 </div>
 
 <div class="toc">
-<strong>Sommaire</strong>
+<strong>Table des matières</strong>
 <ol>
-<li><a href="#s1">La hiérarchie <code>CLAUDE.md</code> et l'organisation modulaire</a></li>
-<li><a href="#s2">Les slash commands et les skills</a></li>
-<li><a href="#s3">Les règles conditionnelles par chemin</a></li>
-<li><a href="#s4">Planning mode vs. direct exécution</a></li>
-<li><a href="#s5">Le raffinement itératif</a></li>
-<li><a href="#s6">L'intégration dans les pipelines CI/CD</a></li>
-<li><a href="#s7">Synthèse — les points clés</a></li>
-<li><a href="#s8">Auto-évaluation</a></li>
+<li><a href="#s1">3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</a></li>
+<li><a href="#s2">3.2 — Create and configure custom slash commands and skills</a></li>
+<li><a href="#s3">3.3 — Apply path-specific rules for conditional convention loading</a></li>
+<li><a href="#s4">3.4 — Determine when to use plan mode vs direct execution</a></li>
+<li><a href="#s5">3.5 — Apply iterative refinement techniques for progressive improvement</a></li>
+<li><a href="#s6">3.6 — Integrate Claude Code into CI/CD pipelines</a></li>
+<li><a href="#s7">Questions d'auto-évaluation</a></li>
 </ol>
 </div>
 
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s1">1. La hiérarchie <code>CLAUDE.md</code> et l'organisation modulaire (Task 3.1)</h2></div>
+<div class="section-header"><h2 id="s1">1. 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</h2></div>
 
-<h3>Le problème que cela résout</h3>
-<p>Dans une équipe, chaque développeur a ses préférences, mais le projet impose aussi des standards communs. Il faut un mécanisme pour séparer ces niveaux d'instruction et garantir que chaque membre reçoit les bonnes directives.</p>
-
-<h3>Les trois niveaux</h3>
+<p>Ouvrez Claude Code dans un dépôt qu'il n'a jamais vu et il part de rien : il doit
+redécouvrir la commande de build, le lanceur de tests, où vivent les handlers, ce
+qui a été tenté le mois dernier. <strong>CLAUDE.md</strong> est le fichier qui arrête cette
+redécouverte. C'est du Markdown, Claude Code le lit au début de chaque session,
+et son contenu est ajouté à votre prompt.</p>
+<p>Reste à savoir lequel. Le guide teste trois niveaux, et ils diffèrent sur un seul
+axe : <strong>qui les reçoit</strong>.</p>
 <table>
-<tr><th>Niveau</th><th>Emplacement</th><th>Partage ?</th><th>Usage</th></tr>
-<tr><td><strong>User</strong></td><td><code>~/.claude/CLAUDE.md</code></td><td>Non (personnel, hors VCS)</td><td>Préférences personnelles, style de travail</td></tr>
-<tr><td><strong>Project</strong></td><td><code>.claude/CLAUDE.md</code> ou racine</td><td>Oui (versionné, partagé via Git)</td><td>Standards de code, conventions de test, architecture</td></tr>
-<tr><td><strong>Directory</strong></td><td><code>CLAUDE.md</code> dans un sous-dossier</td><td>Oui (versionné)</td><td>Conventions propres à cette partie du codebase</td></tr>
+<thead>
+<tr>
+<th>Niveau</th>
+<th>Emplacement</th>
+<th>Partagé avec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>User</td>
+<td><code>~/.claude/CLAUDE.md</code></td>
+<td>Vous seul, sur tous vos projets — ne passe <strong>jamais</strong> par le versionnage</td>
+</tr>
+<tr>
+<td>Project</td>
+<td><code>./CLAUDE.md</code> ou <code>./.claude/CLAUDE.md</code></td>
+<td>Toute l'équipe, par le dépôt</td>
+</tr>
+<tr>
+<td>Directory</td>
+<td><code>CLAUDE.md</code> dans un sous-répertoire</td>
+<td>Toute l'équipe ; chargé quand Claude travaille dans ce sous-répertoire</td>
+</tr>
+</tbody>
 </table>
+<p>Cette troisième colonne est tout le task statement. Un fichier de niveau user vit
+dans un répertoire personnel. Committer le dépôt ne l'emporte pas ; cloner le
+dépôt ne le produit pas. Il n'atteint une seconde machine que si quelque chose l'y
+recopie.</p>
+<div class="exam-tip">
+<p>La signature d'un défaut de hiérarchie, c'est <strong>« ça marche pour tout le monde
+sauf pour le dernier arrivé »</strong> — ou sauf pour la machine reconstruite depuis une
+image, ou sauf en CI. Une instruction que les anciens appliquent et que le dernier
+embauché n'a jamais reçue vit au niveau user. Le correctif est de la déplacer au
+niveau projet et de la committer.</p>
+<p>Les distracteurs nomment des choses réelles et n'expliquent rien. Une version
+différente de Claude Code ne supprimerait pas une instruction ciblée. Un CLAUDE.md
+devenu trop long dégrade l'adhérence <em>pour toute l'équipe</em>, pas pour un seul
+poste. Faire recopier le fichier à la main par chacun reproduit manuellement ce
+que le commit fait déjà, et redivergera au premier changement.</p>
+</div>
+<h3>Garder le fichier modulaire</h3>
+<p>Deux mécanismes, et le guide nomme les deux.</p>
+<p><strong><code>@import</code>.</strong> Un chemin précédé de <code>@</code>, n'importe où dans le fichier, y attire un
+autre fichier. Les chemins relatifs sont résolus par rapport au fichier qui
+contient l'import, pas au répertoire de travail, et les imports s'imbriquent
+jusqu'à une profondeur maximale de quatre niveaux.</p>
+<pre><code class="language-markdown"># packages/api/CLAUDE.md
 
+Ce package possède la surface REST publique.
+
+@../../standards/http-errors.md
+@../../standards/database-migrations.md
+</code></pre>
+<p>C'est la compétence énoncée par le guide : dans un monorepo, le mainteneur importe
+dans le CLAUDE.md de chaque package les standards dont ce package a réellement
+besoin, au lieu de charger tous les standards partout.</p>
+<p><strong><code>.claude/rules/</code>.</strong> Au lieu d'un seul fichier qui grossit, un fichier par sujet :</p>
+<pre><code class="language-text">.claude/
+├── CLAUDE.md            # ce qui est vrai de tout le projet
+└── rules/
+    ├── testing.md
+    ├── api-conventions.md
+    └── deployment.md
+</code></pre>
+<p>Les règles sans scoping par chemin se chargent au démarrage, au même rang que
+<code>.claude/CLAUDE.md</code>. Ajouter un champ <code>paths</code> à une règle la rend conditionnelle —
+c'est le TS 3.3, plus bas, et c'est la seule chose qui réduise vraiment ce qui se
+charge.</p>
 <div class="anti-pattern">
-<strong>Erreur classique :</strong> trois développeurs expérimentés bénéficient de l'instruction "always include comprehensive error handling", mais un nouveau ne la reçoit pas. Cause : les instructions étaient dans <code>~/.claude/CLAUDE.md</code> (user-level) au lieu de <code>.claude/CLAUDE.md</code> (project-level). Le nouveau n'a pas les fichiers personnels des anciens. Solution : déplacer vers le project-level pour que tout le monde en bénéficie.
+<p><strong>Prendre <code>@import</code> pour réduire le contexte.</strong> Les fichiers importés sont
+expansés en place au démarrage, exactement là où vous les avez référencés. Les
+imports achètent de l'<em>organisation</em>, pas un contexte plus petit : chaque octet se
+charge quand même. Une question qui demande comment empêcher des conventions non
+pertinentes de consommer la fenêtre demande des règles scopées par chemin (3.3), et
+<code>@import</code> est le distracteur posé à côté d'elles.</p>
 </div>
-
-<div class="exam-tip">
-<strong>Réflexe d'examen :</strong> le signe distinctif d'un problème de hiérarchie, c'est « ça marche pour tout le monde <em>sauf</em> le nouvel arrivant ». Une instruction que les anciens appliquent et que le dernier embauché n'a jamais reçue vit au niveau user — <code>~/.claude/CLAUDE.md</code>, jamais partagé par le VCS. La réponse est le déplacement vers le niveau projet ; <code>/memory</code> sert à le confirmer en listant les fichiers réellement chargés. Trois distracteurs : une version de Claude Code différente, qui n'explique pas une instruction ciblée manquante ; un <code>CLAUDE.md</code> devenu trop long, qui produirait une dégradation partagée par toute l'équipe et pas par un seul poste ; et demander à chacun de recopier le fichier, qui reproduit à la main ce que le versionnage fait déjà et redivergera au premier changement.
-</div>
-
-<h3>La syntaxe <code>@path</code> pour les imports</h3>
-<p>Plutôt que de concentrer toutes les instructions dans un seul fichier, vous pouvez référencer des fichiers externes :</p>
-<pre># Dans CLAUDE.md
-Les standards de code sont décrits dans @./standards/coding-style.md
-Les exigences de test sont dans @./standards/testing-requirements.md
-La vue d'ensemble du projet est dans @README.md</pre>
-<p>Le <code>@</code> se place immédiatement avant le path (sans espace). Les paths relatifs sont résolus par rapport au fichier contenant l'import. La profondeur maximale d'imbrication est de <strong>4 niveaux</strong> (« four hops ») — précision de la documentation, absente du guide.</p>
-
-<h3>Le répertoire <code>.claude/rules/</code></h3>
-<p>Une alternative au <code>CLAUDE.md</code> monolithique : des fichiers thématiques dont le chargement dépend des fichiers en cours d'édition.</p>
-<pre>.claude/rules/
-  testing.md          — conventions de test
-  api-conventions.md  — conventions API
-  deployment.md       — règles de déploiement
-  react-patterns.md   — patterns React</pre>
-
-<p>Chaque fichier inclut un YAML frontmatter avec le champ <code>paths</code> qui spécifie quand le charger :</p>
-<pre>---
-paths: ["src/api/**/*"]
----
-Pour les fichiers API, utiliser async/await avec une gestion d'erreurs explicite.
-Chaque endpoint doit retourner un wrapper de réponse standard.</pre>
-
-<div class="key-concept">
-<strong>Quand utiliser <code>.claude/rules/</code> vs. un directory <code>CLAUDE.md</code> :</strong> les fichiers <code>.claude/rules/</code> avec glob patterns sont préférables quand les conventions s'appliquent à des fichiers dispersés dans le codebase (tests co-localisés, migrations cross-directory). Un <code>CLAUDE.md</code> dans un sous-dossier convient quand les règles sont spécifiques à un répertoire bien défini.
-</div>
-
-<h3>Les commandes <code>/memory</code> et <code>/compact</code></h3>
-<p><em>(Source : guide officiel — <code>/memory</code> en Task 3.1, <code>/compact</code> en Task 5.4.)</em></p>
+<h3>Pourquoi le fichier cesse de fonctionner</h3>
+<p>CLAUDE.md est de la <strong>guidance, pas de la configuration appliquée de force</strong>.
+Chaque ligne entre en concurrence avec toutes les autres pour l'attention : plus le
+fichier grossit, moins une règle donnée est suivie de façon fiable. Ce n'est pas un
+défaut à contourner, c'est la propriété qui dicte votre façon d'écrire.</p>
+<p>Trois habitudes en découlent, et elles méritent d'être connues parce qu'elles
+donnent aussi la forme des mauvaises réponses :</p>
 <ul>
-<li><strong><code>/memory</code></strong> affiche quels fichiers mémoire sont actuellement chargés et vous permet de les éditer pour y ajouter des notes et préférences. Les fichiers chargés (ex. <code>~/.claude/projects/&lt;id&gt;/memory/*.md</code>) persistent entre les sessions et sont appliqués automatiquement au démarrage. C'est aussi la commande de diagnostic quand vous soupçonnez qu'une instruction n'a pas été chargée correctement — vérifiez que le fichier de mémoire attendu apparaît dans la liste des fichiers chargés.</li>
-<li><strong><code>/compact</code></strong> compresse le contexte en résumant l'historique. Utile dans les longues sessions d'investigation, mais avec un risque : les valeurs numériques exactes, les dates et les détails précis peuvent être perdus lors de la compression.</li>
+<li><strong>Spécifique et vérifiable.</strong> « Placer les nouvelles routes API dans
+<code>src/api/handlers</code>, une par fichier » — pas « suivre les bonnes pratiques pour les
+routes API ». Si vous ne pouvez pas vérifier qu'une règle a été suivie, Claude non
+plus.</li>
+<li><strong>Nommer le remplacement.</strong> « Utiliser des exports nommés, pas des exports par
+défaut » ferme la question ; « ne pas utiliser d'exports par défaut » la laisse
+ouverte.</li>
+<li><strong>L'emphase est un budget.</strong> <code>IMPORTANT</code> et <code>YOU MUST</code> élèvent la priorité d'une
+règle, mais seulement par rapport aux règles plus discrètes autour d'elle. Si
+chaque ligne crie, plus aucune ne se distingue.</li>
 </ul>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s2">2. Les slash commands et les skills (Task 3.2)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Si vous répétez régulièrement les mêmes instructions ("fais une revue en suivant ce format", "génère des tests selon nos conventions"), il est plus efficace de les encapsuler dans une commande réutilisable.</p>
-
-<h3>Les slash commands</h3>
-
-<div class="exam-tip">
-<strong>Le guide fait loi sur ce point.</strong> Le référentiel traite slash commands et skills comme <strong>deux mécanismes distincts</strong>, et désigne <code>.claude/commands/</code> comme l'emplacement d'une commande partagée avec l'équipe — c'est la réponse attendue à la question officielle « où créer un <code>/review</code> que tout le monde obtient au clone ? ». La documentation actuelle a depuis <em>fusionné</em> les deux : un fichier <code>.claude/commands/deploy.md</code> et un skill <code>.claude/skills/deploy/SKILL.md</code> produisent la même commande <code>/deploy</code>. Révisez le découpage du guide ; gardez la fusion pour votre travail quotidien.
+<p>Et la règle qui n'a pas sa place dans ce fichier du tout : ce qui ne doit <em>jamais</em>
+arriver. « Ne jamais pousser sur <code>main</code> » écrit dans CLAUDE.md est un espoir. Un
+hook est du code qui s'exécute en un point fixe et peut refuser l'action — le
+mécanisme est le TS 1.5 de D1 ; savoir où va telle règle est le 3.2, plus bas.</p>
+<div class="key-concept">
+<p><code>/memory</code> est la commande de diagnostic de ce task statement : elle liste les
+emplacements de vos fichiers mémoire aux portées user et project et permet de les
+ouvrir, ce qui est la manière de vérifier si l'instruction que vous cherchez est là
+où vous le croyez.</p>
+<p><strong>Le guide fait loi ici.</strong> Sa compétence dit « using the <code>/memory</code> command to
+verify which memory files are loaded and diagnose inconsistent behavior across
+sessions » — répondez <code>/memory</code>. Nuance terrain, pour ne pas être surpris devant un
+terminal : la documentation actuelle scinde le travail, <code>/memory</code> listant et
+ouvrant les fichiers, <code>/context</code> rapportant lesquels ont réellement été chargés
+dans la session en cours.</p>
 </div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;3.1&quot;</code>.</p>
 
-<p>Les slash commands sont stockées dans <code>.claude/commands/</code> (partagées via VCS). Le nom du fichier donne le nom de la commande, et le contenu est le prompt exécuté.</p>
+<div class="section-header"><h2 id="s2">2. 3.2 — Create and configure custom slash commands and skills</h2></div>
+
+<p>Quand vous avez tapé deux fois la même instruction en plusieurs étapes, elle doit
+cesser d'être quelque chose que vous tapez. Le guide retient deux mécanismes pour
+cela, et les traite comme distincts.</p>
 <table>
-<tr><th>Portée</th><th>Emplacement</th><th>Partage</th></tr>
-<tr><td><strong>Projet</strong></td><td><code>.claude/commands/</code></td><td>Versionne via VCS, disponible après clonage</td></tr>
-<tr><td><strong>Personnel</strong></td><td><code>~/.claude/commands/</code></td><td>Personnel, non partagé</td></tr>
+<thead>
+<tr>
+<th></th>
+<th>Slash command</th>
+<th>Skill</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vit dans</td>
+<td><code>.claude/commands/review.md</code></td>
+<td><code>.claude/skills/review/SKILL.md</code></td>
+</tr>
+<tr>
+<td>Invoqué</td>
+<td>Explicitement, <code>/review</code></td>
+<td>Explicitement, ou automatiquement quand Claude apparie votre demande à sa <code>description</code></td>
+</tr>
+<tr>
+<td>Porte</td>
+<td>Un prompt</td>
+<td>Un dossier : instructions, fichiers de référence, scripts</td>
+</tr>
+<tr>
+<td>Configurable</td>
+<td>—</td>
+<td>Frontmatter : <code>context</code>, <code>allowed-tools</code>, <code>argument-hint</code>, et d'autres</td>
+</tr>
+</tbody>
 </table>
-<p>Le nom du fichier détermine le nom de la commande : <code>review.md</code> devient <code>/review</code>. Le placeholder <code>$ARGUMENTS</code> accepte des paramètres positionnels 0-based : <code>$0</code> = 1er argument, <code>$1</code> = 2e, etc.</p>
-
+<p>Les deux existent en deux portées, et le partage est le même qu'en 3.1 :</p>
+<table>
+<thead>
+<tr>
+<th>Portée</th>
+<th>Commands</th>
+<th>Skills</th>
+<th>Partagé avec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Projet</td>
+<td><code>.claude/commands/</code></td>
+<td><code>.claude/skills/</code></td>
+<td>L'équipe, par le versionnage</td>
+</tr>
+<tr>
+<td>Personnel</td>
+<td><code>~/.claude/commands/</code></td>
+<td><code>~/.claude/skills/</code></td>
+<td>Vous seul</td>
+</tr>
+</tbody>
+</table>
 <div class="exam-tip">
-<strong>Réflexe d'examen :</strong> dès que l'énoncé dit qu'une commande doit être <em>disponible pour toute l'équipe après un clone</em>, la réponse du guide est <code>.claude/commands/</code>. Trois distracteurs : <code>~/.claude/commands/</code>, qui produit bien la commande mais reste personnel et hors VCS — donc invisible pour les collègues ; le <code>CLAUDE.md</code>, qui porte des instructions permanentes et non des définitions de commande invocable ; et un tableau <code>commands</code> déclaré dans un <code>.claude/config.json</code>, qui séduit parce qu'il ressemble à une configuration d'outil mais désigne un mécanisme inexistant.
+<p>Dès que l'énoncé dit qu'une commande doit être disponible pour tout le monde après
+un clone, la réponse du guide est <code>.claude/commands/</code>. Trois mauvaises réponses
+sont disponibles : <code>~/.claude/commands/</code>, qui produit une commande fonctionnelle
+qu'aucun collègue ne voit jamais ; le CLAUDE.md, qui porte des instructions
+permanentes et non des définitions invocables ; et un tableau <code>commands</code> déclaré
+dans un <code>.claude/config.json</code>, qui ressemble à une configuration d'outil et ne
+désigne rien qui existe.</p>
 </div>
-
-<h3>Les skills</h3>
-<p>Le skill est l'autre mécanisme : il porte un workflow invoqué à la demande, et il est mieux outillé que la slash command pour les cas complexes — isolation de contexte, restriction d'outils, indice d'argument. Chaque skill vit dans un répertoire contenant un fichier <code>SKILL.md</code> avec un YAML frontmatter :</p>
-<pre>---
-name: pr-description
-description: Writes pull request descriptions. Use when creating
-  a PR or summarizing changes for a review.
+<h3>Le frontmatter que le guide teste</h3>
+<p>Un skill est un répertoire contenant un <code>SKILL.md</code> : frontmatter YAML, puis la
+procédure.</p>
+<pre><code class="language-markdown">---
+name: dependency-audit
+description: Audite les dépendances tierces à la recherche de paquets inutilisés,
+  obsolètes ou dupliqués. À utiliser lors d'une revue de dépendances ou avant une
+  livraison.
 context: fork
 allowed-tools: Read, Grep, Glob, Bash
-argument-hint: "Branch name to compare against main"
+argument-hint: &quot;[package-manager] — npm, pnpm ou cargo&quot;
 ---
-Quand tu rédiges une description de PR :
-1. Exécuter `git diff main...HEAD` pour voir les changements
-2. Écrire une description structurée : What / Why / Changes</pre>
 
-<h3>Les paramètres du frontmatter</h3>
-<table>
-<tr><th>Paramètre</th><th>Obligatoire</th><th>Rôle</th></tr>
-<tr><td><code>name</code></td><td>Optionnel — défaut = nom du dossier du skill</td><td>Display name (identifiant optionnel). Par défaut, le nom du dossier du skill sert de nom de commande (ex. <code>/review</code> pour <code>.claude/skills/review/SKILL.md</code>).</td></tr>
-<tr><td><code>description</code></td><td>Recommandée — si omise, le premier paragraphe du corps sert de description</td><td>Détermine <em>quand</em> Claude active le skill (matching sémantique) et influence <em>comment</em> il rédige le prompt. C'est le champ le plus déterminant pour le déclenchement.</td></tr>
-<tr><td><code>context: fork</code></td><td>Non</td><td>Exécute le skill dans un contexte isolé de subagent. La sortie verbeuse ne pollue pas la session principale.</td></tr>
-<tr><td><code>allowed-tools</code></td><td>Non</td><td><strong>Restreint l'accès aux outils</strong> pendant l'exécution du skill — par exemple limiter aux opérations d'écriture de fichiers pour empêcher toute action destructrice. C'est la formulation du référentiel, et celle à retenir pour l'examen. <em>Nuance terrain : la doc actuelle décrit ce champ comme une pré-approbation de permissions plutôt qu'une restriction stricte. À l'examen, répondez « restriction d'accès aux outils ».</em></td></tr>
-<tr><td><code>argument-hint</code></td><td>Non</td><td>Indice affiché à l'autocomplétion pour réclamer le paramètre attendu quand le développeur invoque le skill sans argument.</td></tr>
-</table>
-
+1. Lire le lockfile et lister chaque dépendance directe.
+2. Chercher chacune dans les sources et signaler celles qui ne sont jamais importées.
+3. Rapporter les paquets inutilisés, obsolètes et dupliqués en trois tableaux.
+</code></pre>
+<p>La <code>description</code> est le champ dont tout dépend : Claude ne charge au démarrage que
+les noms et les descriptions, et apparie sémantiquement votre demande à ces
+descriptions. Un skill qui ne se déclenche jamais a presque toujours une
+description qui ne recoupe pas votre façon réelle de formuler vos demandes.</p>
+<p>Trois champs facultatifs portent ce task statement.</p>
+<p><strong><code>context: fork</code></strong> exécute le skill dans un contexte de subagent isolé. Le contenu
+du skill devient le prompt qui pilote ce subagent ; il n'hérite pas de votre
+conversation, et ce qui revient à la session principale est le résultat plutôt que
+toute la trace. C'est la réponse chaque fois que le <em>volume de sortie</em> d'un skill
+est le problème : une analyse de codebase qui imprime chaque chemin inspecté, un
+brainstorming qui explore cinq options que vous n'avez pas retenues.</p>
+<p><strong><code>allowed-tools</code></strong> restreint l'accès aux outils pendant l'exécution du skill —
+par exemple limiter un skill aux opérations d'écriture de fichiers pour qu'il ne
+puisse rien faire de destructeur. C'est la formulation du guide, et c'est elle
+qu'il faut répondre. Nuance terrain, pour votre propre machine : la documentation
+actuelle décrit ce champ comme une <em>pré-approbation</em> des outils listés pour le
+tour d'invocation, de sorte que Claude peut les employer sans demander, plutôt
+que comme un retrait des autres ; le champ qui retire réellement un outil du lot
+est <code>disallowed-tools</code>.</p>
+<p><strong><code>argument-hint</code></strong> est l'indice affiché à l'autocomplétion, de sorte qu'un
+développeur qui invoque le skill sans argument se voit dire quel paramètre il
+attend.</p>
 <div class="exam-tip">
-<strong>Scénario d'examen :</strong> après avoir exécuté un skill d'analyse lourde, Claude devient moins réactif et perd le fil de la tâche originale. Solution : ajouter <code>context: fork</code> dans le frontmatter du <code>SKILL.md</code> pour isoler l'exécution dans un subagent séparé. Deux distracteurs accompagnent presque toujours cette question : <code>allowed-tools</code>, qui restreint les outils accessibles mais ne change rien à la destination de la sortie produite ; et une consigne « sois concis » ajoutée au corps du skill, qui demande au modèle de moins écrire au lieu d'écrire ailleurs — la sortie, même réduite, atterrit toujours dans la session principale.
+<p>Un skill s'exécute, produit un mur de sortie, et la session qui suit a visiblement
+perdu le fil. La réponse est <code>context: fork</code>. Deux options voisines sont
+plausibles et aucune ne déplace la sortie. <code>allowed-tools</code> change ce que le skill
+peut <em>faire</em>, pas l'endroit où atterrit ce qu'il écrit. Et une consigne « sois
+concis » ajoutée au corps du skill demande au modèle d'écrire moins au lieu
+d'écrire ailleurs — réduite ou non, la sortie arrive toujours dans la session
+principale.</p>
 </div>
-
-<h3>Skills personnels vs. skills projet</h3>
-<table>
-<tr><th>Portée</th><th>Emplacement</th><th>Partage</th></tr>
-<tr><td><strong>Projet</strong></td><td><code>.claude/skills/</code></td><td>Versionné via VCS, partagé avec l'équipe</td></tr>
-<tr><td><strong>Personnel</strong></td><td><code>~/.claude/skills/</code></td><td>Local, non partagé</td></tr>
-</table>
-
+<h3>Les variantes personnelles, et pourquoi le nom compte</h3>
+<p>Les skills de même nom sont départagés par leur source, et un skill personnel
+l'emporte sur un skill projet. Clonez un dépôt qui livre <code>.claude/skills/review/</code>,
+gardez votre propre <code>~/.claude/skills/review/</code>, et <code>/review</code> exécute le vôtre —
+silencieusement, sur votre machine seulement.</p>
 <div class="key-concept">
-<strong>Priorité en cas de conflit de nom :</strong> un skill personnel l'emporte sur un skill projet de même nom. Par exemple, si vous avez un skill <code>/review</code> dans <code>~/.claude/skills/review/SKILL.md</code> et que le projet définit aussi un <code>/review</code> dans <code>.claude/skills/review/SKILL.md</code>, votre skill personnel sera utilisé.
-<br><br>
-C'est exactement pour cette raison que le référentiel recommande de <strong>donner un nom différent</strong> à votre variante personnelle : sans cela, vous masquez silencieusement le skill de l'équipe pour vous seul, et vous divergez de vos collègues sans le savoir.
+<p>L'instruction du guide est de donner à une variante personnelle <strong>un nom
+différent</strong> : <code>~/.claude/skills/review-strict/</code> plutôt qu'un second <code>review</code>.
+Reprendre le nom de l'équipe ne modifie pas leur configuration, mais cela signifie
+que vos collègues et vous exécutez des procédures différentes sous une même
+commande, et que rien dans aucune des deux installations ne le dit. Renommer est
+aussi le correctif habituel quand un de vos skills est masqué et que vous ne
+comprenez pas pourquoi il ne se déclenche jamais.</p>
 </div>
-
-<h3>Skills et subagents</h3>
-<p>Les subagents ne voient <em>pas</em> automatiquement les skills. Les agents intégrés (Explore subagent, Plan) ne peuvent pas y accéder ; un subagent disposant du Skill tool peut en revanche invoquer les skills (projet, user, plugin) à la demande.</p>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s3">3. Les règles conditionnelles par chemin (Task 3.3)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Les conventions de test s'appliquent à des fichiers dispersés dans tout le codebase (co-localisés avec le code source). Un <code>CLAUDE.md</code> par sous-répertoire serait fastidieux ; un <code>CLAUDE.md</code> unique chargerait des règles non pertinentes en permanence. Les fichiers <code>.claude/rules/</code> avec glob patterns résolvent ce problème.</p>
-
-<h3>Exemple concret</h3>
-<pre># .claude/rules/testing.md
+<h3>Quelle surface possède quelle règle</h3>
+<p>La dernière compétence du guide sur ce task statement est le choix entre un skill
+et CLAUDE.md. Le tableau complet mérite d'être gardé en tête, parce que les
+mauvaises
+réponses sur ce sujet sont toujours <em>un autre mécanisme réel</em> :</p>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Se charge</th>
+<th>Se déclenche sur</th>
+<th>À utiliser pour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLAUDE.md</td>
+<td>Chaque session, toujours</td>
+<td>Rien — il est simplement présent</td>
+<td>Les standards universels : nommage, structure, « toujours faire X »</td>
+</tr>
+<tr>
+<td>Skill</td>
+<td>À la demande</td>
+<td>Un <code>/nom</code> explicite, ou un appariement sémantique sur sa description</td>
+<td>Les procédures et le matériel de référence propres à une tâche</td>
+</tr>
+<tr>
+<td>Slash command</td>
+<td>À l'invocation</td>
+<td>Un <code>/nom</code> explicite</td>
+<td>Un prompt répétable</td>
+</tr>
+<tr>
+<td>Hook</td>
+<td>—</td>
+<td>Un événement du cycle de vie</td>
+<td>Une règle que Claude ne doit pas pouvoir sauter</td>
+</tr>
+<tr>
+<td>Subagent</td>
+<td>À la délégation</td>
+<td>Une délégation explicite</td>
+<td>Un travail à faire dans un contexte isolé</td>
+</tr>
+</tbody>
+</table>
+<p>La frontière entre les deux premiers est celle du guide : <strong>standards universels
+toujours chargés contre workflows propres à une tâche chargés à la demande</strong>. Une
+procédure détaillée placée dans CLAUDE.md paie son coût en tokens dans chaque
+conversation, y compris celles qui n'ont rien à voir avec elle.</p>
+<p>La frontière avec le hook est d'une autre nature. CLAUDE.md et les skills sont des
+instructions que Claude suit ; un hook est du code qui s'exécute. Si sauter la
+règle est inacceptable, elle ne relève pas du suivi d'instructions.</p>
+<p>Les événements, et <code>PreToolUse</code> comme primitive d'application, sont le TS 1.5 de
+D1 et ne sont pas réenseignés ici. Ce qui diffère de ce côté de la frontière,
+c'est <em>la façon dont un hook dit non</em>. Un hook Claude Code est une commande
+déclarée dans les settings : il répond donc par un <strong>code de sortie</strong>, <code>2</code>
+bloque, et ce qu'il a écrit sur la sortie d'erreur est renvoyé à Claude comme
+motif. Un hook de l'Agent SDK est un callback dans votre processus et répond par
+un <code>permissionDecision</code> en JSON. Même événement, même intention, deux
+conventions — et <code>exit 1</code> est le piège côté Claude Code : il a l'air d'un échec
+et ne bloque rien.</p>
+<pre><code class="language-bash"># .claude/hooks/protect-main.sh — refuser un push sur main, à chaque fois.
+# Un hook PreToolUse reçoit le nom de l'outil et son entrée en JSON sur stdin.
+if grep -qE 'git +push.*\bmain\b'; then
+  echo &quot;Pousser sur main est interdit ; ouvrez une pull request.&quot; &gt;&amp;2
+  exit 2          # 2 bloque et explique. 0 laisse passer. 1 ne fait ni l'un ni l'autre.
+fi
+</code></pre>
+<p>Les subagents sont l'autre voisin. Ils se définissent comme des fichiers Markdown à
+frontmatter YAML sous <code>.claude/agents/</code>, et <code>/agents</code> en crée un de façon
+interactive. Deux faits appartiennent à ce task statement plutôt qu'à D1 : un
+subagent n'hérite pas de vos skills, et un subagent personnalisé ne charge que les
+skills que nomme son champ de frontmatter <code>skills</code>.</p>
+<pre><code class="language-markdown">---
+name: accessibility-reviewer
+description: Relit les changements frontend à la recherche de régressions d'accessibilité.
+tools: Read, Grep, Glob
+skills: accessibility-audit, contrast-check
 ---
+
+Relire le diff à la recherche de violations WCAG. Rapporter les constats ; ne jamais éditer de fichier.
+</code></pre>
+<p>Le reste — pourquoi le contexte isolé d'un subagent est le point, et ce qui doit
+voyager dans le prompt à cause de cela — est le TS 1.2 et le TS 1.3 de D1.</p>
+<div class="anti-pattern">
+<p><strong>Mettre une longue procédure dans CLAUDE.md pour qu'elle soit « toujours
+disponible ».</strong> Elle est toujours <em>chargée</em>, ce qui n'est pas le même bénéfice et
+constitue un coût permanent. Une checklist de revue de PR n'a rien à faire en
+contexte pendant que vous déboguez.</p>
+<p><strong>Prendre un hook pour empaqueter un workflow.</strong> Un hook réagit à un événement
+d'outil ; ce n'est pas quelque chose qu'un développeur choisit de lancer. Si
+l'énoncé dit qu'une personne l'invoque, le hook n'est pas la réponse.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;3.2&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s3">3. 3.3 — Apply path-specific rules for conditional convention loading</h2></div>
+
+<p>Le 3.1 a laissé un problème ouvert. Découper CLAUDE.md en fichiers
+<code>.claude/rules/</code> rend les instructions maintenables, et charge exactement autant de
+tokens qu'avant. C'est l'ajout d'un champ <code>paths</code> à une règle qui rend le
+chargement conditionnel.</p>
+<pre><code class="language-markdown">---
 paths:
-  - "**/*.test.tsx"
-  - "**/*.test.ts"
-  - "**/*.spec.ts"
+  - &quot;**/*.test.ts&quot;
+  - &quot;**/*.test.tsx&quot;
 ---
-Conventions de test :
-- Utiliser des blocs describe/it.
-- Utiliser des data factories, pas de données codées en dur.
-- Ne pas mocker la base de données — utiliser une base de test.</pre>
 
-<h3>L'anatomie du frontmatter</h3>
-<p>Le champ <code>paths</code> accepte une liste de globs. Le fichier ne se charge que si le fichier en cours d'édition correspond à l'un d'eux ; le corps est alors injecté tel quel dans le contexte, sans reformulation ni résumé. Un second exemple, scopé cette fois par répertoire :</p>
-<pre># .claude/rules/terraform.md
----
-paths: ["terraform/**/*"]
----
-Toute ressource porte les tags obligatoires : owner, cost-center, environment.
-Les backends d'état sont déclarés en S3 avec verrouillage DynamoDB.</pre>
+# Conventions de test
 
-<div class="exam-tip">
-<strong>Réflexe d'examen :</strong> quand un scénario dit que des conventions doivent s'appliquer à des fichiers <em>dispersés dans l'arborescence</em> — les tests co-localisés en sont l'exemple canonique — la réponse est <code>.claude/rules/</code> avec un glob dans le frontmatter. Trois distracteurs reviennent : un <code>CLAUDE.md</code> par sous-répertoire, qui séduit parce qu'il est « plus local » mais reste lié au dossier et ne suit pas les fichiers dispersés ; tout consolider dans le <code>CLAUDE.md</code> racine sous des titres de section, qui repose sur l'inférence du modèle au lieu d'un appariement explicite ; et un skill par type de code, qui échoue sur le mot <em>automatiquement</em> de l'énoncé, puisqu'un skill s'invoque.
-</div>
-
-<div class="key-concept">
-<strong>Chargement conditionnel :</strong> la règle ne se charge que lorsque Claude Code édite un fichier correspondant au glob pattern. Cela économise du contexte et des tokens : les conventions non pertinentes ne sont jamais chargées.
-<br><br>
-<strong>Le guide fait loi sur ce point.</strong> Le référentiel écrit que la règle se charge <em>« when editing matching files »</em> — c'est ce mot qu'il faut retenir, et une option qui parle d'édition est celle attendue. <em>Nuance terrain : la documentation actuelle déclenche la règle à la <strong>lecture</strong> (« path-scoped rules trigger when Claude reads files matching the pattern »), donc en pratique elle est déjà en contexte avant votre première modification. Le mécanisme est identique — <code>paths</code>, globs, chargement conditionnel — seul le déclencheur diffère. À l'examen, répondez « édition ».</em>
-<br><br>
-<strong>Glob patterns vs. directory <code>CLAUDE.md</code> :</strong> les glob patterns sont préférables pour les conventions cross-directory (tests co-localisés, fichiers de migration dispersés). Un directory <code>CLAUDE.md</code> convient pour les règles strictement locales à un sous-dossier.
-</div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s4">4. Planning mode vs. direct exécution (Task 3.4)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Corriger un bug ciblé n'exige pas la même approche que restructurer un monolithe. Utiliser le même mode pour les deux mène soit à de la lenteur inutile, soit à des erreurs coûteuses.</p>
-
+- Un `describe` par symbole exporté, des phrases `it` au présent.
+- Construire les fixtures avec les factories de `test/factories` ; jamais de littéral en ligne.
+- Ne jamais mocker la base — utiliser la base de test de `test/db.ts`.
+</code></pre>
+<p><code>paths</code> prend une liste de glob patterns. Le corps de la règle n'entre en contexte
+que lorsque Claude travaille sur un fichier qui correspond à l'un d'eux ; le reste
+du temps il ne coûte rien. Un fichier de règle sans champ <code>paths</code> se charge
+inconditionnellement, comme le CLAUDE.md du projet.</p>
+<p>Les globs sont ordinaires :</p>
 <table>
-<tr><th></th><th>Planning mode</th><th>Direct exécution</th></tr>
-<tr><td><strong>Actions</strong></td><td>Explore et planifie, ne modifie rien</td><td>Applique les changements immédiatement</td></tr>
-<tr><td><strong>Outils</strong></td><td><code>Read</code>, <code>Grep</code>, <code>Glob</code></td><td><code>Edit</code>, <code>Write</code>, <code>Bash</code></td></tr>
-<tr><td><strong>Cas d'usage</strong></td><td>Changements importants, choix architecturaux, codebase inconnu, migrations (45+ fichiers), multiples approches possibles</td><td>Corrections ciblées sur un seul fichier, ajout d'une validation simple</td></tr>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Correspond à</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>**/*.ts</code></td>
+<td>Tous les fichiers TypeScript, dans n'importe quel répertoire</td>
+</tr>
+<tr>
+<td><code>src/**/*</code></td>
+<td>Tout ce qui est sous <code>src/</code></td>
+</tr>
+<tr>
+<td><code>*.md</code></td>
+<td>Les fichiers Markdown à la racine du projet seulement</td>
+</tr>
+<tr>
+<td><code>terraform/**/*</code></td>
+<td>Tout ce qui est sous <code>terraform/</code></td>
+</tr>
+</tbody>
 </table>
-
-<h3>Les cas contrastés du guide</h3>
-<pre>Plan mode
-  Restructurer un monolithe en microservices
-    → frontières de service à décider, dizaines de fichiers
-  Migrer une bibliothèque sur 45+ fichiers
-    → périmètre large, approches concurrentes
-  Choisir entre deux approches d'intégration
-    → prérequis d'infrastructure différents
-
-Exécution directe
-  Corriger une déréférence null localisée par une stack trace
-    → un fichier, une garde, périmètre déjà établi
-  Ajouter une validation de date à un endpoint
-    → changement compris, aucun arbitrage</pre>
-
-<p>La combinaison la plus courante : <strong>planning mode</strong> pour l'investigation, approbation du plan, puis <strong>direct exécution</strong> pour l'implémentation. Le plan approuvé sert alors de périmètre à la phase d'écriture : les décisions ont été tranchées avant qu'un seul fichier ne soit modifié.</p>
-
-<div class="key-concept">
-Le <strong>Explore subagent</strong> isole la sortie verbeuse de la phase de découverte — les fichiers lus, les recherches infructueuses, les chemins abandonnés — et ne remonte qu'un résumé à la session principale. Le contexte principal reste disponible pour la planification puis l'implémentation, au lieu d'être consommé par la lecture exploratoire. C'est le complément naturel du plan mode sur un codebase inconnu : explorer via le subagent, planifier avec le résumé, exécuter ensuite.
-</div>
-
+<h3>Pourquoi pas un CLAUDE.md dans le sous-répertoire</h3>
+<p>Les deux mécanismes scopent des instructions. Ils les scopent selon des choses
+différentes, et le guide teste cette différence.</p>
+<p>Un CLAUDE.md de sous-répertoire est attaché à un <strong>lieu</strong>. C'est la bonne réponse
+quand la convention est réellement locale : tout ce qui est sous <code>terraform/</code> obéit
+à ces règles de tagging, et rien en dehors.</p>
+<p>Une règle scopée par chemin est attachée à un <strong>motif</strong>. C'est la bonne réponse
+quand les fichiers qui partagent une convention ne partagent pas de répertoire — et
+le cas canonique est celui des fichiers de test, colocalisés avec le code qu'ils
+couvrent et donc dispersés dans tout l'arbre. Écrire un CLAUDE.md dans chacun de
+quarante répertoires pour y dire les mêmes trois choses sur les tests est
+impossible à maintenir, et un unique CLAUDE.md racine qui les dit coûte à chaque
+session qui
+n'ouvre jamais un test.</p>
 <div class="exam-tip">
-<strong>Réflexe d'examen :</strong> la complexité est <em>énoncée dans le scénario</em>, elle ne se devine pas. « Dizaines de fichiers », « décisions d'architecture », « plusieurs approches valides » → plan mode. « Stack trace claire », « un seul fichier », « changement bien compris » → exécution directe. Le distracteur le plus fin propose de commencer en exécution directe et de basculer en plan mode <em>si</em> la complexité se révèle : il séduit parce qu'il a l'air prudent, mais il ignore que l'énoncé a déjà établi la complexité. Deux autres : appliquer le plan mode partout par principe, et donner des instructions exhaustives en exécution directe — ce qui suppose de connaître la bonne structure avant d'avoir exploré le code.
+<p>Lisez l'énoncé pour une seule chose : <strong>où vivent les fichiers ?</strong></p>
+<p>« Fichiers de test colocalisés dans tout le codebase », « fichiers Terraform sous
+<code>infra/&lt;produit&gt;/</code> dans une douzaine de dossiers », « scripts de migration
+dispersés entre les services » → règle scopée par chemin avec un glob. « Tout ce
+qui est dans ce package » → un CLAUDE.md de répertoire se défend.</p>
+<p>Trois mauvaises réponses sont disponibles ici. Un CLAUDE.md par sous-répertoire,
+séduisant parce qu'il paraît plus local, mais lié au dossier et incapable de
+suivre un type de fichier. Tout consolider dans le CLAUDE.md racine sous des
+titres de section, ce qui remplace un appariement explicite par l'inférence du
+modèle et charge tout de même l'ensemble. Et un skill par type de fichier, qui
+échoue sur le mot <em>automatiquement</em> de l'énoncé : un skill s'invoque ou
+s'apparie à une demande, pas au fichier en cours d'édition.</p>
 </div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s5">5. Le raffinement itératif (Task 3.5)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Même avec des instructions détaillées en prose, Claude peut interpréter différemment vos attentes à chaque itération. Il faut des méthodes plus précises pour converger.</p>
-
-<h3>Des exemples concrets d'entrée/sortie (I/O examples)</h3>
-<p>La méthode la plus efficace. Si Claude produit des résultats différents de vos attentes malgré les descriptions textuelles, fournissez 2 à 3 paires input/output concrètes montrant la transformation voulue.</p>
-
+<div class="key-concept">
+<p><strong>Le guide fait loi ici.</strong> Il écrit que les règles scopées par chemin se chargent
+« when editing matching files » — si une option porte le mot <em>édition</em>, c'est
+celle-là. Nuance terrain, pour votre propre machine : la documentation actuelle dit
+que les règles scopées par chemin se déclenchent quand Claude <em>lit</em> un fichier
+correspondant au motif, donc en pratique la règle est déjà en contexte avant votre
+première modification. Même mécanisme, mêmes <code>paths</code>, mêmes globs ; seul le
+déclencheur diffère.</p>
+</div>
 <div class="anti-pattern">
-<strong>Les distracteurs face à des exemples entrée/sortie.</strong> Trois options concurrentes reviennent quand une consigne en prose est interprétée différemment à chaque exécution. Réécrire la consigne encore plus précisément : c'est la démarche qui a déjà échoué, et ajouter des mots sur une ambiguïté ne la tranche pas. Demander au modèle d'expliquer son interprétation avant chaque exécution : cela transforme chaque lancement en négociation au lieu de figer la spécification une fois pour toutes. Découper la transformation en une commande par champ : cela multiplie les invocations sans jamais définir ce que le terme ambigu recouvre. L'exemple travaillé, lui, montre le résultat attendu au lieu de le décrire.
+<p><strong>Se servir du scoping par chemin pour faire appliquer quelque chose.</strong> Une règle
+qui se charge reste une règle que Claude lit, avec les propriétés d'adhérence de
+n'importe quelle instruction. « Toute ressource Terraform doit porter un tag
+<code>cost_center</code> » comme règle scopée par chemin oriente l'écriture ; elle ne garantit
+pas le résultat. Si l'exigence est un verrou, c'est un hook ou un contrôle en CI —
+et les deux sont complémentaires, pas alternatifs : la règle fait juste la plupart
+du temps, le verrou attrape le reste.</p>
 </div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;3.3&quot;</code>.</p>
 
-<h3>L'itération guidée par les tests (TDD iteration)</h3>
-<ol>
-<li>Écrire les tests d'abord (cas attendus, cas limites, exigences de performance).</li>
-<li>Demander à Claude d'implémenter le code.</li>
-<li>Itérer sur les échecs jusqu'à ce que tous les tests passent.</li>
-</ol>
+<div class="section-header"><h2 id="s4">4. 3.4 — Determine when to use plan mode vs direct execution</h2></div>
 
-<h3>Le interview pattern</h3>
-<p>Avant d'implémenter, Claude pose des questions de clarification pour faire émerger des considérations non anticipées :</p>
-<pre>"Avant d'implémenter le cache pour l'API, quelques questions :
-1. Préférez-vous une invalidation par TTL ou par événement ?
-2. Les données périmées sont-elles acceptables si le cache tombe ?
-3. Le cache doit-il être par utilisateur ou global ?
-4. Quel volume de données est attendu ?"</pre>
+<p>Le <strong>plan mode</strong> est un mode de permission dans lequel Claude lit, cherche et lance
+des commandes en lecture seule, pose ses questions de clarification, et renvoie un
+plan — sans rien modifier. L'<strong>exécution directe</strong> est le mode ordinaire : vous
+décrivez le changement et Claude le fait.</p>
+<pre><code class="language-bash"># Y entrer pour toute une session…
+claude --permission-mode plan &quot;Restructurer le monolithe de facturation en services&quot;
 
-<div class="exam-tip">
-<strong>Quand utiliser le interview pattern :</strong> domaine peu familier (fintech, santé), implications non évidentes (stratégies de cache, modes de défaillance), ou multiples approches valides dont le meilleur choix dépend du contexte.
-</div>
-
-<h3>Batch vs. sequential feedback</h3>
-<p>Deux stratégies pour fournir du feedback à Claude :</p>
+# …ou presser Shift+Tab pour y basculer en cours de session, /plan pour un seul prompt.
+</code></pre>
+<p>Le choix ne porte pas sur la prudence, il porte sur <strong>l'endroit où sont les
+décisions</strong>.</p>
 <table>
-<tr><th>Stratégie</th><th>Quand l'utiliser</th><th>Exemple</th></tr>
-<tr><td><strong>Batch feedback</strong></td><td>Quand les problèmes sont <strong>interdépendants ou interactifs</strong> : tout dans un seul message détaillé pour que le modèle voie les interactions et les réconcilie</td><td>"Le module manque de gestion d'erreurs, ce qui affecte aussi la validation d'input : proposer une architecture unifiée"</td></tr>
-<tr><td><strong>Sequential feedback</strong></td><td>Quand les problèmes sont <strong>indépendants</strong> : un par un, sans que chaque correction dépende de la précédente</td><td>"1. Renomme la variable X. 2. Après validation, on passera au type de retour."</td></tr>
+<thead>
+<tr>
+<th>L'énoncé dit</th>
+<th>Mode</th>
+<th>Parce que</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Des dizaines de fichiers », « 45+ fichiers »</td>
+<td>Plan</td>
+<td>Le rayon d'impact doit être cartographié avant d'être créé</td>
+</tr>
+<tr>
+<td>« Plusieurs approches valides », « des prérequis d'infrastructure différents »</td>
+<td>Plan</td>
+<td>Il faut trancher, et trancher après avoir écrit veut dire réécrire</td>
+</tr>
+<tr>
+<td>« Frontières de service », « restructuration »</td>
+<td>Plan</td>
+<td>Les décisions d'architecture se propagent</td>
+</tr>
+<tr>
+<td>« Une stack trace claire », « une seule fonction »</td>
+<td>Direct</td>
+<td>Le périmètre est déjà établi</td>
+</tr>
+<tr>
+<td>« Ajouter une validation de date »</td>
+<td>Direct</td>
+<td>Changement compris, rien à arbitrer</td>
+</tr>
+</tbody>
 </table>
-<div class="key-concept">
-<strong>La clé : l'interdépendance.</strong> Si les problèmes s'influencent mutuellement (ex. erreur de gestion d'erreur + validation d'input), utilisez <strong>batch</strong> pour que le modèle voie les interactions et réconcilie. Si chaque problème est indépendant, utilisez <strong>sequential</strong> pour valider étape par étape. Le batch est plus efficace en tokens, le sequential offre plus de contrôle et de validation.
+<p>Le plan mode gagne son coût pour une raison : itérer sur un plan est bien moins
+cher que laisser une exécution avoir lieu puis nettoyer derrière. L'endroit où
+corriger le tir est avant qu'une ligne soit écrite. Et quand le plan revient,
+lisez-le au lieu de le parcourir — un plan non lu est une approbation que vous
+n'avez pas réellement donnée.</p>
+<h3>Le subagent Explore</h3>
+<p>Un subagent s'exécute dans sa propre fenêtre de contexte et renvoie un résumé ; les
+lectures, les recherches et les impasses restent avec lui. Cette isolation est le
+sujet de D1 (TS 1.2 et 1.3). Ce qui relève d'ici, c'est ce que le guide lui demande
+dans ce task statement.</p>
+<p><strong>Explore</strong> est le subagent intégré, en lecture seule, dédié à la découverte.
+Claude lui délègue la recherche ou la compréhension d'un codebase sans le modifier,
+et seul son résumé atteint la conversation principale. C'est la réponse chaque fois
+qu'une tâche en plusieurs phases épuise sa fenêtre pendant la phase de
+<em>découverte</em> : le coût de l'exploration est payé dans un contexte que vous allez
+jeter, et la fenêtre principale reste disponible pour planifier puis implémenter.</p>
+<p>Il n'est pas lié au plan mode. Vous pouvez demander une exploration via le subagent
+hors plan mode quand tout ce que vous voulez est un résumé du fonctionnement de
+quelque chose.</p>
+<h3>La combinaison sur laquelle le guide interroge</h3>
+<p>Le plan mode et l'exécution directe ne sont pas une allégeance définitive. La forme
+courante est les deux, dans l'ordre : planifier la migration de bibliothèque,
+approuver le plan, puis l'exécuter directement. Le plan approuvé devient le
+périmètre de la phase d'écriture — l'arbitrage a eu lieu avant qu'un fichier
+change.</p>
+<div class="exam-tip">
+<p>La complexité est <strong>énoncée dans le scénario</strong> ; elle ne se devine jamais. Comptez
+les signaux : plusieurs fichiers, des approches concurrentes, des frontières à
+tracer → plan mode. Une stack trace, un seul fichier, un changement que tout le
+monde comprend déjà → exécution directe.</p>
+<p>Le distracteur le plus fin propose de commencer en exécution directe et de basculer
+en plan mode si cela s'avère compliqué. Il a l'air prudent et il ignore que
+l'énoncé a déjà établi la complexité — vous iriez découvrir, à vos frais, ce qu'on
+vous a dit. Deux plus grossiers : le plan mode partout par principe, qui dépense de
+la délibération sur une correction d'une ligne ; et donner des instructions
+exhaustives d'emblée en exécution directe, ce qui suppose de connaître la bonne
+structure avant que quiconque ait lu le code.</p>
 </div>
-
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s6">6. L'intégration dans les pipelines CI/CD (Task 3.6)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Claude Code est interactif par défaut. Sans configuration adaptée, un job CI se bloquera indéfiniment en attente d'une saisie utilisateur.</p>
-
-<h3>Le flag <code>-p</code> (<code>--print</code>)</h3>
-<pre>claude -p "Analyse cette pull request pour les problèmes de sécurité"</pre>
-<p>Le flag <code>-p</code> (alias <code>--print</code>) active le mode non interactif : Claude traite le prompt, imprime le résultat sur la sortie standard, puis se termine. C'est la <strong>seule manière documentée</strong> d'exécuter Claude Code en CI/CD.</p>
-
-<h3>Les sorties structurées</h3>
-<pre>claude -p "Revue de cette PR" --output-format json --json-schema '{...}'</pre>
-<p>Le résultat reste l'enveloppe JSON habituelle de <code>--output-format json</code> ; le contenu conforme au schéma fourni via <code>--json-schema</code> se trouve dans le champ <code>structured_output</code>, que vous pouvez parser pour poster automatiquement des commentaires inline via l'API GitHub.</p>
-
-<h3>L'isolation de session pour la revue</h3>
-<div class="key-concept">
-La même session Claude qui a généré le code est moins efficace pour le reviewer. Elle conserve son contexte de raisonnement et questionne moins ses propres décisions — un biais analogue à celui d'un développeur relisant son propre code. Utilisez une <strong>instance indépendante</strong> (session séparée) pour la revue.
-</div>
-
-<h3>Bonnes pratiques CI/CD</h3>
-<ul>
-<li><strong>Éviter les commentaires dupliqués :</strong> quand vous relancez une revue après de nouveaux commits, incluez les résultats de la revue précédente dans le contexte et demandez à Claude de ne signaler que les problèmes nouveaux ou non résolus.</li>
-<li><strong>Améliorer la génération de tests :</strong> documentez les standards de test et les fixtures dans <code>CLAUDE.md</code>, et incluez les fichiers de test existants en contexte pour garder un style cohérent.</li>
-</ul>
-
-<h3>Le mode <em>headless</em> (terminologie Anthropic)</h3>
-<p>Le mode non interactif activé par <code>-p</code> / <code>--print</code> est désigné officiellement comme <strong>headless mode</strong> dans la documentation Anthropic. Caractéristiques :</p>
-<ul>
-<li>Pas de prompt interactif, pas d'attente de saisie</li>
-<li>Sortie sur stdout, code de retour exploitable (<code>$?</code>)</li>
-<li>Combinable avec <code>--output-format json</code> pour parsing programmatique</li>
-<li>Combinable avec <code>--json-schema</code> pour contraindre la forme de cette sortie</li>
-</ul>
-
-<h3>Workflow GitHub Actions concret</h3>
-<pre>name: Claude Code Review
-on:
-  pull_request:
-    types: [opened, synchronize]
-
-jobs:
-  claude-review:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - run: npm install -g @anthropic-ai/claude-code
-
-      - name: Run Claude review (non interactif)
-        id: review
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: |
-          claude -p "Review the diff git diff origin/main...HEAD \
-            for security issues, bugs, and style violations. \
-            Output JSON matching the schema." \
-            --output-format json \
-            --json-schema '{
-              "type":"object",
-              "properties":{
-                "issues":{"type":"array","items":{
-                  "type":"object",
-                  "properties":{
-                    "severity":{"enum":["critical","major","minor"]},
-                    "file":{"type":"string"},
-                    "line":{"type":"integer"},
-                    "message":{"type":"string"}
-                  },
-                  "required":["severity","file","message"]
-                }}
-              }
-            }' &gt; review.json
-
-      - name: Post inline comments
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const review = require('./review.json');
-            for (const issue of review.structured_output.issues) {
-              await github.rest.pulls.createReviewComment({
-                ...context.repo,
-                pull_number: context.issue.number,
-                body: `**[${issue.severity}]** ${issue.message}`,
-                commit_id: context.payload.pull_request.head.sha,
-                path: issue.file,
-                line: issue.line
-              });
-            }</pre>
-
-<div class="key-concept">
-<strong>Points clés du workflow :</strong>
-<ul>
-<li><code>-p</code> est ce qui empêche le job de se bloquer en attente d'une saisie interactive</li>
-<li><code>--output-format json</code> + <code>--json-schema</code> : la sortie devient exploitable par l'étape suivante sans parsing fragile</li>
-<li><code>ANTHROPIC_API_KEY</code> dans les <strong>secrets</strong> du repo, pas dans le YAML</li>
-<li>Le <strong>CLAUDE.md</strong> du projet fournit à cette instance CI les standards de test, les fixtures disponibles et les critères de revue</li>
-<li>L'instance de revue est <strong>distincte</strong> de toute instance de génération : pas de biais self-review</li>
-</ul>
-</div>
-
 <div class="anti-pattern">
-<strong>Anti-pattern :</strong> relancer la revue à chaque nouveau commit sans lui donner les findings des passes précédentes. Claude re-signale les mêmes problèmes, la PR se couvre de commentaires dupliqués et les développeurs cessent de les lire. Le correctif : inclure les findings antérieurs dans le contexte et demander explicitement de ne rapporter que les problèmes <em>nouveaux ou non encore traités</em>.
+<p><strong>Traiter le plan mode comme un dispositif de sécurité et l'exécution directe comme
+le mode risqué.</strong> Ils répondent à une question sur la <em>tâche</em>, pas sur votre
+appétit pour le risque. Quand un scénario porte deux tickets, répondre plan mode
+pour les deux vous coûte celui qui est tranché : un test en échec qui énonce la
+valeur attendue a déjà écrit la réponse que la planification irait chercher.</p>
 </div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;3.4&quot;</code>.</p>
 
+<div class="section-header"><h2 id="s5">5. 3.5 — Apply iterative refinement techniques for progressive improvement</h2></div>
+
+<p>Les quatre techniques de ce task statement viennent de la liste du guide
+lui-même. Elles répondent à quatre défaillances différentes, et la question
+d'examen est toujours <em>de quelle défaillance il s'agit</em>.</p>
+<h3>Des exemples entrée/sortie concrets</h3>
+<p>La défaillance : la même consigne en prose produit un résultat différent à chaque
+exécution. Le remède que le guide dit le plus efficace n'est pas plus de prose.
+C'est deux ou trois paires concrètes montrant la transformation.</p>
+<pre><code class="language-text">Normalise ces fiches client.
+
+  &quot;Dupont,  Marie-Claire&quot;  →  { first: &quot;Marie-Claire&quot;, last: &quot;Dupont&quot; }
+  &quot;jean pierre MARTIN&quot;     →  { first: &quot;Jean Pierre&quot;, last: &quot;Martin&quot; }
+  &quot;O'Brien, Sean (Jr.)&quot;    →  { first: &quot;Sean&quot;, last: &quot;O'Brien&quot;, suffix: &quot;Jr.&quot; }
+</code></pre>
+<p>Trois paires tranchent ce qu'un paragraphe de définition laissait ouvert : où va la
+virgule, ce qu'il advient de la casse, qu'un suffixe reçoit son propre champ. Un
+exemple montre le résultat au lieu de le décrire, et les cas limites que vous
+choisissez d'y inclure sont exactement ceux qui vous inquiétaient.</p>
 <div class="exam-tip">
-<strong>Réflexe d'examen :</strong> quatre associations suffisent à trancher la plupart des questions CI/CD. Un job qui se bloque en attente de saisie → <code>-p</code>. Une pipeline qui doit parser des findings → <code>--output-format json</code> avec <code>--json-schema</code>. Une instance CI qui ignore les conventions de test du projet → le <code>CLAUDE.md</code> versionné les lui porte. Une revue à faire sur du code que Claude vient de produire → une instance indépendante. Les distracteurs sont de deux familles. Les mécanismes inventés d'abord : une variable <code>CLAUDE_HEADLESS</code> et un flag <code>--batch</code>, plausibles parce que « headless » et « batch » sont bien le vocabulaire du domaine, mais aucun des deux n'existe. Les contournements ensuite : rediriger stdin depuis <code>/dev/null</code>, qui traite le symptôme sans activer le mode documenté, et parser la prose à coups de regex, qui déplace la fragilité du format dans votre code au lieu de contraindre la sortie.
+<p>Quand l'énoncé dit qu'une instruction écrite a été réécrite une ou deux fois et que
+la sortie varie encore, la réponse est les exemples travaillés. Les distracteurs
+sont tous des suites plausibles et rejouent tous la défaillance. Réécrire la prose
+plus précisément est la démarche qui a déjà échoué deux fois ; plus de mots sur une
+ambiguïté ne la tranchent pas. Demander au modèle d'expliquer son interprétation
+avant chaque exécution transforme chaque lancement en négociation au lieu de figer
+la spécification une fois pour toutes. Découper la transformation en un appel par
+champ multiplie les invocations sans jamais définir le terme ambigu. Et un
+validateur qui rejette les mauvaises sorties attrape une forme d'erreur et relance
+la même demande non contrainte.</p>
 </div>
+<h3>L'itération guidée par les tests</h3>
+<p>La défaillance : vous ne pouvez pas dire si le code est juste, donc Claude non plus.
+Écrivez la suite de tests d'abord — comportement attendu, cas limites, exigences de
+performance — puis faites écrire l'implémentation contre elle, puis itérez en
+renvoyant les échecs.</p>
+<pre><code class="language-bash">$ pytest tests/test_migration.py
+FAILED test_null_effective_date - AssertionError: expected None, got '1970-01-01'
+FAILED test_duplicate_account_ids - KeyError: 'legacy_id'
+</code></pre>
+<p>Deux conditions font que cela fonctionne au lieu de simplement paraître rigoureux.
+Les tests doivent être une <strong>source de vérité fiable</strong> : une suite qui passe sur du
+code cassé transforme l'itération en fausse confiance. Et « terminé » doit vouloir
+dire que les portes ont été franchies et observées, pas qu'un résumé affirme
+qu'elles l'ont été.</p>
+<p>La version la plus tranchante qu'en donne le guide concerne les cas limites :
+plutôt que de décrire le problème, fournissez le cas précis — cette entrée, cette
+sortie attendue, par exemple la valeur nulle que votre script de migration traite
+mal.</p>
+<h3>L'interview pattern</h3>
+<p>La défaillance : la spécification est incomplète et personne ne le sait encore.
+Demandez à Claude de vous interroger avant d'implémenter.</p>
+<pre><code class="language-text">Avant d'implémenter le cache de l'API de tarification, pose-moi les questions dont
+tu as besoin pour trancher la conception. N'écris pas de code avant mes réponses.
 
-<!-- ================================================================== -->
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s7">7. Synthèse — les points clés</h2></div>
-
-<h3>Quelle fonctionnalité utiliser</h3>
+  1. Invalidation par TTL, ou sur événement d'écriture ?
+  2. Des données périmées sont-elles acceptables si le cache est injoignable ?
+  3. Par locataire ou global ?
+  4. Quel volume de lecture doit-il tenir ?
+</code></pre>
+<p>Sa valeur, c'est la question 2. Vous n'aviez pas pensé au cache injoignable, et
+vous l'auriez découvert en production. Prenez-le dans les domaines peu familiers,
+là où les implications ne sont pas évidentes — stratégies d'invalidation de cache,
+modes de défaillance — et là où plusieurs approches sont valides et où la bonne
+dépend d'un contexte que vous n'avez pas énoncé.</p>
+<h3>Un seul message, ou un à la fois</h3>
+<p>La défaillance : plusieurs problèmes à la fois, et les correctifs se combattent.</p>
 <table>
-<tr><th>Fonctionnalité</th><th>Chargement</th><th>Déclenchement</th><th>Isolation</th><th>Usage idéal</th></tr>
-<tr><td><strong>CLAUDE.md</strong></td><td>Toujours</td><td>Automatique</td><td>Non</td><td>Standards universels du projet</td></tr>
-<tr><td><strong>Skills</strong></td><td>À la demande</td><td>Matching sémantique</td><td>Optionnelle (<code>context: fork</code>)</td><td>Expertise spécifique à une tâche</td></tr>
-<tr><td><strong>Slash commands</strong></td><td>À l'invocation</td><td>Manuel (<code>/commande</code>)</td><td>Non</td><td>Workflows répétables explicites</td></tr>
-<tr><td><strong>Hooks</strong></td><td>Événementiel</td><td>Événement (appel d'outil)</td><td>Non</td><td>Opérations automatiques (lint, validation)</td></tr>
-<tr><td><strong>Subagents</strong></td><td>À la demande</td><td>Délégation explicite</td><td><strong>Oui</strong></td><td>Tâches déléguées avec isolation</td></tr>
-<tr><td><strong>Serveurs MCP</strong></td><td>À la connexion</td><td>Via les outils</td><td>Non</td><td>Outils et intégrations externes</td></tr>
+<thead>
+<tr>
+<th>Les problèmes sont</th>
+<th>Donner le feedback</th>
+<th>Parce que</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interdépendants — corriger l'un change ce dont les autres ont besoin</td>
+<td><strong>Tous dans un seul message détaillé</strong></td>
+<td>Le modèle doit voir l'interaction pour la réconcilier ; les corriger un par un revient à refaire la première correction</td>
+</tr>
+<tr>
+<td>Indépendants — chacun se tient seul</td>
+<td><strong>Séquentiellement</strong></td>
+<td>Vous validez chaque étape, et rien de ce que vous approuvez n'est défait par le tour suivant</td>
+</tr>
+</tbody>
 </table>
+<p>Une gestion d'erreurs manquante <em>et</em> une validation d'entrée fausse font un seul
+message : une réponse unifiée doit les placer ensemble. Renommer une variable et
+changer un type de retour font deux conversations.</p>
+<div class="anti-pattern">
+<p><strong>Regrouper des problèmes indépendants pour économiser des allers-retours.</strong> C'est
+plus économe en tokens et cela abandonne la validation pas à pas qui faisait tout
+l'intérêt du feedback séquentiel — vous découvrez à la fin lequel des cinq
+changements était faux.</p>
+<p><strong>Découper des problèmes interdépendants pour garder le contrôle.</strong> Chaque
+correction se fait sans voir les autres, si bien que la seconde démonte la
+première. Le critère est l'interdépendance, jamais le nombre de problèmes.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;3.5&quot;</code>.</p>
 
-<p><em>Pour les hooks de l'Agent SDK (PostToolUse, PreToolUse) au niveau programmatique, voir D1, section 6.</em></p>
+<div class="section-header"><h2 id="s6">6. 3.6 — Integrate Claude Code into CI/CD pipelines</h2></div>
 
-<h3>CLAUDE.md</h3>
+<p>Claude Code est interactif par défaut. Invoqué dans une pipeline sans personne pour
+répondre à une invite, il attend — et le runner finit par le tuer au timeout de
+l'étape. Tout ce task statement découle de là.</p>
+<h3><code>-p</code>, et la forme de la sortie</h3>
+<p><code>-p</code>, écrit en toutes lettres <code>--print</code>, exécute Claude Code comme une commande à
+un coup : il traite le prompt, écrit le résultat sur la sortie standard, et se
+termine. Il lit l'entrée standard et écrit sur la sortie standard, donc il se
+branche en pipe comme n'importe quel outil shell.</p>
+<p>Cela fait aboutir le job. Obtenir quelque chose que l'<em>étape suivante</em> peut
+exploiter demande deux flags de plus : <code>--output-format json</code> fait de la réponse
+une enveloppe JSON, et <code>--json-schema</code> contraint la charge utile à un schéma que
+vous fournissez. L'objet conforme atterrit dans le champ <code>structured_output</code> de
+l'enveloppe, à un endroit fixe, si bien que rien en aval n'a de prose à parser.</p>
+<pre><code class="language-yaml">- name: Revue du diff
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  run: |
+    claude -p &quot;Relis $(git diff origin/main...HEAD) à la recherche de failles de sécurité et de bugs.&quot; \
+      --output-format json \
+      --json-schema '{
+        &quot;type&quot;: &quot;object&quot;,
+        &quot;properties&quot;: {
+          &quot;issues&quot;: {&quot;type&quot;: &quot;array&quot;, &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {
+              &quot;severity&quot;: {&quot;enum&quot;: [&quot;critical&quot;, &quot;major&quot;, &quot;minor&quot;]},
+              &quot;file&quot;: {&quot;type&quot;: &quot;string&quot;},
+              &quot;line&quot;: {&quot;type&quot;: &quot;integer&quot;},
+              &quot;message&quot;: {&quot;type&quot;: &quot;string&quot;}
+            },
+            &quot;required&quot;: [&quot;severity&quot;, &quot;file&quot;, &quot;message&quot;]
+          }}
+        }
+      }' \
+      | jq '.structured_output.issues' &gt; findings.json
+</code></pre>
+<p><code>findings.json</code> est maintenant une liste qu'une étape ultérieure peut poster en
+commentaires inline sur la pull request via l'API GitHub. La clé d'API vient des
+secrets du dépôt, jamais du fichier de workflow.</p>
+<h3>Ce que l'instance CI sait</h3>
+<p>Un Claude Code invoqué en CI n'a pas d'historique de session et personne à qui
+demander. La réponse du guide à cela est <strong>CLAUDE.md</strong> : le fichier projet
+versionné est le mécanisme qui porte à l'instance qui tourne dans la pipeline les
+standards de test, les conventions de fixtures et les critères de revue. Documentez
+quelles fixtures existent et ce qui fait qu'un test vaut la peine d'être écrit, et
+la génération de tests cesse de produire des tests de faible valeur qui recouvrent
+un terrain que la suite tient déjà — c'est aussi pourquoi vous mettez les fichiers
+de test existants en contexte quand vous en demandez de nouveaux.</p>
+<div class="key-concept">
+<p><code>claude -p</code> charge le même contexte projet qu'une session interactive, CLAUDE.md
+compris. Le mode bare — le flag <code>--bare</code> — en est le retrait : il saute
+l'auto-découverte des hooks, des skills, des plugins, des serveurs MCP et du
+CLAUDE.md pour démarrer plus vite et s'exécuter de façon déterministe.</p>
+<p>Soyez précis ici, car une version largement enseignée de ce point est fausse : la
+leçon de <em>Claude Code in Action</em> sur le mode headless attribue ce saut à <code>-p</code>
+lui-même. La documentation l'attribue à <code>--bare</code> et précise que sans lui,
+<code>claude -p</code> charge le même contexte qu'une session interactive — et le TS 3.6 du
+guide lui-même suppose que CLAUDE.md atteint l'instance CI, ce qu'il ne pourrait
+pas faire si <code>-p</code> le laissait tomber. La pipeline reçoit votre CLAUDE.md sauf si
+vous avez demandé le mode bare ; et si vous l'avez demandé, vous avez aussi
+renoncé aux standards sur lesquels le guide vous dit de vous appuyer.</p>
+</div>
+<h3>Relire est le travail d'une seconde instance</h3>
+<p>La session qui a écrit le code en est le plus mauvais relecteur. Elle porte le
+raisonnement qui a produit ce code et remet le moins en question ses propres
+décisions — le même biais qu'un auteur relisant son propre texte. La revue tourne
+dans une <strong>instance indépendante</strong> : une session séparée, ou un subagent sans
+mémoire de la façon dont le code a été construit. Un œil neuf attrape ce que
+l'exécution d'origine s'est raconté pour passer outre.</p>
+<p>Deux règles opérationnelles complètent le tableau, et toutes deux sont des
+compétences du guide :</p>
 <ul>
-<li>Trois niveaux : user (personnel), project (équipe), directory (local).</li>
-<li>Erreur classique : mettre les instructions au user-level au lieu du project-level.</li>
-<li>Syntaxe <code>@path</code> pour les imports modulaires. (La profondeur max de 4 niveaux vient de la doc, pas du guide.)</li>
-<li><code>.claude/rules/</code> avec YAML frontmatter <code>paths</code> et glob patterns pour le chargement conditionnel.</li>
-<li>Glob patterns préférables pour les conventions cross-directory ; directory <code>CLAUDE.md</code> pour les règles strictement locales.</li>
-<li><code>/memory</code> pour persister des notes entre sessions ; <code>/compact</code> pour compresser le contexte.</li>
+<li><strong>En relançant une revue après de nouveaux commits, passez-lui les constats
+précédents</strong> et demandez à Claude de ne rapporter que ce qui est nouveau ou encore
+non traité. Sinon chaque push soulève de nouveau les mêmes problèmes, la pull
+request se
+remplit de commentaires dupliqués, et les développeurs cessent de les lire.</li>
+<li><strong>Passez les fichiers de test existants</strong> lors de la génération de tests, pour que
+les nouveaux ne dupliquent pas des scénarios déjà couverts.</li>
 </ul>
+<div class="exam-tip">
+<p>Quatre associations tranchent la plupart des questions CI. Un job qui se bloque en
+attente de saisie → <code>-p</code>. Une pipeline qui doit parser des constats →
+<code>--output-format json</code> avec <code>--json-schema</code>. Une instance CI qui ignore les
+conventions de test du projet → le CLAUDE.md versionné les lui porte. Relire du
+code que Claude vient d'écrire → une instance indépendante.</p>
+<p>Les distracteurs viennent de deux familles. <strong>Les mécanismes inventés</strong> : une
+variable d'environnement <code>CLAUDE_HEADLESS</code>, un flag <code>--batch</code>, une option
+<code>--no-tty</code>. Ils sont plausibles parce que <em>headless</em> et <em>batch</em> sont bien le
+vocabulaire du domaine, et aucun des trois n'existe — un flag que le binaire ne
+connaît pas ne change pas le mode. <strong>Les contournements</strong> : rediriger l'entrée
+standard depuis <code>/dev/null</code>, qui traite le symptôme sans activer le mode
+documenté ; envelopper l'appel dans un <code>timeout</code>, qui transforme un long blocage
+en un blocage court et ne produit toujours rien ; et parser la prose à coups de
+regex, qui déplace la fragilité dans votre propre code au lieu de la supprimer.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Relancer la revue de zéro à chaque push.</strong> Claude n'a pas de mémoire entre les
+exécutions, donc il resignale tout ce qu'il avait trouvé la fois précédente. La
+pull request accumule les doublons jusqu'à ce que plus personne ne lise le bot. Le
+correctif n'est pas de relire moins souvent — c'est d'inclure les constats
+antérieurs et de demander le delta.</p>
+<p><strong>Utiliser la session génératrice pour relire son propre diff afin d'économiser un
+appel.</strong> L'économie est réelle et la revue vaut moins que l'appel qu'elle a
+économisé.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;3.6&quot;</code>.</p>
 
-<h3>Skills et slash commands</h3>
-<ul>
-<li>Slash commands dans <code>.claude/commands/</code> : mécanisme valide, partage via VCS.</li>
-<li>Skills dans <code>.claude/skills/</code> : format actuel, <code>SKILL.md</code> avec YAML frontmatter.</li>
-<li>Skills personnels dans <code>~/.claude/skills/</code> : doivent utiliser des <strong>noms différents</strong> des skills projet (le skill <strong>personnel</strong> prend la priorité pour un même nom).</li>
-<li><code>context: fork</code> pour l'isolation dans un subagent, <code>allowed-tools</code> pour <strong>restreindre l'accès aux outils</strong> pendant l'exécution du skill, <code>argument-hint</code> pour réclamer les paramètres attendus.</li>
-</ul>
-
-<h3>Modes de travail</h3>
-<ul>
-<li>Planning mode pour les tâches complexes, codebase inconnu, migrations 45+ fichiers.</li>
-<li>Direct exécution pour les corrections ciblées sur un seul fichier.</li>
-<li>Combinaison : planning mode puis direct exécution après approbation.</li>
-<li>Le Explore subagent isole la sortie verbeuse de la découverte.</li>
-<li>Le interview pattern fait émerger les considérations non anticipées avant implémentation.</li>
-<li>Batch feedback (un seul message) pour les problèmes interdépendants ; sequential feedback pour les problèmes indépendants.</li>
-</ul>
-
-<h3>CI/CD</h3>
-<ul>
-<li>Le flag <code>-p</code> (<code>--print</code>) active le <strong>headless mode</strong>, obligatoire en CI.</li>
-<li><code>--output-format json</code> + <code>--json-schema</code> pour des sorties structurées (résultat conforme dans <code>structured_output</code>).</li>
-<li>Instance indépendante pour la revue (pas la même session qui a généré le code).</li>
-<li>Inclure les résultats de revue précédents pour éviter les commentaires dupliqués.</li>
-<li>Fournir les fichiers de test existants pour que la génération de tests ne duplique pas la couverture.</li>
-<li><code>CLAUDE.md</code> porte les standards de test, les fixtures et les critères de revue jusqu'à l'instance CI.</li>
-<li><code>ANTHROPIC_API_KEY</code> dans les secrets, jamais en clair dans le YAML.</li>
-</ul>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s8">8. Auto-évaluation</h2></div>
+<div class="section-header"><h2 id="s7" class="page-break">7. Questions d'auto-évaluation</h2></div>
 
 <details id="d3-q1" data-domain="D3" data-task="3.1">
 <summary>Q1 (D3) — A rule the cloud workspaces never receive</summary>
@@ -637,7 +999,7 @@ jobs:
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — D3 Configuration et workflows · Sources : guide officiel CCA (chapitre 5) · 2026
+CCA Révision — D3 — Configuration et workflows de Claude Code (20 %) · 2026
 </p>
 
 

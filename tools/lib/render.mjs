@@ -25,8 +25,43 @@ function stripMetadataComments(markdown) {
   return markdown.replace(METADATA_COMMENT, '');
 }
 
+/* po4a traduit chaque puce d'une liste comme un bloc distinct et les réécrit
+ * séparées par une ligne vide. Markdown y voit une liste « lâche » là où
+ * courses/en/ portait une liste serrée : la page française enveloppe alors
+ * chaque puce dans un <p> que sa jumelle anglaise n'a pas, pour un texte
+ * identique. Douze puces du corpus étaient dans ce cas, sur D1 et D3.
+ *
+ * La différence ne porte aucune intention d'auteur — elle naît du découpage
+ * du catalogue — donc on la normalise ici, au seul endroit où les deux
+ * langues deviennent du HTML, plutôt que d'ajuster chaque cours à la main.
+ *
+ * Ne sont resserrées que les puces dont le paragraphe est l'unique bloc :
+ * une puce qui en porte réellement deux les garde séparés, sinon son texte
+ * se retrouverait abouté. C'est exactement la notion de liste serrée de
+ * markdown-it, qui rend ces paragraphes « hidden ». */
+function tightenListItems(tokens) {
+  for (let i = 0; i < tokens.length; i++) {
+    if (tokens[i].type !== 'list_item_open') continue;
+
+    const depth = tokens[i].level;
+    const blocks = [];
+    for (let j = i + 1; j < tokens.length && !(tokens[j].type === 'list_item_close' && tokens[j].level === depth); j++) {
+      if (tokens[j].level === depth + 1 && tokens[j].nesting === 1) blocks.push(j);
+    }
+
+    if (blocks.length !== 1) continue;
+    const open = tokens[blocks[0]];
+    if (open.type !== 'paragraph_open') continue;
+
+    const close = tokens.find((t, k) => k > blocks[0] && t.type === 'paragraph_close' && t.level === open.level);
+    open.hidden = true;
+    if (close) close.hidden = true;
+  }
+  return tokens;
+}
+
 export function renderCourse(markdown) {
-  const tokens = md.parse(stripMetadataComments(markdown), {});
+  const tokens = tightenListItems(md.parse(stripMetadataComments(markdown), {}));
 
   let title = '';
   const sections = [];

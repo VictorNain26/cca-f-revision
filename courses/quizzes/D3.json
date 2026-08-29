@@ -1,0 +1,179 @@
+[
+  {
+    "id": "d3-q1",
+    "domain": "D3",
+    "task": "3.1",
+    "summary": "Q1 (D3) — A rule the cloud workspaces never receive",
+    "scenario": "Half the team codes in ephemeral cloud workspaces rebuilt from a base image at every checkout. Payment calls written there go straight to the gateway, while laptops keep routing through <code>PaymentsClient</code> as agreed. The instruction ships in the onboarding dotfile bundle, which every new hire unpacks into <code>~/.claude/CLAUDE.md</code> on their laptop; the base image is built from another recipe and never runs that step.",
+    "question": "What is the diagnosis and the fix?",
+    "options": {
+      "a": "The workspaces open their session below the repository root, so the file one level up never loads; start at the root.",
+      "b": "The wording reads as a preference rather than an obligation, and a fresh environment has no local habit to fall back on; make it imperative.",
+      "c": "It sits at user scope, outside version control; commit it at project scope instead.",
+      "d": "The repository never declares it; move the restriction into <code>settings.json</code>."
+    },
+    "answer": "c",
+    "answerLabel": "the instruction lives at user scope instead of project scope",
+    "why": "a user-scope file belongs to a home directory and is never distributed with the repository, so it reaches a machine only through whatever copies it there and an environment rebuilt from an image starts without it. Anything the whole team must follow belongs in a committed project file.",
+    "distractors": {
+      "a": "Nothing is waiting further up the tree: the file is not in the image at all.",
+      "b": "Wording cannot decide the behavior of a session that never read the text.",
+      "d": "That file governs permissions, hooks and tool access; it is not where standing instructions to the model live."
+    }
+  },
+  {
+    "id": "d3-q2",
+    "domain": "D3",
+    "task": "3.3",
+    "summary": "Q2 (D3) — Standards for files that sit in every product folder",
+    "scenario": "Every product team keeps its own infrastructure under <code>infra/&lt;product&gt;/</code>, so the Terraform files matching <code>infra/**/*.tf</code> are scattered across a dozen folders. Each resource must pin its provider version and carry a <code>cost_center</code> tag, and you want that applied whenever one of those files is edited, without anyone invoking anything.",
+    "question": "Which setup delivers that?",
+    "options": {
+      "a": "A <code>PostToolUse</code> hook that fires after each write and appends the tagging standards to the session.",
+      "b": "A <code>.claude/rules/terraform.md</code> whose frontmatter <code>paths</code> glob covers those files.",
+      "c": "A <code>tflint</code> policy in CI that fails the build whenever a resource is untagged or its provider is unpinned.",
+      "d": "The standards written up in <code>docs/infrastructure-standards.md</code>, the place engineers already look."
+    },
+    "answer": "b",
+    "answerLabel": "a path-scoped rule file whose glob follows the file type across the tree",
+    "why": "the glob matches on the file being edited, wherever it sits, and the body loads only while such a file is in play — which is what a convention attached to a file type rather than to a directory needs.",
+    "distractors": {
+      "a": "A hook runs a command on a tool event, once the write has already happened; it is not a channel for standards meant to shape the writing.",
+      "c": "Rejection after the fact, not guidance during: the loop becomes a red build somebody has to go back and fix.",
+      "d": "A document no session opens shapes nothing that gets written."
+    }
+  },
+  {
+    "id": "d3-q3",
+    "domain": "D3",
+    "task": "3.2",
+    "summary": "Q3 (D3) — A skill that floods the window it runs in",
+    "scenario": "Your <code>/orphan-assets</code> skill walks the media bucket and the codebase to list images nothing references. It prints every path it checks on the way, and the work that follows in the same session has visibly lost the thread.",
+    "question": "What is the right change?",
+    "options": {
+      "a": "Restrict the skill's <code>allowed-tools</code> to <code>Read</code> and <code>Glob</code>, so the run produces less to read.",
+      "b": "Have the skill append each inspected path to <code>reports/orphans.log</code> and print only the total it found.",
+      "c": "Run it in a second terminal and paste the verdict back.",
+      "d": "Declare <code>context: fork</code> in the skill's frontmatter, so only the verdict returns."
+    },
+    "answer": "d",
+    "answerLabel": "run the skill in a forked context",
+    "why": "the path-by-path trace is worth producing, it simply does not belong in the conversation. A forked context runs the walk inside an isolated subagent and hands back the conclusion alone.",
+    "distractors": {
+      "a": "Tool permissions decide what the skill may do, not how much it narrates.",
+      "b": "The listing still crosses the session on its way to disk.",
+      "c": "Isolation by hand, unrepeatable, and nothing carries it to the next person."
+    }
+  },
+  {
+    "id": "d3-q4",
+    "domain": "D3",
+    "task": "3.6",
+    "summary": "Q4 (D3) — A nightly job the runner has to kill",
+    "scenario": "A nightly job runs <code>claude \"Summarize the changes merged today\"</code> and the runner kills it at the step timeout. The log shows Claude Code sitting at an interactive prompt.",
+    "question": "What makes the command usable in an unattended job?",
+    "options": {
+      "a": "Export <code>CLAUDE_CI=1</code> in the job environment.",
+      "b": "Add <code>--no-tty</code> to the invocation.",
+      "c": "Add <code>-p</code> (spelled out as <code>--print</code>) to the invocation.",
+      "d": "Wrap the call in <code>timeout 600</code> so the runner is never the one to kill it."
+    },
+    "answer": "c",
+    "answerLabel": "the print flag, which is the documented non-interactive mode",
+    "why": "it processes the prompt, writes the result to stdout and exits without waiting on input — which is what an unattended job needs.",
+    "distractors": {
+      "a": "No such environment variable exists, so the command runs unchanged and still waits.",
+      "b": "No such flag exists either, and an unrecognized option does not switch the mode.",
+      "d": "Turns a long hang into a shorter one; the job still produces nothing."
+    }
+  },
+  {
+    "id": "d3-q5",
+    "domain": "D3",
+    "task": "3.6",
+    "summary": "Q5 (D3) — The flag-retirement job cannot read its own input",
+    "scenario": "A weekly job runs <code>claude -p</code> to list the feature flags that are safe to remove, and <code>retire_flags.mjs</code> expects records carrying <code>flag</code>, <code>owner</code> and <code>last_seen</code>. Some runs come back as a bulleted list, some as a paragraph, and the field names move between runs, so the job fails more often than it succeeds.",
+    "question": "What is the correct fix?",
+    "options": {
+      "a": "Append \"reply with a JSON array and nothing else\" to the prompt, and retry the step whenever the parse fails.",
+      "b": "Feed the first run's prose into a second <code>claude -p</code> call whose only job is to turn it into the record shape.",
+      "c": "Run with <code>--output-format json</code> and <code>--json-schema</code>, then read <code>structured_output</code>.",
+      "d": "Keep a run that parsed cleanly and paste it into the prompt as a worked example of the layout."
+    },
+    "answer": "c",
+    "answerLabel": "constrain the shape with the two structured-output flags",
+    "why": "the flags exist for exactly this — one makes the reply machine-readable, the other imposes the fields, and the conforming payload arrives in a fixed place. Nothing downstream has to guess.",
+    "distractors": {
+      "a": "Rests on the model complying, which is what already fails; a retry repeats the same unconstrained request.",
+      "b": "The second call is as unconstrained as the first, and now two shapes can drift.",
+      "d": "An example nudges the layout without guaranteeing it, and the field names are exactly what moves."
+    }
+  },
+  {
+    "id": "d3-q6",
+    "domain": "D3",
+    "task": "3.2",
+    "summary": "Q6 (D3) — Packaging a workflow the whole team reuses <strong>(Select the 2 correct answers.)</strong>",
+    "scenario": "Your team runs the same accessibility audit over and over. It has to reach everyone, keep its verbose trace out of the working session, and run both at a developer's terminal and from the pipeline.",
+    "question": "Which two moves deliver that?",
+    "options": {
+      "a": "Commit it as <code>.claude/skills/a11y-audit/SKILL.md</code> with <code>context: fork</code> in its frontmatter.",
+      "b": "Keep it as a personal <code>~/.claude/skills/a11y-audit/SKILL.md</code> so you can iterate without disturbing anyone.",
+      "c": "Invoke it by name at the terminal, and headless from the pipeline through <code>claude -p</code>.",
+      "d": "Paste the audit steps into <code>~/.claude/CLAUDE.md</code> so every session carries them.",
+      "e": "Fire it from a <code>PostToolUse</code> hook after each write, so nobody has to remember it."
+    },
+    "answer": "a c",
+    "answerLabel": "commit the forked skill with the repository, and invoke it by name locally or headless from the pipeline",
+    "why": "a committed skill meets all three requirements at once — versioned, so everyone gets it at clone time; forked, so its trace stays out of the session; and reachable from both sides, by name at the terminal and headless in the pipeline, where <code>--output-format json</code> hands the next step something it can act on.",
+    "distractors": {
+      "b": "User scope is private and outside version control, which is the one requirement it cannot meet.",
+      "d": "User scope again, and that file carries standing instructions rather than an invocable workflow.",
+      "e": "A hook reacts to a tool event; it does not package a workflow somebody chooses to run."
+    }
+  },
+  {
+    "id": "d3-q7",
+    "domain": "D3",
+    "task": "3.4",
+    "summary": "Q7 (D3) — A stale scale factor and an unsettled ingest path",
+    "scenario": "Two tickets open the same morning on a smart-metering platform. The first: a failing regression test pins <code>toKilowattHours()</code>, which still applies the scale the meters used before the current firmware shipped; the test states the value it expects, and the scale is a single constant, <code>METER_SCALE</code>. The second: retire the nightly polling job and have meters publish readings as they take them, which means settling where backpressure belongs, what becomes of readings buffered through a network outage, and how both paths run side by side while the fleet upgrades over months.",
+    "question": "Which mode fits which ticket?",
+    "options": {
+      "a": "Plan mode for both, since a change that reaches customer meters should be designed before it is written.",
+      "b": "Plan mode for the scale factor so the firmware assumption gets recorded, and direct execution for the ingest change, revising the design as problems surface.",
+      "c": "Direct execution for the scale factor, plan mode for the ingest change.",
+      "d": "Direct execution for both, one meter model at a time."
+    },
+    "answer": "c",
+    "answerLabel": "run the scale factor directly, plan the ingest change",
+    "why": "deliberation pays where approaches compete, boundaries are unsettled, and one early decision propagates across many files. The ingest change carries three open questions before a line is written; the scale factor carries a failing test that already states the answer.",
+    "distractors": {
+      "a": "Spends deliberation on a ticket whose expected value is already written down in the test.",
+      "b": "Reverses both readings at once, deliberating over the settled ticket and improvising the unsettled one.",
+      "d": "Incremental delivery still commits to a backpressure design nobody has chosen, and a fleet halfway through an upgrade is the worst place to discover that."
+    }
+  },
+  {
+    "id": "d3-q8",
+    "domain": "D3",
+    "task": "3.5",
+    "summary": "Q8 (D3) — Redaction that lands differently every time",
+    "scenario": "You ask for support transcripts to be \"stripped of anything personal\" before they reach the analytics store. One pass masks the order number and the next leaves it; one pass swaps the customer's first name for a token and the next deletes the whole sentence. Two rewrites of the written instruction have not converged.",
+    "question": "What is the most effective next move?",
+    "options": {
+      "a": "Point the prompt at the company's data-classification policy and tell it to apply the categories defined there.",
+      "b": "Add a check that rejects any output still containing a long digit sequence, and re-run the ones it rejects.",
+      "c": "Have a second instance grade each redaction.",
+      "d": "Supply two or three excerpts paired with their redacted form."
+    },
+    "answer": "d",
+    "answerLabel": "worked excerpt pairs, before and after",
+    "why": "an example settles what prose left open by showing the result rather than describing it again, and a handful of pairs cover far more of the boundary than another paragraph of definition.",
+    "distractors": {
+      "a": "A classification policy names categories; it never says what to do with a sentence that happens to contain one.",
+      "b": "Catches one shape of leak and says nothing about the rest, and the re-run repeats the same ambiguous request.",
+      "c": "The grader inherits the same undefined standard, so it flags by the same guesswork."
+    }
+  }
+]

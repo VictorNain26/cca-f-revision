@@ -71,21 +71,11 @@ L'<strong>agentic loop</strong> est ce mécanisme : requête, réponse, exécuti
 nouvelle requête, jusqu'à ce que le modèle signale qu'il a terminé.</p>
 <p>Le cycle, en cinq étapes :</p>
 <ol>
-<li>
-<p>Vous envoyez une requête avec l'historique de conversation et le paramètre <code>tools</code>.</p>
-</li>
-<li>
-<p>Claude répond. La réponse peut porter du texte, un ou plusieurs blocs <code>tool_use</code>, ou les deux.</p>
-</li>
-<li>
-<p>Votre code exécute chaque outil demandé et collecte les résultats.</p>
-</li>
-<li>
-<p>Vous ajoutez à l'historique la réponse de l'assistant <strong>et</strong> les blocs <code>tool_result</code>.</p>
-</li>
-<li>
-<p>Vous renvoyez tout l'historique. On recommence jusqu'à ce que <code>stop_reason</code> soit terminal.</p>
-</li>
+<li>Vous envoyez une requête avec l'historique de conversation et le paramètre <code>tools</code>.</li>
+<li>Claude répond. La réponse peut porter du texte, un ou plusieurs blocs <code>tool_use</code>, ou les deux.</li>
+<li>Votre code exécute chaque outil demandé et collecte les résultats.</li>
+<li>Vous ajoutez à l'historique la réponse de l'assistant <strong>et</strong> les blocs <code>tool_result</code>.</li>
+<li>Vous renvoyez tout l'historique. On recommence jusqu'à ce que <code>stop_reason</code> soit terminal.</li>
 </ol>
 <p><code>stop_reason</code> est le champ de la réponse qui dit pourquoi la génération s'est
 arrêtée ; l'ensemble de ses valeurs est catalogué en D0. Deux seulement pilotent
@@ -399,19 +389,15 @@ description vague produit des délégations vagues.</p>
 <p>Deux autres leviers de conception. Le premier vient du cours Subagents ; le
 second est le quatrième skill que le guide liste sous ce task statement :</p>
 <ul>
-<li>
-<p><strong>Définissez un format de sortie dans le system prompt.</strong> Il donne au subagent
+<li><strong>Définissez un format de sortie dans le system prompt.</strong> Il donne au subagent
 une liste à remplir, donc il sait quand il a fini ; sans lui, les subagents
 peinent à décider quand la recherche a assez duré et tournent bien plus longtemps
 que nécessaire. Une section « Obstacles rencontrés » vaut d'être ajoutée exprès :
 les contournements et bizarreries d'environnement découverts par le subagent
-meurent sinon avec son contexte, et le thread principal doit les redécouvrir.</p>
-</li>
-<li>
-<p><strong>Rédigez les prompts de coordinateur en objectifs et critères de qualité, pas en
+meurent sinon avec son contexte, et le thread principal doit les redécouvrir.</li>
+<li><strong>Rédigez les prompts de coordinateur en objectifs et critères de qualité, pas en
 procédures.</strong> « Le rapport doit couvrir au moins cinq secteurs avec des sources
-datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.</p>
-</li>
+datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.</li>
 </ul>
 <p>Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les
 connaissances de ce task statement. Un subagent de recherche en lecture seule

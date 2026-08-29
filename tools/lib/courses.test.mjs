@@ -23,6 +23,7 @@ import {
   checkTranslationCompleteness,
   checkPublishedCoursesReconciliation,
   checkNoLeakedMetadata,
+  checkTaskReferenceDrift,
 } from './courses.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
@@ -721,4 +722,65 @@ test('checkNoLeakedMetadata signale un commentaire src: ou owns: fuité dans la 
   });
   assert.equal(problems.length, 1);
   assert.match(problems[0], /en\/D0_API_Fundamentals\.html/);
+});
+
+test('checkTaskReferenceDrift attrape le mauvais appariement réel de po4a sur D3', () => {
+  // Cas réel, deux fois : po4a a pré-rempli la ligne « À tester » de 3.1 avec
+  // la traduction de 2.1 (D3), et celle de 1.2 avec celle de 1.6 (D1).
+  const po = PO_HEADER
+    + '\n#: courses/en/03-claude-code-config.md:144\n'
+    + 'msgid "**To test** — bank questions tagged `data-task=\\"3.1\\"`.\\n"\n'
+    + 'msgstr "**À tester** — les questions de la banque étiquetées `data-task=\\"2.1\\"`.\\n"\n';
+  const { problems } = checkTaskReferenceDrift(parsePoEntries(po));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /3\.1/);
+  assert.match(problems[0], /2\.1/);
+  assert.match(problems[0], /relire/i);
+});
+
+test('checkTaskReferenceDrift accepte une traduction qui cite le même task statement', () => {
+  const po = PO_HEADER
+    + '\nmsgid "**To test** — bank questions tagged `data-task=\\"3.1\\"`.\\n"\n'
+    + 'msgstr "**À tester** — les questions de la banque étiquetées `data-task=\\"3.1\\"`.\\n"\n';
+  assert.deepEqual(checkTaskReferenceDrift(parsePoEntries(po)).problems, []);
+});
+
+test('checkTaskReferenceDrift ignore une entrée non traduite plutôt que de la compter deux fois', () => {
+  const po = PO_HEADER
+    + '\nmsgid "**To test** — bank questions tagged `data-task=\\"3.1\\"`.\\n"\nmsgstr ""\n';
+  assert.deepEqual(checkTaskReferenceDrift(parsePoEntries(po)).problems, []);
+});
+
+test('checkTaskReferenceDrift compare les ensembles, pour une entrée qui cite plusieurs tasks', () => {
+  const po = PO_HEADER
+    + '\nmsgid "voir data-task=\\"1.2\\" et data-task=\\"1.3\\""\n'
+    + 'msgstr "voir data-task=\\"1.3\\" et data-task=\\"1.2\\""\n';
+  assert.deepEqual(checkTaskReferenceDrift(parsePoEntries(po)).problems, [],
+    'le même ensemble dans un autre ordre reste le bon renvoi');
+});
+
+test('checkTaskReferenceDrift signale un renvoi perdu à la traduction', () => {
+  const po = PO_HEADER
+    + '\nmsgid "voir data-task=\\"1.2\\" et data-task=\\"1.3\\""\n'
+    + 'msgstr "voir data-task=\\"1.2\\""\n';
+  const { problems } = checkTaskReferenceDrift(parsePoEntries(po));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /1\.3/);
+});
+
+test('checkTaskReferenceDrift signale un renvoi que la source ne portait pas', () => {
+  // L autre moitié du défaut : po4a remplit un paragraphe neuf, qui ne cite
+  // aucun task statement, avec la traduction d une ligne « À tester » voisine.
+  const po = PO_HEADER
+    + '\nmsgid "Une phrase de prose sans renvoi."\n'
+    + 'msgstr "**À tester** — les questions étiquetées `data-task=\\"1.6\\"`."\n';
+  const { problems } = checkTaskReferenceDrift(parsePoEntries(po));
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /1\.6/);
+  assert.match(problems[0], /aucun data-task/);
+});
+
+test('checkTaskReferenceDrift laisse passer une entrée sans renvoi de part et d autre', () => {
+  const po = PO_HEADER + '\nmsgid "Une phrase de prose."\nmsgstr "Une phrase de prose traduite."\n';
+  assert.deepEqual(checkTaskReferenceDrift(parsePoEntries(po)).problems, []);
 });
