@@ -1,6 +1,6 @@
 # D0 — Fondamentaux de l'API
 
-<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->
+<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; exam guide appendix (Claude API, Context window management) -->
 
 Voici les prérequis que le guide d'examen suppose acquis. Rien ici n'est un task
 statement à part entière : le guide teste ce que vous *construisez* par-dessus.
@@ -18,7 +18,7 @@ modèle. Ce que le guide laisse de côté, le corpus le consigne avec son motif
 dans `courses/out-of-scope.md`.
 
 ## Anatomie d'une requête Messages API
-<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->
+<!-- src:05claudeapi L3, L5 ; exam guide appendix (Claude API — max_tokens, system prompts) -->
 <!-- owns:messages-api -->
 
 Un seul appel porte tout : `client.messages.create()`. Il n'y a pas de session à
@@ -70,7 +70,7 @@ vous présente, pas pour l'apprendre par cœur.
 **À tester** — les questions d'auto-évaluation de cette page.
 
 ## Rôles, tours de parole et API sans état
-<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->
+<!-- src:05claudeapi L5, L6 ; exam guide TS 1.1, TS 1.3 -->
 <!-- owns:message-roles -->
 
 `messages` est une liste de dictionnaires, chacun avec un `role` et un `content`.
@@ -122,7 +122,7 @@ reconstruire l'historique est le travail de l'appelant, à chaque requête.
 **À tester** — les questions de la banque étiquetées `data-task="1.3"`.
 
 ## Les blocs de contenu
-<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->
+<!-- src:05claudeapi L35, L36, L38 ; exam guide TS 1.1 (tool results appended to history) -->
 <!-- owns:content-blocks -->
 
 Le `content` d'une réponse n'est jamais une simple chaîne — c'est une **liste de
@@ -179,7 +179,7 @@ utile conforme est la sortie structurée, développée en D4.3.**
 **À tester** — les questions de la banque étiquetées `data-task="2.1"`.
 
 ## Le champ `stop_reason`
-<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
+<!-- src:05claudeapi L3, L38 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
 <!-- owns:stop-reason -->
 
 Quand le modèle s'arrête, la réponse dit pourquoi dans `stop_reason` — et c'est
@@ -242,7 +242,7 @@ s'arrête à nommer le signal.
 **À tester** — les questions de la banque étiquetées `data-task="1.1"`.
 
 ## Les system prompts
-<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->
+<!-- src:05claudeapi L8 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->
 
 Le paramètre `system` est une simple chaîne passée à côté de `messages`, et il se
 place **hors** de la conversation : ce n'est pas un tour, il n'a pas de rôle, et
@@ -290,7 +290,7 @@ réutilisable ne doit ajouter la clé que si un prompt a réellement été fourn
 **À tester** — les questions de la banque étiquetées `data-task="2.1"`.
 
 ## La fenêtre de contexte
-<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->
+<!-- src:05claudeapi L6, L36 ; exam guide appendix (Context window management), TS 5.1 -->
 <!-- owns:context-window -->
 
 Mettez bout à bout les deux faits précédents. L'API ne garde aucun état, donc

@@ -1,6 +1,6 @@
 # D0 — API foundations
 
-<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->
+<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; exam guide appendix (Claude API, Context window management) -->
 
 These are the prerequisites the exam guide assumes you already have. Nothing
 here is a task statement of its own: the guide tests what you *build* on top of
@@ -17,7 +17,7 @@ of the call, and never goes inside the model. What the guide leaves out, the
 corpus records with its motive in `courses/out-of-scope.md`.
 
 ## Anatomy of a Messages API request
-<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->
+<!-- src:05claudeapi L3, L5 ; exam guide appendix (Claude API — max_tokens, system prompts) -->
 <!-- owns:messages-api -->
 
 One call carries everything: `client.messages.create()`. There is no session to
@@ -67,7 +67,7 @@ you recognize the field in a request body you are handed, not to be memorized.
 **To test** — the self-assessment questions of this page.
 
 ## Roles, turns, and a stateless API
-<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->
+<!-- src:05claudeapi L5, L6 ; exam guide TS 1.1, TS 1.3 -->
 <!-- owns:message-roles -->
 
 `messages` is a list of dictionaries, each with a `role` and a `content`. There
@@ -117,7 +117,7 @@ rebuilding the history is the caller's job, on every single request.
 **To test** — bank questions tagged `data-task="1.3"`.
 
 ## Content blocks
-<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->
+<!-- src:05claudeapi L35, L36, L38 ; exam guide TS 1.1 (tool results appended to history) -->
 <!-- owns:content-blocks -->
 
 A reply's `content` is never a bare string — it is a **list of blocks**, each
@@ -173,7 +173,7 @@ developed in D4.3.**
 **To test** — bank questions tagged `data-task="2.1"`.
 
 ## `stop_reason`
-<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
+<!-- src:05claudeapi L3, L38 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
 <!-- owns:stop-reason -->
 
 When the model stops, the response says why in `stop_reason` — and that field,
@@ -232,7 +232,7 @@ developed in D1.1.** D0 stops at naming the signal.
 **To test** — bank questions tagged `data-task="1.1"`.
 
 ## System prompts
-<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->
+<!-- src:05claudeapi L8 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->
 
 The `system` parameter is a plain string passed alongside `messages`, and it
 sits **outside** the conversation: it is not a turn, it has no role, and it is
@@ -278,7 +278,7 @@ helper has to add the key only when a prompt was actually given.
 **To test** — bank questions tagged `data-task="2.1"`.
 
 ## The context window
-<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->
+<!-- src:05claudeapi L6, L36 ; exam guide appendix (Context window management), TS 5.1 -->
 <!-- owns:context-window -->
 
 Put the two previous facts together. The API keeps no state, so every request

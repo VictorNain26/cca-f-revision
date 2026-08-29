@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cca-f-revision\n"
-"POT-Creation-Date: 2026-08-30 00:46+0200\n"
+"POT-Creation-Date: 2026-08-30 00:57+0200\n"
 "PO-Revision-Date: 2026-08-29 20:27+0200\n"
 "Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
 "Language-Team: French\n"
@@ -23,8 +23,8 @@ msgstr "D0 — Fondamentaux de l'API"
 #. type: Plain text
 #: courses/en/00-api-foundations.md:4
 #, no-wrap
-msgid "<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->\n"
-msgstr "<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->\n"
+msgid "<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; exam guide appendix (Claude API, Context window management) -->\n"
+msgstr "<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; exam guide appendix (Claude API, Context window management) -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:8
@@ -78,10 +78,10 @@ msgstr "Anatomie d'une requête Messages API"
 #: courses/en/00-api-foundations.md:22
 #, no-wrap
 msgid ""
-"<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->\n"
+"<!-- src:05claudeapi L3, L5 ; exam guide appendix (Claude API — max_tokens, system prompts) -->\n"
 "<!-- owns:messages-api -->\n"
 msgstr ""
-"<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->\n"
+"<!-- src:05claudeapi L3, L5 ; exam guide appendix (Claude API — max_tokens, system prompts) -->\n"
 "<!-- owns:messages-api -->\n"
 
 #. type: Plain text
@@ -213,10 +213,10 @@ msgstr "Rôles, tours de parole et API sans état"
 #: courses/en/00-api-foundations.md:72
 #, no-wrap
 msgid ""
-"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->\n"
+"<!-- src:05claudeapi L5, L6 ; exam guide TS 1.1, TS 1.3 -->\n"
 "<!-- owns:message-roles -->\n"
 msgstr ""
-"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->\n"
+"<!-- src:05claudeapi L5, L6 ; exam guide TS 1.1, TS 1.3 -->\n"
 "<!-- owns:message-roles -->\n"
 
 #. type: Plain text
@@ -348,10 +348,10 @@ msgstr "Les blocs de contenu"
 #: courses/en/00-api-foundations.md:122
 #, no-wrap
 msgid ""
-"<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->\n"
+"<!-- src:05claudeapi L35, L36, L38 ; exam guide TS 1.1 (tool results appended to history) -->\n"
 "<!-- owns:content-blocks -->\n"
 msgstr ""
-"<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->\n"
+"<!-- src:05claudeapi L35, L36, L38 ; exam guide TS 1.1 (tool results appended to history) -->\n"
 "<!-- owns:content-blocks -->\n"
 
 #. type: Plain text
@@ -493,10 +493,10 @@ msgstr "Le champ `stop_reason`"
 #: courses/en/00-api-foundations.md:178
 #, no-wrap
 msgid ""
-"<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
+"<!-- src:05claudeapi L3, L38 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
 "<!-- owns:stop-reason -->\n"
 msgstr ""
-"<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
+"<!-- src:05claudeapi L3, L38 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
 "<!-- owns:stop-reason -->\n"
 
 #. type: Plain text
@@ -649,8 +649,8 @@ msgstr "Les system prompts"
 #. type: Plain text
 #: courses/en/00-api-foundations.md:236
 #, no-wrap
-msgid "<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->\n"
-msgstr "<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->\n"
+msgid "<!-- src:05claudeapi L8 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->\n"
+msgstr "<!-- src:05claudeapi L8 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:241
@@ -767,10 +767,10 @@ msgstr "La fenêtre de contexte"
 #: courses/en/00-api-foundations.md:283
 #, no-wrap
 msgid ""
-"<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->\n"
+"<!-- src:05claudeapi L6, L36 ; exam guide appendix (Context window management), TS 5.1 -->\n"
 "<!-- owns:context-window -->\n"
 msgstr ""
-"<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->\n"
+"<!-- src:05claudeapi L6, L36 ; exam guide appendix (Context window management), TS 5.1 -->\n"
 "<!-- owns:context-window -->\n"
 
 #. type: Plain text
@@ -6532,9 +6532,9 @@ msgid ""
 "auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md to start\n"
 "faster and run deterministically.\n"
 "\n"
-"Be deliberate here, because a widely-taught version of this is wrong: the\n"
-"*Claude Code in Action* lesson on headless mode attributes that skipping to `-p`\n"
-"itself. The documentation attributes it to `--bare` and states that without it,\n"
+"Be deliberate here, because a common misreading of this pair is wrong: it\n"
+"attributes that skipping to `-p` itself. The documentation attributes it to\n"
+"`--bare` and states that without it,\n"
 "`claude -p` loads the same context an interactive session would — and the guide's\n"
 "own TS 3.6 depends on CLAUDE.md reaching the CI instance, which it could not do\n"
 "if `-p` dropped it. The pipeline gets your CLAUDE.md unless you asked for bare\n"
@@ -6546,9 +6546,9 @@ msgstr ""
 "l'auto-découverte des hooks, des skills, des plugins, des serveurs MCP et du\n"
 "CLAUDE.md pour démarrer plus vite et s'exécuter de façon déterministe.\n"
 "\n"
-"Soyez précis ici, car une version largement enseignée de ce point est fausse : la\n"
-"leçon de *Claude Code in Action* sur le mode headless attribue ce saut à `-p`\n"
-"lui-même. La documentation l'attribue à `--bare` et précise que sans lui,\n"
+"Soyez précis ici, car une lecture courante de cette paire est fausse : elle\n"
+"attribue ce saut à `-p` lui-même. La documentation l'attribue à `--bare` et\n"
+"précise que sans lui,\n"
 "`claude -p` charge le même contexte qu'une session interactive — et le TS 3.6 du\n"
 "guide lui-même suppose que CLAUDE.md atteint l'instance CI, ce qu'il ne pourrait\n"
 "pas faire si `-p` le laissait tomber. La pipeline reçoit votre CLAUDE.md sauf si\n"

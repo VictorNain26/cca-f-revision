@@ -688,9 +688,9 @@ compris. Le mode bare — le flag `--bare` — en est le retrait : il saute
 l'auto-découverte des hooks, des skills, des plugins, des serveurs MCP et du
 CLAUDE.md pour démarrer plus vite et s'exécuter de façon déterministe.
 
-Soyez précis ici, car une version largement enseignée de ce point est fausse : la
-leçon de *Claude Code in Action* sur le mode headless attribue ce saut à `-p`
-lui-même. La documentation l'attribue à `--bare` et précise que sans lui,
+Soyez précis ici, car une lecture courante de cette paire est fausse : elle
+attribue ce saut à `-p` lui-même. La documentation l'attribue à `--bare` et
+précise que sans lui,
 `claude -p` charge le même contexte qu'une session interactive — et le TS 3.6 du
 guide lui-même suppose que CLAUDE.md atteint l'instance CI, ce qu'il ne pourrait
 pas faire si `-p` le laissait tomber. La pipeline reçoit votre CLAUDE.md sauf si

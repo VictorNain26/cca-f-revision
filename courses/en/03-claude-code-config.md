@@ -657,9 +657,9 @@ CLAUDE.md included. Bare mode — the `--bare` flag — is the opt-out: it skips
 auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md to start
 faster and run deterministically.
 
-Be deliberate here, because a widely-taught version of this is wrong: the
-*Claude Code in Action* lesson on headless mode attributes that skipping to `-p`
-itself. The documentation attributes it to `--bare` and states that without it,
+Be deliberate here, because a common misreading of this pair is wrong: it
+attributes that skipping to `-p` itself. The documentation attributes it to
+`--bare` and states that without it,
 `claude -p` loads the same context an interactive session would — and the guide's
 own TS 3.6 depends on CLAUDE.md reaching the CI instance, which it could not do
 if `-p` dropped it. The pipeline gets your CLAUDE.md unless you asked for bare

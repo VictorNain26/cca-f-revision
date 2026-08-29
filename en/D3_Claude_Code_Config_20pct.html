@@ -742,9 +742,9 @@ test files in context when you ask for new ones.</p>
 CLAUDE.md included. Bare mode — the <code>--bare</code> flag — is the opt-out: it skips
 auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md to start
 faster and run deterministically.</p>
-<p>Be deliberate here, because a widely-taught version of this is wrong: the
-<em>Claude Code in Action</em> lesson on headless mode attributes that skipping to <code>-p</code>
-itself. The documentation attributes it to <code>--bare</code> and states that without it,
+<p>Be deliberate here, because a common misreading of this pair is wrong: it
+attributes that skipping to <code>-p</code> itself. The documentation attributes it to
+<code>--bare</code> and states that without it,
 <code>claude -p</code> loads the same context an interactive session would — and the guide's
 own TS 3.6 depends on CLAUDE.md reaching the CI instance, which it could not do
 if <code>-p</code> dropped it. The pipeline gets your CLAUDE.md unless you asked for bare
