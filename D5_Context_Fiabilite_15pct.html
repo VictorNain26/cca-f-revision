@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CCA Révision — D5 — Gestion du contexte et fiabilité (15 %)</title>
+<title>D5 — Gestion du contexte et fiabilité (15 %)</title>
 <link rel="stylesheet" href="styles.css">
 <script src="nav.js" defer></script>
 <script src="quiz.js" defer></script>
@@ -29,509 +29,1072 @@
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
   <a href="anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf" title="Le guide d'examen officiel (PDF) — la seule source qui fait foi" target="_blank" rel="noopener">Guide</a>
 </nav>
+<div class="lang-switch">
+  <a href="en/D5_Context_Fiabilite_15pct.html">EN</a>
+</div>
 
 <div class="header-bar">
 <h1>D5 — Gestion du contexte et fiabilité (15 %)</h1>
-<p>6 Task Statements (5.1 à 5.6) · Source : guide officiel CCAR-F v1.0, domaine 5 · exactitude technique vérifiée sur la doc Anthropic</p>
+<p>Quinze pour cent du score, six task statements, et le domaine qui pose une
+question différente des quatre précédents. D1 à D4 demandent comment construire
+la chose : la boucle, les outils, la configuration, le prompt. D5 demande ce qui
+est encore vrai après deux heures de fonctionnement — quels chiffres ont survécu
+au résumeur, de quel échec de subagent le coordinateur a seulement entendu
+parler, quelle affirmation du rapport final se laisse encore remonter jusqu'à la
+page dont elle vient.</p>
+<p>Une section par task statement, dans l'ordre du guide et sous le libellé du
+guide, pour qu'une question rencontrée le jour J corresponde à une section d'ici
+sans traduction.</p>
+<p>Quatre cours renvoient à celui-ci, et les quatre dettes sont réglées
+ci-dessous. <strong>D0</strong> a nommé les trois modes de défaillance d'une fenêtre de
+contexte pleine — lost-in-the-middle, accumulation, compression progressive — et
+s'est arrêté là : les parades sont en 5.1. <strong>D1</strong> a dit quand une règle exige une
+application programmatique et a renvoyé la question de <em>quand escalader tout
+court</em> en 5.2. <strong>D2</strong> a enseigné la forme d'une charge utile d'erreur —
+<code>isError</code>, la catégorie, le drapeau de reprise, l'enveloppe des résultats
+partiels — et a renvoyé ce que le coordinateur <em>fait</em> de cette enveloppe en 5.3.
+<strong>D3</strong> a renvoyé <code>/compact</code> à ce domaine ; il relève de <strong>5.4</strong>, là où le guide
+le place parmi les skills de l'exploration de grandes codebases.</p>
+<p>Le trafic va aussi dans l'autre sens, et ce cours le respecte. L'anatomie de la
+fenêtre de contexte appartient à D0. L'isolation d'un subagent et ce dont il
+hérite relèvent des TS 1.2 et 1.3. Le mécanisme des hooks — les événements,
+<code>PostToolUse</code>, <code>updatedToolOutput</code> — relève du TS 1.5. Les sessions, <code>--resume</code>
+et <code>fork_session</code> relèvent du TS 1.7. La passation structurée à un humain relève
+du TS 1.4. Chacune reçoit ici une phrase et un renvoi, jamais un second
+développement.</p>
 </div>
 
 <div class="toc">
-<strong>Sommaire</strong>
+<strong>Table des matières</strong>
 <ol>
-<li><a href="#s1">Préserver les informations critiques dans le contexte</a></li>
-<li><a href="#s2">Les patterns d'escalation</a></li>
-<li><a href="#s3">La propagation d'erreurs dans les systèmes multi-agents</a></li>
-<li><a href="#s4">Gérer le contexte dans les grandes codebases</a></li>
-<li><a href="#s5">Revue humaine et calibration de la confiance</a></li>
-<li><a href="#s6">La provenance et la synthèse multi-sources</a></li>
-<li><a href="#s7">Synthèse — les points clés</a></li>
-<li><a href="#s8">Auto-évaluation (9 questions)</a></li>
+<li><a href="#s1">5.1 — Manage conversation context to preserve critical information across long interactions</a></li>
+<li><a href="#s2">5.2 — Design effective escalation and ambiguity resolution patterns</a></li>
+<li><a href="#s3">5.3 — Implement error propagation strategies across multi-agent systems</a></li>
+<li><a href="#s4">5.4 — Manage context effectively in large codebase exploration</a></li>
+<li><a href="#s5">5.5 — Design human review workflows and confidence calibration</a></li>
+<li><a href="#s6">5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis</a></li>
+<li><a href="#s7">Questions d'auto-évaluation</a></li>
 </ol>
 </div>
 
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s1">1. Préserver les informations critiques dans le contexte (Task 5.1)</h2></div>
+<div class="section-header"><h2 id="s1">1. 5.1 — Manage conversation context to preserve critical information across long interactions</h2></div>
 
-<p>Les trois menaces qui pèsent sur un contexte long — compression progressive qui dilue les valeurs exactes, effet <code>lost-in-the-middle</code>, accumulation des <code>tool results</code> — sont posées en <a href="D0_API_Fundamentals.html#s5">D0 §5</a>. Cette section traite ce que le référentiel teste réellement : <strong>les parades</strong>.</p>
-
-<h4>1. Le bloc <code>case facts</code></h4>
-<p>Parade à la <strong>compression progressive</strong> : quand l'historique est résumé, un remboursement de 89,99 $ discuté vingt turns plus tôt devient « a promotional pricing was discussed ». Les faits exacts doivent donc vivre ailleurs que dans ce qui est résumé.</p>
-
-<div class="key-concept">
-<strong>Le <code>case facts</code> block.</strong> Extraire les faits transactionnels (montants, dates, numéros de commande, statuts) dans un bloc structuré, inclus dans chaque prompt <em>en dehors</em> de l'historique résumé :
-<pre>=== CASE FACTS (mis à jour à chaque nouveau fait) ===
+<p>Il y a vingt tours, le client a dit que la commande était à 89,99 $ et qu'il
+voulait un remboursement intégral plutôt qu'un remplacement. L'historique a été
+résumé deux fois depuis, et ce que le modèle lit désormais est <em>« un prix
+promotionnel a été évoqué »</em>. Rien n'a échoué. Le résumeur a fait exactement ce
+que font les résumeurs : il a gardé la forme de la conversation et laissé tomber
+les détails précis.</p>
+<p>C'est le premier des trois risques que le guide nomme, et les trois méritent
+d'être tenus comme un ensemble parce que chacun a sa parade — et répondre avec la
+mauvaise parade est la façon dont on rate ce task statement.</p>
+<table>
+<thead>
+<tr>
+<th>Mode de défaillance</th>
+<th>Ce qu'il détruit</th>
+<th>La parade que ce task statement demande</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Compression progressive</strong></td>
+<td>Valeurs numériques, pourcentages, dates, attentes formulées par le client</td>
+<td>Un bloc de faits du dossier qui ne passe jamais par le résumeur</td>
+</tr>
+<tr>
+<td><strong>Lost in the middle</strong></td>
+<td>Les découvertes enfouies au milieu d'une entrée longue — le début et la fin sont lus de façon fiable</td>
+<td>Les découvertes clés en tête, des en-têtes de section explicites sur le détail</td>
+</tr>
+<tr>
+<td><strong>Accumulation des résultats d'outils</strong></td>
+<td>Rien, mais elle consomme des tokens sans commune mesure avec sa pertinence</td>
+<td>Réduire la sortie aux champs pertinents avant qu'elle n'entre dans le contexte</td>
+</tr>
+</tbody>
+</table>
+<p>D0 possède l'anatomie derrière ce tableau — pourquoi chaque requête renvoie tout
+l'historique, et pourquoi un résultat d'outil est un coût récurrent et non
+ponctuel. L'un des points de connaissance du guide pour ce task statement relève
+de cette anatomie et mérite d'être redit en une ligne : <strong>l'historique complet de
+la conversation doit être passé dans chaque requête API suivante</strong>, parce que
+l'API ne stocke rien entre les appels et qu'un historique tronqué est un modèle
+qui a réellement oublié.</p>
+<h3>Le bloc de faits du dossier</h3>
+<p>La parade est structurelle, et tout son intérêt tient à <em>l'endroit</em> où elle vit.</p>
+<pre><code class="language-text">=== CASE FACTS (mis à jour à chaque nouveau fait établi) ===
 Customer ID : CUST-12345
 Order ID    : ORD-67890
-Order Date  : 2025-01-15
+Order date  : 2025-01-15
 Amount      : $89.99
-Issue       : Article endommagé à la livraison
-Request     : Remboursement intégral
+Issue       : Article arrivé endommagé
+Request     : Remboursement intégral, remplacement refusé
 Status      : En attente d'approbation
-===</pre>
-</div>
+===
 
-<div class="exam-tip">
-<strong>Point clé :</strong> Le <code>case facts</code> block vit <em>en dehors</em> de l'historique résumé (summarized history). Il est inclus dans chaque prompt API, de sorte que même après un <code>/compact</code>, les faits critiques restent intacts.
-</div>
-
-<h4>2. L'ordonnancement début/fin</h4>
-<p>Parade à l'effet <strong><code>lost-in-the-middle</code></strong> : ce qui est placé au milieu d'une entrée longue peut être manqué. On place donc les conclusions clés en tête et les actions requises en fin de document, en laissant le détail volumineux au centre.</p>
-<pre>[CONCLUSIONS CLÉS — en haut]
-Trois vulnérabilités critiques identifiées...
-
-[RÉSULTATS DÉTAILLÉS — au milieu]
-=== auth.ts === ...
-=== database.ts === ...
-
-[ACTIONS REQUISES — en bas]
-Priorité : corriger auth.ts avant le merge.</pre>
-
-<h4>3. Le trimming par hook <code>PostToolUse</code></h4>
-<p>Parade à l'<strong>accumulation des <code>tool results</code></strong> : si <code>lookup_order</code> retourne 40 champs mais que seuls 5 sont pertinents pour la tâche en cours, le contexte se remplit d'informations inutiles. La solution : un hook <code>PostToolUse</code> qui intervient <em>après</em> l'exécution de l'outil et ne conserve que les champs nécessaires avant que le résultat n'entre dans le contexte du modèle.</p>
-
-<p>En pratique, le hook <code>PostToolUse</code> reçoit l'événement complet (tool name, full result, metadata) et peut filtrer les champs avant retour. Pour un outil <code>lookup_order</code>, cela signifie sélectionner seulement <code>order_id</code>, <code>status</code>, <code>total</code>, <code>items</code> et <code>return_eligible</code> plutôt que les 40 champs bruts. Le résultat réduit est ensuite passé au modèle, économisant du contexte pour les turns suivants.</p>
-
-<div class="exam-tip">
-<strong>À retenir :</strong> Le trimming des <code>tool results</code> se fait via un hook <code>PostToolUse</code> (pas <code>PreToolUse</code>). Le hook s'exécute après l'outil, avant l'intégration du résultat au contexte, et peut réduire les données retournées en ne gardant que les champs pertinents.
-</div>
-
-<h3>Les autres techniques de gestion du contexte</h3>
-<ul>
-<li><strong><code>/compact</code> :</strong> compresse le contexte en résumant l'historique. Utile dans les longues sessions, mais avec le risque de perdre des détails exacts — d'où l'importance du <code>case facts</code> block.</li>
-<li><strong>Fichiers <code>scratchpad</code> :</strong> l'agent écrit ses découvertes clés dans un fichier (<code>investigation-scratchpad.md</code>) et le consulte quand le contexte se dégrade.</li>
-<li><strong>Délégation aux <code>subagent</code>s :</strong> isoler les phases de découverte verbeuses dans un <code>subagent</code> qui ne retourne qu'un résumé concis au thread principal.</li>
-<li><strong>Budgets de contexte contraints :</strong> envoyer un contexte minimal aux <code>subagent</code>s, exiger des résultats structurés (pas de dumps bruts), et limiter les outils disponibles pour réduire les distractions.</li>
-<li><strong>Métadonnées obligatoires dans les sorties des <code>subagent</code>s :</strong> les <code>subagent</code>s doivent inclure les dates, sources et <code>attribution</code>s dans leurs résultats structurés, faute de quoi la synthèse en aval perd la <code>provenance</code>.</li>
-</ul>
-
-<div class="anti-pattern">
-<strong>Les distracteurs classiques face au bloc <code>case facts</code>.</strong>
-<ul>
-<li><strong>« Passer à un modèle à fenêtre de contexte plus large »</strong> — séduit parce que la limite recule visiblement. Mais une conversation longue finit par dépasser aussi la nouvelle limite : on repousse l'échéance sans jamais protéger les faits.</li>
-<li><strong>« Espacer les <code>/compact</code> »</strong> — même piège, formulé côté fréquence. Compacter moins souvent ne change pas ce que la compression détruit quand elle a lieu ; les montants et les dates restent dans ce qui sera résumé.</li>
-<li><strong>« Demander dans le prompt au résumeur de préserver tous les nombres et toutes les dates »</strong> — le plus tentant, parce qu'il vise le bon symptôme. Mais il repose sur une <em>conformité probabiliste</em> du modèle, à chaque résumé et pour chaque fait ; le bloc <code>case facts</code> donne une garantie structurelle en gardant les faits hors du texte résumé.</li>
-</ul>
-</div>
-
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s2">2. Les patterns d'escalation (Task 5.2)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Un agent de support client doit savoir quand résoudre un problème de manière autonome et quand passer la main à un humain. Une mauvaise calibration entraîne deux types d'échecs : l'agent escalade des cas simples (perte d'efficacité) ou tente de traiter des cas complexes hors de sa portée (erreurs, frustration client).</p>
-
-<h3>Les déclencheurs fiables d'<code>escalation</code></h3>
-<table>
-<tr><th>Situation</th><th>Action</th></tr>
-<tr><td>Le client demande explicitement un humain</td><td>Escalader <strong>immédiatement</strong>, sans tenter de résoudre d'abord</td></tr>
-<tr><td>La politique ne couvre pas la demande (policy gap)</td><td>Escalader (ex. : alignement de prix concurrent quand la politique ne couvre que le propre site)</td></tr>
-<tr><td>L'agent ne fait plus de progrès (no progress)</td><td>Escalader après un nombre raisonnable de tentatives</td></tr>
-<tr><td>Plusieurs correspondances client</td><td>Demander des identifiants supplémentaires ; ne <em>pas</em> deviner</td></tr>
-</table>
-
-<h3>Les déclencheurs NON fiables</h3>
-<div class="anti-pattern">
-<table>
-<tr><th>Méthode</th><th>Pourquoi elle échoue</th></tr>
-<tr><td><strong>Sentiment analysis</strong></td><td>L'humeur du client ne corrèle pas avec la complexité du cas. Un client frustré peut avoir un problème simple.</td></tr>
-<tr><td><strong>Self-rated confidence (1-10)</strong></td><td>Le modèle peut être confiant à tort. La <code>confidence calibration</code> est insuffisante.</td></tr>
-<tr><td><strong>Automatic classifier</strong></td><td>Sur-ingénierie. Nécessite des données d'entraînement souvent indisponibles.</td></tr>
-</table>
-</div>
-
-<h3>Les 3 patterns concrets d'<code>escalation</code></h3>
-<table>
-<tr><th>Pattern</th><th>Situation</th><th>Comportement attendu</th></tr>
-<tr><td><strong>Immediate</strong></td><td>« I want a manager »</td><td>Appeler <code>escalate_to_human</code> immédiatement. Ne pas tenter de résoudre.</td></tr>
-<tr><td><strong>After attempt</strong></td><td>Client insatisfait de la solution proposée</td><td>Proposer d'abord une résolution, escalader si le client refuse.</td></tr>
-<tr><td><strong>Nuanced (acknowledge → resolve → escalate on reiteration)</strong></td><td>« This is outrageous! »</td><td>Reconnaître la frustration → proposer une solution → escalader uniquement si le client <strong>réitère</strong> sa demande d'humain.</td></tr>
-</table>
-
-<div class="exam-tip">
-<strong>Piège classique :</strong> « This is outrageous, I'm very unhappy! » ne justifie <strong>pas</strong> une <code>escalation</code> immédiate. Le sentiment n'est pas un déclencheur fiable. Le bon pattern : acknowledge → resolve → escalate only on reiteration.
-</div>
-
-<h3>Calibrer l'<code>escalation</code> : critères explicites + few-shot examples</h3>
-<p>Quand un agent escalade trop (cas simples) ou pas assez (cas complexes), la solution la plus efficace combine <strong>deux éléments dans le system prompt</strong> :</p>
-<ol>
-<li><strong>Des critères d'<code>escalation</code> explicites</strong> — les règles claires (quand escalader, quand résoudre).</li>
-<li><strong>Des few-shot examples</strong> — qui montrent comment appliquer ces règles dans les cas ambigus.</li>
-</ol>
-
-<pre>/* Few-shot escalation examples dans le system prompt */
-Request: "Get me a manager"
-Action: Immediately call escalate_to_human.
-Rationale: Explicit human request. Do not attempt to solve.
-
-Request: "This is outrageous, I'm very unhappy!"
-Action: Acknowledge frustration, propose resolution.
-Rationale: Frustration ≠ human request. Escalate only on reiteration.</pre>
-
-<div class="exam-tip">
-<strong>À retenir :</strong> la bonne réponse est toujours la <strong>combinaison</strong> critères explicites + few-shot examples. Jamais l'un sans l'autre. Les distracteurs classiques : self-rated confidence, automatic classifier, sentiment analysis.
-</div>
-
-<h3>Le <code>structured handoff</code> protocol</h3>
-<p>L'opérateur humain qui prend le relais n'a <em>pas</em> accès au transcript complet. Le résumé transmis doit donc être complet et autosuffisant pour l'humain :</p>
-<pre>{
-  "customer_id": "CUST-12345",
-  "issue_summary": "Demande de remboursement pour article endommagé",
-  "order_id": "ORD-67890",
-  "root_cause": "Article arrivé endommagé",
-  "actions_taken": [
-    "Identité vérifiée via get_customer",
-    "Commande confirmée via lookup_order",
-    "Remplacement proposé — client insiste pour un remboursement"
-  ],
-  "refund_amount": "$89.99",
-  "recommended_action": "Approuver le remboursement intégral",
-  "escalation_reason": "Le client a demandé un responsable"
-}</pre>
-
+[l'historique de conversation résumé suit]
+</code></pre>
+<p>Le bloc est reconstruit dans <strong>chaque</strong> prompt et il se tient <strong>en dehors</strong> de
+l'historique résumé. Le résumeur peut comprimer la conversation autant qu'il
+veut ; ce n'est pas cela qu'il comprime. Les faits à extraire sont les faits
+transactionnels que le guide nomme — montants, dates, numéros de commande,
+statuts — parce que ce sont précisément les tokens qu'un résumé remplace par un
+adjectif.</p>
 <div class="key-concept">
-<strong><code>Structured handoff</code> :</strong> Le résumé transmis à l'opérateur humain doit inclure <em>tout</em> ce qui est nécessaire pour reprendre le cas sans relire le transcript. C'est un protocole complet, pas un simple message d'<code>escalation</code>.
+<p><strong>Une garantie structurelle, pas une demande.</strong> Demander au résumeur de
+« préserver tous les nombres et toutes les dates » vise le bon symptôme et repose
+sur une conformité probabiliste, à chaque résumé et pour chaque fait. Garder les
+faits hors de la région résumée ne repose sur rien : ils sont dans le prompt
+parce que vous les y avez mis ce tour-ci.</p>
 </div>
-
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s3">3. La propagation d'erreurs dans les systèmes multi-agents (Task 5.3)</h2></div>
-
-<p><em>Ce sujet complète D1 (architecture hub-and-spoke) et D2 (erreurs structurées MCP). Ici, l'accent est mis sur la propagation entre agents et la synthèse avec <code>coverage annotations</code>.</em></p>
-
-<h3>Le problème que cela résout</h3>
-<p>Dans un système multi-agents, un <code>subagent</code> peut échouer (timeout, document corrompu, API indisponible). Le coordinateur a besoin d'informations structurées pour décider intelligemment de la suite : retry ? Modifier la requête ? Continuer avec des résultats partiels ? Abandonner cette branche et annoter le manque ?</p>
-
-<h3>Le contexte d'erreur structuré d'un <code>subagent</code></h3>
-<p>Chaque erreur retournée au coordinateur doit inclure quatre éléments : <code>failure_type</code>, la requête tentée (<code>query</code>), les résultats partiels (<code>partial_results</code>), et les alternatives (<code>alternatives</code>).</p>
-<pre>{
-  "status": "partial_failure",
-  "failure_type": "timeout",
-  "attempted_query": "AI impact on music industry 2024",
-  "partial_results": [
-    {"title": "AI Music Generation Report", "url": "...", "relevance": 0.8}
-  ],
-  "alternative_approaches": [
-    "Requête plus ciblée : 'AI music composition tools'",
-    "Source de données alternative"
-  ],
-  "coverage_impact": "Non couvert : impact de l'IA sur la production musicale"
-}</pre>
-
-<h3>Distinguer timeout et résultats vides</h3>
-<div class="key-concept">
-<strong>Distinction critique :</strong> Un <strong>timeout</strong> est un access failure — la requête n'a pas abouti, et un retry peut être pertinent. Des <strong>résultats vides (0 results)</strong> signifient que la requête a abouti mais n'a rien trouvé — c'est un valid query avec un résultat légitime. Les traiter de la même manière (comme des « failures ») est un anti-pattern.
-</div>
-
-<table>
-<tr><th>Situation</th><th>Type</th><th>Action du coordinateur</th></tr>
-<tr><td>Connection timeout</td><td>Access failure</td><td>Décider d'un retry, puis propager si l'échec persiste</td></tr>
-<tr><td>0 results retournés</td><td>Valid empty result</td><td>Accepter comme résultat légitime, annoter dans la synthèse</td></tr>
-</table>
-
-<h3>Les 3 anti-patterns de gestion d'erreur</h3>
-<table>
-<tr><th>Anti-pattern</th><th>Pourquoi c'est un problème</th><th>Approche correcte</th></tr>
-<tr><td>Statut générique (« search unavailable »)</td><td>Le coordinateur ne peut pas choisir sa stratégie de récupération</td><td>Retourner <code>failure_type</code>, <code>query</code>, <code>partial_results</code>, <code>alternatives</code></td></tr>
-<tr><td>Suppression silencieuse (silent suppression : résultat vide = succès)</td><td>Le coordinateur croit qu'il n'y a pas de résultats</td><td>Distinguer « 0 results » (valid query) de « access failure »</td></tr>
-<tr><td>Abandon du workflow entier (abort whole workflow)</td><td>On perd tous les résultats partiels obtenus</td><td>Continuer avec les résultats disponibles, annoter les lacunes</td></tr>
-<tr><td>Retries infinis (infinite retries) dans le <code>subagent</code> <em>— hors liste du guide</em></td><td>Latence excessive et gaspillage de ressources</td><td>Récupération locale, puis propagation au coordinateur</td></tr>
-</table>
-<p>Le guide n'en nomme que <strong>trois</strong> : le statut générique, la suppression silencieuse et l'abandon du workflow entier. La quatrième ligne est un défaut réel, mais ne la comptez pas parmi celles du référentiel.</p>
-
-<h3>Les <code>coverage annotations</code> dans la synthèse</h3>
-<p>Quand la synthèse est produite à partir de résultats incomplets, elle doit l'indiquer explicitement :</p>
-<pre>## Rapport : impact de l'IA sur les industries créatives
-### Art visuel (FULL COVERAGE)
-[résultats de recherche]
-
-### Musique (PARTIAL COVERAGE — timeout du subagent de recherche)
-[résultats partiels]
-Note : la couverture de cette section est limitée.
-
-### Littérature (FULL COVERAGE)
-[résultats de recherche]</pre>
-
-<div class="anti-pattern">
-<strong>Les distracteurs classiques face au contexte d'erreur structuré.</strong>
-<ul>
-<li><strong>« Retries avec <code>exponential backoff</code> dans le <code>subagent</code>, puis statut générique <em>search unavailable</em> »</strong> — séduit parce que le backoff sonne comme une bonne pratique d'ingénierie. Mais ce qui est jugé ici, c'est ce qui remonte : un statut générique cache au coordinateur le <code>failure_type</code>, la requête tentée et les résultats partiels dont il a besoin pour décider.</li>
-<li><strong>« Attraper le timeout et retourner un résultat vide marqué comme succès »</strong> — séduit parce que le workflow ne casse pas. C'est une <em>suppression silencieuse</em> : le coordinateur conclut « rien à trouver » là où l'accès a échoué, et aucune récupération n'est déclenchée.</li>
-<li><strong>« Propager l'exception à un handler global qui termine le workflow »</strong> — séduit par sa netteté. Mais une branche en échec ne justifie pas de jeter les résultats déjà obtenus sur toutes les autres.</li>
-<li><strong>« Agréger les échecs en un pourcentage de couverture global »</strong> — séduit parce qu'il produit une métrique lisible. Il détruit précisément la distinction que le domaine teste : un <em>access failure</em> et un <em>résultat vide valide</em> deviennent indiscernables une fois moyennés.</li>
-</ul>
-</div>
-
-<p class="exam-tip">Les résultats partiels obtenus avant l'échec ne doivent pas mourir avec le contexte du <code>subagent</code> : ils se persistent dans un fichier <code>scratchpad</code>, traité en <a href="#s4">section 4</a>.</p>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s4">4. Gérer le contexte dans les grandes codebases (Task 5.4)</h2></div>
-
-<h3>Le problème : la dégradation du contexte dans les longues sessions</h3>
-<p>Dans les sessions d'investigation longues, le modèle commence à produire des réponses instables et à se référer à des « patterns typiques » au lieu de citer des classes ou des fichiers spécifiques du codebase. C'est le signe d'une <strong>context degradation</strong> : le contexte utile a été noyé ou perdu.</p>
-
-<h3>Les solutions</h3>
-
-<h4>1. Fichiers <code>scratchpad</code></h4>
-<p>L'agent consigne ses découvertes clés dans un fichier qu'il peut consulter plus tard, quand le contexte se dégrade :</p>
-<pre># investigation-scratchpad.md
-## Découvertes clés
-- PaymentProcessor dans src/payments/processor.ts hérite de BaseProcessor
-- refund() est appelé depuis 3 endroits : OrderController, AdminPanel, CronJob
-- L'API PaymentGateway externe a une limite de 100 req/min
-- La migration n° 47 a ajouté refund_reason (NOT NULL) — 2024-12-01</pre>
-<p>Le même fichier sert de filet quand un <code>subagent</code> échoue en cours de route : ce qu'il avait déjà trouvé survit à la perte de son contexte, et le coordinateur peut le relire pour la synthèse finale (voir <a href="#s3">section 3</a>).</p>
-<pre>// agent-findings-scratchpad.md
-## Recherche « AI music 2024 » — Status: Partial
-- Queries exécutées : 2/3 (timeout sur requête #3)
-- Résultats obtenus : 12 articles
-- Clé trouvée : AI-generated music grew 300% on streaming
-- Lacune identifiée : impact sur la production musicale</pre>
-
-<h4>2. Délégation aux <code>subagent</code>s</h4>
-<p>L'agent principal demande à un <code>subagent</code> <code>Explore</code> d'investiguer les dépendances d'un module. Le <code>subagent</code> lit 15 fichiers dans son propre contexte et retourne un résumé concis au thread principal. Le contexte principal garde une ligne au lieu de 15 fichiers :</p>
-<pre>// Résultat du subagent Explore → résumé retourné au coordinateur
-"Le module Payments dépend de AuthService, OrderModel
- et de l'API externe PaymentGateway."</pre>
-
-<p>Sur une exploration en plusieurs phases, on ne se contente pas d'isoler chaque phase : <strong>on résume les découvertes d'une phase avant de lancer les <code>subagent</code>s de la suivante</strong>, et on injecte ce résumé dans leur contexte initial. Sans ce relais, la phase 2 redécouvre ce que la phase 1 savait déjà, ou pire, travaille sans le savoir.</p>
-
-<div class="exam-tip">
-<strong>À retenir :</strong> délégation = isoler le <em>verbeux</em> ; résumé de phase = transmettre l'<em>acquis</em>. Les deux vont ensemble, une question peut tester l'un ou l'autre.
-</div>
-
-<h4>3. <code>/compact</code></h4>
-<p>La commande <code>/compact</code> compresse le contexte en résumant l'historique de la conversation. Utile quand le contexte approche de sa limite, mais les faits critiques doivent être protégés par un <code>case facts</code> block ou un fichier <code>scratchpad</code>.</p>
-
-<h4>4. Persistance d'état structurée avec <code>manifest.json</code> (crash recovery)</h4>
-<p>Quand un workflow multi-agents est long, chaque <code>subagent</code> exporte son état dans un fichier JSON connu. Le coordinateur maintient un fichier <code>manifest.json</code> qui résume l'état global du workflow. En cas de crash ou de redémarrage, le coordinateur charge ce manifeste et reprend là où il s'était arrêté.</p>
-
-<div class="key-concept">
-<strong>Exemple : état d'un <code>subagent</code></strong>
-<pre>// agent-state/web-search-agent.json
-{
-  "status": "completed",
-  "queries_executed": ["AI music 2024", "AI music composition"],
-  "results_count": 12,
-  "key_findings": [
-    "AI-generated music grew 300% on streaming platforms in 2024",
-    "Major labels investing in AI composition tools"
-  ],
-  "coverage": ["music composition", "music production"],
-  "gaps": ["music distribution", "music licensing"]
-}</pre>
-</div>
-
-<div class="key-concept">
-<strong>Exemple : <code>manifest.json</code> du coordinateur</strong>
-<pre>// agent-state/manifest.json
-{
-  "web-search": "completed",
-  "doc-analysis": "in_progress",
-  "synthesis": "not_started"
-}</pre>
-<p>Au redémarrage, le coordinateur lit <code>manifest.json</code>, constate que <code>web-search</code> est terminé et que <code>doc-analysis</code> est en cours, et reprend le workflow sans relancer les tâches déjà complétées. Le fichier d'état de chaque <code>subagent</code> (ex. <code>web-search-agent.json</code>) contient le détail de ses résultats, ses lacunes (<code>gaps</code>), et sa couverture.</p>
-</div>
-
-<div class="exam-tip">
-<strong>À retenir :</strong> La persistance d'état structurée via <code>manifest.json</code> est le pattern recommandé pour le crash recovery dans les workflows multi-agents longs. Chaque <code>subagent</code> écrit son propre fichier d'état ; le coordinateur maintient le manifeste global. Ce pattern est distinct du <code>scratchpad</code> (qui protège le contexte d'un agent unique).
-</div>
-
-<h4>5. Modifier les agents en amont</h4>
-<p>Quand les agents en aval ont des budgets de contexte limités, les agents en amont doivent retourner des <strong>données structurées</strong> (faits clés, citations, scores de pertinence) plutôt que du contenu verbeux et des chaînes de raisonnement.</p>
-
-<div class="anti-pattern">
-<strong>Les distracteurs classiques face au <code>scratchpad</code> et à la délégation.</strong>
-<ul>
-<li><strong>« Redémarrer la session et repartir de zéro »</strong> — séduit parce qu'un contexte propre supprime le symptôme immédiatement. Mais on jette tout le travail d'investigation valide, et la même session longue reproduira la même dégradation : rien n'a été rendu persistant.</li>
-<li><strong>« Augmenter <code>max_tokens</code> »</strong> — séduit par la confusion entre les deux budgets. <code>max_tokens</code> borne la longueur de la <em>réponse</em> générée, pas la quantité d'information que l'agent a conservée en entrée ; la dégradation du contexte n'en est pas affectée.</li>
-<li><strong>« Demander à l'agent de mieux se concentrer sur le code réel plutôt que sur des patterns génériques »</strong> — séduit parce qu'il décrit exactement le symptôme observé. Mais aucune instruction ne restaure une information déjà noyée : si les fichiers lus ne sont plus exploitables dans le contexte, il faut les réintroduire (<code>scratchpad</code>) ou ne jamais les y avoir mis (délégation).</li>
-</ul>
-</div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s5">5. Revue humaine et calibration de la confiance (Task 5.5)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Un système d'extraction affiche une accuracy globale de 97 %. En apparence, tout va bien, et la tentation est de réduire la relecture humaine. Mais en creusant, on découvre que l'accuracy sur les factures scannées est de 60 %, et que le champ « numéro de TVA » a 40 % d'erreurs. <strong>Les métriques agrégées masquent des poches d'erreur localisées.</strong> La question de ce task est double : comment mesurer réellement, et où diriger une capacité de relecture qui est toujours limitée.</p>
-
-<div class="key-concept">
-<strong>Exemple concret :</strong> 97 % d'accuracy agrégée peut masquer 40 % d'erreurs sur un type de document précis. L'analyse doit toujours se faire <strong>par document type ET par field</strong>, jamais en agrégé — et <em>avant</em> d'automatiser, pas après.
-</div>
-
-<h3>1. Mesurer : le <code>stratified random sampling</code></h3>
-<p>Même sur les extractions que le système déclare à haute confiance, il faut échantillonner en continu pour mesurer le taux d'erreur réel et détecter les <strong>nouveaux</strong> patterns d'erreur — ceux qu'aucune règle existante n'attrape. L'échantillonnage est <em>stratifié</em> : on tire un échantillon dans chaque segment plutôt qu'un échantillon global, sans quoi les segments rares (ceux qui échouent le plus souvent) sont invisibles.</p>
-<ul>
-<li><strong>Par document type</strong> — factures scannées, contrats, formulaires manuscrits…</li>
-<li><strong>Par field</strong> — montants, dates, noms, numéros de TVA…</li>
-<li>Objectif : vérifier la <strong>constance</strong> de la performance entre segments avant de réduire la relecture.</li>
-</ul>
-
-<h3>2. Router : les <code>field-level confidence scores</code></h3>
-<p>Le modèle produit, <strong>pour chaque champ</strong> et non pour l'extraction entière, un score de confiance. Ce signal ne sert pas à décider si l'extraction est bonne — il sert à <strong>router la relecture</strong> : les champs sous le seuil partent en revue humaine, les autres passent en automatique.</p>
-<pre>{
-  "invoice_number": { "value": "INV-2024-0912", "confidence": 0.98 },
-  "total":          { "value": 1249.90,         "confidence": 0.95 },
-  "vat_number":     { "value": "FR32-XXXXX",    "confidence": 0.41 }
+<p>Pour une session qui couvre <strong>plusieurs problèmes à la fois</strong>, le guide demande
+le même geste un cran plus haut : des données de problème structurées — numéros
+de commande, montants, statuts — tenues dans une <strong>couche de contexte séparée</strong>,
+pas dans un paragraphe de prose.</p>
+<pre><code class="language-json">{
+  &quot;case_facts&quot;: { &quot;customer_id&quot;: &quot;CUST-12345&quot;, &quot;tier&quot;: &quot;gold&quot; },
+  &quot;issues&quot;: [
+    { &quot;id&quot;: &quot;I-1&quot;, &quot;order_id&quot;: &quot;ORD-67890&quot;, &quot;amount&quot;: &quot;$89.99&quot;,
+      &quot;type&quot;: &quot;damaged_item&quot;,  &quot;status&quot;: &quot;refund_pending&quot; },
+    { &quot;id&quot;: &quot;I-2&quot;, &quot;order_id&quot;: &quot;ORD-71204&quot;, &quot;amount&quot;: &quot;$24.50&quot;,
+      &quot;type&quot;: &quot;late_delivery&quot;, &quot;status&quot;: &quot;credit_offered&quot; },
+    { &quot;id&quot;: &quot;I-3&quot;, &quot;order_id&quot;: &quot;ORD-71204&quot;, &quot;amount&quot;: null,
+      &quot;type&quot;: &quot;address_change&quot;, &quot;status&quot;: &quot;resolved&quot; }
+  ]
 }
-// → seul vat_number part en revue humaine</pre>
+</code></pre>
+<p>Trois problèmes, trois statuts, un seul client. Un récapitulatif en prose du même
+matériau perd quel montant appartient à quelle commande dès la première
+compression. Décomposer la <em>demande</em> en investigations parallèles relève du
+TS 1.4 et vit en D1 ; ce que ce task statement ajoute, c'est la couche dans
+laquelle leurs résultats sont réécrits.</p>
+<h3>Réduire la sortie des outils avant qu'elle ne s'accumule</h3>
+<p>Le chiffre du guide lui-même : une consultation de commande retourne <strong>plus de 40
+champs quand 5 sont pertinents</strong> pour la tâche en cours. Ces 40 champs ne sont pas
+seulement présents une fois — ils sont renvoyés à chaque requête suivante pour
+tout le reste de la session.</p>
+<pre><code class="language-text">lookup_order(ORD-67890) →
+  order_id, status, total, items, return_eligible        ← les 5 qui décident
+  warehouse_route, carrier_scac, pick_wave, audit_flags,
+  promo_ledger, tax_jurisdiction, … (35 autres)          ← payés à chaque tour suivant
+</code></pre>
+<p>Le skill consiste à réduire <strong>avant</strong> que le résultat n'entre dans le contexte,
+c'est-à-dire entre le retour de l'outil et la lecture du modèle. <strong>Le guide ne
+nomme aucun mécanisme pour cela</strong> — il énonce le skill et s'arrête là. Un
+mécanisme se tient exactement dans cette fenêtre : un hook <code>PostToolUse</code>, dont
+l'<code>updatedToolOutput</code> remplace la sortie d'un outil avant que Claude ne la voie.
+La documentation du SDK présente ce champ pour un autre usage — normaliser des
+formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est propre
+à la normalisation, donc il sert aussi celui-ci. La déduction est celle de ce
+cours ; le champ et son moment d'exécution sont ceux de la documentation.</p>
+<pre><code class="language-python">async def trim_order_lookup(input_data, tool_use_id, context):
+    if input_data[&quot;tool_name&quot;] != &quot;lookup_order&quot;:
+        return {}
+    full = input_data[&quot;tool_response&quot;]
+    keep = (&quot;order_id&quot;, &quot;status&quot;, &quot;total&quot;, &quot;items&quot;, &quot;return_eligible&quot;)
+    return {
+        &quot;hookSpecificOutput&quot;: {
+            &quot;hookEventName&quot;: &quot;PostToolUse&quot;,
+            &quot;updatedToolOutput&quot;: {k: full[k] for k in keep if k in full},
+        }
+    }
+</code></pre>
+<p>La machinerie des hooks elle-même — les événements, les matchers, le contrat de
+callback — relève du TS 1.5 et appartient à D1. Ce qui le rend adapté ici, c'est
+l'ordre : <code>PostToolUse</code> s'exécute après le retour de l'outil et avant que le
+modèle ne lise le résultat, ce qui est la seule fenêtre où réduire fait gagner
+quelque chose. Un hook <code>PreToolUse</code> est trop tôt — le résultat n'existe pas
+encore — et réduire après coup coûte les tokens que l'on cherchait à économiser.</p>
+<p>Choisir ce qu'un outil retourne <em>en premier lieu</em> est une décision de conception
+d'outil et appartient à D2.1, qui énonce la règle ainsi : <strong>retourner du signal,
+pas du remplissage</strong>. Ce task statement est la réparation quand l'outil n'est pas
+le vôtre.</p>
+<h3>La position : ce qui va en tête, ce qui va au milieu</h3>
+<p>Pour une entrée agrégée longue — les découvertes de plusieurs subagents, un lot
+de contenus de fichiers, une revue multi-documents — le guide demande deux
+choses : un <strong>résumé des découvertes clés au début</strong>, et des <strong>en-têtes de section
+explicites</strong> qui organisent les résultats détaillés.</p>
+<pre><code class="language-text">=== DÉCOUVERTES CLÉS ===
+1. auth.ts — l'expiration du token n'est jamais vérifiée sur le chemin de refresh (critique)
+2. database.ts — trois requêtes construites par concaténation de chaînes (critique)
+3. upload.ts — le content-type est cru sur parole depuis le client (majeur)
 
-<div class="key-concept">
-<strong>Le seuil se calibre sur un <code>labeled validation set</code>.</strong> Un score de confiance brut ne veut rien dire tant qu'on ne l'a pas confronté à la vérité terrain : on prend un jeu de documents annotés à la main, on regarde le taux d'erreur réel à chaque niveau de confiance, et on place le seuil là où le risque résiduel devient acceptable. Sans ce calage, « confidence &gt; 0,9 » est un chiffre arbitraire.
-</div>
+=== RÉSULTATS DÉTAILLÉS ===
+== auth.ts ==
+…quarante lignes de détail…
+== database.ts ==
+…soixante lignes de détail…
+== upload.ts ==
+…trente lignes de détail…
 
-<h3>3. Prioriser une capacité de relecture limitée</h3>
-<p>Les relecteurs humains sont la ressource rare. On leur envoie en priorité :</p>
+=== ACTIONS REQUISES ===
+Corriger auth.ts et database.ts avant le merge ; upload.ts peut suivre.
+</code></pre>
+<p>Le résumé en tête n'est pas une politesse envers un lecteur humain. C'est la
+position où le modèle lit de façon fiable, et cela signifie que les découvertes
+critiques sont lues même si une section du milieu ne l'est pas. Les en-têtes font
+la seconde moitié du travail : ils donnent au milieu une structure par laquelle
+être retrouvé, au lieu d'un mur plat où un paragraphe ressemble à tous les
+autres.</p>
+<h3>Ce que les agents en amont doivent envoyer en aval</h3>
+<p>Deux des skills du guide portent sur le format de sortie de l'<em>autre</em> agent, et
+tous deux s'appliquent quand un agent en aval a un budget de contexte limité.</p>
 <ul>
-<li>les extractions dont la <strong>confiance modèle est basse</strong> ;</li>
-<li>les documents <strong>ambigus ou contradictoires</strong> à la source — deux totaux différents, une date illisible, un champ raturé ;</li>
-<li>les segments dont la mesure par type et par champ montre qu'ils sont dégradés.</li>
+<li><strong>Exiger des métadonnées dans les sorties des subagents</strong> — dates, localisations
+des sources, contexte méthodologique — pour que la synthèse en aval soit exacte
+et pas seulement fluide. Ce à quoi servent ces métadonnées relève du TS 5.6.</li>
+<li><strong>Modifier les agents en amont pour qu'ils retournent des données structurées</strong> —
+faits clés, citations, scores de pertinence — au lieu de contenu verbeux et de
+chaînes de raisonnement.</li>
 </ul>
-
-<div class="exam-tip">
-<strong>Le piège du domaine — les deux visages de la confidence.</strong> La section 2 dit que le <code>self-rated confidence</code> est un déclencheur d'escalade non fiable, et c'est vrai : un agent qui s'auto-note « 8/10 » pour décider d'escalader est déjà confiant à tort sur les cas difficiles. Mais ici, le <strong>score de confiance par champ, calibré sur un jeu de validation étiqueté</strong>, est la bonne réponse pour router la relecture. La différence tient en trois points : granularité (par champ, pas par cas), calage (sur des données annotées, pas sur l'introspection du modèle), et usage (prioriser une file de relecture, pas prendre la décision à la place de l'humain). Une option qui parle de confiance n'est donc <em>ni</em> automatiquement fausse <em>ni</em> automatiquement juste — lisez laquelle des deux on vous propose.
-</div>
-
-<div class="anti-pattern">
-<strong>Les distracteurs classiques face à la confiance par champ calibrée.</strong>
-<ul>
-<li><strong>« Un score de confiance global par document »</strong> — séduit parce qu'il porte bien le mot « confidence » et qu'il est simple à implémenter. Mais il agrège dans un seul chiffre les champs sûrs et les champs douteux : un document à 0,93 dont le numéro de TVA est à 0,41 passe en automatique. C'est le même défaut que les 97 % d'accuracy agrégée, transposé au routage.</li>
-<li><strong>« Échantillonner aléatoirement une part fixe des extractions et relire celles-là »</strong> — séduit parce que l'échantillonnage est bel et bien recommandé dans ce task. Confusion d'usage : le <code>stratified random sampling</code> sert à <em>mesurer</em> un taux d'erreur et à détecter des patterns nouveaux, pas à <em>allouer</em> une capacité de relecture, qui doit aller là où le risque est.</li>
-<li><strong>« Faire auto-noter au modèle sa confiance de 1 à 10 »</strong> — séduit parce que cela ressemble à la bonne réponse. C'est la version <em>non calibrée</em> : aucune confrontation à un <code>labeled validation set</code>, donc un 8/10 ne correspond à aucun taux d'erreur connu et le seuil est arbitraire.</li>
-<li><strong>« Ne relire que les types de documents ayant déjà généré des réclamations clients »</strong> — séduit parce que le signal vient du terrain. Mais il est retardé (l'erreur est déjà partie chez le client) et biaisé (seules les erreurs visibles et réclamées remontent) ; les poches d'erreur silencieuses restent invisibles.</li>
-</ul>
-</div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s6">6. La <code>provenance</code> et la synthèse multi-sources (Task 5.6)</h2></div>
-
-<h3>Le problème : <code>attribution</code> loss pendant la summarization</h3>
-<p>Quand un agent agrège des résultats provenant de plusieurs sources, la synthèse peut perdre le lien entre chaque affirmation et sa source (<code>attribution</code> loss). L'utilisateur final ne sait plus d'où viennent les chiffres, ce qui rend le rapport inutilisable pour la prise de décision.</p>
-
-<h3>Les <code>claim-source mapping</code>s</h3>
-<p>Chaque affirmation dans la synthèse doit être liée à sa source via un mapping structuré incluant l'URL, le nom du document et des citations directes :</p>
-<div class="anti-pattern">
-<strong>Mauvais :</strong> « Le marché de la musique IA est estimé à 3,2 milliards de dollars. » (Pas de source, pas de date — <code>attribution</code> perdue.)
-</div>
-<div class="key-concept">
-<strong>Bon — <code>claim-source mapping</code> :</strong>
-<pre>{
-  "claim": "Le marché de la musique IA est estimé à 3,2 Mds $",
-  "source_url": "https://example.com/report",
-  "source_name": "Global AI Music Report 2024",
-  "quote": "The AI music market reached $3.2B in 2024",
-  "publication_date": "2024-06-15",
-  "confidence": 0.9
-}</pre>
-</div>
-
-<h3>Gérer les données contradictoires</h3>
-<p>Quand deux sources crédibles donnent des statistiques différentes, il ne faut <em>pas</em> choisir arbitrairement l'une des deux. Il faut préserver les deux valeurs avec leur <code>attribution</code> et annoter le conflit. Le coordinateur (ou l'utilisateur) décide :</p>
-<pre>{
-  "claim": "Part de la musique générée par IA sur le streaming",
-  "values": [
-    {"value": "12%", "source": "Spotify Annual Report 2024",
-     "date": "2024-03", "methodology": "Classification automatisée"},
-    {"value": "8%", "source": "Music Industry Association Survey",
-     "date": "2024-07", "methodology": "Enquête auprès de 500 labels"}
+<pre><code class="language-json">{
+  &quot;key_facts&quot;: [
+    { &quot;fact&quot;: &quot;La fenêtre de retour est de 30 jours après livraison&quot;,
+      &quot;source&quot;: &quot;policy/returns.md#L42&quot;, &quot;as_of&quot;: &quot;2025-01-04&quot;,
+      &quot;relevance&quot;: 0.95 }
   ],
-  "conflict_detected": true,
-  "possible_explanation": "Différence de méthodologie et de période"
-}</pre>
-
-<h3>Inclure les dates pour le contexte temporel</h3>
-<p>Sans les dates, des différences temporelles peuvent être interprétées à tort comme des contradictions :</p>
-<ul>
-<li><strong>Mauvais :</strong> « Source A dit 10 %, Source B dit 15 %. Contradiction. »</li>
-<li><strong>Bon :</strong> « Source A (2023) dit 10 %, Source B (2024) dit 15 %. Probable croissance de 5 % sur un an — pas une contradiction. »</li>
-</ul>
-
+  &quot;citations&quot;: [&quot;policy/returns.md&quot;, &quot;policy/exceptions.md&quot;],
+  &quot;coverage&quot;: [&quot;retours standard&quot;],
+  &quot;gaps&quot;: [&quot;alignement sur les prix concurrents&quot;]
+}
+</code></pre>
+<p>Notez ce qui n'est <em>pas</em> dans cette charge utile : le raisonnement qui l'a
+produite. Un agent en aval au budget serré a besoin des conclusions et de leur
+provenance, pas du chemin qui y a mené.</p>
 <div class="exam-tip">
-<strong>À retenir :</strong> 10% en 2023 + 15% en 2024 = growth, pas contradiction. Les dates transforment un conflit apparent en tendance. Toujours inclure les dates dans les <code>claim-source mapping</code>s.
+<p>Lisez le scénario pour savoir lequel des trois modes de défaillance il décrit,
+parce que chacun a une réponse et que les deux autres sont fausses ici.</p>
+<p>« Un montant exact évoqué plus tôt revient maintenant de façon vague » →
+compression progressive → bloc de faits du dossier hors de l'historique résumé.
+« Une découverte du milieu d'un long rapport a été ignorée » → position → résumé
+en tête, en-têtes de section sur le détail. « La fenêtre se remplit de sorties
+d'outils » → accumulation → réduire aux champs pertinents.</p>
+<p>Les distracteurs du premier cas sont tous des tentatives de faire bien se tenir
+la compression. <strong>Passer à un modèle à fenêtre de contexte plus large</strong> repousse
+la limite sans rien protéger : une conversation assez longue atteint aussi la
+nouvelle limite, et la même compression détruit les mêmes faits. <strong>Compacter
+moins souvent</strong> est la même esquive formulée côté fréquence — cela change quand
+les nombres sont détruits, pas si. <strong>Demander au résumeur de garder chaque nombre
+et chaque date</strong> est le plus tentant parce qu'il nomme le bon symptôme, et c'est
+une demande plutôt qu'une garantie.</p>
 </div>
+<div class="anti-pattern">
+<p><strong>Jeter les tours les plus anciens pour faire de la place.</strong> L'API ne stocke
+rien : une requête qui embarque un historique tronqué est une requête où ces
+tours n'ont jamais eu lieu. Faire glisser une fenêtre sur les messages n'est pas
+de la gestion de contexte ; c'est de l'amnésie silencieuse, sans trace de ce qui
+a été perdu.</p>
+<p><strong>Résumer le résumé.</strong> Chaque passe comprime ce que la passe précédente avait
+gardé, et les détails précis partent en premier. Deux générations plus tard,
+« le client a signalé un article endommagé à 89,99 $ le 15 janvier et a refusé un
+remplacement » devient « le client avait un problème avec une commande ».</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.1&quot;</code>.</p>
 
-<h3>Séparer l'établi du contesté dans la structure du rapport</h3>
-<p>Annoter un conflit ne suffit pas si le rapport final noie l'annotation au milieu du reste. Le rapport doit avoir des <strong>sections explicites</strong> qui distinguent ce qui est solidement établi de ce qui est disputé, en conservant la formulation d'origine de chaque source et son contexte méthodologique — plutôt que de reformuler tout le monde dans une voix unique qui gomme les nuances.</p>
-<pre>## Findings bien établis (convergence de sources)
-- L'IA générative est utilisée en production dans les 4 majors — 3 sources concordantes
+<div class="section-header"><h2 id="s2">2. 5.2 — Design effective escalation and ambiguity resolution patterns</h2></div>
 
-## Findings contestés (sources divergentes)
-- Part de la musique générée par IA sur le streaming : 12 % (Spotify, mesure
-  automatisée, 03/2024) contre 8 % (MIA, enquête déclarative, 07/2024).
-  Méthodologies non comparables — les deux valeurs sont conservées.
-
-## Lacunes de couverture
-- Distribution et licensing : non couverts (timeout du subagent de recherche)</pre>
-
-<h3>Rendre chaque type de contenu dans sa forme naturelle</h3>
-<p>Un agent de synthèse reçoit des matériaux hétérogènes : des séries chiffrées, des dépêches, des résultats techniques. La tentation est de tout couler dans un format unique — souvent des paragraphes de prose, parce que c'est ce que le modèle produit par défaut. Le rapport devient alors illisible là où il devrait être le plus précis : douze valeurs trimestrielles noyées dans une phrase, personne ne peut les comparer.</p>
-
+<p>Une politique d'escalade échoue dans deux directions, et les deux coûtent cher.
+Escaladez trop volontiers et une file se remplit de cas que l'agent aurait pu
+clore. Escaladez trop rarement et l'agent s'acharne sur un cas qu'il n'a jamais
+été équipé pour résoudre, produisant une mauvaise réponse ou un client épuisé. Le
+task statement porte sur l'endroit où passe la ligne, et — c'est la partie qui est
+testée — sur les signaux autorisés à la déplacer.</p>
+<h3>Les déclencheurs que le guide accepte</h3>
 <table>
-<tr><th>Type de contenu</th><th>Forme de rendu</th><th>Pourquoi</th></tr>
-<tr><td>Données financières, séries chiffrées</td><td><strong>Tableaux</strong></td><td>La comparaison colonne par colonne est le geste de lecture attendu ; la prose la rend impossible</td></tr>
-<tr><td>Actualités, événements, contexte</td><td><strong>Prose</strong></td><td>La chronologie et la causalité se disent en phrases, pas en cellules</td></tr>
-<tr><td>Résultats techniques, findings</td><td><strong>Listes structurées</strong></td><td>Chaque élément est indépendant et doit rester citable et vérifiable isolément</td></tr>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Ce que fait l'agent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le client demande explicitement un humain</td>
+<td>Escalader <strong>immédiatement</strong>, sans tenter d'investiguer d'abord</td>
+</tr>
+<tr>
+<td>La politique est muette ou ambiguë sur cette demande précise — une lacune ou une exception</td>
+<td>Escalader : personne n'a délégué cette décision à l'agent</td>
+</tr>
+<tr>
+<td>L'agent ne parvient plus à progresser réellement</td>
+<td>Escalader après une tentative raisonnable</td>
+</tr>
+<tr>
+<td>Une consultation retourne <strong>plusieurs correspondances</strong> pour le client</td>
+<td>Ne pas escalader et ne pas deviner : demander un identifiant supplémentaire</td>
+</tr>
+</tbody>
 </table>
+<p>Deux de ces quatre méritent leur propre phrase, parce que le libellé du guide est
+précis et que les quasi-réponses sont la matière des distracteurs.</p>
+<p><strong>Une lacune de politique n'est pas la même chose qu'un cas complexe.</strong> L'exemple
+du guide lui-même : le client demande l'alignement sur le prix d'un concurrent, et
+la politique tarifaire ne traite que les ajustements de prix sur votre propre
+site. La demande n'est pas difficile — aligner un prix, c'est un appel d'outil.
+Elle est <em>non tranchée</em>. Rien dans la politique ne l'autorise et rien ne
+l'interdit, donc l'accorder serait l'agent en train d'inventer la politique
+commerciale. C'est cela, le déclencheur, et « le cas était complexe » ne l'est
+pas.</p>
+<p><strong>Plusieurs correspondances sont une ambiguïté, pas une escalade.</strong> Trois
+sociétés partagent un nom commercial ; la parade est de demander un numéro de
+contrat ou un domaine de facturation. Choisir le compte le plus récemment actif
+est une heuristique déguisée en raisonnement, et agir sur le contrat de la
+mauvaise société est exactement l'échec que les vérifications d'identité existent
+pour empêcher.</p>
+<h3>Les déclencheurs que le guide rejette</h3>
+<table>
+<thead>
+<tr>
+<th>Proxy</th>
+<th>Pourquoi il échoue</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Le sentiment</strong> — escalader quand le message se lit comme de la colère</td>
+<td>L'humeur ne corrèle pas avec la complexité du cas. Un client furieux peut avoir un problème d'un seul appel d'outil, et un client courtois un problème insoluble</td>
+</tr>
+<tr>
+<td><strong>La confiance auto-déclarée</strong> — le modèle note sa propre certitude et escalade sous un seuil</td>
+<td>La note est l'introspection du modèle sur un cas qu'il a peut-être mal lu, et elle est la plus haute exactement là où il se trompe avec assurance</td>
+</tr>
+</tbody>
+</table>
+<p>La confiance auto-déclarée revient en 5.5 comme une partie de la <em>bonne</em> réponse,
+sous une autre forme et pour un autre usage. La distinction y est posée, et il
+vaut la peine de lire les deux sections l'une contre l'autre une fois.</p>
+<h3>Les trois comportements, et celui qui est testé</h3>
+<p>Le guide sépare l'escalade immédiate de la proposition de résoudre, et la
+séparation tient à ce que le client a réellement dit.</p>
+<pre><code class="language-text"># Demande explicite d'un humain
+« Je veux parler à un responsable. »
+→ appeler escalate_to_human() maintenant. Pas d'investigation d'abord.
 
+# Frustration, aucune demande d'humain
+« C'est scandaleux, je suis très mécontent ! »
+→ reconnaître la frustration, proposer la résolution que vous pouvez donner,
+  escalader seulement si le client réitère sa préférence pour un humain.
+
+# Problème simple, dans le périmètre d'autorité de l'agent
+« Mon colis a trois jours de retard. »
+→ le résoudre. Proposer une passation que personne n'a demandée transforme un
+  cas clôturable en file d'attente.
+</code></pre>
+<p>Le cas du milieu est celui autour duquel l'examen construit ses scénarios, parce
+qu'il ressemble au premier. « C'est scandaleux » est un énoncé de ressenti, pas
+une demande d'humain. Le reconnaître coûte une phrase ; escalader dessus coûte
+l'après-midi d'un être humain et laisse le client attendre un correctif que
+l'agent pouvait appliquer tout de suite. Et la porte de sortie est dans la même
+règle : si le client <em>réitère</em>, il a maintenant demandé, et le premier déclencheur
+s'applique.</p>
+<h3>Comment la politique entre dans l'agent</h3>
+<p>Le premier skill du guide nomme les deux moitiés et aucune ne fonctionne seule :
+des <strong>critères d'escalade explicites</strong> <em>avec</em> des <strong>exemples few-shot</strong> dans le
+system prompt.</p>
+<pre><code class="language-text"># Critères d'escalade
+Escalader immédiatement quand le client demande un humain, quelle qu'en soit la
+formulation.
+Escalader quand cette politique ne couvre pas la demande, y compris les demandes
+qu'elle n'autorise ni n'interdit.
+Escalader quand trois tentatives de résolution n'ont produit aucun progrès.
+Ne jamais escalader sur le ton seul. Ne jamais deviner entre plusieurs comptes
+correspondants — demander un numéro de contrat ou un domaine de facturation.
+
+# Exemples
+Client : « Passez-moi un responsable. »
+Action : escalate_to_human(reason=&quot;explicit request&quot;)
+Pourquoi : demande explicite d'un humain. Ne pas investiguer d'abord.
+
+Client : « C'est scandaleux, j'attends depuis une semaine ! »
+Action : reconnaître, puis proposer le geste commercial de livraison auquel vous
+         êtes autorisé.
+Pourquoi : la frustration n'est pas une demande d'humain. N'escalader que s'il en
+           demande ensuite un.
+
+Client : « Alignez-vous sur le prix trouvé chez un concurrent. »
+Action : escalate_to_human(reason=&quot;policy gap: competitor pricing&quot;)
+Pourquoi : la politique ne couvre que nos propres ajustements de prix. Le silence
+           n'est pas une autorisation.
+</code></pre>
+<p>Les critères portent la règle ; les exemples portent son application aux cas où
+la règle est ambiguë — ce qui est toute la raison pour laquelle un critère avait
+besoin d'exemples. Les critères seuls laissent « est-ce une lacune de
+politique ? » à trancher de nouveau à chaque tour. Les exemples seuls généralisent de trois
+cas vers une politique que personne n'a écrite.</p>
+<p>Quand l'agent escalade effectivement en cours de traitement, ce qu'il remet à
+l'humain — identité du client, cause racine, montant, action recommandée, dans un
+résumé qui tient sans le transcript — est la <strong>passation structurée</strong>, testée au
+TS 1.4 et développée en D1.4.</p>
 <div class="exam-tip">
-<strong>Réflexe d'examen :</strong> si un scénario reproche à un rapport de synthèse d'être difficile à exploiter alors que le contenu est juste et bien sourcé, ne cherchez pas du côté des subagents en amont — ils ont fait leur travail. Le problème est le rendu uniforme en sortie de synthèse. La correction est d'instruire l'agent de synthèse de rendre chaque type de contenu dans sa forme propre.
+<p>Le scénario vous dit quel déclencheur s'est allumé ; la formulation du message du
+client est toute la question.</p>
+<p>« Je veux un responsable » → escalader maintenant, et <em>pas</em> « investiguer d'abord,
+puis escalader si besoin » — cette réponse a l'air consciencieuse et elle fait
+attendre, à travers une investigation qu'il n'a pas voulue, un client qui a déjà
+demandé. « C'est scandaleux » → reconnaître, résoudre, escalader sur réitération.
+« La politique ne traite pas ce cas » → escalader, et non « appliquer la règle
+analogue la plus proche ». « Trois clients correspondent » → demander un autre
+identifiant, et non « prendre le plus probable ».</p>
+<p>Les mauvaises réponses récurrentes sont celles qui sonnent comme de la mesure :
+un score de sentiment, un seuil de confiance auto-déclarée, un classifieur
+entraîné qui exigerait des données d'escalade étiquetées dont personne ne dispose.
+Chacune remplace une règle énoncée par une règle inférée.</p>
 </div>
+<div class="anti-pattern">
+<p><strong>Investiguer d'abord alors qu'un humain a été explicitement demandé.</strong> Le libellé
+du guide est « immédiatement, sans tenter d'investiguer d'abord ». Une
+investigation consciencieuse avant d'honorer la demande reste un refus de
+l'honorer.</p>
+<p><strong>Escalader parce que le cas est complexe.</strong> La complexité n'est pas sur la
+liste. Le silence de la politique, si. Un agent qui escalade sur la difficulté
+escalade sur son propre malaise, ce qui est le proxy de la confiance en soi sous
+un autre chapeau.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.2&quot;</code>.</p>
 
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s7">7. Synthèse — les points clés</h2></div>
+<div class="section-header"><h2 id="s3">3. 5.3 — Implement error propagation strategies across multi-agent systems</h2></div>
 
-<h3>Gestion du contexte</h3>
+<p>Un subagent de recherche tombe en timeout sur sa troisième requête. Ce que le
+coordinateur fait ensuite — réessayer, resserrer la requête, tenter une autre
+source, ou continuer en notant la lacune — dépend entièrement de ce qui est
+revenu. Si ce qui est revenu est <code>&quot;search unavailable&quot;</code>, chacune de ces options
+est une devinette.</p>
+<p>C'est le task statement en une phrase : <strong>la charge utile d'erreur est l'entrée
+de décision du coordinateur</strong>, et une erreur qui ne porte aucun contexte lui a
+retiré la capacité de récupérer intelligemment tout en ayant l'air d'une
+ingénierie saine.</p>
+<h3>Les quatre choses que porte une erreur propagée</h3>
+<p>Le guide les nomme, et les quatre correspondent une à une à des décisions :</p>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;partial_failure&quot;,
+  &quot;failure_type&quot;: &quot;timeout&quot;,
+  &quot;attempted_query&quot;: &quot;AI impact on music industry 2024&quot;,
+  &quot;partial_results&quot;: [
+    { &quot;title&quot;: &quot;AI Music Generation Report&quot;, &quot;url&quot;: &quot;https://…&quot;, &quot;relevance&quot;: 0.8 }
+  ],
+  &quot;alternative_approaches&quot;: [
+    &quot;Requête plus resserrée : 'AI music composition tools'&quot;,
+    &quot;Autre type de source : publications d'associations professionnelles&quot;
+  ],
+  &quot;coverage_impact&quot;: &quot;Non couvert : l'effet de l'IA sur les workflows de production musicale&quot;
+}
+</code></pre>
 <ul>
-<li>L'API ne conserve rien entre les requêtes : envoyer le <strong>full history</strong> à chaque appel.</li>
-<li>Le <code>case facts</code> block préserve les faits transactionnels en dehors du summarized history.</li>
-<li>L'effet <code>lost-in-the-middle</code> : conclusions clés en tête, actions en fin.</li>
-<li>Réduire les <code>tool results</code> aux champs pertinents via des hooks <code>PostToolUse</code>.</li>
-<li><code>/compact</code> pour compresser ; <code>scratchpad</code> pour persister ; <code>subagent</code>s pour isoler.</li>
-<li>Persistance d'état structurée via <code>manifest.json</code> pour le crash recovery.</li>
-<li>Les <code>subagent</code>s doivent inclure les métadonnées (dates, sources) dans leurs sorties structurées.</li>
+<li><code>failure_type</code> — cet appel vaut-il seulement la peine d'être réessayé ?</li>
+<li><code>attempted_query</code> — pour que le budget de reprise ne soit pas dépensé deux fois
+sur le même appel.</li>
+<li><code>partial_results</code> — ce qui existe déjà et ne doit pas être jeté.</li>
+<li><code>alternative_approaches</code> — ce qui, selon le subagent qui y était, pourrait marcher à
+la place.</li>
 </ul>
+<p>Réduisez ces quatre-là à <code>{&quot;status&quot;: &quot;error&quot;, &quot;message&quot;: &quot;search unavailable&quot;}</code> et
+le coordinateur réessaie à l'aveugle, relance une requête déjà lancée, jette des
+découvertes qu'il détenait déjà, et ne peut pas dire au lecteur quelle part du
+sujet est restée non couverte.</p>
+<div class="key-concept">
+<p><strong>Deux cours, une erreur, deux moitiés.</strong> D2.2 possède la <em>forme</em> d'une erreur
+d'outil — le drapeau MCP <code>isError</code>, <code>errorCategory</code>, <code>isRetryable</code>, la phrase
+adressée au client — et énonce le fait qui compte pour les deux : ces noms de
+champs sont une convention applicative placée dans le contenu du résultat, pas des
+champs du protocole MCP. Cette section-ci possède la suite : ce qu'un subagent
+propage vers le haut, et ce que le coordinateur en fait.</p>
+</div>
+<h3>Un échec d'accès n'est pas un résultat vide</h3>
+<p>La distinction que le guide énonce le plus nettement, et celle qu'un scénario
+cachera derrière une formule commune comme « pas de données » :</p>
+<table>
+<thead>
+<tr>
+<th>Cas de figure</th>
+<th>Ce que cela signifie</th>
+<th>Le geste du coordinateur</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timeout de connexion, erreur de passerelle, échec d'authentification</td>
+<td><strong>Échec d'accès</strong> — la question n'a jamais reçu de réponse</td>
+<td>Décider d'un retry ; si cela persiste, propager et annoter</td>
+</tr>
+<tr>
+<td><code>0 results</code> pour une requête qui a bien tourné</td>
+<td><strong>Résultat vide valide</strong> — la question a reçu une réponse, et la réponse est « aucun »</td>
+<td>L'accepter comme une découverte, et l'enregistrer comme couverture</td>
+</tr>
+</tbody>
+</table>
+<p>Les deux sont opposées par le sens et identiques d'apparence dès lors que les
+deux sont rapportées comme « pas de données ». Les rapporter de la même façon est
+la manière dont un coordinateur conclut qu'un ingénieur n'a aucune certification
+alors que le système de badges a simplement omis de répondre — une découverte
+fausse, produite avec pleine confiance, à partir d'une erreur qui n'a jamais été
+remontée.</p>
+<h3>Récupérer localement, propager ce que vous ne pouvez pas résoudre</h3>
+<p>Le partage des rôles du guide : <strong>les subagents implémentent la récupération
+locale des échecs transitoires, et ne propagent que ce qu'ils ne peuvent pas
+résoudre</strong> — avec ce qui a été tenté et les résultats partiels éventuels
+attachés.</p>
+<pre><code class="language-python">async def search_topic(query: str):
+    partial, attempts = [], []
+    for attempt in range(3):
+        try:
+            return {&quot;status&quot;: &quot;ok&quot;, &quot;results&quot;: await search(query)}
+        except TransientError as e:              # récupéré localement, jamais propagé
+            attempts.append({&quot;query&quot;: query, &quot;error&quot;: str(e)})
+            await backoff(attempt)
+        except QuotaExceeded as e:               # ne peut pas être résolu ici
+            return {
+                &quot;status&quot;: &quot;partial_failure&quot;,
+                &quot;failure_type&quot;: &quot;quota_exceeded&quot;,
+                &quot;attempted_query&quot;: query,
+                &quot;attempts&quot;: attempts,
+                &quot;partial_results&quot;: partial,
+                &quot;alternative_approaches&quot;: [&quot;Utiliser le corpus en cache pour ce sous-thème&quot;],
+            }
+    return {
+        &quot;status&quot;: &quot;partial_failure&quot;,
+        &quot;failure_type&quot;: &quot;timeout&quot;,
+        &quot;attempted_query&quot;: query,
+        &quot;attempts&quot;: attempts,
+        &quot;partial_results&quot;: partial,
+        &quot;alternative_approaches&quot;: [&quot;Requête resserrée&quot;, &quot;Autre type de source&quot;],
+    }
+</code></pre>
+<p>Deux moitiés, et l'examen teste la frontière entre elles. Réessayer une erreur
+réseau transitoire à l'intérieur du subagent est juste — un coordinateur n'a pas
+besoin d'arbitrer un hoquet. Réessayer avec un backoff exponentiel <em>puis</em>
+rapporter <code>&quot;search unavailable&quot;</code> est l'anti-pattern déguisé en bonne ingénierie :
+la récupération était bonne, le rapport a détruit tout ce dont le coordinateur
+avait besoin.</p>
+<p>Une conséquence à connaître, parce qu'elle met en échec tout le dispositif : une
+erreur d'API qui interrompt un subagent — une limite de débit, par exemple —
+<strong>n'est jamais délivrée comme résultat de ce subagent</strong>. Il n'y a rien à
+structurer, puisque rien ne revient. Les découvertes qu'un subagent avait
+accumulées avant d'être coupé ne survivent que si elles ont été écrites quelque
+part hors de son contexte ; le scratchpad et les fichiers d'état de 5.4 sont ce
+quelque part.</p>
+<h3>Les trois anti-patterns que le guide nomme</h3>
+<table>
+<thead>
+<tr>
+<th>Anti-pattern</th>
+<th>Ce qu'il coûte au coordinateur</th>
+<th>À la place</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Statut générique</strong> — <code>&quot;search unavailable&quot;</code></td>
+<td>Toute décision de récupération, puisque aucune des quatre entrées n'a survécu</td>
+<td>Retourner le type d'échec, la requête tentée, les résultats partiels, les alternatives</td>
+</tr>
+<tr>
+<td><strong>Suppression silencieuse</strong> — attraper l'erreur et retourner un résultat vide en succès</td>
+<td>Le coordinateur conclut « rien n'existe » là où l'accès a échoué, et aucune récupération n'est même tentée</td>
+<td>Distinguer l'échec d'accès du résultat vide valide</td>
+</tr>
+<tr>
+<td><strong>Abandonner tout le workflow</strong> sur un seul échec</td>
+<td>Tous les résultats de toutes les autres branches, jetés pour une branche en défaut</td>
+<td>Continuer sur les résultats partiels, annoter la lacune</td>
+</tr>
+</tbody>
+</table>
+<p>Les retries infinis dans un subagent sont un vrai défaut — latence et budget
+gaspillé — mais ils ne figurent pas sur la liste des trois du guide. Ne les
+comptez pas parmi eux.</p>
+<h3>Les annotations de couverture dans la synthèse</h3>
+<p>Le dernier skill boucle la boucle. Une synthèse construite à partir d'entrées
+incomplètes doit le dire, dans la sortie, section par section : <strong>quelles
+découvertes sont bien étayées, et quels domaines du sujet ont des lacunes parce
+qu'une source était indisponible.</strong></p>
+<pre><code class="language-text">L'IA dans les industries créatives
 
-<h3>Escalation</h3>
+Art visuel — COUVERTURE COMPLÈTE
+  Trois sources indépendantes, aucun conflit.
+
+Musique — COUVERTURE PARTIELLE
+  Le subagent de recherche est tombé en timeout sur les workflows de production ;
+  la composition et la distribution sont couvertes. Traiter les chiffres de
+  production comme non vérifiés.
+
+Littérature — NON COUVERT
+  Base de données des éditeurs injoignable (échec d'authentification, 3
+  tentatives). Aucune découverte.
+</code></pre>
+<p>Un rapport qui se lit comme complet alors qu'il repose sur deux branches sur
+trois est pire qu'un rapport qui se lit comme partiel, parce que sur les deux, un
+seul peut être suivi sans risque.</p>
+<div class="exam-tip">
+<p>Demandez-vous ce que le coordinateur peut encore décider après avoir lu la charge
+utile. C'est toute la question, et elle trie les options rapidement.</p>
+<p>Les distracteurs sont ceux qui ont l'air responsables. <strong>Backoff exponentiel, puis
+statut générique</strong> — c'est la logique de reprise que l'on juge, alors que c'est le
+rapport qui est testé. <strong>Attraper le timeout et retourner un succès vide</strong> — le
+workflow ne casse pas, et le coordinateur tire une conclusion fausse. <strong>Propager
+à un handler global qui termine l'exécution</strong> — net, et cela jette les résultats
+de toutes les autres branches. <strong>Agréger les échecs en un pourcentage de
+couverture global</strong> — une métrique lisible qui détruit exactement la distinction
+que le domaine teste, puisqu'un échec d'accès et un résultat vide valide
+deviennent indiscernables une fois moyennés.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Rapporter une consultation restée sans réponse comme une découverte.</strong>
+« Aucune certification au dossier » et « le système de certification n'a pas
+répondu » deviennent la même phrase, et la seconde vient de produire une
+conclusion sur une personne.</p>
+<p><strong>Laisser les résultats partiels mourir avec le contexte du subagent.</strong> Ils ont
+été payés. S'ils ne sont ni dans la charge utile ni dans un fichier, ils
+n'existent plus.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.3&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s4">4. 5.4 — Manage context effectively in large codebase exploration</h2></div>
+
+<p>Deux heures après le début d'un audit d'un module d'inventaire legacy, on demande
+à l'agent comment la réconciliation de stock est déclenchée et il répond que « les
+jobs de réconciliation suivent en général le pattern observateur » — alors qu'il a
+lu <code>StockLedgerSync</code> et tracé ses trois appelants une heure plus tôt.</p>
+<p>Cette phrase est le diagnostic. Le guide décrit le symptôme avec précision : <strong>des
+réponses incohérentes, et des références à des « patterns typiques » plutôt qu'aux
+classes précises découvertes plus tôt</strong>. Le modèle a cessé de répondre depuis la
+codebase et s'est mis à répondre depuis le cas général, parce que les éléments
+précis ne sont plus exploitables dans son contexte. Aucune instruction ne corrige
+cela — on ne peut pas demander à un agent de se souvenir de ce qu'il ne détient
+plus.</p>
+<h3>Les fichiers scratchpad</h3>
+<p>La première parade est un fichier. L'agent y consigne ses découvertes clés, et les
+relit quand une question ultérieure en a besoin.</p>
+<pre><code class="language-text">investigation-scratchpad.md
+
+Découvertes clés
+- StockLedgerSync — src/inventory/sync.ts, hérite de BaseReconciler
+- reconcile() est appelé depuis trois endroits : AdminPanel, NightlyCron, WebhookHandler
+- L'API externe WarehouseAPI est limitée à 100 req/min
+- La migration 47 a ajouté ledger_reason NOT NULL — 2024-12-01
+
+Questions ouvertes
+- WebhookHandler réessaie-t-il sur un 429 ? (pas encore lu)
+</code></pre>
+<p>Le fichier n'est pas un transcript. Archiver la conversation brute sur disque
+déplace les mêmes 120 tours ailleurs et laisse les découvertes tout aussi
+enfouies qu'avant. Un scratchpad contient ce que quelqu'un a déjà distillé, ce qui
+est exactement la forme sous laquelle une relecture ultérieure vaut ses tokens.</p>
+<p>Le même fichier gagne sa place une seconde fois, et 5.3 a nommé le cas : les
+découvertes qu'un subagent avait accumulées avant d'échouer survivent dans le
+scratchpad quand son contexte, lui, ne survit pas.</p>
+<h3>La délégation aux subagents</h3>
+<p>La seconde parade consiste à ne pas mettre du tout le matériau verbeux dans le
+contexte principal. Un subagent tourne dans <strong>sa propre fenêtre de contexte</strong> ;
+ses lectures de fichiers, ses recherches et ses appels d'outils y restent, et
+seul son résumé revient. Le reste de sa conversation est jeté.</p>
+<pre><code class="language-text">Agent principal : « Trace toutes les dépendances du flux de remboursement et
+                   rapporte les modules qu'il touche, une ligne chacun. »
+Subagent Explore (contexte propre) : lit 15 fichiers, lance 6 greps, suit 3 imports
+Retourne : « flux de remboursement → PaymentProcessor, LedgerWriter,
+            NotificationQueue ; externe : StripeGateway. Point d'entrée :
+            RefundController.submit(). »
+
+Coût pour le contexte principal : deux lignes au lieu de quinze fichiers.
+</code></pre>
+<p>Les exemples du guide sur ce qu'il faut déléguer sont des questions étroites et
+répondables — « trouver tous les fichiers de test », « tracer les dépendances du
+flux de remboursement » — pendant que l'<strong>agent principal préserve la
+coordination de haut niveau</strong>. La règle de décision, qui relève du territoire de
+D1, s'applique inchangée : déléguer quand vous voulez le résultat et non le
+trajet ; garder dans le thread principal quand chaque étape dépend de ce que
+l'étape précédente a trouvé, parce que la passation est l'endroit où cette
+dépendance casse.</p>
+<p><strong>Et résumez entre les phases.</strong> Le skill est facile à sauter et le guide
+l'énonce explicitement : avant de lancer les subagents de la phase suivante,
+résumer les découvertes clés de la phase en cours et <strong>injecter ce résumé dans
+leur contexte initial</strong>. Un subagent n'hérite de rien (TS 1.3) — ni de
+l'historique du parent, ni des découvertes de la phase précédente. Sans le résumé
+injecté, la phase deux redécouvre ce que la phase un savait déjà, ou pire, la
+contredit sans le savoir.</p>
+<h3><code>/compact</code>, et ce qu'il ne promet pas</h3>
+<p>C'est le renvoi que D3 devait à ce domaine, et le guide le place ici : <strong>utiliser
+<code>/compact</code> pour réduire l'usage du contexte pendant les sessions d'exploration
+prolongées, quand le contexte se remplit de sorties de découverte verbeuses.</strong></p>
+<table>
+<thead>
+<tr>
+<th>Commande</th>
+<th>Ce qu'elle fait</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/compact</code></td>
+<td>Compacte tout jusqu'à ce point : résume ce qui compte, retire les résultats d'outils inutiles</td>
+</tr>
+<tr>
+<td><code>/clear</code></td>
+<td>Repart de zéro, sans mémoire de la session — pour une nouvelle fonctionnalité, pas pour continuer celle-ci</td>
+</tr>
+<tr>
+<td><code>/context</code></td>
+<td>Indique la taille actuelle du contexte et les catégories qui le remplissent</td>
+</tr>
+</tbody>
+</table>
+<p>Claude Code compacte aussi automatiquement à mesure que la fenêtre approche de sa
+limite. Les deux chemins portent la même réserve, et c'est la raison pour laquelle
+<code>/compact</code> ne tient jamais seul comme réponse : <strong>la compaction peut perdre des
+détails</strong>. Elle achète de la place ; elle ne promet pas qu'une ligne donnée
+survive. Une contrainte qui doit tenir au tour 200 — un erratum, un rail auquel
+personne ne doit toucher — a sa place dans un bloc épinglé ou un scratchpad, hors
+de ce que la compaction peut réécrire. La compaction pour le budget, la
+persistance pour ce qui ne doit pas être dilué : deux problèmes, deux mécanismes,
+et une question qui décrit les deux demande les deux.</p>
+<h3>Reprise après crash : exports d'état et manifeste</h3>
+<p>Pour un workflow multi-agents long, le guide demande quelque chose de plus fort
+que des notes : <strong>chaque agent exporte son état vers un emplacement connu, et le
+coordinateur charge un manifeste à la reprise</strong> et l'injecte dans les prompts des
+agents.</p>
+<pre><code class="language-json">// agent-state/web-search.json
+{
+  &quot;status&quot;: &quot;completed&quot;,
+  &quot;queries_executed&quot;: [&quot;AI music 2024&quot;, &quot;AI music composition&quot;],
+  &quot;results_count&quot;: 12,
+  &quot;key_findings&quot;: [&quot;La musique générée par IA a crû de 300 % sur les plateformes de streaming en 2024&quot;],
+  &quot;coverage&quot;: [&quot;composition&quot;, &quot;production&quot;],
+  &quot;gaps&quot;: [&quot;distribution&quot;, &quot;licensing&quot;]
+}
+</code></pre>
+<pre><code class="language-json">// agent-state/manifest.json
+{
+  &quot;web-search&quot;:   &quot;completed&quot;,
+  &quot;doc-analysis&quot;: &quot;in_progress&quot;,
+  &quot;synthesis&quot;:    &quot;not_started&quot;
+}
+</code></pre>
+<p>Au redémarrage, le coordinateur lit le manifeste, constate que la recherche est
+terminée et que l'analyse a été interrompue, et reprend sans relancer le travail
+déjà fait. Le manifeste porte l'état du workflow ; le fichier de chaque agent
+porte ses découvertes, sa couverture et ses lacunes.</p>
+<p>C'est un mécanisme différent du scratchpad, et les confondre est une erreur bon
+marché : un scratchpad contrecarre la <em>dégradation</em> à l'intérieur de la session d'un
+agent, un manifeste survit à un <em>crash</em> à l'échelle d'un workflow. La
+documentation du SDK pointe dans le même sens pour les sessions en général —
+capturer les résultats dont vous avez besoin comme état applicatif et les passer
+dans le prompt d'une session neuve est plus robuste que de reprendre une session
+dont les résultats d'outils ont vieilli. La reprise de session elle-même,
+<code>--resume</code> et <code>fork_session</code>, relève du TS 1.7 et vit en D1.</p>
+<div class="key-concept">
+<p><strong>Quatre mécanismes, quatre rôles différents.</strong> La délégation empêche la sortie
+verbeuse d'entrer dans le contexte principal. Un scratchpad ramène des
+découvertes distillées une fois que le contexte ne peut plus les tenir. <code>/compact</code>
+achète du budget et ne garantit rien en particulier. Un manifeste d'état survit à
+un processus mort. Un scénario décrit en général l'un des quatre ; les mauvaises
+réponses sont les trois autres.</p>
+</div>
+<div class="exam-tip">
+<p>« L'agent cite des patterns typiques au lieu des classes qu'il a lues » est la
+formule signature de la dégradation du contexte, et la réponse est un scratchpad
+qu'il relit, la délégation de la découverte verbeuse, ou les deux.</p>
+<p>Les distracteurs visent chacun le symptôme. <strong>Redémarrer dans une session propre</strong>
+supprime la dégradation en jetant l'investigation, et la même session longue la
+reproduit puisque rien n'a été rendu persistant. <strong>Augmenter <code>max_tokens</code></strong>
+confond deux budgets : ce paramètre borne la longueur de la réponse générée, pas
+ce que l'agent détient encore en entrée. <strong>Dire à l'agent de se concentrer sur le
+code réel et de citer ses sources</strong> lui décrit le symptôme — aucune instruction ne
+restaure une information qui n'est plus exploitable.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Déléguer une étape dont le travail intermédiaire vous est nécessaire.</strong> Un
+subagent lanceur de tests qui retourne « les tests ont échoué » cache la sortie
+dont vous avez besoin pour déboguer, et un pipeline séquentiel où chaque agent
+dépend des découvertes du précédent perd de l'information à chaque passation.
+L'isolation n'est gratuite que quand le trajet n'a vraiment aucun intérêt.</p>
+<p><strong>Traiter <code>/compact</code> comme la réponse entière.</strong> Il est bien sur la liste des
+skills de ce task statement, et c'est celui qui ne garantit rien sur un fait
+donné.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.4&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s5">5. 5.5 — Design human review workflows and confidence calibration</h2></div>
+
+<p>Un pipeline d'extraction affiche <strong>97 % d'exactitude globale</strong>, et l'équipe des
+opérations propose de couper la relecture humaine sur les extractions à haute
+confiance. Creusez le chiffre : les factures scannées sont à 60 %, tandis que le
+champ du numéro de TVA est faux 40 % du temps.</p>
+<p>Rien dans ces 97 % n'est faux. C'est une moyenne sur une population, et une
+moyenne masque la structure par construction — ce qui est le premier point de
+connaissance du guide et le piège sur lequel tout ce task statement est bâti.</p>
+<p>Ce task statement pose deux questions séparées, et les confondre est la façon dont
+ses distracteurs fonctionnent :</p>
 <ul>
-<li>Déclencheurs fiables : demande explicite d'humain, policy gap, no progress.</li>
-<li>Déclencheurs NON fiables : <code>sentiment analysis</code>, <code>self-rated confidence</code> (1-10), <code>automatic classifier</code>.</li>
-<li>3 patterns : immediate, after attempt, nuanced (acknowledge → resolve → escalate on reiteration).</li>
-<li>La calibration passe par la <strong>combinaison</strong> critères explicites + few-shot examples dans le system prompt.</li>
-<li>Le <code>structured handoff</code> protocol doit être complet et autosuffisant (l'humain n'a pas le transcript).</li>
+<li><strong>Comment mesurez-vous le taux d'erreur réel ?</strong> → l'échantillonnage aléatoire
+stratifié, et l'exactitude ventilée par type de document et par champ.</li>
+<li><strong>Où dépensez-vous une capacité de relecture qui sera toujours plus petite que le
+volume ?</strong> → des scores de confiance par champ, avec des seuils calibrés sur un
+jeu de validation étiqueté.</li>
 </ul>
+<h3>Mesurer : des segments, pas une moyenne</h3>
+<p>Avant de réduire la relecture humaine, le guide demande une exactitude <strong>analysée
+par type de document et par champ</strong>, et une constance vérifiée <strong>sur tous les
+segments</strong>.</p>
+<pre><code class="language-text">Global : 97,0 %          ← le chiffre qui a autorisé la proposition
 
-<h3>Erreurs multi-agents</h3>
+Par type de document          Par champ
+  PDF natif        99,1 %       invoice_number  98,7 %
+  photographié     94,2 %       total           97,9 %
+  scanné           60,3 %  ←    date            96,4 %
+  manuscrit        71,8 %  ←    vat_number      59,8 %  ←
+</code></pre>
+<p>Deux segments portent presque toute l'erreur, et les deux sont invisibles dans le
+chiffre de tête. L'ordre compte autant que l'analyse : <strong>valider par segment avant
+d'automatiser</strong>, pas après. Automatiser d'abord et mesurer ensuite, c'est faire
+arriver la mesure par les réclamations clients.</p>
+<p>L'<strong>échantillonnage aléatoire stratifié</strong> est ce qui garde la mesure honnête une
+fois l'automatisation en marche. L'échantillon est tiré <strong>à l'intérieur de chaque
+segment</strong> plutôt que sur la population entière, parce qu'un tirage aléatoire
+simple dans une population dominée par les PDF natifs ne contiendra presque aucun
+formulaire manuscrit — précisément le segment qui échoue. Le guide lui donne deux
+rôles : mesurer le <strong>taux d'erreur des extractions à haute confiance</strong>, et
+<strong>détecter les patterns d'erreur nouveaux</strong> — ceux qu'aucune règle existante
+n'attrape, et qui par définition ne peuvent pas être trouvés en regardant là où
+l'on sait déjà regarder.</p>
+<pre><code class="language-text">Volume quotidien 9 000 → tirer 40 dans chaque strate, pas 200 sur l'ensemble
+  PDF natif      6 300 → 40 tirés
+  photographié   1 900 → 40 tirés
+  scanné           600 → 40 tirés   ← environ 13 dans un tirage à plat
+  manuscrit        200 → 40 tirés   ← environ 4
+</code></pre>
+<h3>Router : la confiance par champ, calibrée</h3>
+<p>La seconde question porte sur une file d'attente. Deux relecteurs ne peuvent pas
+lire neuf mille extractions ; la question est donc de savoir lesquelles ils lisent.</p>
+<p>La réponse du guide est un score de confiance <strong>par champ</strong>, pas par document.</p>
+<pre><code class="language-json">{
+  &quot;invoice_number&quot;: { &quot;value&quot;: &quot;INV-2024-0912&quot;, &quot;confidence&quot;: 0.98 },
+  &quot;total&quot;:          { &quot;value&quot;: 1249.90,         &quot;confidence&quot;: 0.95 },
+  &quot;vat_number&quot;:     { &quot;value&quot;: &quot;FR32-XXXXX&quot;,    &quot;confidence&quot;: 0.41 }
+}
+</code></pre>
+<p>Seul <code>vat_number</code> part vers un humain. Un score unique pour le document ferait une
+moyenne de 0,78 sur les trois, et soit mettrait en file un document dont les deux
+autres champs n'ont jamais fait de doute, soit — avec un seuil à 0,75 — laisserait
+passer l'ensemble avec un mauvais numéro de TVA dedans. C'est de nouveau le
+problème des 97 %, transposé de la mesure au routage.</p>
+<p><strong>Et le seuil se calibre, il ne se choisit pas.</strong> Un score de confiance brut ne
+veut rien dire tant qu'il n'a pas été confronté à la vérité terrain : prendre un
+<strong>jeu de validation étiqueté</strong>, mesurer le taux d'erreur réel à chaque niveau de
+confiance, et poser le seuil là où le risque résiduel devient acceptable. Sans
+cela, <code>confidence &gt; 0.9</code> est un nombre dont l'allure a plu à quelqu'un.</p>
+<pre><code class="language-text">Jeu de validation étiqueté — 2 000 champs vérifiés à la main
+  confiance ≥ 0,95   taux d'erreur 0,4 %    → automatiser
+  0,85 – 0,95        taux d'erreur 3,1 %    → automatiser si 3 % est tolérable ici
+  0,70 – 0,85        taux d'erreur 11 %     → relire
+  &lt; 0,70             taux d'erreur 34 %     → relire
+</code></pre>
+<p>Le matériau d'évaluation de ce corpus fournit la machinerie autour de ce jeu et
+rien de plus : un jeu de données d'entrées représentatives, des correcteurs — code,
+modèle ou humain — et un score moyen comme métrique de tête. Construire le jeu
+étiqueté et y passer un correcteur, c'est le même workflow. La stratification et
+la calibration par champ ci-dessus viennent du guide.</p>
+<p>Deux choses passent en priorité dans la file de relecture, et le guide nomme les
+deux : la <strong>faible confiance du modèle</strong>, et les <strong>documents sources ambigus ou
+contradictoires</strong> — deux totaux qui divergent, une date illisible, un champ
+raturé. La seconde ne dépend pas du tout de l'avis du modèle ; c'est une propriété
+de l'entrée.</p>
+<div class="key-concept">
+<p><strong>Les deux visages de la confiance, et pourquoi ce n'est pas une contradiction.</strong>
+En 5.2, un score de confiance auto-déclaré est un déclencheur d'escalade peu
+fiable. Ici, un score de confiance est le bon mécanisme de routage. Trois
+différences les séparent : la <strong>granularité</strong> — par champ, pas par cas ; la
+<strong>calibration</strong> — contre des données étiquetées à la main, pas contre
+l'introspection du modèle ; et l'<strong>usage</strong> — ordonner une file de relecture, pas
+prendre la décision à la place de l'humain. Une option qui mentionne la confiance
+n'est donc ni automatiquement juste ni automatiquement fausse. Lisez laquelle des
+deux elle propose.</p>
+</div>
+<div class="exam-tip">
+<p>« 97 % au global » dans un scénario est l'indice, et la réponse est toujours :
+ventiler par type de document et par champ, et confirmer la constance dans chaque
+segment <em>avant</em> de réduire la relecture.</p>
+<p>Les distracteurs se rangent en deux familles. Contre la mesure : <strong>comparer les
+trimestres jusqu'à ce que l'agrégat paraisse stable</strong> — quatre trimestres d'un
+agrégat ne révèlent aucune structure ; <strong>ne relire que les types de documents qui
+ont déjà produit des réclamations</strong> — un signal tardif, puisque l'erreur est
+arrivée chez le client, et biaisé, puisque seules les erreurs visibles
+reviennent.</p>
+<p>Contre le routage : <strong>un score de confiance par document</strong>, qui est de nouveau le
+problème de l'agrégat ; <strong>le modèle qui note sa propre certitude de 1 à 10</strong>, qui
+est la version non calibrée et ne correspond à aucun taux d'erreur connu ;
+<strong>échantillonner une part fixe au hasard et relire celle-là</strong> — une confusion
+d'usage, puisque l'échantillonnage stratifié mesure un taux d'erreur et détecte
+des patterns nouveaux, il n'alloue pas une capacité rare là où est le risque.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Automatiser d'abord, mesurer ensuite.</strong> Le libellé du guide est « avant
+d'automatiser les extractions à haute confiance ». Un pipeline dont l'exactitude
+par segment est découverte après le retrait de la relecture humaine mesure avec la
+production.</p>
+<p><strong>Un seuil de confiance jamais confronté à des données étiquetées.</strong> Le nombre est
+arbitraire, et le taux d'automatisation qu'il produit est une coïncidence.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.5&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s6">6. 5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis</h2></div>
+
+<p>Le rapport final dit : <em>« Le marché de la musique IA est estimé à 3,2 milliards
+de dollars. »</em> D'où cela vient-il ? Quel rapport, de quelle année, mesurant quoi ?
+Personne ne peut plus le dire — et un décideur qui ne peut pas vérifier un chiffre
+ne peut pas l'utiliser.</p>
+<p>Le diagnostic du guide est précis sur <em>l'endroit</em> où l'attribution s'est perdue :
+<strong>elle disparaît pendant les étapes de résumé, quand les découvertes sont
+comprimées sans que les mappings affirmation-source soient préservés.</strong> Pas
+pendant la collecte. Le subagent de recherche avait l'URL. Quelque part entre lui
+et le lecteur, une étape a comprimé la découverte et n'a gardé que la phrase.</p>
+<h3>Le mapping affirmation-source</h3>
+<p>La parade consiste à faire du mapping une partie de la donnée, pour que la
+compression n'ait rien à laisser tomber sans laisser tomber l'affirmation
+elle-même.</p>
+<pre><code class="language-json">{
+  &quot;claim&quot;: &quot;Le marché de la musique IA a atteint 3,2 Mds $ en 2024&quot;,
+  &quot;source_url&quot;: &quot;https://example.com/ai-music-report-2024&quot;,
+  &quot;source_name&quot;: &quot;Global AI Music Report 2024&quot;,
+  &quot;excerpt&quot;: &quot;The AI music market reached $3.2B in 2024&quot;,
+  &quot;publication_date&quot;: &quot;2024-06-15&quot;,
+  &quot;methodology&quot;: &quot;Agrégation des revenus fournisseurs, 41 entreprises&quot;
+}
+</code></pre>
+<p>Deux points de conception font que cela survit au pipeline :</p>
 <ul>
-<li>Retourner un contexte d'erreur structuré : <code>failure_type</code>, <code>query</code>, <code>partial_results</code>, <code>alternatives</code>.</li>
-<li>Distinguer timeout (access failure → retry décision) de empty results (valid query → résultat légitime).</li>
-<li>3 anti-patterns du guide : generic status, silent suppression, abort whole workflow. (Les retries infinis sont un défaut réel, mais hors liste.)</li>
-<li><code>Coverage annotations</code> dans la synthèse : FULL COVERAGE / PARTIAL COVERAGE.</li>
+<li><strong>Ce sont les subagents qui le produisent, pas l'agent de synthèse.</strong> Quand
+l'agent de synthèse voit un paragraphe de prose, l'URL a déjà disparu ; il ne peut
+pas rattacher ce qu'il n'a jamais reçu.</li>
+<li><strong>L'agent de synthèse doit préserver et fusionner les mappings</strong>, ce qui est une
+exigence énoncée dans son prompt, pas un espoir. Dans l'Agent SDK, le point est
+structurel : un subagent n'hérite de rien d'autre que la chaîne de prompt de
+l'appel qui l'a lancé, donc un format qui sépare le contenu des métadonnées — URL
+source, nom du document, numéro de page, date de publication — doit y être exigé,
+sans quoi il n'arrivera pas.</li>
 </ul>
+<h3>Valeurs contradictoires : annoter, ne pas choisir</h3>
+<p>Deux sources crédibles donnent des chiffres différents pour la même grandeur.
+L'instruction du guide est nette : <strong>annoter le conflit avec l'attribution des
+sources plutôt que de sélectionner arbitrairement une valeur.</strong></p>
+<pre><code class="language-json">{
+  &quot;claim&quot;: &quot;Part de la musique générée par IA sur le streaming&quot;,
+  &quot;values&quot;: [
+    { &quot;value&quot;: &quot;12%&quot;, &quot;source&quot;: &quot;Spotify Annual Report&quot;,
+      &quot;date&quot;: &quot;2024-03&quot;, &quot;methodology&quot;: &quot;Classification automatisée&quot; },
+    { &quot;value&quot;: &quot;8%&quot;,  &quot;source&quot;: &quot;Music Industry Association Survey&quot;,
+      &quot;date&quot;: &quot;2024-07&quot;, &quot;methodology&quot;: &quot;Enquête auprès de 500 labels&quot; }
+  ],
+  &quot;conflict_detected&quot;: true,
+  &quot;possible_explanation&quot;: &quot;Méthodologies et périodes de collecte différentes&quot;
+}
+</code></pre>
+<p>Les méthodologies expliquent l'essentiel de l'écart : un classifieur automatique
+sur un catalogue et une enquête déclarative auprès de labels ne mesurent pas tout
+à fait la même chose. Cette explication n'existe que parce que la méthodologie a
+voyagé avec la valeur.</p>
+<p>La même règle s'applique un étage plus tôt, et le guide l'énonce comme un skill de
+l'agent d'analyse : <strong>terminer l'analyse du document avec les deux valeurs
+incluses et explicitement annotées, et laisser le coordinateur décider comment les
+réconcilier</strong> avant que quoi que ce soit n'atteigne la synthèse. Un agent
+d'analyse qui désigne un gagnant a pris une décision qui ne lui revenait pas,
+silencieusement, dans une étape que personne ne relit.</p>
+<h3>Les dates transforment une fausse contradiction en tendance</h3>
+<p>Le quatrième point de connaissance du guide est la correction la moins chère du
+domaine : exiger les <strong>dates de publication ou de collecte</strong> dans les sorties
+structurées.</p>
+<pre><code class="language-text">Sans dates : « La source A dit 10 %, la source B dit 15 %. Les sources se
+             contredisent. »
+Avec dates : « Source A (2023) : 10 %. Source B (2024) : 15 %.
+             Cohérent avec une croissance sur un an — pas une contradiction. »
+</code></pre>
+<p>Les deux mêmes chiffres, une lecture inverse. Des chiffres sans date fabriquent
+des contradictions à partir de séries temporelles, et le rapport signale alors un
+conflit qui n'existe pas, ou jette une mesure valide pour le résoudre.</p>
+<h3>La forme du rapport</h3>
+<p>Annoter un conflit ne sert à rien si l'annotation est enfouie dans un mur de
+prose. Le guide demande des <strong>sections explicites qui distinguent les découvertes
+bien établies des découvertes contestées</strong>, en conservant la <strong>formulation
+d'origine de chaque source et son contexte méthodologique</strong> plutôt qu'en
+réécrivant tout le monde dans une voix unique et aplatie.</p>
+<pre><code class="language-text">DÉCOUVERTES BIEN ÉTABLIES
+- L'IA générative est utilisée en production chez les quatre majors
+  (3 sources concordantes : Billboard 2024-05, MIA 2024-07, dépôts des labels 2024-T2)
 
-<h3>Confidence et <code>provenance</code></h3>
-<ul>
-<li>97% aggregate accuracy peut masquer 40% d'erreurs sur certains document types.</li>
-<li>Analyser par document type et par field via <code>stratified random sampling</code>, <strong>avant</strong> d'automatiser.</li>
-<li><code>Field-level confidence scores</code> calibrés sur un <code>labeled validation set</code> pour router la relecture ; prioriser les extractions à faible confiance et les sources ambiguës.</li>
-<li>Confidence auto-déclarée pour décider d'escalader = distracteur ; confidence par champ calibrée pour router la relecture = bonne réponse.</li>
-<li>Préserver les <code>claim-source mapping</code>s (URL, nom, quotes) à travers la synthèse.</li>
-<li>Annoter les conflits avec <code>attribution</code> ; ne jamais choisir arbitrairement une valeur.</li>
-<li>Inclure les dates pour le contexte temporel (éviter les faux conflits).</li>
-<li>Structurer le rapport en sections distinctes : findings établis, findings contestés, lacunes de couverture.</li>
-<li>Rendre chaque type de contenu dans sa forme propre : tableaux pour les séries chiffrées, prose pour l'actualité et le contexte, listes structurées pour les findings techniques. Un rapport juste mais illisible est un défaut de <em>rendu</em>, pas de collecte.</li>
-</ul>
+DÉCOUVERTES CONTESTÉES
+- Part de la musique générée par IA sur le streaming : 12 % (Spotify,
+  classification automatisée, 2024-03) contre 8 % (MIA, enquête déclarative,
+  2024-07). Les méthodologies ne sont pas comparables ; les deux valeurs sont
+  conservées.
 
-<h3>Grandes codebases (Task 5.4)</h3>
-<ul>
-<li>Symptôme de <code>context degradation</code> : le modèle invoque des « patterns typiques » au lieu de citer les classes qu'il a lues.</li>
-<li><code>Scratchpad</code> pour persister, <code>subagent</code> Explore pour isoler le verbeux, <code>/compact</code> pour compresser.</li>
-<li>Résumer chaque phase avant de lancer les <code>subagent</code>s de la suivante, et injecter le résumé dans leur contexte initial.</li>
-<li><code>manifest.json</code> + export d'état par agent pour le crash recovery.</li>
-</ul>
+LACUNES DE COUVERTURE
+- Distribution et licensing : non couverts (timeout du subagent de recherche)
+</code></pre>
+<p>La troisième section est l'annotation de couverture de 5.3, arrivant dans le même
+document. La provenance et la couverture répondent à la même question du lecteur
+par deux côtés : sur quoi ceci repose-t-il, et que lui manque-t-il.</p>
+<h3>Rendre chaque type de contenu dans sa forme propre</h3>
+<p>Le dernier skill porte sur le format de sortie, et c'est celui qui prend les gens
+de court parce que rien en amont n'est cassé quand il se déclenche. Un agent de
+synthèse reçoit du matériau hétérogène et est tenté de tout couler dans une seule
+forme — de la prose en général, parce que la prose est le défaut.</p>
+<table>
+<thead>
+<tr>
+<th>Type de contenu</th>
+<th>Rendu en</th>
+<th>Pourquoi</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Données financières, séries chiffrées</td>
+<td><strong>Tableaux</strong></td>
+<td>La comparaison colonne par colonne est le geste de lecture que la donnée appelle ; la prose la rend impossible</td>
+</tr>
+<tr>
+<td>Actualités, événements, contexte</td>
+<td><strong>Prose</strong></td>
+<td>La chronologie et la causalité se disent en phrases, pas en cellules</td>
+</tr>
+<tr>
+<td>Résultats techniques</td>
+<td><strong>Listes structurées</strong></td>
+<td>Chaque élément se tient seul et doit rester citable et vérifiable séparément</td>
+</tr>
+</tbody>
+</table>
+<p>Douze valeurs trimestrielles à l'intérieur d'un paragraphe sont justes, sourcées
+et inexploitables.</p>
+<div class="exam-tip">
+<p>Quand un scénario reproche à un rapport de synthèse d'être <strong>difficile à
+exploiter</strong> alors que le contenu est exact et bien sourcé, ne cherchez pas en
+amont — les subagents ont fait leur travail. Le défaut est le rendu uniforme à
+l'étape de synthèse, et la correction consiste à instruire l'agent de synthèse de
+rendre chaque type de contenu dans sa forme propre.</p>
+<p>Quand le reproche est que les <strong>affirmations ne peuvent pas être tracées</strong>,
+regardez l'étape de résumé au milieu, et exigez des mappings affirmation-source
+structurés que les agents en aval préservent — pas une passe finale demandant à
+l'agent de synthèse d'« ajouter les citations », ce qui revient à lui demander de
+reconstituer des URL qu'il n'a plus.</p>
+<p>Sur les statistiques contradictoires, trois mauvaises réponses reviennent :
+<strong>garder le chiffre le plus récent</strong> (la récence est un départage arbitraire qui
+supprime une preuve valide), <strong>faire la moyenne des deux</strong> (fabriquer un nombre
+qu'aucune source ne rapporte), et <strong>écarter la statistique</strong> (appauvrir le rapport
+au lieu de qualifier l'incertitude).</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Laisser l'agent de synthèse être le premier endroit où l'attribution compte.</strong>
+Toutes les étapes avant lui ont comprimé ; l'URL était perdue bien avant celle-ci.</p>
+<p><strong>Réconcilier un conflit à l'intérieur d'un subagent.</strong> Le travail de l'agent
+d'analyse est de rapporter les deux valeurs avec leur attribution, annotées.
+Choisir entre elles est la décision du coordinateur, et elle devrait être
+visible.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.6&quot;</code>.</p>
 
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s8">8. Auto-évaluation (9 questions)</h2></div>
-
-<div class="quiz-section">
-<h3>9 questions pour tester votre compréhension</h3>
+<div class="section-header"><h2 id="s7" class="page-break">7. Questions d'auto-évaluation</h2></div>
 
 <details id="d5-q1" data-domain="D5" data-task="5.1">
 <summary>Q1 (D5) — Assay settings the summary stops carrying</summary>
@@ -723,16 +1286,14 @@ Note : la couverture de cette section est limitée.
 </div>
 </details>
 
-</div>
-
 <nav class="doc-nav">
   <a class="prev" href="D4_Prompt_Engineering_20pct.html"><span class="label">Précédent</span><span class="title">D4 — Prompt engineering</span></a>
-  <a class="next" href="Scenarios_Exam.html"><span class="label">Suivant</span><span class="title">Les 6 scénarios d'examen</span></a>
+  <a class="next" href="Practice_Questions.html"><span class="label">Suivant</span><span class="title">Practice Questions — 112 QCM corrigés, en anglais</span></a>
 </nav>
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — D5 Gestion du contexte et fiabilité · Source : guide officiel CCAR-F v1.0, domaine 5 (tasks 5.1 à 5.6) · 2026
+CCA Révision — D5 — Gestion du contexte et fiabilité (15 %) · 2026
 </p>
 
 

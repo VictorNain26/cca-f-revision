@@ -29,6 +29,7 @@ export const PUBLISHED_COURSES = [
   { file: '02-tools-mcp.md', domain: 'D2', slug: 'D2_Tool_Design_MCP_18pct.html' },
   { file: '03-claude-code-config.md', domain: 'D3', slug: 'D3_Claude_Code_Config_20pct.html' },
   { file: '04-prompt-engineering.md', domain: 'D4', slug: 'D4_Prompt_Engineering_20pct.html' },
+  { file: '05-context-reliability.md', domain: 'D5', slug: 'D5_Context_Fiabilite_15pct.html' },
 ];
 
 /* Compose les deux pages HTML (fr, en) d'un cours publié à partir de ses deux

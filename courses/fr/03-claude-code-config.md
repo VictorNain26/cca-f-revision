@@ -1,6 +1,6 @@
 # D3 — Configuration et workflows de Claude Code (20 %)
 
-<!-- src:exam guide domain 3 (the six task statements) ; 01claudecodeinaction L1-L3, L6-L8 ; 04agentskills L1-L6 ; 06claudecode101 L4-L9, L12 ; code.claude.com/docs (memory, skills, sub-agents, headless, cli-reference) for the facts no lesson carries -->
+<!-- src:exam guide domain 3 (the six task statements) ; exam guide TS 5.4 (/compact listed among its skills, which is where this course points for it) ; 01claudecodeinaction L1-L3, L6-L8 ; 04agentskills L1-L6 ; 06claudecode101 L4-L9, L12 ; code.claude.com/docs (memory, skills, sub-agents, headless, cli-reference) for the facts no lesson carries -->
 
 Vingt pour cent de la note, six task statements, et un sujet trompeusement
 anodin : des fichiers dans un dépôt. Une section par task statement, dans
@@ -15,11 +15,12 @@ marche, et les habitudes de travail qui décident si une session se passe bien.
 Le guide place les notions voisines ailleurs, et ce cours le respecte. Le
 mécanisme des hooks — événements, `permissionDecision`, `updatedInput` — est
 testé en TS 1.5 ; l'isolation de contexte des subagents en TS 1.2 et 1.3 ; les
-sessions, `--resume` et `fork_session` en TS 1.7 ; la fenêtre de contexte en D0
-et sa gestion, `/compact` compris, dans le domaine 5. Chacune reçoit ici une
-phrase et un renvoi, jamais un second développement. Ce que D1 a explicitement
-renvoyé à ce cours — les définitions de subagents sous `.claude/agents/`, et les
-hooks comme *endroit où poser une règle* plutôt que comme API — atterrit en 3.2.
+sessions, `--resume` et `fork_session` en TS 1.7 ; la fenêtre de contexte en D0,
+et sa gestion en D5 — `/compact` compris, que le guide range parmi les skills du
+TS 5.4, d'où le renvoi vers **D5.4**. Chacune reçoit ici une phrase et un renvoi,
+jamais un second développement. Ce que D1 a explicitement renvoyé à ce cours —
+les définitions de subagents sous `.claude/agents/`, et les hooks comme *endroit
+où poser une règle* plutôt que comme API — atterrit en 3.2.
 
 ## 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization
 <!-- ts:3.1 | src:exam guide TS 3.1 (the three levels, user-level not shared by version control, @import, .claude/rules/ as the modular alternative, /memory) ; 06claudecode101 L8 (what CLAUDE.md solves, its contents are appended to the prompt, project versus user, @path references) ; 01claudecodeinaction L2 (CLAUDE.md is guidance and not enforced configuration, every line competes with every other, imports expand inline and do not reduce context, specific and checkable rules, naming the replacement, the emphasis budget, hard rules belong in a hook) ; code.claude.com/docs/en/memory (four-hop import depth, .claude/rules/ layout, what /memory lists and what /context confirms) -->

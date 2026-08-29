@@ -34,19 +34,13 @@ import {
  * seule trace que quelqu'un a ouvert les deux questions et tranché.
  * Une exemption est un constat daté, pas une dispense : quand la question de
  * fiche est réécrite, l'exemption part avec elle — le contrôle signale celles
- * qui ne correspondent plus à rien. */
-const EXEMPTIONS = [
-  {
-    sheet: 'd3-q7',
-    bank: 'pq-q39',
-    why: 'Task 3.4 et vocabulaire de session partagés, arbitrages distincts : mode plan contre exécution directe d\'un côté, budget de contexte de la phase de découverte de l\'autre. Le jumeau de d3-q7 est pq-q38, déjà signalé.',
-  },
-  {
-    sheet: 'd5-q7',
-    bank: 'pq-q24',
-    why: 'Faux positif déclaré au cahier des charges. Réserve du relevé : les deux reposent sur une politique qui n\'autorise ni n\'interdit — d5-q7 y ajoute une identité ambiguë et demande deux réponses. À retrancher si la réécriture confirme le recouvrement.',
-  },
-];
+ * qui ne correspondent plus à rien.
+ *
+ * Vide aujourd'hui : les deux qui y figuraient (d3-q7 ↔ pq-q39, d5-q7 ↔ pq-q24)
+ * étaient sorties du relevé au seuil courant, donc elles ne dispensaient plus
+ * de rien et masquaient la prochaine vraie. Elles ont été retirées, pas
+ * oubliées : le constat est daté dans l'historique git. */
+const EXEMPTIONS = [];
 
 const enforce = process.argv.includes('--enforce');
 

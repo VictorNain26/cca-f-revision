@@ -1,6 +1,6 @@
 # D3 — Claude Code configuration and workflows (20 %)
 
-<!-- src:exam guide domain 3 (the six task statements) ; 01claudecodeinaction L1-L3, L6-L8 ; 04agentskills L1-L6 ; 06claudecode101 L4-L9, L12 ; code.claude.com/docs (memory, skills, sub-agents, headless, cli-reference) for the facts no lesson carries -->
+<!-- src:exam guide domain 3 (the six task statements) ; exam guide TS 5.4 (/compact listed among its skills, which is where this course points for it) ; 01claudecodeinaction L1-L3, L6-L8 ; 04agentskills L1-L6 ; 06claudecode101 L4-L9, L12 ; code.claude.com/docs (memory, skills, sub-agents, headless, cli-reference) for the facts no lesson carries -->
 
 Twenty per cent of the score, six task statements, and a subject that looks
 deceptively soft: files in a repository. One section per task statement, in the
@@ -15,8 +15,9 @@ that decide whether a session goes well.
 The guide places neighbouring notions elsewhere, and this course honours that.
 The hook mechanism — events, `permissionDecision`, `updatedInput` — is tested in
 TS 1.5; subagent context isolation in TS 1.2 and 1.3; sessions, `--resume` and
-`fork_session` in TS 1.7; the context window in D0 and its management, `/compact`
-included, in domain 5. Each of those gets a sentence and a pointer here, never a
+`fork_session` in TS 1.7; the context window in D0, and its management in D5 —
+`/compact` included, which the guide lists among the skills of TS 5.4, so the
+pointer is **D5.4**. Each of those gets a sentence and a pointer here, never a
 second development. What D1 explicitly deferred to this course — subagent
 definitions under `.claude/agents/`, and hooks as a *place to put a rule* rather
 than as an API — lands in 3.2.
