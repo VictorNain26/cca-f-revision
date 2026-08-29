@@ -26,7 +26,7 @@ Ne pas s'étonner de le voir apparaître localement ni tenter de le committer.
 |---|---|---|---|
 | ✅ | D0 | — | prérequis, aucun |
 | ✅ | D1 | 27 % | 1.1 – 1.7 |
-| | D2 | 18 % | 2.1 – 2.5 |
+| ✅ | D2 | 18 % | 2.1 – 2.5 |
 | ✅ | D3 | 20 % | 3.1 – 3.6 |
 | ✅ | D4 | 20 % | 4.1 – 4.6 |
 | | D5 | 15 % | 5.1 – 5.6 |
@@ -50,6 +50,6 @@ listait, jusqu'ici, ce qui est écarté d'un cours *avec renvoi* vers un lot
 ultérieur — une notion qui n'apparaît dans aucune fiche de domaine tant que
 son cours cible n'est pas écrit, invisible pour qui rédigera ce cours-là.
 
-| Notion | Domaine cible | D'où elle vient |
-|---|---|---|
-| Les agents préfèrent les outils intégrés à ceux exposés par MCP ; il faut renforcer les descriptions des outils MCP pour rivaliser | D2 (TS 2.5) | Écartée de D0 lors de la rédaction du socle API : hors périmètre des prérequis, mais couverte par le guide en TS 2.5. |
+| Notion | Domaine cible | D'où elle vient | Reprise |
+|---|---|---|---|
+| Les agents préfèrent les outils intégrés à ceux exposés par MCP ; il faut renforcer les descriptions des outils MCP pour rivaliser | D2 | Écartée de D0 lors de la rédaction du socle API : hors périmètre des prérequis. | ✅ D2 § 2.4. Le guide la porte dans les *Skills* du **TS 2.4**, pas du TS 2.5 comme l'annonçait cette ligne. |

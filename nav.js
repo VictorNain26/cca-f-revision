@@ -23,6 +23,7 @@
   const TRANSLATIONS = {
     'D0_API_Fundamentals.html': 'en/D0_API_Fundamentals.html',
     'D1_Architecture_Orchestration_27pct.html': 'en/D1_Architecture_Orchestration_27pct.html',
+    'D2_Tool_Design_MCP_18pct.html': 'en/D2_Tool_Design_MCP_18pct.html',
     'D3_Claude_Code_Config_20pct.html': 'en/D3_Claude_Code_Config_20pct.html',
     'D4_Prompt_Engineering_20pct.html': 'en/D4_Prompt_Engineering_20pct.html',
   };

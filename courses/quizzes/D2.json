@@ -1,0 +1,157 @@
+[
+  {
+    "id": "d2-q1",
+    "domain": "D2",
+    "task": "2.1",
+    "summary": "Q1 (Logistics) — Two tool descriptions that read alike",
+    "scenario": "a delivery assistant routes \"where is my parcel\" requests to <code>find_package</code> 38% of the time, when they belong to <code>find_shipment</code>. <code>find_shipment</code> is described as \"finds a shipment and returns its details\", <code>find_package</code> as \"finds a package and returns its details\" — although <code>find_package</code> only returns warehouse scan events.",
+    "question": "what is the right fix?",
+    "options": {
+      "a": "Rename <code>find_package</code> to <code>list_warehouse_scans</code> and rewrite its description around the scan events.",
+      "b": "Add a routing classifier that labels every request before any tool is offered.",
+      "c": "Add worked routing examples to the assistant system prompt, teaching the distinction by demonstration.",
+      "d": "Expand only the <code>find_shipment</code> description so delivery wording pulls those requests to it."
+    },
+    "answer": "a",
+    "answerLabel": "rename the overlapping tool and rewrite its description",
+    "why": "two near-identical descriptions leave the model nothing to discriminate on. The new name and the rewritten description finally say what that tool really returns — warehouse scan events, not a parcel location — so the functional overlap disappears at its source, where the selection decision is actually made.",
+    "distractors": {
+      "b": "Over-engineering: it bypasses natural language understanding instead of repairing the ambiguity.",
+      "c": "Examples cost tokens on every turn and leave the ambiguous description in place.",
+      "d": "Improving one side keeps the other just as attractive for the same requests."
+    }
+  },
+  {
+    "id": "d2-q2",
+    "domain": "D2",
+    "task": "2.3",
+    "summary": "Q2 (Data Platform) — A subagent holding a tool that runs anything",
+    "scenario": "a reporting subagent owns <code>execute_sql</code>, which accepts any statement against the warehouse. Traces show it browsing <code>information_schema</code> and joining raw event tables instead of reading the curated reporting views.",
+    "question": "what is the right fix?",
+    "options": {
+      "a": "Replace <code>execute_sql</code> with <code>run_report_query</code>, which takes a view name plus filters and rejects anything else.",
+      "b": "Remove <code>execute_sql</code> and route every query through the coordinator, which already knows which curated views to read.",
+      "c": "Keep the tool and add a denylist of raw table names to its handler.",
+      "d": "Instruct the subagent in its system prompt to read only the curated views."
+    },
+    "answer": "a",
+    "answerLabel": "swap the generic tool for a constrained one",
+    "why": "a constrained replacement applies least privilege at the interface — the wrong call becomes impossible rather than discouraged.",
+    "distractors": {
+      "b": "Adds a coordination round trip to a frequent and legitimate need of the subagent.",
+      "c": "A denylist enumerates known bad names and goes stale as soon as a new raw table ships.",
+      "d": "A prompt instruction stays probabilistic where a tool contract is deterministic."
+    }
+  },
+  {
+    "id": "d2-q3",
+    "domain": "D2",
+    "task": "2.2",
+    "summary": "Q3 (Field Service) — One error payload for two different outcomes",
+    "scenario": "the <code>search_parts</code> tool answers <code>{\"isError\": true, \"content\": [{\"type\": \"text\", \"text\": \"Operation failed\"}]}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.",
+    "question": "why does this design block the agent?",
+    "options": {
+      "a": "It cannot tell a valid empty result from an access failure, so retrying is guesswork.",
+      "b": "A timeout is a delay, not a real failure, so the error flag should stay unset.",
+      "c": "The payload is malformed JSON, so the runtime discards it before the agent ever sees a result and the failure never reaches the retry logic at all.",
+      "d": "The message is too short for the technician to act on in the field."
+    },
+    "answer": "a",
+    "answerLabel": "an empty result and an access failure become indistinguishable",
+    "why": "the agent decides from two signals — whether the call is worth repeating (<code>isRetryable</code>) and what it really received. A <code>transient</code> timeout calls for a retry, an empty catalog hit is a legitimate success. Merged into one payload, the agent can neither justify a retry nor state that nothing was found, and the run ends in wasted retries or silent gaps in the answer.",
+    "distractors": {
+      "b": "The timeout is a genuine failure and the flag belongs there; what is missing is everything around it.",
+      "c": "The payload parses and reaches the agent intact — nothing is discarded on the way. Its shape could be tighter, but reformatting alone would not make the message actionable.",
+      "d": "Length is not the problem; the absence of decision metadata is."
+    }
+  },
+  {
+    "id": "d2-q4",
+    "domain": "D2",
+    "task": "2.3",
+    "summary": "Q4 (Compliance) — A screening step that must never be skipped",
+    "scenario": "a compliance assistant must call <code>screen_sanctions</code> on the counterparty before it produces anything else on that turn.",
+    "question": "which <code>tool_choice</code> value guarantees it?",
+    "options": {
+      "a": "<code>{\"type\": \"auto\"}</code>",
+      "b": "<code>{\"type\": \"any\"}</code>",
+      "c": "<code>{\"type\": \"tool\", \"name\": \"screen_sanctions\"}</code>",
+      "d": "A sentence in the tool description stating that it must always run first."
+    },
+    "answer": "c",
+    "answerLabel": "forced selection naming the screening tool",
+    "why": "forced selection pins that exact tool for the turn. The rest of the workflow proceeds on later turns, once the screening result sits in context.",
+    "distractors": {
+      "a": "The default mode lets Claude answer with no tool call at all.",
+      "b": "It forces a call but leaves the choice of tool open, so ordering is not guaranteed.",
+      "d": "Description text stays probabilistic where an API parameter is deterministic."
+    }
+  },
+  {
+    "id": "d2-q5",
+    "domain": "D2",
+    "task": "2.2",
+    "summary": "Q5 (Scheduling) — What an actionable error response carries <strong>(Select the 2 correct answers.)</strong>",
+    "scenario": "you are designing the error responses of the <code>book_appointment</code> MCP tool so the agent can decide what to do next.",
+    "question": "which statements are accurate?",
+    "options": {
+      "a": "Returning <code>{\"isError\": true, \"content\": \"Booking failed\"}</code> already tells the agent enough to decide on a retry.",
+      "b": "A calendar backend answering <code>503</code> is a transient failure and should carry <code>isRetryable: true</code> encoded in the <code>text</code> block of the content.",
+      "c": "A validation failure — a required field left empty — is non-retryable like a permission denial, so the agent must hand the call over to a human.",
+      "d": "The <code>transient</code>, <code>validation</code>, <code>business</code> and <code>permission</code> categories come from the official MCP specification.",
+      "e": "A slot search that legitimately finds no availability must be reported differently from a backend timeout."
+    },
+    "answer": "b e",
+    "answerLabel": "the retryability signal, and the split between an empty result and a failure",
+    "why": "the agent needs two things — whether the failure is worth repeating, and what it actually received. A valid search with no free slot is a success; a timeout demands a retry decision. Conflating them yields either pointless retries or silent gaps in the final report.",
+    "distractors": {
+      "a": "That is the anti-pattern itself: a uniform error carries no basis for any decision.",
+      "c": "A missing required field is the textbook <code>validation</code> case, and that category is retryable once the argument is fixed: the agent repairs its own input and calls again. Handing over to a human with no retry is the <code>permission</code> row.",
+      "d": "They are an application-level convention encoded in the text block, not a formal part of the MCP spec."
+    }
+  },
+  {
+    "id": "d2-q6",
+    "domain": "D2",
+    "task": "2.4",
+    "summary": "Q6 (Data Platform) — A personal server in the shared config",
+    "scenario": "a pull request adds a <code>vault-notes</code> entry to the repository's tracked <code>.mcp.json</code>. Its <code>command</code> field launches <code>note-indexer</code> from the author's home directory and points at <code>~/Notes/</code>, a folder that exists on that laptop alone. The author's rationale: one file, one place to look.",
+    "question": "what should the reviewer ask for?",
+    "options": {
+      "a": "Merge it, then let each teammate delete the entry from their own checkout when the launch fails.",
+      "b": "Move the entry to the author's user-scoped configuration.",
+      "c": "Merge it after wrapping the launch command in a guard that exits quietly on machines without the binary, so nobody else sees an error.",
+      "d": "Merge it and list <code>.mcp.json</code> in <code>.gitignore</code>, so the entry stops reaching anyone else."
+    },
+    "answer": "b",
+    "answerLabel": "the entry belongs to the user scope, not to the tracked file",
+    "why": "whatever the tracked file holds arrives with every clone, while <code>~/.claude.json</code> stays on one machine. Both load at connection time, so the author keeps the tool without shipping a path nobody else has.",
+    "distractors": {
+      "a": "Every checkout drifts from the branch, and the next pull brings the entry straight back.",
+      "c": "Silences the symptom while still shipping a machine-specific path to the whole team.",
+      "d": "The file is already tracked, so ignoring it now changes nothing — and it would hide the shared servers too."
+    }
+  },
+  {
+    "id": "d2-q7",
+    "domain": "D2",
+    "task": "2.5",
+    "summary": "Q7 (Site Reliability) — One step among twenty-three identical ones",
+    "scenario": "the agent must assign step 14 of <code>runbooks/db-failover.yaml</code>, whose <code>steps</code> list carries the line <code>owner: unassigned</code> 23 times. <code>Edit</code> refuses the change: the anchor is not unique.",
+    "question": "what is the correct fallback?",
+    "options": {
+      "a": "Report that the runbook cannot be changed safely and hand the step back to the on-call engineer.",
+      "b": "<code>Read</code> the runbook in full, then <code>Write</code> back the amended version.",
+      "c": "Enable <code>replace_all</code> on the same call.",
+      "d": "Append a corrected copy of the step at the end of the file, leaving the stale one for a later cleanup."
+    },
+    "answer": "b",
+    "answerLabel": "load the whole file, then write it back",
+    "why": "with no unique anchor available, the documented fallback is a full read followed by a write of the amended content. What the anchor could not express, complete content carries.",
+    "distractors": {
+      "a": "Hands a solvable task to a human, and the step stays unassigned meanwhile.",
+      "c": "Assigns all twenty-three steps at once, when twenty-two of them must stay untouched.",
+      "d": "Records two owners for the same step, so the runbook now contradicts itself."
+    }
+  }
+]

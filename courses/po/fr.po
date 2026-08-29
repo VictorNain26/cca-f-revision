@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cca-f-revision\n"
-"POT-Creation-Date: 2026-08-29 23:51+0200\n"
+"POT-Creation-Date: 2026-08-30 00:16+0200\n"
 "PO-Revision-Date: 2026-08-29 20:27+0200\n"
 "Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
 "Language-Team: French\n"
@@ -477,6 +477,7 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:174 courses/en/00-api-foundations.md:279
+#: courses/en/02-tools-mcp.md:197
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"2.1\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"2.1\"`.\n"
@@ -2599,6 +2600,2236 @@ msgstr ""
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.7\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.7\"`.\n"
+
+#. type: Title #
+#: courses/en/02-tools-mcp.md:1
+#, no-wrap
+msgid "D2 — Tool design and MCP integration (18 %)"
+msgstr "D2 — Conception d'outils et intégration MCP (18 %)"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:4
+#, no-wrap
+msgid "<!-- src:exam guide domain 2 (the five task statements) ; 02mcp L2-L3, L5, L9-L10, L14 ; 09apicomplements L5 ; modelcontextprotocol.io Server/Tools ; code.claude.com/docs/en/mcp -->\n"
+msgstr "<!-- src:exam guide domain 2 (the five task statements) ; 02mcp L2-L3, L5, L9-L10, L14 ; 09apicomplements L5 ; modelcontextprotocol.io Server/Tools ; code.claude.com/docs/en/mcp -->\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:11
+#, no-wrap
+msgid ""
+"Eighteen per cent of the score, five task statements, and the domain where the\n"
+"exam stops asking what an agent can call and starts asking what you put in front\n"
+"of it: the wording of a description, the shape of an error, the size of a tool\n"
+"set, the file a server is declared in. One section per task statement, in the\n"
+"guide's own order and under the guide's own wording — so that a question spotted\n"
+"on exam day maps to a section here without translation.\n"
+msgstr ""
+"Dix-huit pour cent du score, cinq task statements, et le domaine où l'examen\n"
+"cesse de demander ce qu'un agent peut appeler pour demander ce que vous placez\n"
+"devant lui : le libellé d'une description, la forme d'une erreur, la taille d'un\n"
+"jeu d'outils, le fichier où un serveur est déclaré. Une section par task\n"
+"statement, dans l'ordre du guide et sous le libellé du guide — pour qu'une\n"
+"question repérée le jour J corresponde à une section d'ici sans traduction.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:19
+#, no-wrap
+msgid ""
+"D0 and D1 are assumed, and both of them defer to this course. D0 named the\n"
+"anatomy of a tool — `name`, `description`, `input_schema` — and said twice that\n"
+"**which wording makes the model pick the right tool among several similar ones\n"
+"is developed in D2.1**, once for the `tools` field and once for the system\n"
+"prompt keyword that drags a tool onto every turn. D1 deferred the shape of an\n"
+"error payload to **D2.2** and the scoping of tools across agents to **D2.3**.\n"
+"Those three debts are paid below.\n"
+msgstr ""
+"D0 et D1 sont supposés acquis, et tous deux renvoient ici. D0 a nommé l'anatomie\n"
+"d'un outil — `name`, `description`, `input_schema` — et a dit deux fois que\n"
+"**c'est en D2.1 que se développe la question du libellé qui fait choisir au\n"
+"modèle le bon outil parmi plusieurs similaires**, une fois pour le champ\n"
+"`tools`, une fois pour le mot-clé du system prompt qui tire un outil sur chaque\n"
+"tour. D1 a renvoyé la forme d'une charge utile d'erreur en **D2.2** et le\n"
+"cadrage des outils entre agents en **D2.3**. Ces trois dettes sont réglées\n"
+"ci-dessous.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:27
+#, no-wrap
+msgid ""
+"The guide places neighbouring notions elsewhere, and this course honours that.\n"
+"`tool_choice` is tested in TS 2.3 *and* in TS 4.3, and D4 owns it: 2.3 states\n"
+"what it guarantees for tool distribution and points there for the field itself.\n"
+"The propagation of an error between a subagent and its coordinator is TS 5.3;\n"
+"this course owns the **shape** of the error, D5 owns what the coordinator does\n"
+"with it. And what makes a description *load* into a Claude Code session — the\n"
+"`.claude/agents/` files, `allowedTools`, the settings — is domain 3.\n"
+msgstr ""
+"Le guide place ailleurs les notions voisines, et ce cours le respecte.\n"
+"`tool_choice` est testé en TS 2.3 *et* en TS 4.3, et c'est D4 qui le possède :\n"
+"2.3 énonce ce qu'il garantit pour la distribution d'outils et renvoie là-bas pour\n"
+"le champ lui-même. La propagation d'une erreur entre un subagent et son\n"
+"coordinateur relève du TS 5.3 ; ce cours possède la **forme** de l'erreur, D5\n"
+"possède ce que le coordinateur en fait. Et ce qui fait *charger* une description\n"
+"dans une session Claude Code — les fichiers `.claude/agents/`, `allowedTools`,\n"
+"les settings — relève du domaine 3.\n"
+
+#. type: Title ##
+#: courses/en/02-tools-mcp.md:28
+#, no-wrap
+msgid "2.1 — Design effective tool interfaces with clear descriptions and boundaries"
+msgstr "2.1 — Concevoir des interfaces d'outils claires, avec des descriptions et des frontières nettes"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:30
+#, no-wrap
+msgid "<!-- ts:2.1 | src:exam guide TS 2.1 (tool descriptions as the primary mechanism LLMs use for tool selection and minimal descriptions leading to unreliable selection among similar tools, the importance of input formats, example queries, edge cases and boundary explanations, ambiguous or overlapping descriptions causing misrouting with the analyze_content against analyze_document example, and the impact of system prompt wording where keyword-sensitive instructions create unintended tool associations; the skills: descriptions that differentiate purpose, expected inputs, outputs and when to use one tool versus a similar alternative, renaming analyze_content to extract_web_results with a web-specific description, splitting a generic analyze_document into extract_data_points, summarize_content and verify_claim_against_source, and reviewing system prompts for keyword-sensitive instructions that might override well-written tool descriptions) ; 09apicomplements L5 (the description as the single most determining factor of tool performance, the 3-4 sentence minimum and the five things it must cover, grouping related operations behind an action parameter, namespacing a tool with its service name, returning signal only, the optional input_examples field including a call with an optional parameter omitted, and the tool name pattern ^[a-zA-Z0-9_-]{1,64}$) ; 02mcp L5 (defining a tool with the FastMCP @mcp.tool decorator, name and description carried by the decorator and per-parameter descriptions by Pydantic Field, the SDK generating the schema from the type hints) -->\n"
+msgstr "<!-- ts:2.1 | src:exam guide TS 2.1 (tool descriptions as the primary mechanism LLMs use for tool selection and minimal descriptions leading to unreliable selection among similar tools, the importance of input formats, example queries, edge cases and boundary explanations, ambiguous or overlapping descriptions causing misrouting with the analyze_content against analyze_document example, and the impact of system prompt wording where keyword-sensitive instructions create unintended tool associations; the skills: descriptions that differentiate purpose, expected inputs, outputs and when to use one tool versus a similar alternative, renaming analyze_content to extract_web_results with a web-specific description, splitting a generic analyze_document into extract_data_points, summarize_content and verify_claim_against_source, and reviewing system prompts for keyword-sensitive instructions that might override well-written tool descriptions) ; 09apicomplements L5 (the description as the single most determining factor of tool performance, the 3-4 sentence minimum and the five things it must cover, grouping related operations behind an action parameter, namespacing a tool with its service name, returning signal only, the optional input_examples field including a call with an optional parameter omitted, and the tool name pattern ^[a-zA-Z0-9_-]{1,64}$) ; 02mcp L5 (defining a tool with the FastMCP @mcp.tool decorator, name and description carried by the decorator and per-parameter descriptions by Pydantic Field, the SDK generating the schema from the type hints) -->\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:34
+#, no-wrap
+msgid ""
+"Two tools, both correctly implemented, both connected, both tested. And the\n"
+"agent keeps calling the wrong one. Nothing is broken — the model chose from the\n"
+"only thing it had, and what it had was two sentences that said the same thing.\n"
+msgstr ""
+"Deux outils, tous deux correctement implémentés, tous deux connectés, tous deux\n"
+"testés. Et l'agent continue d'appeler le mauvais. Rien n'est cassé — le modèle a\n"
+"choisi à partir de la seule chose dont il disposait, et cette chose était deux\n"
+"phrases qui disaient la même chose.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:40
+#, no-wrap
+msgid ""
+"That is the guide's first knowledge point, and it is the sentence the whole\n"
+"domain rests on: **tool descriptions are the primary mechanism an LLM uses for\n"
+"tool selection, and minimal descriptions lead to unreliable selection among\n"
+"similar tools.** The model does not read your implementation. It reads `name`,\n"
+"`description` and `input_schema`, and it decides.\n"
+msgstr ""
+"C'est le premier point de connaissance du guide, et c'est la phrase sur laquelle\n"
+"tout le domaine repose : **les descriptions d'outils sont le mécanisme principal\n"
+"qu'un LLM utilise pour sélectionner un outil, et des descriptions minimales\n"
+"conduisent à une sélection peu fiable parmi des outils similaires.** Le modèle ne\n"
+"lit pas votre implémentation. Il lit `name`, `description` et `input_schema`, et\n"
+"il décide.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:42
+#, no-wrap
+msgid "The guide's own pair is the one to memorise, because it is deliberately banal:\n"
+msgstr ""
+"La paire du guide lui-même est celle à mémoriser, parce qu'elle est\n"
+"délibérément banale :\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:43
+#, no-wrap
+msgid ""
+"{ \"name\": \"analyze_content\",  \"description\": \"Analyzes content and extracts key information.\" }\n"
+"{ \"name\": \"analyze_document\", \"description\": \"Analyzes documents and extracts key information.\" }\n"
+msgstr ""
+"{ \"name\": \"analyze_content\",  \"description\": \"Analyzes content and extracts key information.\" }\n"
+"{ \"name\": \"analyze_document\", \"description\": \"Analyzes documents and extracts key information.\" }\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:51
+#, no-wrap
+msgid ""
+"Nothing here is wrong. Both are true. And there is no property in either\n"
+"sentence that lets a model prefer one over the other, so the routing decision\n"
+"falls back to whatever the phrasing of the request happens to echo.\n"
+msgstr ""
+"Rien ici n'est faux. Les deux phrases sont vraies. Et aucune propriété de l'une\n"
+"ou de l'autre ne permet à un modèle de préférer celle-ci à celle-là : la décision\n"
+"de routage retombe alors sur ce que la formulation de la requête fait résonner.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:52
+#, no-wrap
+msgid "What a description has to carry"
+msgstr "Ce qu'une description doit porter"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:59
+#, no-wrap
+msgid ""
+"The guide names four things that belong in it — **input formats, example\n"
+"queries, edge cases, and boundary explanations** — and the API documentation\n"
+"puts a floor under the volume: aim for **three to four sentences minimum**,\n"
+"covering what the tool does, when to use it and when *not* to, what each\n"
+"parameter means, what it returns, and its limitations.\n"
+msgstr ""
+"Le guide nomme quatre choses qui y ont leur place — **les formats d'entrée, des\n"
+"exemples de requêtes, les cas limites et l'explication des frontières** — et la\n"
+"documentation de l'API pose un plancher de volume : viser **trois à quatre\n"
+"phrases au minimum**, couvrant ce que fait l'outil, quand l'utiliser et quand ne\n"
+"*pas* l'utiliser, ce que signifie chaque paramètre, ce qu'il retourne, et ses\n"
+"limites.\n"
+
+# invariant: définition d'outil réelle : une description d'outil s'écrit en anglais, c'est l'objet même de la démonstration
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:60
+#, no-wrap
+msgid ""
+"{\n"
+"  \"name\": \"extract_web_results\",\n"
+"  \"description\": \"Extracts the ranked result list from a fetched search-engine\n"
+"    results page: title, URL, snippet and rank for each entry. Use this AFTER a\n"
+"    page has been retrieved, and only on a SERP — for the body text of an\n"
+"    ordinary article or a PDF, use extract_data_points instead. Returns an empty\n"
+"    list, not an error, when the page carries no results. Does not follow the\n"
+"    result links.\",\n"
+"  \"input_schema\": {\n"
+"    \"type\": \"object\",\n"
+"    \"properties\": {\n"
+"      \"html\": { \"type\": \"string\", \"description\": \"Raw HTML of the results page\" },\n"
+"      \"max_results\": { \"type\": \"integer\", \"description\": \"Cap on entries returned; default 10\" }\n"
+"    },\n"
+"    \"required\": [\"html\"]\n"
+"  },\n"
+"  \"input_examples\": [\n"
+"    { \"html\": \"<html>…</html>\", \"max_results\": 25 },\n"
+"    { \"html\": \"<html>…</html>\" }\n"
+"  ]\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"name\": \"extract_web_results\",\n"
+"  \"description\": \"Extracts the ranked result list from a fetched search-engine\n"
+"    results page: title, URL, snippet and rank for each entry. Use this AFTER a\n"
+"    page has been retrieved, and only on a SERP — for the body text of an\n"
+"    ordinary article or a PDF, use extract_data_points instead. Returns an empty\n"
+"    list, not an error, when the page carries no results. Does not follow the\n"
+"    result links.\",\n"
+"  \"input_schema\": {\n"
+"    \"type\": \"object\",\n"
+"    \"properties\": {\n"
+"      \"html\": { \"type\": \"string\", \"description\": \"Raw HTML of the results page\" },\n"
+"      \"max_results\": { \"type\": \"integer\", \"description\": \"Cap on entries returned; default 10\" }\n"
+"    },\n"
+"    \"required\": [\"html\"]\n"
+"  },\n"
+"  \"input_examples\": [\n"
+"    { \"html\": \"<html>…</html>\", \"max_results\": 25 },\n"
+"    { \"html\": \"<html>…</html>\" }\n"
+"  ]\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:90
+#, no-wrap
+msgid ""
+"Two details of that block are cheap and often skipped. `input_examples` shows\n"
+"typical calls **including one with the optional parameter omitted**, which is\n"
+"how the model learns that omitting it is legitimate rather than an oversight.\n"
+"And the negative clause — \"for an ordinary article, use `extract_data_points`\n"
+"instead\" — is the boundary explanation: it names the sibling tool, so the\n"
+"description does the disambiguation instead of leaving it to the request.\n"
+msgstr ""
+"Deux détails de ce bloc coûtent peu et sont souvent négligés. `input_examples`\n"
+"montre des appels types **dont un où le paramètre optionnel est omis**, et c'est\n"
+"ainsi que le modèle apprend que l'omettre est légitime plutôt qu'un oubli. Et la\n"
+"clause négative — « pour un article ordinaire, utiliser `extract_data_points` à\n"
+"la place » — est l'explication de frontière : elle nomme l'outil voisin, si bien\n"
+"que c'est la description qui lève l'ambiguïté au lieu de la laisser à la requête.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/02-tools-mcp.md:91
+#, no-wrap
+msgid ""
+"**The boundary belongs in the description of both tools, not one of them.**\n"
+"Enriching a single side leaves the other just as attractive for the same\n"
+"requests, and the misrouting simply reverses direction. A pair of tools is\n"
+"disambiguated as a pair.\n"
+msgstr ""
+"**La frontière appartient à la description des deux outils, pas de l'un des\n"
+"deux.** Enrichir un seul côté laisse l'autre tout aussi attirant pour les mêmes\n"
+"requêtes, et le misrouting change simplement de sens. Une paire d'outils se\n"
+"désambiguïse en tant que paire.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:98
+#, no-wrap
+msgid "The three repairs, and which symptom calls for which"
+msgstr "Les trois réparations, et le symptôme qui appelle chacune"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:102
+#, no-wrap
+msgid ""
+"The guide's skills are three distinct moves. Reading the scenario for which one\n"
+"it describes is most of the work on this task statement.\n"
+msgstr ""
+"Les compétences du guide sont trois gestes distincts. Lire l'énoncé pour savoir\n"
+"lequel il décrit est l'essentiel du travail sur ce task statement.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:108
+#, no-wrap
+msgid ""
+"| Symptom in the scenario | Move | The guide's example |\n"
+"|---|---|---|\n"
+"| Two tools whose descriptions overlap semantically | **Rename and rewrite** so the name and the sentence state what is really returned | `analyze_content` → `extract_web_results`, with a web-specific description |\n"
+"| One generic tool used far outside its intended scope | **Replace with a constrained tool** whose contract rejects the misuse | `fetch_url` → `load_document`, developed in 2.3 |\n"
+"| One catch-all tool doing three unrelated jobs | **Split into purpose-specific tools** with defined input/output contracts | `analyze_document` → `extract_data_points`, `summarize_content`, `verify_claim_against_source` |\n"
+msgstr ""
+"| Symptôme dans l'énoncé | Geste | L'exemple du guide |\n"
+"|---|---|---|\n"
+"| Deux outils dont les descriptions se recouvrent sémantiquement | **Renommer et réécrire** pour que le nom et la phrase disent ce qui est réellement retourné | `analyze_content` → `extract_web_results`, avec une description spécifique au web |\n"
+"| Un outil générique employé bien au-delà de son périmètre | **Remplacer par un outil contraint** dont le contrat rejette le mésusage | `fetch_url` → `load_document`, développé en 2.3 |\n"
+"| Un outil fourre-tout qui fait trois métiers sans rapport | **Diviser en outils spécialisés** aux contrats d'entrée/sortie définis | `analyze_document` → `extract_data_points`, `summarize_content`, `verify_claim_against_source` |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:114
+#, no-wrap
+msgid ""
+"The split deserves a second look, because it is the one that looks like extra\n"
+"work. A tool named `analyze_document` has no output contract: \"analysis\" can be\n"
+"a summary, a table of figures, or a verdict on a claim, and the model picks by\n"
+"guessing. Three tools with three names each carry an implicit promise about\n"
+"what comes back, and the promise is what makes the selection decidable.\n"
+msgstr ""
+"La division mérite un second regard, parce que c'est celle qui ressemble à du\n"
+"travail en plus. Un outil nommé `analyze_document` n'a aucun contrat de sortie :\n"
+"« analyser » peut vouloir dire un résumé, un tableau de chiffres ou un verdict\n"
+"sur une affirmation, et le modèle choisit en devinant. Trois outils aux trois\n"
+"noms portent chacun une promesse implicite sur ce qui revient, et c'est cette\n"
+"promesse qui rend la sélection décidable.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:118
+#, no-wrap
+msgid ""
+"Splitting is not free, and 2.3 is the counterweight: a tool set that grows past\n"
+"four or five degrades selection for a different reason. Split a tool because its\n"
+"jobs have different output contracts, not because more tools are tidier.\n"
+msgstr ""
+"Diviser n'est pas gratuit, et 2.3 est le contrepoids : un jeu d'outils qui\n"
+"dépasse quatre ou cinq dégrade la sélection pour une autre raison. On divise un\n"
+"outil parce que ses métiers ont des contrats de sortie différents, pas parce que\n"
+"plus d'outils fait plus rangé.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:119
+#, no-wrap
+msgid "Naming, so the name works with the description"
+msgstr "Nommer, pour que le nom travaille avec la description"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:122
+#, no-wrap
+msgid "Two habits from the API documentation, both mechanical:\n"
+msgstr "Deux habitudes venues de la documentation de l'API, toutes deux mécaniques :\n"
+
+#. type: Bullet: '- '
+#: courses/en/02-tools-mcp.md:128
+#, no-wrap
+msgid ""
+"**Namespace with the service.** `github_list_prs`, `slack_send_message`. A\n"
+"bare `search` in a session holding four servers is an invitation to misroute.\n"
+msgstr ""
+"**Namespacer avec le service.** `github_list_prs`, `slack_send_message`. Un\n"
+"`search` nu dans une session qui tient quatre serveurs est une invitation au\n"
+"misrouting.\n"
+
+#. type: Bullet: '- '
+#: courses/en/02-tools-mcp.md:128
+#, no-wrap
+msgid ""
+"**Group related operations behind an `action` parameter** rather than\n"
+"shipping `create_pr`, `review_pr` and `merge_pr` as three tools. The same\n"
+"economy the tool-count rule of 2.3 asks for, applied at design time.\n"
+msgstr ""
+"**Regrouper les opérations liées derrière un paramètre `action`** plutôt que\n"
+"de livrer `create_pr`, `review_pr` et `merge_pr` en trois outils. La même\n"
+"économie que réclame la règle de comptage de 2.3, appliquée dès la conception.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:131
+#, no-wrap
+msgid ""
+"The name itself must match `^[a-zA-Z0-9_-]{1,64}$` — letters, digits, underscore\n"
+"and hyphen, up to sixty-four characters.\n"
+msgstr ""
+"Le nom lui-même doit respecter `^[a-zA-Z0-9_-]{1,64}$` — lettres, chiffres,\n"
+"tiret bas et tiret, jusqu'à soixante-quatre caractères.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/02-tools-mcp.md:132
+#, no-wrap
+msgid ""
+"**Return signal, not filler.** A tool that answers with a wall of boilerplate\n"
+"spends the agent's context on text no decision depends on. Return semantic\n"
+"identifiers — UUIDs, slugs, names — and let a follow-up call fetch the rest.\n"
+"Trimming verbose tool output is D5's territory; choosing what a tool returns in\n"
+"the first place is a design decision, and it is made here.\n"
+msgstr ""
+"**Retourner du signal, pas du remplissage.** Un outil qui répond par un mur de\n"
+"texte convenu dépense le contexte de l'agent en lignes dont aucune décision ne\n"
+"dépend. Retournez des identifiants sémantiques — UUID, slugs, noms — et laissez\n"
+"un appel de suivi aller chercher le reste. Rogner une sortie d'outil verbeuse est\n"
+"le territoire de D5 ; choisir ce qu'un outil retourne au départ est une décision\n"
+"de conception, et elle se prend ici.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:140
+#, no-wrap
+msgid "The system prompt can override a good description"
+msgstr "Le system prompt peut l'emporter sur une bonne description"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:145
+#, no-wrap
+msgid ""
+"This is the guide's fourth knowledge point and the one people miss, because the\n"
+"tool definitions are where they are looking. **A keyword-sensitive instruction in\n"
+"the system prompt creates unintended tool associations.**\n"
+msgstr ""
+"C'est le quatrième point de connaissance du guide et celui qu'on manque, parce\n"
+"que c'est du côté des définitions d'outils qu'on regarde. **Une instruction\n"
+"sensible aux mots-clés dans le system prompt crée des associations d'outils non\n"
+"voulues.**\n"
+
+#. type: Fenced code block (text)
+#: courses/en/02-tools-mcp.md:146
+#, no-wrap
+msgid ""
+"# System prompt\n"
+"You are a support assistant. ALWAYS verify the customer's identity before\n"
+"answering anything.\n"
+msgstr ""
+"# Le system prompt\n"
+"You are a support assistant. ALWAYS verify the customer's identity before\n"
+"answering anything.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:157
+#, no-wrap
+msgid ""
+"Nothing in that sentence names a tool. But \"verify the customer\" matches\n"
+"`get_customer` closely enough, and \"always\" carries further than any per-turn\n"
+"wording, so the model now calls `get_customer` on turns where identity is not in\n"
+"question — including \"what are your opening hours\". The tool descriptions are\n"
+"fine. The instruction above them is what routed the turn.\n"
+msgstr ""
+"Rien dans cette phrase ne nomme un outil. Mais « verify the customer » ressemble\n"
+"assez à `get_customer`, et « always » porte plus loin que n'importe quelle\n"
+"formulation propre à un tour : le modèle appelle désormais `get_customer` sur\n"
+"des tours où l'identité n'est pas en jeu — y compris « quels sont vos horaires\n"
+"d'ouverture ». Les descriptions d'outils sont bonnes. C'est l'instruction\n"
+"au-dessus d'elles qui a routé le tour.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:163
+#, no-wrap
+msgid ""
+"The guide's skill is a review, not a rewrite: **read the system prompt for\n"
+"keyword-sensitive instructions that might override well-written tool\n"
+"descriptions.** The fix is to scope the absolute — \"verify the customer's\n"
+"identity before disclosing order or account data\" — so the keyword stops\n"
+"attaching to every turn.\n"
+msgstr ""
+"La compétence du guide est une relecture, pas une réécriture : **relire le\n"
+"system prompt pour y trouver les instructions sensibles aux mots-clés qui\n"
+"pourraient l'emporter sur des descriptions d'outils bien écrites.** Le correctif\n"
+"consiste à cadrer l'absolu — « vérifier l'identité du client avant de divulguer\n"
+"des données de commande ou de compte » — pour que le mot-clé cesse de s'attacher\n"
+"à chaque tour.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/02-tools-mcp.md:164
+#, no-wrap
+msgid ""
+"Read the scenario for what it says is *poor*, because the guide's three repairs\n"
+"map onto three different complaints.\n"
+"\n"
+"\"The two descriptions are nearly identical\" → rename the overlapping tool and\n"
+"rewrite both descriptions. \"One tool is asked to do three unrelated things\" →\n"
+"split it. \"An instruction in the system prompt says *always*\" → the root cause\n"
+"is the prompt, not the descriptions.\n"
+"\n"
+"The distractors here are all plausible engineering, and each one leaves the\n"
+"ambiguity in place. Adding few-shot routing examples to the system prompt pays\n"
+"tokens on every single turn and never touches the sentences the model actually\n"
+"selects on. Building a routing layer that classifies the request before any tool\n"
+"is offered replaces the natural-language understanding the model already has\n"
+"with a component you now maintain. Merging the two tools into one generic\n"
+"`lookup_entity` is a defensible architecture and a very large step when the\n"
+"immediate defect is two thin sentences. And enriching only one of the two\n"
+"descriptions leaves the other just as attractive, so the misrouting persists in\n"
+"the other direction.\n"
+msgstr ""
+"Lisez l'énoncé pour ce qu'il dit être *pauvre*, car les trois réparations du\n"
+"guide répondent à trois plaintes différentes.\n"
+"\n"
+"« Les deux descriptions sont presque identiques » → renommer l'outil qui\n"
+"recouvre et réécrire les deux descriptions. « On demande à un outil trois choses\n"
+"sans rapport » → le diviser. « Une instruction du system prompt dit *toujours* »\n"
+"→ la cause racine est le prompt, pas les descriptions.\n"
+"\n"
+"Les distracteurs ici sont tous de l'ingénierie plausible, et chacun laisse\n"
+"l'ambiguïté en place. Ajouter des exemples de routage few-shot au system prompt\n"
+"coûte des tokens à chaque tour et ne touche jamais aux phrases sur lesquelles le\n"
+"modèle sélectionne vraiment. Construire une couche de routage qui classe la\n"
+"requête avant qu'aucun outil ne soit proposé remplace la compréhension du langage\n"
+"naturel que le modèle a déjà par un composant que vous maintenez désormais.\n"
+"Fusionner les deux outils en un `lookup_entity` générique est une architecture\n"
+"défendable et un très grand pas quand le défaut immédiat tient à deux phrases\n"
+"maigres. Et n'enrichir qu'une des deux descriptions laisse l'autre tout aussi\n"
+"attirante : le misrouting persiste dans l'autre sens.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/02-tools-mcp.md:185
+#, no-wrap
+msgid ""
+"**Writing the description for a human reader.** \"Analyzes documents\" tells a\n"
+"colleague enough because the colleague will read the code. The model will not.\n"
+"\n"
+"**Letting the schema carry the meaning alone.** A parameter named `mode` with an\n"
+"`enum` of five values and no per-value description is a decision the model has\n"
+"to make with no information. Field descriptions are part of the tool's\n"
+"description surface — with the MCP Python SDK they come from `Field(description=…)`\n"
+"on each parameter, and the SDK builds the schema from the type hints around them.\n"
+msgstr ""
+"**Écrire la description pour un lecteur humain.** « Analyzes documents » en dit\n"
+"assez à un collègue, parce que le collègue ira lire le code. Le modèle, non.\n"
+"\n"
+"**Laisser le schéma porter le sens à lui seul.** Un paramètre nommé `mode` avec\n"
+"un `enum` de cinq valeurs et aucune description par valeur est une décision que\n"
+"le modèle doit prendre sans information. Les descriptions de champs font partie\n"
+"de la surface descriptive de l'outil — avec le SDK Python MCP elles viennent du\n"
+"`Field(description=…)` posé sur chaque paramètre, et le SDK construit le schéma\n"
+"à partir des annotations de type qui les entourent.\n"
+
+#. type: Title ##
+#: courses/en/02-tools-mcp.md:198
+#, no-wrap
+msgid "2.2 — Implement structured error responses for MCP tools"
+msgstr "2.2 — Implémenter des réponses d'erreur structurées pour les outils MCP"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:201
+#, no-wrap
+msgid ""
+"<!-- ts:2.2 | src:exam guide TS 2.2 (the MCP isError flag pattern for communicating tool failures back to the agent, the distinction between transient, validation, business and permission errors, why uniform \"Operation failed\" responses prevent appropriate recovery decisions, and the difference between retryable and non-retryable errors with structured metadata preventing wasted retries; the skills: returning errorCategory, isRetryable and human-readable descriptions, retriable: false plus customer-friendly explanations for business rule violations, local error recovery inside subagents propagating to the coordinator only what cannot be resolved locally along with partial results and what was attempted, and distinguishing access failures from valid empty results) ; 09apicomplements L5 (is_error in a tool_result block and the explicit statement that errorCategory, isRetryable and a human-readable description are an application-level convention placed in the content, not fields of the protocol) ; 02mcp L5 (an MCP tool raising ValueError when the requested document id is absent, error handling integrating with ordinary Python exceptions) ; modelcontextprotocol.io, Server/Tools (the two error mechanisms: protocol errors reported as standard JSON-RPC errors for an unknown tool, invalid arguments or a server fault, against tool execution errors reported inside a successful result with isError true — API failures, invalid input data and business rule violations — and content as an array of content blocks) -->\n"
+"<!-- owns:structured-errors -->\n"
+msgstr ""
+"<!-- ts:2.2 | src:exam guide TS 2.2 (the MCP isError flag pattern for communicating tool failures back to the agent, the distinction between transient, validation, business and permission errors, why uniform \"Operation failed\" responses prevent appropriate recovery decisions, and the difference between retryable and non-retryable errors with structured metadata preventing wasted retries; the skills: returning errorCategory, isRetryable and human-readable descriptions, retriable: false plus customer-friendly explanations for business rule violations, local error recovery inside subagents propagating to the coordinator only what cannot be resolved locally along with partial results and what was attempted, and distinguishing access failures from valid empty results) ; 09apicomplements L5 (is_error in a tool_result block and the explicit statement that errorCategory, isRetryable and a human-readable description are an application-level convention placed in the content, not fields of the protocol) ; 02mcp L5 (an MCP tool raising ValueError when the requested document id is absent, error handling integrating with ordinary Python exceptions) ; modelcontextprotocol.io, Server/Tools (the two error mechanisms: protocol errors reported as standard JSON-RPC errors for an unknown tool, invalid arguments or a server fault, against tool execution errors reported inside a successful result with isError true — API failures, invalid input data and business rule violations — and content as an array of content blocks) -->\n"
+"<!-- owns:structured-errors -->\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:206
+#, no-wrap
+msgid ""
+"A tool fails. The agent now has to decide one thing: call it again, change the\n"
+"arguments, tell the user, or hand over to a human. Every one of those decisions\n"
+"is made from the payload the tool returned — and this is what the payload\n"
+"usually says:\n"
+msgstr ""
+"Un outil échoue. L'agent doit maintenant décider une chose : le rappeler,\n"
+"changer les arguments, prévenir l'utilisateur, ou passer la main à un humain.\n"
+"Chacune de ces décisions se prend à partir de la charge utile que l'outil a\n"
+"retournée — et voici ce que cette charge utile dit d'habitude :\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:207
+#, no-wrap
+msgid "{ \"isError\": true, \"content\": [{ \"type\": \"text\", \"text\": \"Operation failed\" }] }\n"
+msgstr "{ \"isError\": true, \"content\": [{ \"type\": \"text\", \"text\": \"Operation failed\" }] }\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:216
+#, no-wrap
+msgid ""
+"The guide's knowledge point is the consequence: **uniform error responses\n"
+"prevent the agent from making appropriate recovery decisions.** The agent will\n"
+"still do *something*. It will retry a permission denial four times, or give up\n"
+"on a timeout that would have cleared on the second attempt, because nothing in\n"
+"the payload distinguishes them.\n"
+msgstr ""
+"Le point de connaissance du guide en est la conséquence : **des réponses\n"
+"d'erreur uniformes empêchent l'agent de prendre les décisions de récupération\n"
+"appropriées.** L'agent fera quand même *quelque chose*. Il réessaiera quatre fois\n"
+"un refus de permission, ou renoncera sur un timeout qui se serait dissipé à la\n"
+"deuxième tentative, parce que rien dans la charge utile ne les distingue.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:220
+#, no-wrap
+msgid ""
+"`isError` is the flag MCP gives you — it tells the agent the call failed rather\n"
+"than returning data. Everything that makes the failure actionable is what you\n"
+"put beside it.\n"
+msgstr ""
+"`isError` est le drapeau que MCP vous donne — il dit à l'agent que l'appel a\n"
+"échoué au lieu de retourner des données. Tout ce qui rend cet échec actionnable,\n"
+"c'est vous qui le posez à côté.\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:221
+#, no-wrap
+msgid ""
+"{\n"
+"  \"isError\": true,\n"
+"  \"content\": [{\n"
+"    \"type\": \"text\",\n"
+"    \"text\": \"{\\\"errorCategory\\\": \\\"transient\\\", \\\"isRetryable\\\": true, \\\"description\\\": \\\"Order service timed out after 5s. Retry in a few seconds.\\\", \\\"attempted_query\\\": \\\"order_id=12345\\\"}\"\n"
+"  }]\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"isError\": true,\n"
+"  \"content\": [{\n"
+"    \"type\": \"text\",\n"
+"    \"text\": \"{\\\"errorCategory\\\": \\\"transient\\\", \\\"isRetryable\\\": true, \\\"description\\\": \\\"Order service timed out after 5s. Retry in a few seconds.\\\", \\\"attempted_query\\\": \\\"order_id=12345\\\"}\"\n"
+"  }]\n"
+"}\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/02-tools-mcp.md:231
+#, no-wrap
+msgid ""
+"**`errorCategory`, `isRetryable` and the human-readable description are not\n"
+"fields of the MCP protocol.** They are an application-level convention, and they\n"
+"live inside the text of the content block — as prose or as stringified JSON.\n"
+"What the protocol gives you is `isError`; the structure is yours to impose, and\n"
+"the guide tests you on imposing it consistently.\n"
+"\n"
+"Two points of form that go with it. `content` is an **array of content\n"
+"blocks**, never a bare string and never an object — so the structured metadata\n"
+"has to live inside a block, which is exactly why it is encoded as text. And the\n"
+"same convention on the Claude API side is a `tool_result` block carrying\n"
+"`is_error: true`, whose `content` is what the model reads to decide what to do\n"
+"next. Same discipline, different envelope.\n"
+"\n"
+"Last, a spelling detail worth neutralising before it costs you a point: **the\n"
+"guide itself writes both `isRetryable` and `retriable`**, two bullets apart in\n"
+"the same \"Skills in\" block — `isRetryable` for the general boolean, `retriable:\n"
+"false` for business rule violations. Neither is a normalised field, so neither\n"
+"can be the trapped one: they are application conventions carried in the error\n"
+"content, like `errorCategory`. An option using one spelling is not wrong because\n"
+"it did not use the other.\n"
+msgstr ""
+"**`errorCategory`, `isRetryable` et la description lisible par un humain ne\n"
+"sont pas des champs du protocole MCP.** Ce sont une convention applicative, et\n"
+"elles vivent à l'intérieur du texte du bloc de contenu — en prose ou en JSON\n"
+"sérialisé. Ce que le protocole vous donne, c'est `isError` ; la structure, c'est\n"
+"à vous de l'imposer, et le guide vous teste sur le fait de l'imposer de manière\n"
+"cohérente.\n"
+"\n"
+"Deux points de forme qui vont avec. `content` est un **tableau de blocs de\n"
+"contenu**, jamais une chaîne nue ni un objet — les métadonnées structurées\n"
+"doivent donc vivre à l'intérieur d'un bloc, ce qui est précisément pourquoi on\n"
+"les encode en texte. Et la même convention côté API Claude est un bloc\n"
+"`tool_result` portant `is_error: true`, dont le `content` est ce que le modèle\n"
+"lit pour décider de la suite. Même discipline, enveloppe différente.\n"
+"\n"
+"Enfin, un détail d'orthographe qu'il vaut mieux neutraliser avant qu'il ne vous\n"
+"coûte un point : **le guide lui-même écrit à la fois `isRetryable` et\n"
+"`retriable`**, à deux puces d'intervalle dans le même bloc « Skills in » —\n"
+"`isRetryable` pour le booléen général, `retriable: false` pour les violations de\n"
+"règle métier. Aucune des deux n'est un champ normalisé, donc aucune ne peut être\n"
+"celle qui piège : ce sont des conventions applicatives portées dans le contenu de\n"
+"l'erreur, comme `errorCategory`. Une option qui emploie une graphie n'est pas\n"
+"fausse parce qu'elle n'a pas employé l'autre.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:254
+#, no-wrap
+msgid "Two error mechanisms, and only one of them is yours"
+msgstr "Deux mécanismes d'erreur, et un seul est le vôtre"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:259
+#, no-wrap
+msgid ""
+"Before the categories, a frontier the protocol draws and a distractor loves.\n"
+"MCP reports failures in **two different places**, and they are not\n"
+"interchangeable.\n"
+msgstr ""
+"Avant les catégories, une frontière que le protocole trace et dont un\n"
+"distracteur raffole. MCP signale les échecs à **deux endroits différents**, et ils\n"
+"ne sont pas interchangeables.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:264
+#, no-wrap
+msgid ""
+"| Mechanism | Reported as | Covers |\n"
+"|---|---|---|\n"
+"| **Protocol error** | A standard JSON-RPC error — the call itself did not go through | Unknown tool, invalid arguments, server fault |\n"
+"| **Tool execution error** | A **successful result** carrying `isError: true` | API failure, invalid input data, business rule violation |\n"
+msgstr ""
+"| Mécanisme | Signalé comme | Couvre |\n"
+"|---|---|---|\n"
+"| **Erreur de protocole** | Une erreur JSON-RPC standard — l'appel lui-même n'est pas passé | Outil inconnu, arguments invalides, panne du serveur |\n"
+"| **Erreur d'exécution d'outil** | Un **résultat réussi** portant `isError: true` | Échec d'API, données d'entrée invalides, violation de règle métier |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:271
+#, no-wrap
+msgid ""
+"Read the second row twice, because it is counter-intuitive and it is the whole\n"
+"of this task statement. **A violated business rule is not a protocol error.**\n"
+"The call reached the tool, the tool ran, and it decided the operation must not\n"
+"happen — so the answer comes back as a normal result whose `isError` is true\n"
+"and whose content the agent can read. A booking outside the 90-day horizon is\n"
+"not a malformed request; it is a request the tool understood and refused.\n"
+msgstr ""
+"Relisez la seconde ligne deux fois, parce qu'elle est contre-intuitive et\n"
+"qu'elle est tout ce task statement. **Une règle métier violée n'est pas une\n"
+"erreur de protocole.** L'appel est parvenu à l'outil, l'outil a tourné, et il a\n"
+"décidé que l'opération ne devait pas avoir lieu — la réponse revient donc comme\n"
+"un résultat normal dont `isError` vaut vrai et dont l'agent peut lire le contenu.\n"
+"Une réservation au-delà de l'horizon de 90 jours n'est pas une requête malformée :\n"
+"c'est une requête que l'outil a comprise et refusée.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:276
+#, no-wrap
+msgid ""
+"That is why everything below is about the *content* of a result rather than\n"
+"about error codes. The protocol errors are the transport's business and there\n"
+"is nothing for you to design in them. The execution errors are yours, and the\n"
+"agent's recovery decision is made entirely out of what you put in them.\n"
+msgstr ""
+"C'est pourquoi tout ce qui suit porte sur le *contenu* d'un résultat plutôt que\n"
+"sur des codes d'erreur. Les erreurs de protocole sont l'affaire du transport et\n"
+"vous n'avez rien à y concevoir. Les erreurs d'exécution sont les vôtres, et la\n"
+"décision de récupération de l'agent se prend entièrement à partir de ce que vous\n"
+"y mettez.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:277
+#, no-wrap
+msgid "The four categories, and the decision each one enables"
+msgstr "Les quatre catégories, et la décision que chacune rend possible"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:285
+#, no-wrap
+msgid ""
+"| `errorCategory` | Examples | `isRetryable` | What the agent should do |\n"
+"|---|---|---|---|\n"
+"| `transient` | Timeout, 503, network failure | `true` | Retry locally; propagate only if it keeps failing |\n"
+"| `validation` | Invalid input, required field missing | `true`, once the input is fixed | Correct the arguments and call again |\n"
+"| `business` | Policy violation, threshold exceeded | `false` | Explain to the user; offer an alternative |\n"
+"| `permission` | Access denied, insufficient privilege | `false` | Escalate to a human; retrying changes nothing |\n"
+msgstr ""
+"| `errorCategory` | Exemples | `isRetryable` | Ce que l'agent doit faire |\n"
+"|---|---|---|---|\n"
+"| `transient` | Timeout, 503, panne réseau | `true` | Réessayer localement ; ne propager que si l'échec persiste |\n"
+"| `validation` | Entrée invalide, champ requis manquant | `true`, une fois l'entrée corrigée | Corriger les arguments et rappeler |\n"
+"| `business` | Violation de politique, seuil dépassé | `false` | Expliquer à l'utilisateur ; proposer une alternative |\n"
+"| `permission` | Accès refusé, privilège insuffisant | `false` | Escalader vers un humain ; réessayer ne change rien |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:290
+#, no-wrap
+msgid ""
+"The two right-hand columns are the whole point. Retryability is a claim about\n"
+"whether repeating the call can succeed, and it is knowable at the tool, not at\n"
+"the agent. **Structured metadata prevents wasted retry attempts** — that is the\n"
+"guide's phrasing, and the waste is billed per attempt.\n"
+msgstr ""
+"Les deux colonnes de droite sont tout l'enjeu. La retryabilité est une\n"
+"affirmation sur la possibilité qu'une répétition de l'appel réussisse, et elle est\n"
+"connaissable au niveau de l'outil, pas au niveau de l'agent. **Des métadonnées\n"
+"structurées évitent les tentatives de retry gaspillées** — c'est la formulation\n"
+"du guide, et le gaspillage se facture à la tentative.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:295
+#, no-wrap
+msgid ""
+"The row that is misread most often is `validation`. It is retryable, and its\n"
+"retry is not a repetition: the agent repairs its own arguments and calls again.\n"
+"Filing it beside `permission` because \"the call failed for a reason the tool\n"
+"gave\" costs you a recovery the agent could have made alone.\n"
+msgstr ""
+"La ligne la plus mal lue est `validation`. Elle est retryable, et son retry\n"
+"n'est pas une répétition : l'agent répare ses propres arguments et rappelle. La\n"
+"classer à côté de `permission` parce que « l'appel a échoué pour une raison que\n"
+"l'outil a donnée » vous coûte une récupération que l'agent pouvait faire seul.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:296
+#, no-wrap
+msgid "Business errors need a sentence a customer can hear"
+msgstr "Les erreurs métier réclament une phrase qu'un client peut entendre"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:301
+#, no-wrap
+msgid ""
+"The guide asks for two things on a business rule violation: **`retriable: false`\n"
+"and a customer-friendly explanation**. The second is not decoration. The agent\n"
+"is going to relay this to somebody, and \"BOOKING_RULE_4171\" relays badly.\n"
+msgstr ""
+"Le guide demande deux choses sur une violation de règle métier : **`retriable:\n"
+"false` et une explication compréhensible par le client**. La seconde n'est pas de\n"
+"l'ornement. L'agent va relayer cela à quelqu'un, et « BOOKING_RULE_4171 » se\n"
+"relaie mal.\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:302
+#, no-wrap
+msgid ""
+"{\n"
+"  \"isError\": true,\n"
+"  \"content\": [{\n"
+"    \"type\": \"text\",\n"
+"    \"text\": \"{\\\"errorCategory\\\": \\\"business\\\", \\\"retriable\\\": false, \\\"description\\\": \\\"Appointments cannot be booked more than 90 days ahead. The earliest available slot inside that window is 12 March.\\\", \\\"policy\\\": \\\"booking_horizon_90d\\\"}\"\n"
+"  }]\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"isError\": true,\n"
+"  \"content\": [{\n"
+"    \"type\": \"text\",\n"
+"    \"text\": \"{\\\"errorCategory\\\": \\\"business\\\", \\\"retriable\\\": false, \\\"description\\\": \\\"Appointments cannot be booked more than 90 days ahead. The earliest available slot inside that window is 12 March.\\\", \\\"policy\\\": \\\"booking_horizon_90d\\\"}\"\n"
+"  }]\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:314
+#, no-wrap
+msgid ""
+"The machine-readable code stays, for logs and for routing. The sentence beside\n"
+"it is what lets the agent answer the customer without inventing the rule.\n"
+msgstr ""
+"Le code lisible par la machine reste, pour les journaux et pour le routage. La\n"
+"phrase posée à côté est ce qui permet à l'agent de répondre au client sans\n"
+"inventer la règle.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:315
+#, no-wrap
+msgid "An access failure is not an empty result"
+msgstr "Un échec d'accès n'est pas un résultat vide"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:319
+#, no-wrap
+msgid ""
+"The guide's last skill on this task statement is a distinction, and it is the\n"
+"one that produces silent wrong answers rather than loud ones.\n"
+msgstr ""
+"La dernière compétence du guide sur ce task statement est une distinction, et\n"
+"c'est celle qui produit des réponses fausses silencieuses plutôt que bruyantes.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:324
+#, no-wrap
+msgid ""
+"| | What happened | Correct payload |\n"
+"|---|---|---|\n"
+"| **Access failure** | The query never ran — timeout, 503, refused connection | `isError: true`, category `transient`, `isRetryable: true` |\n"
+"| **Valid empty result** | The query ran and matched nothing | **Not an error.** A success carrying an empty list |\n"
+msgstr ""
+"| | Ce qui s'est passé | Charge utile correcte |\n"
+"|---|---|---|\n"
+"| **Échec d'accès** | La requête n'a jamais tourné — timeout, 503, connexion refusée | `isError: true`, catégorie `transient`, `isRetryable: true` |\n"
+"| **Résultat vide valide** | La requête a tourné et n'a rien trouvé | **Ce n'est pas une erreur.** Un succès portant une liste vide |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:329
+#, no-wrap
+msgid ""
+"Collapse them and you get one of two defects. Report the empty result as an\n"
+"error and the agent retries a question that has already been answered. Report\n"
+"the timeout as an empty result and the agent concludes, in good faith, that\n"
+"there is nothing to find — and the gap never appears in the final answer.\n"
+msgstr ""
+"Confondez-les et vous obtenez l'un de deux défauts. Signalez le résultat vide\n"
+"comme une erreur et l'agent réessaie une question à laquelle il a déjà été\n"
+"répondu. Signalez le timeout comme un résultat vide et l'agent conclut, de bonne\n"
+"foi, qu'il n'y a rien à trouver — et le trou n'apparaît jamais dans la réponse\n"
+"finale.\n"
+
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:330
+#, no-wrap
+msgid ""
+"// Not an error: the catalogue was searched, and it holds no match.\n"
+"{ \"isError\": false, \"content\": [{ \"type\": \"text\",\n"
+"  \"text\": \"{\\\"results\\\": [], \\\"searched\\\": \\\"parts_catalog\\\", \\\"query\\\": \\\"part_no=88-2210\\\"}\" }] }\n"
+msgstr ""
+"// Pas une erreur : le catalogue a bien été interrogé, il ne contient aucune correspondance.\n"
+"{ \"isError\": false, \"content\": [{ \"type\": \"text\",\n"
+"  \"text\": \"{\\\"results\\\": [], \\\"searched\\\": \\\"parts_catalog\\\", \\\"query\\\": \\\"part_no=88-2210\\\"}\" }] }\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:336
+#, no-wrap
+msgid "Local recovery, and what crosses the boundary"
+msgstr "Récupération locale, et ce qui franchit la frontière"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:341
+#, no-wrap
+msgid ""
+"The guide asks for **local error recovery within subagents**: a subagent handles\n"
+"its own transient failures and propagates to the coordinator only what it cannot\n"
+"resolve locally — **together with its partial results and what it attempted**.\n"
+msgstr ""
+"Le guide demande une **récupération locale des erreurs à l'intérieur des\n"
+"subagents** : un subagent traite lui-même ses échecs transient et ne propage au\n"
+"coordinateur que ce qu'il ne peut pas résoudre localement — **accompagné de ses\n"
+"résultats partiels et de ce qu'il a tenté**.\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:342
+#, no-wrap
+msgid ""
+"{\n"
+"  \"status\": \"partial\",\n"
+"  \"completed\": [\"order_lookup\", \"customer_profile\"],\n"
+"  \"failed\": [{\n"
+"    \"step\": \"shipping_status\",\n"
+"    \"errorCategory\": \"permission\",\n"
+"    \"isRetryable\": false,\n"
+"    \"attempted\": \"carrier_api.track(tracking_id=1Z999) — 3 attempts, 403 each time\",\n"
+"    \"description\": \"The carrier account has no tracking scope. A human must grant it.\"\n"
+"  }]\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"status\": \"partial\",\n"
+"  \"completed\": [\"order_lookup\", \"customer_profile\"],\n"
+"  \"failed\": [{\n"
+"    \"step\": \"shipping_status\",\n"
+"    \"errorCategory\": \"permission\",\n"
+"    \"isRetryable\": false,\n"
+"    \"attempted\": \"carrier_api.track(tracking_id=1Z999) — 3 attempts, 403 each time\",\n"
+"    \"description\": \"The carrier account has no tracking scope. A human must grant it.\"\n"
+"  }]\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:360
+#, no-wrap
+msgid ""
+"Three properties make that payload useful upstream: the partial results survive,\n"
+"the failed step names its category so the coordinator does not re-attempt a\n"
+"permission denial, and `attempted` says what was already tried so the retry\n"
+"budget is not spent twice on the same call.\n"
+msgstr ""
+"Trois propriétés rendent cette charge utile exploitable en amont : les résultats\n"
+"partiels survivent, l'étape en échec nomme sa catégorie pour que le coordinateur\n"
+"ne retente pas un refus de permission, et `attempted` dit ce qui a déjà été\n"
+"essayé pour que le budget de retry ne soit pas dépensé deux fois sur le même\n"
+"appel.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/02-tools-mcp.md:361
+#, no-wrap
+msgid ""
+"**Where this course stops.** The *shape* of the error — the flag, the category,\n"
+"the retryability, the customer-facing sentence, the partial-result envelope — is\n"
+"tested here, in TS 2.2. What a coordinator does when that envelope arrives —\n"
+"continuing on partial results, annotating the final output with what stayed\n"
+"uncovered, deciding when to escalate — is error propagation across agents, tested\n"
+"in TS 5.3 and developed in D5. D1's TS 1.2 already stated the routing rule and\n"
+"pointed here for the payload.\n"
+msgstr ""
+"**Où ce cours s'arrête.** La *forme* de l'erreur — le drapeau, la catégorie, la\n"
+"retryabilité, la phrase adressée au client, l'enveloppe à résultats partiels —\n"
+"est testée ici, en TS 2.2. Ce qu'un coordinateur fait quand cette enveloppe lui\n"
+"arrive — continuer sur des résultats partiels, annoter la sortie finale de ce qui\n"
+"est resté non couvert, décider quand escalader — relève de la propagation\n"
+"d'erreurs entre agents, testée en TS 5.3 et développée en D5. Le TS 1.2 de D1\n"
+"avait déjà posé la règle de routage et renvoyait ici pour la charge utile.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/02-tools-mcp.md:371
+#, no-wrap
+msgid ""
+"The generic `\"Operation failed\"` payload is the anti-pattern the task statement\n"
+"is built around, and the question usually asks *why* it blocks the agent rather\n"
+"than what to replace it with. The answer names a decision the agent can no\n"
+"longer make: whether the call is worth repeating, and whether it actually\n"
+"received nothing or never got through.\n"
+"\n"
+"The distractors soften the defect rather than repairing it. Saying a timeout is\n"
+"\"a delay, not a real failure\" and clearing the flag hides the failure entirely.\n"
+"Calling the payload malformed misreads the defect — it parses and reaches the\n"
+"agent intact; it is empty of decision metadata, not broken. Blaming the message\n"
+"for being too short for a human aims at the wrong reader. And claiming the four\n"
+"categories come from the MCP specification inverts the actual arrangement:\n"
+"`isError` is the protocol's, the categories are yours.\n"
+msgstr ""
+"La charge utile générique `\"Operation failed\"` est l'anti-pattern autour duquel\n"
+"ce task statement est bâti, et la question demande d'ordinaire *pourquoi* elle\n"
+"bloque l'agent plutôt que par quoi la remplacer. La réponse nomme une décision\n"
+"que l'agent ne peut plus prendre : l'appel vaut-il d'être répété, et a-t-il\n"
+"vraiment reçu un résultat vide ou n'est-il jamais passé ?\n"
+"\n"
+"Les distracteurs adoucissent le défaut au lieu de le réparer. Dire qu'un timeout\n"
+"est « un délai, pas un vrai échec » et retirer le drapeau masque l'échec\n"
+"entièrement. Qualifier la charge utile de malformée se trompe de défaut — elle se\n"
+"parse et parvient intacte à l'agent ; elle est vide de métadonnées de décision,\n"
+"pas cassée. Reprocher au message d'être trop court pour un humain vise le mauvais\n"
+"lecteur. Et affirmer que les quatre catégories viennent de la spécification MCP\n"
+"inverse l'arrangement réel : `isError` appartient au protocole, les catégories\n"
+"sont les vôtres.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/02-tools-mcp.md:387
+#, no-wrap
+msgid ""
+"**Raising a raw exception and letting the framework stringify it.** A Python\n"
+"`ValueError` surfaced through the SDK becomes a message, and a message with no\n"
+"category is a `\"Operation failed\"` with more words. Catch it, classify it, and\n"
+"return the structured payload.\n"
+"\n"
+"**Propagating every transient failure to the coordinator.** It converts a retry\n"
+"the subagent could have done silently into a round trip, and the coordinator has\n"
+"less context to decide with than the subagent that made the call.\n"
+msgstr ""
+"**Lever une exception brute et laisser le framework la sérialiser en chaîne.**\n"
+"Un `ValueError` Python remonté par le SDK devient un message, et un message sans\n"
+"catégorie est un `\"Operation failed\"` avec plus de mots. Attrapez-le, classez-le,\n"
+"et retournez la charge utile structurée.\n"
+"\n"
+"**Propager au coordinateur chaque échec transient.** Cela convertit un retry que\n"
+"le subagent pouvait faire en silence en un aller-retour, et le coordinateur a\n"
+"moins de contexte pour décider que le subagent qui a passé l'appel.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:399
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"2.2\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"2.2\"`.\n"
+
+#. type: Title ##
+#: courses/en/02-tools-mcp.md:400
+#, no-wrap
+msgid "2.3 — Distribute tools appropriately across agents and configure tool choice"
+msgstr "2.3 — Distribuer les outils entre les agents et configurer le choix d'outil"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:402
+#, no-wrap
+msgid "<!-- ts:2.3 | src:exam guide TS 2.3 (giving an agent access to too many tools — 18 instead of 4-5 — degrading tool selection reliability by increasing decision complexity, agents with tools outside their specialization tending to misuse them such as a synthesis agent attempting web searches, scoped tool access with limited cross-role tools for specific high-frequency needs, and the tool_choice options \"auto\", \"any\" and forced selection; the skills: restricting each subagent's tool set to its role, replacing fetch_url with a load_document that validates document URLs, providing a scoped verify_fact for the synthesis agent while routing complex cases through the coordinator, forcing extract_metadata before the enrichment tools and processing subsequent steps in follow-up turns, and setting tool_choice \"any\" to guarantee a tool call rather than conversational text) ; 09apicomplements L5 (the two uses the guide names for tool_choice: forcing a named tool first then handling later steps in follow-up turns, and \"any\" to guarantee a call instead of conversational text) -->\n"
+msgstr "<!-- ts:2.3 | src:exam guide TS 2.3 (giving an agent access to too many tools — 18 instead of 4-5 — degrading tool selection reliability by increasing decision complexity, agents with tools outside their specialization tending to misuse them such as a synthesis agent attempting web searches, scoped tool access with limited cross-role tools for specific high-frequency needs, and the tool_choice options \"auto\", \"any\" and forced selection; the skills: restricting each subagent's tool set to its role, replacing fetch_url with a load_document that validates document URLs, providing a scoped verify_fact for the synthesis agent while routing complex cases through the coordinator, forcing extract_metadata before the enrichment tools and processing subsequent steps in follow-up turns, and setting tool_choice \"any\" to guarantee a tool call rather than conversational text) ; 09apicomplements L5 (the two uses the guide names for tool_choice: forcing a named tool first then handling later steps in follow-up turns, and \"any\" to guarantee a call instead of conversational text) -->\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:407
+#, no-wrap
+msgid ""
+"Every tool you add to an agent is a branch it has to evaluate on every turn.\n"
+"The guide puts a number on where that stops working: **giving an agent access to\n"
+"too many tools — 18 instead of 4-5 — degrades tool selection reliability by\n"
+"increasing decision complexity.**\n"
+msgstr ""
+"Chaque outil que vous ajoutez à un agent est une branche qu'il doit évaluer à\n"
+"chaque tour. Le guide met un chiffre là où cela cesse de fonctionner : **donner à\n"
+"un agent l'accès à trop d'outils — 18 au lieu de 4-5 — dégrade la fiabilité de la\n"
+"sélection d'outil en augmentant la complexité de la décision.**\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:413
+#, no-wrap
+msgid ""
+"This is D1's debt, and it is worth being precise about what it claims. Nothing\n"
+"degrades in the model; what degrades is the decision. Eighteen descriptions, some\n"
+"of them adjacent, produce a selection problem that no individual description can\n"
+"solve — which is why 2.1's remedy is the wrong answer here, and why reading the\n"
+"scenario matters more than knowing both remedies.\n"
+msgstr ""
+"C'est la dette de D1, et il vaut la peine d'être précis sur ce qu'elle affirme.\n"
+"Rien ne se dégrade dans le modèle ; ce qui se dégrade, c'est la décision.\n"
+"Dix-huit descriptions, dont certaines voisines, produisent un problème de\n"
+"sélection qu'aucune description individuelle ne peut résoudre — ce qui explique\n"
+"pourquoi le remède de 2.1 est la mauvaise réponse ici, et pourquoi lire l'énoncé\n"
+"compte plus que connaître les deux remèdes.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/02-tools-mcp.md:414
+#, no-wrap
+msgid ""
+"The two task statements share a symptom — the wrong tool gets called — and split\n"
+"on the evidence the scenario gives you.\n"
+"\n"
+"\"Descriptions are minimal\", \"the two read alike\" → this is 2.1: rewrite, rename,\n"
+"split. \"The agent has eighteen tools\", \"it holds tools from three different\n"
+"roles\" → this is 2.3: cut the set down to the role.\n"
+"\n"
+"Rewriting descriptions when the scenario counted the tools is the distractor\n"
+"that catches people who learned only one of the two answers.\n"
+msgstr ""
+"Les deux task statements partagent un symptôme — le mauvais outil est appelé —\n"
+"et se séparent sur l'indice que l'énoncé vous donne.\n"
+"\n"
+"« Les descriptions sont minimales », « les deux se lisent pareil » → c'est 2.1 :\n"
+"réécrire, renommer, diviser. « L'agent dispose de dix-huit outils », « il porte\n"
+"des outils de trois rôles différents » → c'est 2.3 : ramener le jeu au rôle.\n"
+"\n"
+"Réécrire les descriptions alors que l'énoncé a compté les outils est le\n"
+"distracteur qui attrape ceux qui n'ont appris qu'une des deux réponses.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:426
+#, no-wrap
+msgid "Scoped tool access"
+msgstr "L'accès aux outils cadré sur le rôle"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:433
+#, no-wrap
+msgid ""
+"The second knowledge point explains what goes wrong beyond the count: **agents\n"
+"with tools outside their specialization tend to misuse them** — the guide's own\n"
+"case is a synthesis agent attempting web searches. The tool is there, the turn\n"
+"is hard, and reaching for it is a locally sensible move that produces work\n"
+"nobody asked for.\n"
+msgstr ""
+"Le deuxième point de connaissance explique ce qui se passe mal au-delà du\n"
+"nombre : **les agents dotés d'outils hors de leur spécialité tendent à en faire un mauvais usage**\n"
+"— le cas du guide lui-même est un agent de synthèse qui se met à faire des\n"
+"recherches web. L'outil est là, le tour est difficile, et y recourir est un geste\n"
+"localement sensé qui produit un travail que personne n'a demandé.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:435
+#, no-wrap
+msgid "So each subagent gets the tools its role needs, and no others:\n"
+msgstr "Chaque subagent reçoit donc les outils dont son rôle a besoin, et pas d'autres :\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:441
+#, no-wrap
+msgid ""
+"| Subagent | Tools | Deliberately absent |\n"
+"|---|---|---|\n"
+"| Web research | `web_search`, `load_document` | Anything that writes |\n"
+"| Document analysis | `load_document`, `extract_data_points`, `summarize_content` | `web_search` — not its role |\n"
+"| Synthesis | `read_findings`, `write_report`, `verify_fact` | `web_search` — see below |\n"
+msgstr ""
+"| Subagent | Outils | Volontairement absents |\n"
+"|---|---|---|\n"
+"| Recherche web | `web_search`, `load_document` | Tout ce qui écrit |\n"
+"| Analyse de documents | `load_document`, `extract_data_points`, `summarize_content` | `web_search` — hors de son rôle |\n"
+"| Synthèse | `read_findings`, `write_report`, `verify_fact` | `web_search` — voir ci-dessous |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:445
+#, no-wrap
+msgid ""
+"A tool you leave out is not in the agent's session at all. There is no prompt to\n"
+"ignore and no refusal to log: the agent simply works without it. That is what\n"
+"makes the omission stronger than the instruction.\n"
+msgstr ""
+"Un outil que vous laissez de côté n'est pas dans la session de l'agent du tout.\n"
+"Il n'y a pas d'instruction à ignorer ni de refus à journaliser : l'agent travaille\n"
+"simplement sans lui. C'est ce qui rend l'omission plus forte que l'instruction.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:446
+#, no-wrap
+msgid "Constrain the tool rather than instruct around it"
+msgstr "Contraindre l'outil plutôt qu'instruire autour"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:453
+#, no-wrap
+msgid ""
+"The guide's second skill is a substitution: **replace `fetch_url` with\n"
+"`load_document`, which validates that the URL points at a document.** The\n"
+"scenario behind it is a document-analysis subagent that, holding a tool able to\n"
+"retrieve any URL, ends up downloading search-engine result pages instead of\n"
+"documents.\n"
+msgstr ""
+"La deuxième compétence du guide est une substitution : **remplacer `fetch_url`\n"
+"par `load_document`, qui valide que l'URL pointe vers un document.** Le scénario\n"
+"qui la motive est un subagent d'analyse de documents qui, disposant d'un outil\n"
+"capable de récupérer n'importe quelle URL, finit par télécharger des pages de\n"
+"résultats de moteur de recherche au lieu de documents.\n"
+
+# invariant: définition d'outil réelle : une description d'outil s'écrit en anglais, c'est l'objet même de la démonstration
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:454
+#, no-wrap
+msgid ""
+"{\n"
+"  \"name\": \"load_document\",\n"
+"  \"description\": \"Fetches a document by URL and returns its text. Accepts PDF,\n"
+"    DOCX, TXT and Markdown URLs only; rejects any other URL with a validation\n"
+"    error. Use this to read a document you already have the address of — it does\n"
+"    not search, and it does not follow links inside the document.\",\n"
+"  \"input_schema\": {\n"
+"    \"type\": \"object\",\n"
+"    \"properties\": {\n"
+"      \"url\": { \"type\": \"string\", \"description\": \"Direct URL to a .pdf, .docx, .txt or .md file\" }\n"
+"    },\n"
+"    \"required\": [\"url\"]\n"
+"  }\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"name\": \"load_document\",\n"
+"  \"description\": \"Fetches a document by URL and returns its text. Accepts PDF,\n"
+"    DOCX, TXT and Markdown URLs only; rejects any other URL with a validation\n"
+"    error. Use this to read a document you already have the address of — it does\n"
+"    not search, and it does not follow links inside the document.\",\n"
+"  \"input_schema\": {\n"
+"    \"type\": \"object\",\n"
+"    \"properties\": {\n"
+"      \"url\": { \"type\": \"string\", \"description\": \"Direct URL to a .pdf, .docx, .txt or .md file\" }\n"
+"    },\n"
+"    \"required\": [\"url\"]\n"
+"  }\n"
+"}\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/02-tools-mcp.md:471
+#, no-wrap
+msgid ""
+"**A constraint at the interface beats a constraint in the prompt.** \"Only fetch\n"
+"documents\" is an instruction the model weighs against everything else in its\n"
+"context. A tool that rejects a non-document URL is a contract: the wrong call\n"
+"stops being discouraged and starts being impossible, and it returns a\n"
+"`validation` error the agent can act on — which is 2.2 arriving as a design\n"
+"consequence.\n"
+msgstr ""
+"**Une contrainte à l'interface l'emporte sur une contrainte dans le prompt.**\n"
+"« Ne récupère que des documents » est une instruction que le modèle met en balance\n"
+"avec tout le reste de son contexte. Un outil qui rejette une URL non documentaire\n"
+"est un contrat : le mauvais appel cesse d'être découragé et devient impossible, et\n"
+"il retourne une erreur `validation` sur laquelle l'agent peut agir — soit 2.2 qui\n"
+"arrive comme conséquence de conception.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:480
+#, no-wrap
+msgid "Cross-role tools, scoped rather than opened"
+msgstr "Les outils cross-role, cadrés plutôt qu'ouverts"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:486
+#, no-wrap
+msgid ""
+"Strict scoping has a cost, and the guide names the case: the synthesis agent\n"
+"needs to check a single claim constantly. Sending each check back through the\n"
+"coordinator — which invokes the web research agent, waits, and relays the answer\n"
+"— pays two or three round trips for what is usually a date or a name.\n"
+msgstr ""
+"Le cadrage strict a un coût, et le guide en nomme le cas : l'agent de synthèse a\n"
+"constamment besoin de vérifier une affirmation ponctuelle. Renvoyer chaque\n"
+"vérification par le coordinateur — qui invoque l'agent de recherche web, attend,\n"
+"et relaie la réponse — paie deux ou trois allers-retours pour ce qui est le plus\n"
+"souvent une date ou un nom.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:489
+#, no-wrap
+msgid ""
+"The guide's answer is neither \"give it web search\" nor \"keep sending it back\".\n"
+"It is **a limited cross-role tool for a specific high-frequency need**:\n"
+msgstr ""
+"La réponse du guide n'est ni « donnez-lui la recherche web » ni « continuez à\n"
+"tout renvoyer ». C'est **un outil cross-role limité, pour un besoin fréquent et\n"
+"précis** :\n"
+
+# invariant: définition d'outil réelle : une description d'outil s'écrit en anglais, c'est l'objet même de la démonstration
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:490
+#, no-wrap
+msgid ""
+"{\n"
+"  \"name\": \"verify_fact\",\n"
+"  \"description\": \"Verifies one specific claim against a named source document\n"
+"    and returns a confidence level (high/medium/low) with the supporting\n"
+"    excerpt. Use this only to check a claim you can already state and whose\n"
+"    source you can already name — for open-ended research, route the request\n"
+"    through the coordinator to the web research agent.\",\n"
+"  \"input_schema\": {\n"
+"    \"type\": \"object\",\n"
+"    \"properties\": {\n"
+"      \"claim\":     { \"type\": \"string\", \"description\": \"The single claim to verify\" },\n"
+"      \"source_id\": { \"type\": \"string\", \"description\": \"Id of the source document to check against\" }\n"
+"    },\n"
+"    \"required\": [\"claim\", \"source_id\"]\n"
+"  }\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"name\": \"verify_fact\",\n"
+"  \"description\": \"Verifies one specific claim against a named source document\n"
+"    and returns a confidence level (high/medium/low) with the supporting\n"
+"    excerpt. Use this only to check a claim you can already state and whose\n"
+"    source you can already name — for open-ended research, route the request\n"
+"    through the coordinator to the web research agent.\",\n"
+"  \"input_schema\": {\n"
+"    \"type\": \"object\",\n"
+"    \"properties\": {\n"
+"      \"claim\":     { \"type\": \"string\", \"description\": \"The single claim to verify\" },\n"
+"      \"source_id\": { \"type\": \"string\", \"description\": \"Id of the source document to check against\" }\n"
+"    },\n"
+"    \"required\": [\"claim\", \"source_id\"]\n"
+"  }\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:515
+#, no-wrap
+msgid ""
+"Two properties make it a scoped cross-role tool rather than a hole in the\n"
+"scoping. It is narrower in capability than the tool it replaces — it checks a\n"
+"claim against a named source, it does not search. And its description states\n"
+"where its remit ends, so **the complex cases keep going through the\n"
+"coordinator**. The high-frequency simple case gets a direct path; the rest keeps\n"
+"the architecture.\n"
+msgstr ""
+"Deux propriétés en font un outil cross-role cadré plutôt qu'un trou dans le\n"
+"cadrage. Il est plus étroit en capacité que l'outil qu'il remplace — il confronte\n"
+"une affirmation à une source nommée, il ne cherche pas. Et sa description dit où\n"
+"s'arrête son mandat, si bien que **les cas complexes continuent de passer par le\n"
+"coordinateur**. Le cas simple et fréquent obtient un chemin direct ; le reste\n"
+"préserve l'architecture.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:516
+#, no-wrap
+msgid "`tool_choice`, and what it guarantees here"
+msgstr "`tool_choice`, et ce qu'il garantit ici"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:523
+#, no-wrap
+msgid ""
+"`tool_choice` is the request field that decides whether calling a tool is\n"
+"optional, mandatory, or mandatory and named. **The field itself — all four\n"
+"values, their behaviour under extended thinking, and their use for structured\n"
+"output — is taught in D4.3, which owns it.** What belongs to this task statement\n"
+"is the two uses the guide names, and one thing it does not fix.\n"
+msgstr ""
+"`tool_choice` est le champ de requête qui décide si appeler un outil est\n"
+"facultatif, obligatoire, ou obligatoire et nommé. **Le champ lui-même — ses\n"
+"quatre valeurs, leur comportement sous extended thinking, et leur usage pour la\n"
+"sortie structurée — est enseigné en D4.3, qui le possède.** Ce qui appartient à ce\n"
+"task statement, ce sont les deux usages que le guide nomme, et une chose qu'il ne\n"
+"répare pas.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:528
+#, no-wrap
+msgid ""
+"| Guide's use | Value | Why |\n"
+"|---|---|---|\n"
+"| Guarantee a tool call rather than conversational text | `{\"type\": \"any\"}` | The model must call *a* tool; it still picks which |\n"
+"| Force a specific tool to run first | `{\"type\": \"tool\", \"name\": \"extract_metadata\"}` | Pins that exact tool for the turn; the enrichment steps run in follow-up turns |\n"
+msgstr ""
+"| Usage du guide | Valeur | Pourquoi |\n"
+"|---|---|---|\n"
+"| Garantir un appel d'outil plutôt qu'un texte conversationnel | `{\"type\": \"any\"}` | Le modèle doit appeler *un* outil ; il choisit encore lequel |\n"
+"| Forcer un outil précis à s'exécuter en premier | `{\"type\": \"tool\", \"name\": \"extract_metadata\"}` | Épingle cet outil-là pour le tour ; les étapes d'enrichissement viennent aux tours suivants |\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:529
+#, no-wrap
+msgid ""
+"{\n"
+"  \"tools\": [ /* extract_metadata, enrich_entities, score_relevance */ ],\n"
+"  \"tool_choice\": { \"type\": \"tool\", \"name\": \"extract_metadata\" }\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"tools\": [ /* extract_metadata, enrich_entities, score_relevance */ ],\n"
+"  \"tool_choice\": { \"type\": \"tool\", \"name\": \"extract_metadata\" }\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:540
+#, no-wrap
+msgid ""
+"Note what the forced call buys and what it does not. It fixes the **first**\n"
+"action of the turn. Sequencing the rest is a matter of processing the result and\n"
+"issuing another request — the ordering lives in your loop, not in a single\n"
+"parameter.\n"
+msgstr ""
+"Notez ce que l'appel forcé achète et ce qu'il n'achète pas. Il fixe la\n"
+"**première** action du tour. Séquencer le reste est affaire de traiter le\n"
+"résultat et d'émettre une autre requête — l'ordonnancement vit dans votre boucle,\n"
+"pas dans un paramètre unique.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/02-tools-mcp.md:541
+#, no-wrap
+msgid ""
+"`tool_choice: {\"type\": \"any\"}` guarantees that a tool is called. It does not\n"
+"guarantee that the *right* one is called, and it says nothing about the shape of\n"
+"what comes back. An option offering it as the cure for a misrouting scenario is\n"
+"answering a selection problem with a compulsion.\n"
+"\n"
+"Forced selection is the answer when the scenario names an order — \"the screening\n"
+"must run before anything else\", \"metadata must be extracted before enrichment\".\n"
+"A sentence in the tool description saying it should always run first stays\n"
+"probabilistic where the parameter is deterministic.\n"
+msgstr ""
+"`tool_choice: {\"type\": \"any\"}` garantit qu'un outil est appelé. Il ne garantit\n"
+"pas que ce soit le *bon*, et il ne dit rien de la forme de ce qui revient. Une\n"
+"option qui le propose comme remède à un scénario de misrouting répond à un\n"
+"problème de sélection par une contrainte d'appel.\n"
+"\n"
+"La sélection forcée est la réponse quand l'énoncé nomme un ordre — « le\n"
+"screening doit tourner avant tout le reste », « les métadonnées doivent être\n"
+"extraites avant l'enrichissement ». Une phrase dans la description d'outil disant\n"
+"qu'il doit toujours passer en premier reste probabiliste là où le paramètre est\n"
+"déterministe.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/02-tools-mcp.md:553
+#, no-wrap
+msgid ""
+"**Giving an agent every tool \"just in case\".** It buys nothing the agent needed\n"
+"and costs the selection reliability of everything it did need, plus the misuse\n"
+"the guide predicts for tools outside the role.\n"
+"\n"
+"**Merging tools into one generic entry point with a `mode` parameter to get the\n"
+"count down.** The count falls and the decision does not disappear: it moves into\n"
+"an argument, where the tool descriptions can no longer guide it.\n"
+"\n"
+"**Batching the synthesis agent's checks and sending them to the coordinator at\n"
+"the end of the pass.** It removes the round trips and it also means the synthesis\n"
+"was written before anything in it was verified.\n"
+msgstr ""
+"**Donner tous les outils à un agent « au cas où ».** Cela n'achète rien dont\n"
+"l'agent avait besoin et cela coûte la fiabilité de sélection de tout ce dont il\n"
+"avait besoin, plus le mésusage que le guide prédit pour les outils hors du rôle.\n"
+"\n"
+"**Fusionner les outils en un point d'entrée générique à paramètre `mode` pour\n"
+"faire baisser le compte.** Le compte baisse et la décision ne disparaît pas :\n"
+"elle se déplace dans un argument, où les descriptions d'outils ne peuvent plus la\n"
+"guider.\n"
+"\n"
+"**Accumuler les vérifications de l'agent de synthèse et les envoyer au\n"
+"coordinateur en fin de passe.** Cela supprime les allers-retours et cela veut dire\n"
+"aussi que la synthèse a été écrite avant que quoi que ce soit n'y ait été\n"
+"vérifié.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:568
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"2.3\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"2.3\"`.\n"
+
+#. type: Title ##
+#: courses/en/02-tools-mcp.md:569
+#, no-wrap
+msgid "2.4 — Integrate MCP servers into Claude Code and agent workflows"
+msgstr "2.4 — Intégrer des serveurs MCP dans Claude Code et dans les workflows d'agents"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:572
+#, no-wrap
+msgid ""
+"<!-- ts:2.4 | src:exam guide TS 2.4 (project-level .mcp.json for shared team tooling against user-level ~/.claude.json for personal or experimental servers, environment variable expansion such as ${GITHUB_TOKEN} for credential management without committing secrets, tools from all configured MCP servers being discovered at connection time and available simultaneously, and MCP resources as a mechanism for exposing content catalogs such as issue summaries, documentation hierarchies and database schemas to reduce exploratory tool calls; the skills: configuring shared servers in project-scoped .mcp.json with environment variable expansion for authentication tokens, configuring personal servers in user-scoped ~/.claude.json, enhancing MCP tool descriptions to explain capabilities and outputs in detail so the agent stops preferring built-in tools like Grep, choosing existing community MCP servers over custom implementations for standard integrations such as Jira while reserving custom servers for team-specific workflows, and exposing content catalogs as MCP resources) ; 02mcp L2 (MCP as a communication layer that shifts tool definition and execution from your server to dedicated MCP servers, the GitHub example, anyone being able to author a server and service providers often publishing official ones, and the distinction from tool use — MCP supplies the schemas and functions, tool use is how Claude calls them), L3 (the client as the bridge, ListToolsRequest/ListToolsResult and CallToolRequest/CallToolResult, and the twelve-step flow in which tools are listed before the query reaches Claude), L9 (resources as read handlers analogous to HTTP GET, direct resources with static URIs against templated resources whose URI parameters become keyword arguments, and mime_type as the hint to the client), L10 (resource content injected straight into the prompt so no tool call is needed to fetch it), L14 (tools are model-controlled, resources are app-controlled, prompts are user-controlled) ; code.claude.com/docs/en/mcp (the .mcp.json body: mcpServers with command, args, env and the type field \"stdio\" or \"http\" ; claude mcp add --scope user writing to ~/.claude.json ; expansion of ${VAR} and ${VAR:-default} in command, args, env, url and headers ; an undefined variable with no default warning yet loading the server with the unexpanded ${VAR} text) -->\n"
+"<!-- owns:mcp-resources -->\n"
+msgstr ""
+"<!-- ts:2.4 | src:exam guide TS 2.4 (project-level .mcp.json for shared team tooling against user-level ~/.claude.json for personal or experimental servers, environment variable expansion such as ${GITHUB_TOKEN} for credential management without committing secrets, tools from all configured MCP servers being discovered at connection time and available simultaneously, and MCP resources as a mechanism for exposing content catalogs such as issue summaries, documentation hierarchies and database schemas to reduce exploratory tool calls; the skills: configuring shared servers in project-scoped .mcp.json with environment variable expansion for authentication tokens, configuring personal servers in user-scoped ~/.claude.json, enhancing MCP tool descriptions to explain capabilities and outputs in detail so the agent stops preferring built-in tools like Grep, choosing existing community MCP servers over custom implementations for standard integrations such as Jira while reserving custom servers for team-specific workflows, and exposing content catalogs as MCP resources) ; 02mcp L2 (MCP as a communication layer that shifts tool definition and execution from your server to dedicated MCP servers, the GitHub example, anyone being able to author a server and service providers often publishing official ones, and the distinction from tool use — MCP supplies the schemas and functions, tool use is how Claude calls them), L3 (the client as the bridge, ListToolsRequest/ListToolsResult and CallToolRequest/CallToolResult, and the twelve-step flow in which tools are listed before the query reaches Claude), L9 (resources as read handlers analogous to HTTP GET, direct resources with static URIs against templated resources whose URI parameters become keyword arguments, and mime_type as the hint to the client), L10 (resource content injected straight into the prompt so no tool call is needed to fetch it), L14 (tools are model-controlled, resources are app-controlled, prompts are user-controlled) ; code.claude.com/docs/en/mcp (the .mcp.json body: mcpServers with command, args, env and the type field \"stdio\" or \"http\" ; claude mcp add --scope user writing to ~/.claude.json ; expansion of ${VAR} and ${VAR:-default} in command, args, env, url and headers ; an undefined variable with no default warning yet loading the server with the unexpanded ${VAR} text) -->\n"
+"<!-- owns:mcp-resources -->\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:579
+#, no-wrap
+msgid ""
+"Before the configuration, one sentence about what is being configured. **MCP\n"
+"shifts the burden of tool definition and execution off your application and onto\n"
+"dedicated servers.** Without it, exposing GitHub to Claude means you author,\n"
+"test and maintain a schema and a function for every repository, pull request and\n"
+"issue operation you want. With it, you connect to a GitHub MCP server that\n"
+"already carries them.\n"
+msgstr ""
+"Avant la configuration, une phrase sur ce qui est configuré. **MCP déplace la\n"
+"charge de la définition et de l'exécution des outils hors de votre application,\n"
+"vers des serveurs dédiés.** Sans lui, exposer GitHub à Claude signifie écrire,\n"
+"tester et maintenir un schéma et une fonction pour chaque opération sur les\n"
+"dépôts, les pull requests et les issues que vous voulez couvrir. Avec lui, vous\n"
+"vous connectez à un serveur MCP GitHub qui les porte déjà.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:583
+#, no-wrap
+msgid ""
+"That is also the answer to the question the course flags as a common confusion:\n"
+"**MCP and tool use are not the same thing.** Tool use is how Claude calls a tool.\n"
+"MCP is where the tool came from — someone else already wrote it.\n"
+msgstr ""
+"C'est aussi la réponse à la question que le cours signale comme confusion\n"
+"courante : **MCP et le tool use ne sont pas la même chose.** Le tool use, c'est la\n"
+"manière dont Claude appelle un outil. MCP, c'est d'où l'outil vient — quelqu'un\n"
+"d'autre l'a déjà écrit.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:584
+#, no-wrap
+msgid "The two scopes"
+msgstr "Les deux portées"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:588
+#, no-wrap
+msgid ""
+"A server is declared at one of two scopes, and the choice turns on a single\n"
+"question: does the whole team need it?\n"
+msgstr ""
+"Un serveur se déclare à l'une de deux portées, et le choix tient à une seule\n"
+"question : est-ce que toute l'équipe en a besoin ?\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:593
+#, no-wrap
+msgid ""
+"| Scope | File | Shared? | For |\n"
+"|---|---|---|---|\n"
+"| **Project** | `.mcp.json` at the repository root | Yes — tracked in version control, present after a clone | Team tooling: Jira, GitHub, the internal knowledge base |\n"
+"| **User** | `~/.claude.json` | No — local to the machine | Personal or experimental servers: your notes, a prototype |\n"
+msgstr ""
+"| Portée | Fichier | Partagé ? | Pour |\n"
+"|---|---|---|---|\n"
+"| **Projet** | `.mcp.json` à la racine du dépôt | Oui — suivi par le VCS, présent après un clone | Outillage d'équipe : Jira, GitHub, la base de connaissances interne |\n"
+"| **Utilisateur** | `~/.claude.json` | Non — local à la machine | Serveurs personnels ou expérimentaux : vos notes, un prototype |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:597
+#, no-wrap
+msgid ""
+"`claude mcp add --scope user` writes to that second file: the command and its\n"
+"effect are the same fact seen from two sides, and the guide's wording and the\n"
+"tool's behaviour agree here.\n"
+msgstr ""
+"`claude mcp add --scope user` écrit dans ce second fichier : la commande et son\n"
+"effet sont le même fait vu de deux côtés, et sur ce point le libellé du guide et\n"
+"le comportement de l'outil concordent.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:602
+#, no-wrap
+msgid ""
+"They coexist. **Tools from all configured MCP servers are discovered at\n"
+"connection time and are available to the agent simultaneously**, whatever scope\n"
+"declared them. Putting a personal server in `~/.claude.json` does not cut you off\n"
+"from the project servers — you get the union.\n"
+msgstr ""
+"Les deux coexistent. **Les outils de tous les serveurs MCP configurés sont\n"
+"découverts à la connexion et disponibles simultanément à l'agent**, quelle que\n"
+"soit la portée qui les a déclarés. Mettre un serveur personnel dans\n"
+"`~/.claude.json` ne vous coupe pas des serveurs projet — vous avez l'union.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:610
+#, no-wrap
+msgid ""
+"That discovery-at-connection-time property is worth holding as a mechanism and\n"
+"not just a fact. The client asks each server what it provides — a\n"
+"`ListToolsRequest`, answered with a `ListToolsResult` — and the collected tool\n"
+"definitions are what accompanies the user's query to Claude. Nothing is\n"
+"discovered lazily mid-turn: a server that failed to start simply has no tools in\n"
+"the set, and the agent works without them exactly as if you had never declared\n"
+"it.\n"
+msgstr ""
+"Cette propriété de découverte-à-la-connexion mérite d'être tenue comme un\n"
+"mécanisme et pas seulement comme un fait. Le client demande à chaque serveur ce\n"
+"qu'il fournit — un `ListToolsRequest`, auquel répond un `ListToolsResult` — et\n"
+"les définitions d'outils collectées sont ce qui accompagne la requête de\n"
+"l'utilisateur jusqu'à Claude. Rien n'est découvert paresseusement en cours de\n"
+"tour : un serveur qui n'a pas démarré n'a simplement aucun outil dans le jeu, et\n"
+"l'agent travaille sans eux exactement comme si vous ne l'aviez jamais déclaré.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:611
+#, no-wrap
+msgid "Secrets, by environment variable expansion"
+msgstr "Les secrets, par substitution de variables d'environnement"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:615
+#, no-wrap
+msgid ""
+"`.mcp.json` is tracked. Tokens are not. The guide's mechanism is **environment\n"
+"variable expansion**:\n"
+msgstr ""
+"`.mcp.json` est suivi par le VCS. Les tokens, non. Le mécanisme du guide est la\n"
+"**substitution de variables d'environnement** :\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:616
+#, no-wrap
+msgid ""
+"{\n"
+"  \"mcpServers\": {\n"
+"    \"github\": {\n"
+"      \"type\": \"stdio\",\n"
+"      \"command\": \"npx\",\n"
+"      \"args\": [\"-y\", \"@modelcontextprotocol/server-github\"],\n"
+"      \"env\": { \"GITHUB_TOKEN\": \"${GITHUB_TOKEN}\" }\n"
+"    }\n"
+"  }\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"mcpServers\": {\n"
+"    \"github\": {\n"
+"      \"type\": \"stdio\",\n"
+"      \"command\": \"npx\",\n"
+"      \"args\": [\"-y\", \"@modelcontextprotocol/server-github\"],\n"
+"      \"env\": { \"GITHUB_TOKEN\": \"${GITHUB_TOKEN}\" }\n"
+"    }\n"
+"  }\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:634
+#, no-wrap
+msgid ""
+"`${GITHUB_TOKEN}` resolves at launch from the developer's own environment. The\n"
+"file can be committed and shared; each teammate supplies their own credential,\n"
+"and the repository never carries one. `type` says how the server is reached —\n"
+"`\"stdio\"` for a process launched by `command`, `\"http\"` for one reached at a\n"
+"`url`.\n"
+msgstr ""
+"`${GITHUB_TOKEN}` se résout au lancement, depuis l'environnement propre au\n"
+"développeur. Le fichier peut être committé et partagé ; chaque coéquipier fournit\n"
+"son propre credential, et le dépôt n'en porte jamais aucun. `type` dit comment le\n"
+"serveur est joint — `\"stdio\"` pour un processus lancé par `command`, `\"http\"`\n"
+"pour un serveur joint à une `url`.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:640
+#, no-wrap
+msgid ""
+"Two properties of the expansion are worth carrying. It accepts a **default**,\n"
+"written `${VAR:-default}`, so an optional setting can ship with a value while a\n"
+"credential stays mandatory. And it applies to more than `env`: `command`,\n"
+"`args`, `env`, `url` and `headers` all go through it, which is what lets a\n"
+"server's address or its authorisation header be per-developer too.\n"
+msgstr ""
+"Deux propriétés de la substitution méritent d'être retenues. Elle accepte une\n"
+"**valeur par défaut**, écrite `${VAR:-default}`, ce qui permet à un réglage\n"
+"optionnel d'être livré avec une valeur pendant qu'un credential reste\n"
+"obligatoire. Et elle s'applique à plus que `env` : `command`, `args`, `env`,\n"
+"`url` et `headers` y passent tous, ce qui permet à l'adresse d'un serveur ou à\n"
+"son en-tête d'autorisation d'être eux aussi propres à chaque développeur.\n"
+
+# invariant: bloc de code : artefact technique reproduit tel quel
+#. type: Fenced code block (json)
+#: courses/en/02-tools-mcp.md:641
+#, no-wrap
+msgid ""
+"\"env\": {\n"
+"  \"GITHUB_TOKEN\": \"${GITHUB_TOKEN}\",\n"
+"  \"GITHUB_API_URL\": \"${GITHUB_API_URL:-https://api.github.com}\"\n"
+"}\n"
+msgstr ""
+"\"env\": {\n"
+"  \"GITHUB_TOKEN\": \"${GITHUB_TOKEN}\",\n"
+"  \"GITHUB_API_URL\": \"${GITHUB_API_URL:-https://api.github.com}\"\n"
+"}\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/02-tools-mcp.md:648
+#, no-wrap
+msgid ""
+"**An undefined variable does not stop the server from loading.** With no value\n"
+"in the environment and no default, Claude Code warns and then starts the server\n"
+"anyway, passing the literal text `${GITHUB_TOKEN}` through. Nothing fails at\n"
+"configuration time; the server comes up and every call it makes is\n"
+"unauthenticated.\n"
+"\n"
+"That is the operational trap behind this mechanism, and it is why the symptom\n"
+"to recognise is a *working* configuration whose tools all return authentication\n"
+"errors. The fix is in the developer's environment, not in `.mcp.json`.\n"
+msgstr ""
+"**Une variable non définie n'empêche pas le serveur de charger.** Sans valeur\n"
+"dans l'environnement et sans valeur par défaut, Claude Code avertit puis démarre\n"
+"quand même le serveur, en laissant passer le texte littéral `${GITHUB_TOKEN}`.\n"
+"Rien n'échoue au moment de la configuration ; le serveur monte et chacun de ses\n"
+"appels part sans authentification.\n"
+"\n"
+"C'est le piège d'exploitation de ce mécanisme, et c'est pourquoi le symptôme à\n"
+"reconnaître est une configuration qui *fonctionne* et dont tous les outils\n"
+"retournent des erreurs d'authentification. Le correctif est dans l'environnement\n"
+"du développeur, pas dans `.mcp.json`.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/02-tools-mcp.md:660
+#, no-wrap
+msgid ""
+"**A token written in clear in a tracked `.mcp.json`.** Deleting it later does not\n"
+"help: git history keeps it. The credential has to be treated as compromised and\n"
+"rotated. `${VAR}` or the untracked `~/.claude.json` are the two legitimate\n"
+"places.\n"
+"\n"
+"**A personal, machine-specific server added to the tracked `.mcp.json`** — an\n"
+"absolute path under one person's home directory, a binary nobody else has. Every\n"
+"clone inherits a server that cannot start. It belongs in `~/.claude.json`, where\n"
+"it still loads for its author and reaches nobody else.\n"
+msgstr ""
+"**Un token écrit en clair dans un `.mcp.json` versionné.** Le supprimer plus\n"
+"tard n'y change rien : l'historique git le garde. Le credential doit être\n"
+"considéré comme compromis et renouvelé. `${VAR}` ou le `~/.claude.json` non\n"
+"versionné sont les deux endroits légitimes.\n"
+"\n"
+"**Un serveur personnel, spécifique à une machine, ajouté au `.mcp.json`\n"
+"versionné** — un chemin absolu sous le répertoire personnel de quelqu'un, un\n"
+"binaire que personne d'autre n'a. Chaque clone hérite d'un serveur qui ne peut pas\n"
+"démarrer. Il a sa place dans `~/.claude.json`, où il charge toujours pour son\n"
+"auteur et n'atteint personne d'autre.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:672
+#, no-wrap
+msgid "Resources, and why they exist beside tools"
+msgstr "Les resources, et pourquoi elles existent à côté des tools"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:678
+#, no-wrap
+msgid ""
+"MCP servers expose three primitives, and the guide is explicit about which two\n"
+"it tests. Its appendix names **MCP tools and MCP resources**; the in-scope list\n"
+"says \"MCP tool and resource design\". Prompts are listed here so you recognise\n"
+"them as a distractor.\n"
+msgstr ""
+"Les serveurs MCP exposent trois primitives, et le guide est explicite sur les\n"
+"deux qu'il teste. Son annexe nomme **les MCP tools et les MCP resources** ; la\n"
+"liste in-scope dit « MCP tool and resource design ». Les prompts figurent ici pour\n"
+"que vous les reconnaissiez comme distracteur.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:684
+#, no-wrap
+msgid ""
+"| Primitive | Controlled by | Purpose | Reach for it when |\n"
+"|---|---|---|---|\n"
+"| **Tools** | The model | Give Claude a capability it can invoke | Claude has to *do* something |\n"
+"| **Resources** | The application | Expose readable data | Your application needs data for its interface or its prompt |\n"
+"| **Prompts** | The user | Predefined workflows behind a slash command or a button | Not tested by this exam |\n"
+msgstr ""
+"| Primitive | Contrôlée par | Objectif | Y recourir quand |\n"
+"|---|---|---|---|\n"
+"| **Tools** | Le modèle | Donner à Claude une capacité qu'il peut invoquer | Claude doit *faire* quelque chose |\n"
+"| **Resources** | L'application | Exposer des données en lecture | Votre application a besoin de données pour son interface ou son prompt |\n"
+"| **Prompts** | L'utilisateur | Des workflows prédéfinis derrière une commande slash ou un bouton | Non testé par cet examen |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:690
+#, no-wrap
+msgid ""
+"A resource is closer to an HTTP `GET` handler than to a tool: a URI comes in,\n"
+"data goes out, and **your application decides when to read it** — the model does\n"
+"not call it. A direct resource has a static URI; a templated one carries\n"
+"parameters in the URI, which the SDK parses and hands to your function as\n"
+"keyword arguments.\n"
+msgstr ""
+"Une resource est plus proche d'un handler HTTP `GET` que d'un outil : une URI\n"
+"entre, des données sortent, et **c'est votre application qui décide quand la\n"
+"lire** — le modèle ne l'appelle pas. Une resource directe a une URI statique ; une\n"
+"resource templatée porte des paramètres dans l'URI, que le SDK analyse et passe à\n"
+"votre fonction en arguments nommés.\n"
+
+#. type: Fenced code block (python)
+#: courses/en/02-tools-mcp.md:691
+#, no-wrap
+msgid ""
+"@mcp.resource(\"docs://documents\", mime_type=\"application/json\")\n"
+"def list_docs() -> list[str]:\n"
+"    return list(docs.keys())            # the catalogue\n"
+"\n"
+"@mcp.resource(\"docs://documents/{doc_id}\", mime_type=\"text/plain\")\n"
+"def fetch_doc(doc_id: str) -> str:      # one entry, by URI parameter\n"
+"    if doc_id not in docs:\n"
+"        raise ValueError(f\"Doc with id {doc_id} not found\")\n"
+"    return docs[doc_id]\n"
+msgstr ""
+"@mcp.resource(\"docs://documents\", mime_type=\"application/json\")\n"
+"def list_docs() -> list[str]:\n"
+"    return list(docs.keys())            # le catalogue\n"
+"\n"
+"@mcp.resource(\"docs://documents/{doc_id}\", mime_type=\"text/plain\")\n"
+"def fetch_doc(doc_id: str) -> str:      # une entrée, par paramètre d'URI\n"
+"    if doc_id not in docs:\n"
+"        raise ValueError(f\"Doc with id {doc_id} not found\")\n"
+"    return docs[doc_id]\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/02-tools-mcp.md:703
+#, no-wrap
+msgid ""
+"**Resources as content catalogs.** This is the guide's own framing and the reason\n"
+"resources are tested at all: exposing a catalogue — issue summaries, a\n"
+"documentation hierarchy, a database schema — **reduces exploratory tool calls.**\n"
+"\n"
+"Without it, an agent asked about a table it has never seen spends three or four\n"
+"calls discovering that the table exists, then its columns, then its keys. With\n"
+"the schema exposed as a resource, the application reads it once and puts it in\n"
+"the prompt, and the first call the agent makes is the one that does the work.\n"
+"`mime_type` tells the client how to parse what comes back —\n"
+"`application/json` for structured data, `text/plain` for text.\n"
+"\n"
+"The division of labour is the thing to remember: **tools serve the model,\n"
+"resources serve your application, prompts serve your users.**\n"
+msgstr ""
+"**Les resources comme catalogues de contenu.** C'est le cadrage du guide\n"
+"lui-même et la raison pour laquelle les resources sont testées : exposer un\n"
+"catalogue — des résumés d'issues, une hiérarchie de documentation, un schéma de\n"
+"base de données — **réduit les appels d'outils exploratoires.**\n"
+"\n"
+"Sans cela, un agent interrogé sur une table qu'il n'a jamais vue dépense trois ou\n"
+"quatre appels à découvrir que la table existe, puis ses colonnes, puis ses clés.\n"
+"Avec le schéma exposé en resource, l'application le lit une fois et le met dans le\n"
+"prompt, et le premier appel que fait l'agent est celui qui fait le travail.\n"
+"`mime_type` dit au client comment parser ce qui revient — `application/json` pour\n"
+"des données structurées, `text/plain` pour du texte.\n"
+"\n"
+"La division du travail est la chose à retenir : **les tools servent le modèle,\n"
+"les resources servent votre application, les prompts servent vos utilisateurs.**\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:719
+#, no-wrap
+msgid "When the agent ignores your MCP tool and uses `Grep` instead"
+msgstr "Quand l'agent ignore votre outil MCP et utilise `Grep`"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:725
+#, no-wrap
+msgid ""
+"You connect a server exposing a code-search tool far more capable than `Grep` —\n"
+"it understands structure, follows imports, returns context. The agent keeps\n"
+"calling `Grep`. The server is up, the tool is listed: this is not a configuration\n"
+"fault.\n"
+msgstr ""
+"Vous branchez un serveur exposant un outil de recherche de code bien plus\n"
+"capable que `Grep` — il comprend la structure, suit les imports, renvoie du\n"
+"contexte. L'agent continue d'appeler `Grep`. Le serveur tourne, l'outil est\n"
+"listé : ce n'est pas un défaut de configuration.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:730
+#, no-wrap
+msgid ""
+"The cause is 2.1's, seen from the integration side. Built-in tools ship with\n"
+"detailed, well-tested descriptions. Many MCP tools carry one line generated from\n"
+"a function name. Faced with `\"Search files\"` on one side and `Grep`'s full\n"
+"description on the other, the model picks the one it understands.\n"
+msgstr ""
+"La cause est celle de 2.1, vue du côté de l'intégration. Les outils intégrés\n"
+"arrivent avec des descriptions détaillées et éprouvées. Beaucoup d'outils MCP\n"
+"portent une ligne générée à partir d'un nom de fonction. Face à `\"Search files\"`\n"
+"d'un côté et à la description complète de `Grep` de l'autre, le modèle prend\n"
+"celle qu'il comprend.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:733
+#, no-wrap
+msgid ""
+"The guide's skill is the repair: **enhance the MCP tool's description to explain\n"
+"its capabilities and outputs in detail**, so it stops losing the comparison.\n"
+msgstr ""
+"La compétence du guide est la réparation : **enrichir la description de l'outil\n"
+"MCP pour qu'elle explique ses capacités et ses sorties en détail**, afin qu'elle\n"
+"cesse de perdre la comparaison.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/02-tools-mcp.md:734
+#, no-wrap
+msgid ""
+"# Before — loses to Grep every time\n"
+"Search files.\n"
+"\n"
+"# After — states capability, output, and what the built-in cannot do\n"
+"Searches the indexed codebase semantically. Given a symbol or a natural-language\n"
+"description, returns the definition site, every caller with its file and line,\n"
+"and the import chain that connects them. Unlike a textual search, it resolves\n"
+"re-exports and aliases, so a function reached through a wrapper module is still\n"
+"found. Use it to trace how a symbol is used across the repository; use Grep for\n"
+"a literal string you can spell exactly.\n"
+msgstr ""
+"# Avant — perd contre Grep à tous les coups\n"
+"Search files.\n"
+"\n"
+"# Après — énonce la capacité, la sortie, et ce que l'outil intégré ne sait pas faire\n"
+"Searches the indexed codebase semantically. Given a symbol or a natural-language\n"
+"description, returns the definition site, every caller with its file and line,\n"
+"and the import chain that connects them. Unlike a textual search, it resolves\n"
+"re-exports and aliases, so a function reached through a wrapper module is still\n"
+"found. Use it to trace how a symbol is used across the repository; use Grep for\n"
+"a literal string you can spell exactly.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/02-tools-mcp.md:747
+#, no-wrap
+msgid ""
+"When a scenario describes an agent preferring a built-in tool over a more\n"
+"capable MCP one, the answer is to repair the description — it is the cheapest\n"
+"lever and the one that addresses the cause.\n"
+"\n"
+"It is not to remove or disable the built-in tool, which takes away a capability\n"
+"that is legitimately useful for literal searches. It is not to add an\n"
+"instruction to the system prompt telling the agent to prefer the MCP tool, which\n"
+"is 2.1's keyword-sensitivity trap turned into policy. And it is not to build a\n"
+"routing layer in front of the tools, which replaces a two-sentence fix with a\n"
+"component to maintain.\n"
+msgstr ""
+"Quand un énoncé décrit un agent qui préfère un outil intégré à un outil MCP plus\n"
+"capable, la réponse est de réparer la description — c'est le levier le moins\n"
+"coûteux et celui qui traite la cause.\n"
+"\n"
+"Ce n'est pas de retirer ou de désactiver l'outil intégré, ce qui ôte une capacité\n"
+"légitimement utile pour les recherches littérales. Ce n'est pas d'ajouter au\n"
+"system prompt une instruction disant à l'agent de préférer l'outil MCP, ce qui est\n"
+"le piège de sensibilité aux mots-clés de 2.1 érigé en politique. Et ce n'est pas\n"
+"de construire une couche de routage devant les outils, ce qui remplace un\n"
+"correctif de deux phrases par un composant à maintenir.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:760
+#, no-wrap
+msgid "Community server or custom server"
+msgstr "Serveur communautaire ou serveur sur mesure"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:768
+#, no-wrap
+msgid ""
+"The last skill is a build-or-adopt decision with a default: **use an existing\n"
+"community MCP server for standard integrations** — Jira, GitHub, Slack — and\n"
+"**reserve a custom server for workflows specific to your team** that nobody else\n"
+"has implemented. Anyone can author a server, and service providers often publish\n"
+"official ones, so the standard integration you are about to write probably\n"
+"exists, maintained, with its schemas already tested.\n"
+msgstr ""
+"La dernière compétence est une décision « acheter ou construire » assortie d'un\n"
+"défaut : **utiliser un serveur MCP communautaire existant pour les intégrations\n"
+"standard** — Jira, GitHub, Slack — et **réserver un serveur sur mesure aux\n"
+"workflows spécifiques à votre équipe** que personne d'autre n'a implémentés.\n"
+"N'importe qui peut écrire un serveur, et les fournisseurs de services en publient\n"
+"souvent d'officiels : l'intégration standard que vous vous apprêtez à écrire\n"
+"existe probablement, maintenue, avec ses schémas déjà éprouvés.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/02-tools-mcp.md:769
+#, no-wrap
+msgid ""
+"**Writing a custom Jira server because the community one lacks one field.**\n"
+"You have adopted a maintenance burden for a delta. The exam's own framing is\n"
+"that custom servers are for what is genuinely team-specific.\n"
+"\n"
+"**Duplicating a built-in capability in an MCP server.** If `Grep` already\n"
+"answers the need, a server that greps is a second way to do one thing — and the\n"
+"selection problem of 2.3, for free.\n"
+msgstr ""
+"**Écrire un serveur Jira sur mesure parce que celui de la communauté manque un\n"
+"champ.** Vous avez adopté une charge de maintenance pour un delta. Le cadrage de\n"
+"l'examen lui-même est que les serveurs sur mesure sont pour ce qui est réellement\n"
+"spécifique à l'équipe.\n"
+"\n"
+"**Dupliquer une capacité intégrée dans un serveur MCP.** Si `Grep` répond déjà au\n"
+"besoin, un serveur qui fait du grep est une deuxième manière de faire une seule chose — et\n"
+"le problème de sélection de 2.3, offert.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:780
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"2.4\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"2.4\"`.\n"
+
+#. type: Title ##
+#: courses/en/02-tools-mcp.md:781
+#, no-wrap
+msgid "2.5 — Select and apply built-in tools (Read, Write, Edit, Bash, Grep, Glob) effectively"
+msgstr "2.5 — Sélectionner et employer efficacement les outils intégrés (Read, Write, Edit, Bash, Grep, Glob)"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:783
+#, no-wrap
+msgid "<!-- ts:2.5 | src:exam guide TS 2.5 (Grep for content search over file contents such as function names, error messages or import statements, Glob for file path pattern matching, Read and Write for full file operations against Edit for targeted modifications using unique text matching, and using Read plus Write as the fallback when Edit fails on a non-unique text match; the skills: selecting Grep to find all callers of a function or locate error messages, selecting Glob for naming patterns such as **/*.test.tsx, using Read then Write when Edit cannot find unique anchor text, building codebase understanding incrementally by starting with Grep to find entry points then using Read to follow imports and trace flows rather than reading all files upfront, and tracing function usage across wrapper modules by first identifying all exported names then searching for each name across the codebase) -->\n"
+msgstr "<!-- ts:2.5 | src:exam guide TS 2.5 (Grep for content search over file contents such as function names, error messages or import statements, Glob for file path pattern matching, Read and Write for full file operations against Edit for targeted modifications using unique text matching, and using Read plus Write as the fallback when Edit fails on a non-unique text match; the skills: selecting Grep to find all callers of a function or locate error messages, selecting Glob for naming patterns such as **/*.test.tsx, using Read then Write when Edit cannot find unique anchor text, building codebase understanding incrementally by starting with Grep to find entry points then using Read to follow imports and trace flows rather than reading all files upfront, and tracing function usage across wrapper modules by first identifying all exported names then searching for each name across the codebase) -->\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:787
+#, no-wrap
+msgid ""
+"The six built-in tools are the ones an agent already has before any MCP server is\n"
+"connected, and the guide tests one thing about them: picking the right one. Two\n"
+"pairs account for most of the questions.\n"
+msgstr ""
+"Les six outils intégrés sont ceux dont un agent dispose déjà avant qu'aucun\n"
+"serveur MCP ne soit connecté, et le guide teste une chose à leur sujet : choisir\n"
+"le bon. Deux paires font l'essentiel des questions.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:796
+#, no-wrap
+msgid ""
+"| Task | Tool | Example |\n"
+"|---|---|---|\n"
+"| Find files by name or path pattern | **Glob** | `**/*.test.tsx`, `src/components/**/*.ts` |\n"
+"| Search inside file contents | **Grep** | A function name, an error message, an import statement |\n"
+"| Load a whole file | **Read** | Read a module before changing it |\n"
+"| Create a file, or rewrite one whole | **Write** | A new file; a full replacement |\n"
+"| Change part of an existing file | **Edit** | Replace a snippet identified by a unique text match |\n"
+"| Run a shell command | **Bash** | `git`, `npm`, tests, a build |\n"
+msgstr ""
+"| Tâche | Outil | Exemple |\n"
+"|---|---|---|\n"
+"| Trouver des fichiers par nom ou motif de chemin | **Glob** | `**/*.test.tsx`, `src/components/**/*.ts` |\n"
+"| Chercher dans le contenu des fichiers | **Grep** | Un nom de fonction, un message d'erreur, une ligne d'import |\n"
+"| Charger un fichier entier | **Read** | Lire un module avant de le modifier |\n"
+"| Créer un fichier, ou en réécrire un entièrement | **Write** | Un nouveau fichier ; un remplacement complet |\n"
+"| Modifier une partie d'un fichier existant | **Edit** | Remplacer un extrait identifié par une correspondance de texte unique |\n"
+"| Exécuter une commande shell | **Bash** | `git`, `npm`, les tests, un build |\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:801
+#, no-wrap
+msgid ""
+"**Grep against Glob** is the first pair, and the trap is that both are described\n"
+"as \"searching\". Glob never opens a file: it matches paths. Grep never cares about\n"
+"the filename: it matches contents. \"Find every test file for the checkout flow\"\n"
+"is Glob. \"Find every caller of `applyDiscount`\" is Grep.\n"
+msgstr ""
+"**Grep contre Glob** est la première paire, et le piège est que les deux sont\n"
+"décrits comme « cherchant ». Glob n'ouvre jamais un fichier : il fait\n"
+"correspondre des chemins. Grep se moque du nom de fichier : il fait correspondre\n"
+"du contenu. « Trouve tous les fichiers de test du parcours de commande », c'est\n"
+"Glob. « Trouve tous les appelants de `applyDiscount` », c'est Grep.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:802
+#, no-wrap
+msgid "When `Edit` fails, `Read` + `Write` is the documented fallback"
+msgstr "Quand `Edit` échoue, `Read` + `Write` est le repli documenté"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:807
+#, no-wrap
+msgid ""
+"`Edit` works by matching text that must be **unique in the file**. When the\n"
+"anchor appears more than once, the edit is refused — deliberately, because the\n"
+"tool cannot know which occurrence you meant.\n"
+msgstr ""
+"`Edit` fonctionne en faisant correspondre un texte qui doit être **unique dans\n"
+"le fichier**. Quand l'ancre apparaît plus d'une fois, la modification est refusée\n"
+"— délibérément, parce que l'outil ne peut pas savoir de quelle occurrence vous\n"
+"parliez.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:810
+#, no-wrap
+msgid ""
+"The guide names the fallback: **`Read` the file in full, amend the content, and\n"
+"`Write` it back.**\n"
+msgstr ""
+"Le guide nomme le repli : **`Read` le fichier en entier, amender le contenu, et\n"
+"le `Write` en retour.**\n"
+
+#. type: Fenced code block (text)
+#: courses/en/02-tools-mcp.md:811
+#, no-wrap
+msgid ""
+"# runbooks/db-failover.yaml — the line \"owner: unassigned\" appears 23 times.\n"
+"Edit(old_string=\"owner: unassigned\", new_string=\"owner: sre-oncall\")\n"
+"  → refused: the anchor is not unique.\n"
+"\n"
+"# Fallback\n"
+"Read(\"runbooks/db-failover.yaml\")        # the whole file, with its structure\n"
+"→ amend step 14 only\n"
+"Write(\"runbooks/db-failover.yaml\", …)    # the amended file, written whole\n"
+msgstr ""
+"# runbooks/db-failover.yaml — la ligne « owner: unassigned » apparaît 23 fois.\n"
+"Edit(old_string=\"owner: unassigned\", new_string=\"owner: sre-oncall\")\n"
+"  → refusé : l'ancre n'est pas unique.\n"
+"\n"
+"# Repli\n"
+"Read(\"runbooks/db-failover.yaml\")        # le fichier entier, avec sa structure\n"
+"→ amender la seule étape 14\n"
+"Write(\"runbooks/db-failover.yaml\", …)    # le fichier amendé, écrit en entier\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:825
+#, no-wrap
+msgid ""
+"The reason this works where `Edit` could not is that the full content carries the\n"
+"position the anchor could not express: step 14 is identifiable in context even\n"
+"though its text is identical to twenty-two others.\n"
+msgstr ""
+"La raison pour laquelle cela marche là où `Edit` ne pouvait pas, c'est que le\n"
+"contenu complet porte la position que l'ancre ne savait pas exprimer : l'étape 14\n"
+"est identifiable dans son contexte, même si son texte est identique à celui de\n"
+"vingt-deux autres.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/02-tools-mcp.md:826
+#, no-wrap
+msgid ""
+"**Retrying `Edit` with the same anchor.** The matching is deterministic; a\n"
+"non-unique match does not become unique on a second attempt.\n"
+"\n"
+"**Replacing every occurrence** to get past the failure. It changes twenty-three\n"
+"lines when one was in scope, and it looks like success.\n"
+msgstr ""
+"**Relancer `Edit` avec la même ancre.** La correspondance est déterministe ; une\n"
+"correspondance non unique ne devient pas unique à la deuxième tentative.\n"
+"\n"
+"**Remplacer toutes les occurrences** pour passer outre l'échec. Cela change\n"
+"vingt-trois lignes quand une seule était dans le périmètre, et cela ressemble à\n"
+"un succès.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:834
+#, no-wrap
+msgid "Building understanding incrementally"
+msgstr "Construire la compréhension par incréments"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:840
+#, no-wrap
+msgid ""
+"The guide's strategy for an unfamiliar codebase is explicit, and its value is as\n"
+"much about context as about correctness: **start with Grep to find entry points,\n"
+"then Read to follow imports and trace flows, rather than reading all files\n"
+"upfront.**\n"
+msgstr ""
+"La stratégie du guide pour un codebase inconnu est explicite, et sa valeur tient\n"
+"autant au contexte qu'à la justesse : **commencer par Grep pour trouver les points\n"
+"d'entrée, puis Read pour suivre les imports et tracer les flux, plutôt que de lire\n"
+"tous les fichiers d'emblée.**\n"
+
+#. type: Fenced code block (text)
+#: courses/en/02-tools-mcp.md:841
+#, no-wrap
+msgid ""
+"1. Grep \"createCheckoutSession\"    → the definition, and three call sites\n"
+"2. Read src/checkout/session.ts    → what it does, and what it imports\n"
+"3. Grep \"from './session'\"         → who consumes it\n"
+"4. Read the consumers              → how it is used\n"
+"5. Repeat until the flow is complete\n"
+msgstr ""
+"1. Grep \"createCheckoutSession\"    → la définition, et trois sites d'appel\n"
+"2. Read src/checkout/session.ts    → ce qu'elle fait, et ce qu'elle importe\n"
+"3. Grep \"from './session'\"         → qui la consomme\n"
+"4. Read les consommateurs          → comment elle est utilisée\n"
+"5. Répéter jusqu'à ce que le flux soit complet\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:852
+#, no-wrap
+msgid ""
+"Reading everything first fills the context window with files that turn out to be\n"
+"irrelevant, and the relevant ones then compete for attention with them. Each\n"
+"Grep in the loop above is a filter that decides what is worth a Read.\n"
+msgstr ""
+"Tout lire d'abord remplit la fenêtre de contexte de fichiers qui se révèlent\n"
+"sans rapport, et les fichiers pertinents entrent alors en concurrence d'attention\n"
+"avec eux. Chaque Grep de la boucle ci-dessus est un filtre qui décide de ce qui\n"
+"mérite un Read.\n"
+
+#. type: Title ###
+#: courses/en/02-tools-mcp.md:853
+#, no-wrap
+msgid "Tracing a function through wrapper modules"
+msgstr "Tracer une fonction à travers des modules d'enrobage"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:858
+#, no-wrap
+msgid ""
+"The last skill is a specific failure of the naive approach, and it is worth\n"
+"knowing as a procedure. A single `Grep` for a function name misses every call\n"
+"made through an alias or a re-export.\n"
+msgstr ""
+"La dernière compétence est un échec précis de l'approche naïve, et elle vaut\n"
+"d'être connue comme procédure. Un seul `Grep` sur un nom de fonction rate tous\n"
+"les appels passant par un alias ou un ré-export.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/02-tools-mcp.md:859
+#, no-wrap
+msgid ""
+"# Misses the indirect callers\n"
+"Grep \"analyzeDocument\"\n"
+"\n"
+"# Two passes, as the guide describes\n"
+"1. Grep \"export.*analyzeDocument\"   → find every exported name for it\n"
+"     export { analyzeDocument }\n"
+"     export { analyzeDocument as analyze }\n"
+"     export { analyzeDocument as docAnalyze }\n"
+"2. Grep each of those names          → analyzeDocument, analyze, docAnalyze\n"
+"                                     → now every caller is found\n"
+msgstr ""
+"# Rate les appelants indirects\n"
+"Grep \"analyzeDocument\"\n"
+"\n"
+"# Deux passes, comme le guide les décrit\n"
+"1. Grep \"export.*analyzeDocument\"   → trouver tous ses noms exportés\n"
+"     export { analyzeDocument }\n"
+"     export { analyzeDocument as analyze }\n"
+"     export { analyzeDocument as docAnalyze }\n"
+"2. Grep chacun de ces noms           → analyzeDocument, analyze, docAnalyze\n"
+"                                     → tous les appelants sont maintenant trouvés\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:875
+#, no-wrap
+msgid ""
+"The order is the substance: **first identify all the exported names, then search\n"
+"for each name across the codebase.** Searching for the original name alone\n"
+"answers a narrower question than the one that was asked.\n"
+msgstr ""
+"L'ordre est la substance : **identifier d'abord tous les noms exportés, puis\n"
+"chercher chaque nom à travers le codebase.** Chercher le nom d'origine seul répond\n"
+"à une question plus étroite que celle qui était posée.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/02-tools-mcp.md:876
+#, no-wrap
+msgid ""
+"Three phrasings, three answers. \"Find files matching a naming pattern\" → Glob.\n"
+"\"Find where this function is called\" → Grep. \"`Edit` failed because the text is\n"
+"not unique\" → Read then Write.\n"
+"\n"
+"The distractors are near neighbours. Glob offered for a content search and Grep\n"
+"for a filename pattern are the two halves of the same confusion. `Bash` with\n"
+"`find` or `grep` reaches the answer through a shell dependency where a built-in\n"
+"tool answers directly. Reading every file up front is offered as thoroughness\n"
+"and is context exhaustion. And handing the task back to a human, when the\n"
+"documented fallback exists, buys nothing.\n"
+msgstr ""
+"Trois formulations, trois réponses. « Trouver des fichiers correspondant à un\n"
+"motif de nom » → Glob. « Trouver où cette fonction est appelée » → Grep. « `Edit`\n"
+"a échoué parce que le texte n'est pas unique » → Read puis Write.\n"
+"\n"
+"Les distracteurs sont des voisins proches. Glob proposé pour une recherche de\n"
+"contenu et Grep pour un motif de nom de fichier sont les deux moitiés de la même\n"
+"confusion. `Bash` avec `find` ou `grep` atteint la réponse via une dépendance au\n"
+"shell là où un outil intégré répond directement. Tout lire d'emblée est présenté\n"
+"comme de la rigueur et c'est un épuisement du contexte. Et rendre la tâche à un\n"
+"humain, alors que le repli documenté existe, n'achète rien.\n"
+
+#. type: Plain text
+#: courses/en/02-tools-mcp.md:889
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"2.5\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"2.5\"`.\n"
 
 #. type: Title #
 #: courses/en/03-claude-code-config.md:1

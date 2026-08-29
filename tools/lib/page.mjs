@@ -26,6 +26,7 @@ import { answerLetters, checkQuizContract } from './quiz-contract.mjs';
 export const PUBLISHED_COURSES = [
   { file: '00-api-foundations.md', domain: 'D0', slug: 'D0_API_Fundamentals.html' },
   { file: '01-orchestration.md', domain: 'D1', slug: 'D1_Architecture_Orchestration_27pct.html' },
+  { file: '02-tools-mcp.md', domain: 'D2', slug: 'D2_Tool_Design_MCP_18pct.html' },
   { file: '03-claude-code-config.md', domain: 'D3', slug: 'D3_Claude_Code_Config_20pct.html' },
   { file: '04-prompt-engineering.md', domain: 'D4', slug: 'D4_Prompt_Engineering_20pct.html' },
 ];
