@@ -120,6 +120,23 @@ test('renderPage n\'ajoute rien sous le titre quand le cours n\'a pas de lead', 
   assert.match(html, /<h1>D0 — API foundations<\/h1>\n<\/div>/);
 });
 
+test('renderPage rend les cinq options et le pluriel « Answers » d\'une question à réponses multiples', () => {
+  const multi = {
+    ...quiz,
+    id: 'd1-q7',
+    options: { a: 'A) …', b: 'B) …', c: 'C) …', d: 'D) …', e: 'E) …' },
+    answer: 'a b',
+    distractors: { c: 'faux', d: 'faux', e: 'faux' },
+  };
+  const html = renderPage({ course, quizzes: [multi], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  assert.match(html, /<p data-opt="e">E\) E\) …<\/p>/);
+  assert.match(html, /<p class="correct" data-answer="a b">Answers: la bonne réponse<\/p>/);
+  // Les deux bonnes réponses sortent du bloc des distracteurs, les trois autres y restent.
+  assert.doesNotMatch(html, /<li data-opt="a">/);
+  assert.doesNotMatch(html, /<li data-opt="b">/);
+  assert.match(html, /<li data-opt="e">faux<\/li>/);
+});
+
 test('renderPage refuse un quiz dont la réponse ne désigne aucune option', () => {
   const badQuiz = { ...quiz, answer: 'z' };
   assert.throws(

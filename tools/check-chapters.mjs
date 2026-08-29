@@ -33,7 +33,13 @@ for (const file of files) {
 
   for (const part of parts) {
     const title = part.split('</h2>')[0].replace(/<[^>]+>/g, '').trim();
-    const isTaskSection = /\(Task \d\.\d/.test(title);
+    // Deux formes de titre portent un task statement : « … (Task 1.1) » sur
+    // les fiches manuscrites, et « 2. 1.1 — libellé du guide » sur les fiches
+    // rendues depuis courses/ (tools/lib/page.mjs préfixe le numéro d'ordre).
+    // Sans la seconde, une section de cours passerait pour une section hors
+    // task : ses garanties (exemple, réflexe, distracteurs) ne seraient plus
+    // exigées, et le plafond de 250 mots lui serait appliqué à tort.
+    const isTaskSection = /\(Task \d\.\d/.test(title) || /^\d+\.\s+\d\.\d\s+—/.test(title);
     const isQuizSection = /auto-.?valuation|Questions d'auto/i.test(title);
     const isSynthesis = /Synth.se/i.test(title);
 

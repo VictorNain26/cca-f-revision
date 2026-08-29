@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { checkQuizContract } from './quiz-contract.mjs';
+import { answerLetters, checkQuizContract } from './quiz-contract.mjs';
 import { readBankTasks } from './courses.mjs';
 import { ROOT, loadJsonQuizzes } from './quizzes.mjs';
 
@@ -43,6 +43,33 @@ test('des distracteurs qui ne couvrent pas exactement les trois autres lettres s
 test('un distracteur qui inclut la bonne réponse est refusé', () => {
   const q = build({ distractors: { a: 'wrong', b: 'wrong', c: 'wrong' } });
   assert.match(checkQuizContract([q]).join(' '), /distracteurs/);
+});
+
+const multi = (over = {}) => build({
+  options: { a: 'A.', b: 'B.', c: 'C.', d: 'D.', e: 'E.' },
+  answer: 'a b',
+  distractors: { c: 'wrong', d: 'wrong', e: 'wrong' },
+  ...over,
+});
+
+test('cinq options et deux bonnes réponses passent le contrat', () => {
+  assert.deepEqual(checkQuizContract([multi()]), []);
+});
+
+test('une sixième option est refusée : a-e est le maximum', () => {
+  const q = multi({ options: { a: 'A.', b: 'B.', c: 'C.', d: 'D.', e: 'E.', f: 'F.' } });
+  assert.match(checkQuizContract([q]).join(' '), /options/);
+});
+
+test('des distracteurs qui recouvrent une bonne réponse multiple sont refusés', () => {
+  const q = multi({ distractors: { b: 'wrong', c: 'wrong', d: 'wrong', e: 'wrong' } });
+  assert.match(checkQuizContract([q]).join(' '), /distracteurs/);
+});
+
+test('answerLetters découpe une réponse multiple et tolère une réponse simple', () => {
+  assert.deepEqual(answerLetters('a b'), ['a', 'b']);
+  assert.deepEqual(answerLetters('b'), ['b']);
+  assert.deepEqual(answerLetters(undefined), []);
 });
 
 test('un id dupliqué est refusé', () => {

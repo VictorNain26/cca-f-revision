@@ -1,0 +1,179 @@
+[
+  {
+    "id": "d1-q1",
+    "domain": "D1",
+    "task": "1.4",
+    "summary": "Q1 (D1) — A dose released before the interaction check",
+    "scenario": "A pharmacy agent fills prescription requests through MCP tools (<code>check_interactions</code>, <code>dispense</code>, <code>page_pharmacist</code>). Reviewers pulled last month's transcripts and found doses released to patients whose interaction check never ran: in those requests the agent took the allergy list pasted into the ticket at face value and went straight to <code>dispense</code>.",
+    "question": "Which change makes the skipped check impossible?",
+    "options": {
+      "a": "Have the agent write out the sequence it intends to follow before its first call, so a skipped step shows up in the transcript.",
+      "b": "Cache interaction results per patient so the check costs almost nothing and the agent has no reason to route around it.",
+      "c": "Refuse <code>dispense</code> in code until <code>check_interactions</code> has returned for that patient.",
+      "d": "Add a hook that rejects malformed prescription identifiers before the outgoing call leaves the agent."
+    },
+    "answer": "c",
+    "answerLabel": "refuse the downstream call in code until the upstream check has returned",
+    "why": "an ordering that guards a patient-safety boundary needs a guarantee, not a tendency. A prerequisite evaluated in code cannot be argued out of by a convincing-looking allergy list sitting in the ticket.",
+    "distractors": {
+      "a": "A stated plan is still the model's own output, nothing holds it to what it wrote, and the transcript gets read after the dose is out.",
+      "b": "Cost was never the obstacle — the agent skipped a step it believed it already had the answer to.",
+      "d": "Enforces a property of the arguments, not the fact that anything ran first. A well-formed identifier says nothing about the check."
+    }
+  },
+  {
+    "id": "d1-q2",
+    "domain": "D1",
+    "task": "1.2",
+    "summary": "Q2 (D1) — Forty pages about one of five areas",
+    "scenario": "A coordinator was asked for a pre-launch risk brief on a payments feature. The request names five areas to cover: regulatory exposure, fraud, support load, vendor dependencies, data residency. It mentions chargebacks once, as an example under fraud. Six workers ran over two rounds and each returned a well-formed section; the brief that came back is forty pages, all of them about chargebacks. The coordinator's plan is still in the log, and it opens by restating the job as chargeback exposure.",
+    "question": "Which change keeps this from recurring?",
+    "options": {
+      "a": "Gate the delivery step: hold the brief back until every area named in the request has a section of its own, and send the job round again whenever one of them is missing.",
+      "b": "Split the work into five independent runs, one per area, and have the requester stitch the five briefs together afterwards.",
+      "c": "Have the coordinator derive one assignment per area named in the request, before it delegates.",
+      "d": "Raise the worker count so each round covers more ground."
+    },
+    "answer": "c",
+    "answerLabel": "derive the assignments from the areas the request names, ahead of any delegation",
+    "why": "the plan in the log names the defect — a five-part request became a one-part job before any worker started. Coverage that was never assigned cannot be recovered by anything downstream, so the fix has to sit ahead of the delegation.",
+    "distractors": {
+      "a": "The gate proves the brief incomplete only once six workers have been paid for, and it hands the job back to the same planning step that read five areas as one — so the next round can return just as narrow.",
+      "b": "Guarantees the coverage by removing the coordinator from the job. Whatever sits across two areas is lost, and the requester now does the merging on every request.",
+      "d": "Capacity was never the constraint. Six workers already produced forty pages; more of them widen nothing while every assignment points at the same area."
+    }
+  },
+  {
+    "id": "d1-q3",
+    "domain": "D1",
+    "task": "1.6",
+    "summary": "Q3 (D1) — Two backlog items, two decomposition strategies",
+    "scenario": "Each quarter you audit the same six connector adapters against the same three concerns: retry policy, secret handling, schema versioning. Separately, you must make an undocumented ingestion pipeline observable; nobody knows how many stages it has or which already emit metrics.",
+    "question": "Which strategy fits each item?",
+    "options": {
+      "a": "Prompt chaining for the audit, dynamic adaptive decomposition for the observability work.",
+      "b": "Dynamic adaptive decomposition for the audit, prompt chaining for the observability work.",
+      "c": "Prompt chaining for both, because a fixed pipeline is always more reproducible.",
+      "d": "Dynamic adaptive decomposition for both, because letting the model replan is always safer."
+    },
+    "answer": "a",
+    "answerLabel": "prompt chaining for the audit, adaptive decomposition for the pipeline",
+    "why": "the criterion is whether the scope is known before you start. The audit repeats a fixed set of targets, so a chained sequence of focused passes gives even depth and comparable results. The observability work is open-ended: each stage you uncover changes what to look at next.",
+    "distractors": {
+      "b": "Inverts the criterion: the fixed sequence lands on the item whose steps nobody knows, the adaptive one on the item that never varies.",
+      "c": "A fixed pipeline presupposes knowing the stages and their order, precisely the unknown here.",
+      "d": "Adaptivity buys nothing once targets are frozen, and it makes successive audits harder to compare."
+    }
+  },
+  {
+    "id": "d1-q4",
+    "domain": "D1",
+    "task": "1.1",
+    "summary": "Q4 (D1) — Who decides the next tool call",
+    "scenario": "A migration agent needs to run <code>read_schema</code>, then <code>plan_changes</code>, then <code>apply_migration</code> for each table. To keep the process predictable, the orchestrator pre-computes this exact call sequence before the first request and feeds each tool result into the next hardcoded step, never letting the model's own response decide what happens next. When a table turns out to need an extra validation step the sequence doesn't account for, the agent has no way to trigger it.",
+    "question": "What should change about how the loop is driven?",
+    "options": {
+      "a": "Keep the fixed sequence, but add a fourth hardcoded step for validation, since the gap that appeared today is now a known case.",
+      "b": "Let the model choose the next action each turn from the latest <code>tool_result</code>, and stop when it stops requesting tools.",
+      "c": "Run all three tools on every turn regardless of need, so the missing step is always covered and no table can slip through, accepting the wasted work as the price of completeness.",
+      "d": "Keep the fixed sequence, but let the orchestrator retry a failed step before moving to the next one."
+    },
+    "answer": "b",
+    "answerLabel": "hand control back to the model, turn by turn",
+    "why": "a sequence fixed in advance by the orchestrator is a hardcoded decision tree — it can only be as flexible as whoever wrote it anticipated. An agentic loop is model-driven: the model reads each tool result and decides the next action itself, the loop continues for as long as it keeps requesting tools, and it ends when the model signals it is done. That is what lets it insert a step nobody hardcoded.",
+    "distractors": {
+      "a": "Fixes this one gap but leaves the orchestrator guessing every future case in advance — the same limitation returns with the next table that needs something different.",
+      "c": "Running every tool regardless of need does not add judgment, it just hides the missing decision behind unconditional execution — and the completeness it buys is an illusion, since it still only covers steps that were written down.",
+      "d": "A retry addresses a step failing, not a step nobody planned for."
+    }
+  },
+  {
+    "id": "d1-q5",
+    "domain": "D1",
+    "task": "1.7",
+    "summary": "Q5 (D1) — The vendor retired the version you probed",
+    "scenario": "A session named <code>fx-integration</code> spent a long afternoon probing a currency vendor's sandbox: sample payloads, error shapes, throttling behavior. The vendor has since shipped v3 and retired v2, so every recorded response describes an endpoint that now answers 410. What that session concluded about the vendor's pagination model and its throttling window still holds.",
+    "question": "How do you take the integration work forward?",
+    "options": {
+      "a": "Start a new session and seed it with a summary of what still holds.",
+      "b": "Resume the session and let the agent re-probe each endpoint as it needs one, so the recorded v2 responses get corrected along the way.",
+      "c": "Start a new session and replay the entire v2 transcript into it, so nothing observed that afternoon is lost.",
+      "d": "Start a new session with only the vendor's v3 changelog."
+    },
+    "answer": "a",
+    "answerLabel": "a new session seeded with what survived the version change",
+    "why": "resumption pays off while the stored tool results still describe the system you are talking to. Here they describe endpoints that answer 410, so replaying them makes the agent reason about a vendor that no longer exists. A summary carries the pagination model and the throttling window forward and leaves the dead payloads behind.",
+    "distractors": {
+      "b": "Re-probing corrects the record only where the agent happens to look; everything it does not revisit sits in context as though it were still true.",
+      "c": "Carries the obsolete payloads into the new session, which is the one thing a fresh start was meant to avoid.",
+      "d": "A changelog says what moved on the vendor's side, not what you learned. Pagination and throttling would have to be rediscovered."
+    }
+  },
+  {
+    "id": "d1-q6",
+    "domain": "D1",
+    "task": "1.5",
+    "summary": "Q6 (D1) — Five hundred rows, and then a signature",
+    "scenario": "A retention agent trims expired records through <code>purge_records</code>. Policy lets it delete up to 500 rows in one call; a larger purge needs a data steward's sign-off. The rule is written in the system prompt, and last week a single call removed 40,000 rows from an audit table.",
+    "question": "What makes the ceiling hold?",
+    "options": {
+      "a": "Give the agent a <code>request_signoff</code> tool, with a description telling it when a purge has grown too large to run alone.",
+      "b": "A hook that blocks the outgoing call when the row count passes the ceiling.",
+      "c": "State the ceiling in the tool's own description, so the limit travels with the tool wherever it is used.",
+      "d": "Have the agent announce the row count it is about to delete before it issues the call."
+    },
+    "answer": "b",
+    "answerLabel": "intercept the outgoing call and stop it above the ceiling",
+    "why": "a ceiling that must hold every time belongs in code that sees the actual argument. The hook runs before the tool does, so an oversized purge never reaches the database, and a deletion is not something an apology can undo.",
+    "distractors": {
+      "a": "Offers a way out that the agent still has to choose, and the incident was precisely a case where it did not.",
+      "c": "Moves the rule closer to the call site without changing its nature: it stays text the model reads, not a condition anything evaluates.",
+      "d": "An announcement is a claim about an intent, made by the same run that is about to ignore it."
+    }
+  },
+  {
+    "id": "d1-q7",
+    "domain": "D1",
+    "task": "1.3",
+    "summary": "Q7 (D1) — Delegating a contract review <strong>(Select the 2 correct answers.)</strong>",
+    "scenario": "A coordinator has a clause-extraction subagent read two vendor contracts while a pricing subagent prepares a quote, and both outputs must land in one report.",
+    "question": "Which two moves are correct?",
+    "options": {
+      "a": "Put the contract text, the clause types wanted, and the output schema into the delegation prompt itself.",
+      "b": "Emit both delegations in one coordinator response so the subagents run at the same time.",
+      "c": "Count on each subagent inheriting the coordinator's conversation history.",
+      "d": "Let the clause subagent hand its output straight to the pricing subagent, saving a hop.",
+      "e": "Give both subagents the coordinator's whole tool set so neither is ever blocked."
+    },
+    "answer": "a b",
+    "answerLabel": "carry the needed context in the delegation prompt, and issue both delegations in one response",
+    "why": "a subagent starts from an isolated context, so whatever it needs — source text, target clause types, output shape — travels in the prompt. Parallelism comes from several delegations inside one coordinator response; spread over consecutive turns they just run one after another.",
+    "distractors": {
+      "c": "Nothing is inherited: an isolated context is the defining property of a subagent.",
+      "d": "Every exchange goes through the hub, which keeps the run observable and error handling uniform.",
+      "e": "A wider tool set degrades selection reliability; each spoke gets only the tools its role needs."
+    }
+  },
+  {
+    "id": "d1-q8",
+    "domain": "D1",
+    "task": "1.5",
+    "summary": "Q8 (D1) — One integer, three meanings",
+    "scenario": "A storefront agent checks availability through <code>check_stock</code> before it confirms an order through <code>place_order</code>. The <code>available</code> field carries three meanings in one integer: a positive number is units on hand, <code>-1</code> marks an item the supplier ships on request, and <code>0</code> marks a SKU the warehouse does not track. The agent treats anything that is not positive as sold out, and it has spent a month declining orders that could have been filled.",
+    "question": "Where does the fix belong?",
+    "options": {
+      "a": "Ask the inventory team to retire the overloaded integer and publish an explicit status field, since one number carrying three meanings will mislead every consumer of that API and not only this agent.",
+      "b": "A <code>PreToolUse</code> hook on <code>place_order</code> that blocks the confirmation whenever the availability figure behind it was not positive.",
+      "c": "Log every non-positive figure and review the pattern each week.",
+      "d": "A hook that rewrites the figure into an explicit state before the model reads the result."
+    },
+    "answer": "d",
+    "answerLabel": "map the integer onto an explicit state in a hook, before the model reads the result",
+    "why": "the three readings are a fixed table, so applying them is a transformation and not a judgment call. A <code>PostToolUse</code> hook runs it on every result on the way back, which is the last moment at which the ambiguous integer can be kept out of what the model reads.",
+    "distractors": {
+      "a": "The right thing to fix and the wrong thing to wait for: the field belongs to another team, every existing consumer has to move with it, and orders keep being declined until that lands.",
+      "b": "Hardens the misreading rather than removing it. The confirmations it would block are precisely the ones that should go through, and the agent is still reading the same integer.",
+      "c": "Counts the symptom every week and changes nothing about what the model reads. The mapping is already known, which is what makes measurement the wrong instrument."
+    }
+  }
+]

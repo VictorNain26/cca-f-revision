@@ -14,7 +14,7 @@
  */
 import { renderNav } from './nav.mjs';
 import { renderCourse } from './render.mjs';
-import { checkQuizContract } from './quiz-contract.mjs';
+import { answerLetters, checkQuizContract } from './quiz-contract.mjs';
 
 /* Un cours publié = son fichier Markdown (même nom en courses/en/ et
  * courses/fr/), son code de domaine et le nom de fichier HTML sous lequel le
@@ -25,6 +25,7 @@ import { checkQuizContract } from './quiz-contract.mjs';
  * livrés ; ne prétend pas deviner les noms des cours pas encore écrits. */
 export const PUBLISHED_COURSES = [
   { file: '00-api-foundations.md', domain: 'D0', slug: 'D0_API_Fundamentals.html' },
+  { file: '01-orchestration.md', domain: 'D1', slug: 'D1_Architecture_Orchestration_27pct.html' },
 ];
 
 /* Compose les deux pages HTML (fr, en) d'un cours publié à partir de ses deux
@@ -57,7 +58,11 @@ const STRINGS = {
   },
 };
 
-const OPTION_LETTERS = ['a', 'b', 'c', 'd'];
+/* Les lettres d'une question viennent de ses propres options, jamais d'une
+ * liste figée : une question à réponses multiples en porte cinq (a-e). Le
+ * contrat (tools/lib/quiz-contract.mjs) a déjà garanti que ces clés forment un
+ * préfixe contigu de a-e, donc l'ordre alphabétique est l'ordre d'affichage. */
+const lettersOf = (q) => Object.keys(q.options).sort();
 
 /* Un chemin d'asset (styles.css, nav.js…) est relatif à la racine du site ;
  * la page anglaise vit sous en/, donc chaque chemin y remonte d'un niveau. */
@@ -71,13 +76,16 @@ function assetPath(name, lang) {
 const stripWeight = (title) => (title || '').replace(/\s*\(\d+\s*%\)\s*$/, '').trim();
 
 function renderQuiz(q) {
-  const options = OPTION_LETTERS
+  const letters = lettersOf(q);
+  const answers = new Set(answerLetters(q.answer));
+  const options = letters
     .map((letter) => `<p data-opt="${letter}">${letter.toUpperCase()}) ${q.options[letter]}</p>`)
     .join('\n');
-  const distractors = OPTION_LETTERS
-    .filter((letter) => letter !== q.answer)
+  const distractors = letters
+    .filter((letter) => !answers.has(letter))
     .map((letter) => `<li data-opt="${letter}">${q.distractors[letter]}</li>`)
     .join('\n');
+  const answerWord = answers.size > 1 ? 'Answers' : 'Answer';
 
   return [
     `<details id="${q.id}" data-domain="${q.domain}" data-task="${q.task}">`,
@@ -87,7 +95,7 @@ function renderQuiz(q) {
     `<p><strong>Question:</strong> ${q.question}</p>`,
     options,
     '<hr>',
-    `<p class="correct" data-answer="${q.answer}">Answer: ${q.answerLabel}</p>`,
+    `<p class="correct" data-answer="${q.answer}">${answerWord}: ${q.answerLabel}</p>`,
     `<p><strong>Why:</strong> ${q.why}</p>`,
     '<p class="incorrect"><strong>Why the others are wrong:</strong></p>',
     '<ul>',

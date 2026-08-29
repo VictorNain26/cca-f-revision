@@ -22,6 +22,7 @@
   // Lu par tools/lib/nav.mjs (readTranslations) pour rester la source unique.
   const TRANSLATIONS = {
     'D0_API_Fundamentals.html': 'en/D0_API_Fundamentals.html',
+    'D1_Architecture_Orchestration_27pct.html': 'en/D1_Architecture_Orchestration_27pct.html',
   };
 
   const nav = document.querySelector('nav.navbar');

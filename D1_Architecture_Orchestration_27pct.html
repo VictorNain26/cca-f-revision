@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CCA Révision — D1 — Architecture et orchestration des agents (27 %)</title>
+<title>D1 — Architecture et orchestration des agents (27 %)</title>
 <link rel="stylesheet" href="styles.css">
 <script src="nav.js" defer></script>
 <script src="quiz.js" defer></script>
@@ -29,414 +29,788 @@
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
   <a href="anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf" title="Le guide d'examen officiel (PDF) — la seule source qui fait foi" target="_blank" rel="noopener">Guide</a>
 </nav>
+<div class="lang-switch">
+  <a href="en/D1_Architecture_Orchestration_27pct.html">EN</a>
+</div>
 
 <div class="header-bar">
 <h1>D1 — Architecture et orchestration des agents (27 %)</h1>
-<p>Le domaine le plus lourd de l'examen · 7 Task Statements (1.1 à 1.7) · Source : guide officiel CCAR-F v1.0, domaine 1 · exactitude technique vérifiée sur la doc Anthropic</p>
+<p>Le domaine le plus lourd de l'examen : sept task statements, 27 % de la note. Une
+section par task statement, dans l'ordre du guide et sous le libellé du guide —
+pour qu'une question repérée le jour J renvoie ici sans traduction.</p>
+<p>D0 est supposé acquis. Ce cours commence là où D0 s'arrête : D0 a nommé
+<code>stop_reason</code> et dit ce que vaut chaque valeur ; D1 transforme cette vérification
+en boucle, puis en système d'agents autour d'elle.</p>
+<p>Le guide place les notions voisines ailleurs, et ce cours le respecte.
+<code>tool_choice</code> et les JSON Schemas sont testés en TS 2.3 et TS 4.3 ; les réponses
+d'erreur structurées en TS 2.2 et TS 5.3 ; les fichiers <code>.claude/agents/</code> et la
+commande <code>/agents</code> relèvent de la configuration Claude Code, testée au domaine 3.
+Chacune reçoit ici une phrase et un renvoi, jamais un second développement.</p>
 </div>
 
 <div class="toc">
-<strong>Sommaire</strong>
+<strong>Table des matières</strong>
 <ol>
-<li><a href="#s1">Déléguer à un subagent, ou garder la main</a></li>
-<li><a href="#s2">L'agentic loop (boucle agentique)</a></li>
-<li><a href="#s3">L'architecture hub-and-spoke</a></li>
-<li><a href="#s4">Les stratégies de décomposition</a></li>
-<li><a href="#s5">Le Task tool, context passing et spawning</a></li>
-<li><a href="#s6">Programmatic enforcement et hooks</a></li>
-<li><a href="#s7">La gestion des sessions</a></li>
-<li><a href="#s8">Synthèse + questions d'auto-évaluation</a></li>
+<li><a href="#s1">1.1 — Design and implement agentic loops for autonomous task execution</a></li>
+<li><a href="#s2">1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns</a></li>
+<li><a href="#s3">1.3 — Configure subagent invocation, context passing, and spawning</a></li>
+<li><a href="#s4">1.4 — Implement multi-step workflows with enforcement and handoff patterns</a></li>
+<li><a href="#s5">1.5 — Apply Agent SDK hooks for tool call interception and data normalization</a></li>
+<li><a href="#s6">1.6 — Design task decomposition strategies for complex workflows</a></li>
+<li><a href="#s7">1.7 — Manage session state, resumption, and forking</a></li>
+<li><a href="#s8">Questions d'auto-évaluation</a></li>
 </ol>
 </div>
 
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s1">1. Déléguer à un subagent, ou garder la main (hors task statements)</h2></div>
+<div class="section-header"><h2 id="s1">1. 1.1 — Design and implement agentic loops for autonomous task execution</h2></div>
 
-<h3>Quand les subagents sont utiles — et quand ils nuisent</h3>
-<p>La question clé : <strong>est-ce que le travail intermédiaire m'intéresse ?</strong></p>
-<ul>
-<li><strong>Non</strong> (seul le résultat compte) → déléguer à un subagent. Exemple : explorer comment l'authentification fonctionne dans un codebase inconnu.</li>
-<li><strong>Oui</strong> (je dois voir et réagir à chaque étape) → garder dans le thread principal. Exemple : exécuter des tests et analyser les erreurs.</li>
-</ul>
-
-<!--================================================================== -->
-<div class="section-header"><h2 id="s2">2. L'agentic loop — la boucle agentique (Task 1.1)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Un appel classique à l'API Claude produit une réponse en une seule fois. Mais dans un système agentique, la tâche nécessite souvent <strong>plusieurs actions successives</strong> : chercher un client, consulter sa commande, puis décider d'un remboursement. Il faut donc un mécanisme pour que Claude puisse agir, observer le résultat, puis agir à nouveau — en boucle — jusqu'à ce que le travail soit terminé.</p>
-
-<p>C'est exactement ce que fait l'<strong>agentic loop</strong> : un cycle <code>request → response → tool execution → new request</code> piloté par le modèle lui-même.</p>
-
-<h3>Les phases d'une itération de la boucle</h3>
-
-<div class="key-concept">
-<strong>Cadre officiel :</strong> le guide décrit l'<code>agentic loop lifecycle</code> piloté par <code>stop_reason</code> — envoyer une requête à Claude, exécuter les outils demandés, renvoyer les <code>tool_result</code>, itérer jusqu'à <code>"end_turn"</code>. Le découpage ci-dessous décrit ce qui se passe à chaque tour.
-</div>
-
-<h3>Comment ça fonctionne</h3>
-<p>Chaque réponse porte un champ <code>stop_reason</code> — les valeurs et leur signification sont détaillées en <a href="D0_API_Fundamentals.html#s3">D0 §3</a>. Ici, ce qui compte est ce que votre code en fait : deux valeurs suffisent à piloter la boucle.</p>
-<pre>stop_reason == "tool_use"  → exécuter les outils, ajouter les tool_result
-                              à l'historique, relancer une itération
-stop_reason == "end_turn"  → la tâche est terminée, sortir de la boucle</pre>
-
-<div class="key-concept">
-<strong>L'approche est model-driven.</strong> C'est Claude qui choisit quel outil appeler à chaque étape, en s'appuyant sur le contexte accumulé et les tool results précédents. Cela diffère fondamentalement d'un arbre de décision codé en dur (hardcoded), où la séquence d'actions est figée à l'avance.
-</div>
-
-<h3>Exemple de code</h3>
-<pre>while True:
+<p>Un seul appel à la Messages API produit une réponse. Une vraie tâche — retrouver
+le client, consulter la commande, décider d'un remboursement — demande plusieurs
+actions, chacune choisie à la lumière de ce que la précédente a retourné.
+L'<strong>agentic loop</strong> est ce mécanisme : requête, réponse, exécution d'outil,
+nouvelle requête, jusqu'à ce que le modèle signale qu'il a terminé.</p>
+<p>Le cycle, en cinq étapes :</p>
+<ol>
+<li>
+<p>Vous envoyez une requête avec l'historique de conversation et le paramètre <code>tools</code>.</p>
+</li>
+<li>
+<p>Claude répond. La réponse peut porter du texte, un ou plusieurs blocs <code>tool_use</code>, ou les deux.</p>
+</li>
+<li>
+<p>Votre code exécute chaque outil demandé et collecte les résultats.</p>
+</li>
+<li>
+<p>Vous ajoutez à l'historique la réponse de l'assistant <strong>et</strong> les blocs <code>tool_result</code>.</p>
+</li>
+<li>
+<p>Vous renvoyez tout l'historique. On recommence jusqu'à ce que <code>stop_reason</code> soit terminal.</p>
+</li>
+</ol>
+<p><code>stop_reason</code> est le champ de la réponse qui dit pourquoi la génération s'est
+arrêtée ; l'ensemble de ses valeurs est catalogué en D0. Deux seulement pilotent
+cette boucle :</p>
+<table>
+<thead>
+<tr>
+<th><code>stop_reason</code></th>
+<th>Ce que fait votre code</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&quot;tool_use&quot;</code></td>
+<td>Exécuter les outils demandés, ajouter leurs résultats, itérer</td>
+</tr>
+<tr>
+<td><code>&quot;end_turn&quot;</code></td>
+<td>Le modèle n'a plus rien à demander — sortir de la boucle</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python">while True:
     response = client.messages.create(
-        model="claude-sonnet-5",
+        model=&quot;claude-sonnet-5&quot;,
         messages=messages,
-        tools=tools
+        tools=tools,
     )
-    # On ajoute la réponse complète à l'historique
-    messages.append({"role": "assistant", "content": response.content})
+    # Toute la réponse repart : blocs de texte et blocs tool_use ensemble.
+    messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
 
-    # stop_reason est le signal fiable pour décider de la suite
-    if response.stop_reason == "pause_turn":
-        continue   # server tool interrompu par sa limite d'itérations : on relance tel quel
+    if response.stop_reason != &quot;tool_use&quot;:
+        break                      # terminal — D0 catalogue les autres valeurs
 
-    if response.stop_reason != "tool_use":
-        break   # "end_turn" (ou "refusal" / "model_context_window_exceeded") → la tâche est terminée
-
-    # On exécute les outils demandés et on renvoie les tool_results
     tool_results = execute_tools(response.content)
-    messages.append({"role": "user", "content": tool_results})</pre>
-
-<h3>Les anti-patterns à connaître</h3>
-<div class="anti-pattern">
-<p>Trois erreurs classiques dans les systèmes agentiques mal conçus :</p>
-<ul>
-<li><strong>Parser le texte de l'assistant</strong> pour y détecter des phrases comme « Task completed » ou « I'm done ». Le langage naturel n'est pas un signal fiable ; Claude peut écrire « done » tout en ayant encore un tool call en attente.</li>
-<li><strong>Utiliser une limite d'itérations arbitraire</strong> (<code>max_iterations=5</code>) comme condition d'arrêt principale. Cela peut interrompre une tâche légitime en cours d'exécution.</li>
-<li><strong>Vérifier la présence de texte</strong> dans la réponse comme signal de fin. Claude peut générer du texte explicatif ET un <code>tool_use</code> block dans la même réponse.</li>
-</ul>
-<p><strong>Le signal fiable reste <code>stop_reason</code>.</strong> À l'examen, deux valeurs suffisent : <code>"tool_use"</code> pour continuer, <code>"end_turn"</code> pour sortir — ce sont les seules que le guide nomme. En production vous rencontrerez aussi <code>"pause_turn"</code> (server tool interrompu, à relancer sans sortir de la boucle), <code>"refusal"</code> et <code>"model_context_window_exceeded"</code> ; utile à savoir, jamais demandé.</p>
-</div>
-
-<div class="exam-tip">
-<strong>Pour l'examen :</strong> quand on vous demande comment déterminer si la boucle doit continuer ou s'arrêter, la bonne réponse est toujours <code>stop_reason</code>. Les distracteurs proposeront du text parsing, des limites d'itérations ou la détection de contenu textuel.
-</div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s3">3. L'architecture hub-and-spoke (Task 1.2)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Quand une tâche est trop complexe pour un seul agent — par exemple, produire un rapport de recherche qui nécessite à la fois de la recherche web, de l'analyse documentaire et de la synthèse — il faut répartir le travail entre plusieurs agents spécialisés. Mais ces agents ont besoin d'être coordonnés : qui fait quoi ? Qui agrège les résultats ? Qui gère les erreurs ?</p>
-
-<p>L'architecture <strong>hub-and-spoke</strong> répond à ce besoin : un agent <strong>coordinateur</strong> (le hub) orchestre plusieurs <strong>subagents</strong> spécialisés (les spokes).</p>
-
-<pre>           Coordinator (hub)
-           /     |     \
-    Subagent 1   Subagent 2   Subagent 3
-    (research)   (analysis)   (synthesis)</pre>
-
-<h3>Les responsabilités du coordinateur</h3>
-<p>Le coordinateur est le chef d'orchestre. Il se charge de :</p>
-<ol>
-<li><strong>Décomposer</strong> la tâche principale en sous-tâches cohérentes.</li>
-<li><strong>Sélectionner dynamiquement</strong> les subagents nécessaires.</li>
-<li><strong>Déléguer</strong> en fournissant à chaque subagent le contexte dont il a besoin.</li>
-<li><strong>Agréger et valider</strong> les résultats renvoyés par les subagents.</li>
-<li><strong>Gérer les erreurs</strong> : décider de retry, d'adapter la requête ou de continuer avec des résultats partiels.</li>
-<li><strong>Communiquer</strong> le résultat final à l'utilisateur.</li>
-</ol>
-
+    messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: tool_results})
+</code></pre>
+<p>Deux lignes portent tout le task statement. Le <code>break</code> s'appuie sur
+<code>stop_reason</code>, sur rien d'autre. Et le second <code>append</code> est ce qui fait de
+l'itération suivante une étape de <em>raisonnement</em> plutôt qu'une répétition : les
+résultats d'outils entrent dans l'historique de conversation, donc le prochain
+choix d'outil se fait à la lumière de ce que le dernier a retourné. Une boucle
+qui exécute les outils sans jamais ajouter leurs résultats repose éternellement
+la même question.</p>
+<p>Une même réponse peut aussi porter <strong>plusieurs</strong> blocs <code>tool_use</code> — deux
+recherches que le modèle veut mener ensemble, par exemple. Exécutez-les toutes,
+puis renvoyez chaque <code>tool_result</code> dans un <em>seul</em> message <code>user</code>, un bloc par
+appel. C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à
+la fois, développé en 1.3.</p>
 <div class="key-concept">
-<strong>Principe fondamental : le contexte des subagents est isolé.</strong>
-<p>Les subagents n'héritent <em>pas</em> automatiquement de l'historique de conversation du coordinateur. Ils ne partagent pas non plus de mémoire entre eux. Toute information nécessaire doit être <strong>explicitement transmise</strong> dans le prompt du subagent. Et toute communication entre subagents transite par le coordinateur — jamais en direct — ce qui garantit l'observabilité et le contrôle des erreurs.</p>
+<p>La boucle est <strong>model-driven</strong> : Claude lit le contexte accumulé et décide quel
+outil vient ensuite. C'est ce qui sépare un agent d'un workflow. Un
+<strong>pre-configured decision tree</strong> — votre code fixant à l'avance la séquence
+<code>read_schema → plan_changes → apply_migration</code> — est de l'ingénierie légitime,
+mais il ne traitera jamais que les cas prévus par qui l'a écrit. Le guide teste
+votre capacité à distinguer les deux et à choisir selon la prévisibilité de la
+tâche.</p>
 </div>
-
-<h3>Le risque d'une décomposition trop étroite</h3>
-<p>Un piège fréquent : le coordinateur décompose la tâche de manière trop restrictive, ce qui crée des angles morts.</p>
-
 <div class="anti-pattern">
-<strong>Exemple concret :</strong> le coordinateur reçoit « AI impact on creative industries » et crée trois sous-tâches : « AI in digital art », « AI in graphic design » et « AI in photography ». Chaque subagent exécute correctement sa mission, mais le rapport final ne couvre que l'art visuel — la musique, la littérature et le cinéma sont totalement absents. Le problème n'est pas dans l'exécution des subagents, mais dans la <strong>décomposition</strong> faite par le coordinateur.
-</div>
-
-<h3>Bonnes pratiques</h3>
+<p>Le guide nomme trois mauvaises façons de piloter la boucle, et ce sont les
+distracteurs de ce task statement :</p>
 <ul>
-<li><strong>Partitionner explicitement l'espace de recherche</strong> avant de déléguer, pour éviter les doublons et les angles morts.</li>
-<li><strong>Prévoir des boucles de raffinement :</strong> le coordinateur évalue la synthèse, identifie les lacunes et relance des sous-tâches si nécessaire.</li>
-<li><strong>Ne jamais court-circuiter le coordinateur :</strong> même si cela semble plus efficace qu'un subagent envoie directement ses résultats à un autre, le passage systématique par le hub assure la visibilité centralisée, la gestion uniforme des erreurs et le contrôle de ce que chaque subagent reçoit.</li>
-</ul>
-
-<div class="exam-tip">
-<strong>Le réflexe :</strong> quand chaque subagent réussit sa mission mais que le rapport final rate des pans entiers du sujet, la cause est la <strong>décomposition du coordinateur</strong>, pas les agents en aval. Les distracteurs incriminent un agent réel : des requêtes pas assez larges chez l'agent de recherche, l'absence de détection de lacunes chez l'agent de synthèse, ou des critères de pertinence trop stricts chez l'agent d'analyse. Ils séduisent parce qu'ils nomment un composant du système — mais l'énoncé précise que chacun a correctement exécuté ce qui lui était assigné. Ce qui a été mal fait, c'est l'assignation.
-</div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s4">4. Les stratégies de décomposition (Task 1.6)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Toutes les tâches ne se décomposent pas de la même manière. Une code review suit toujours les mêmes étapes (lire, analyser, reporter), tandis qu'une investigation dans un codebase inconnu révèle ses sous-tâches au fur et à mesure. Choisir la mauvaise stratégie entraîne soit de la rigidité inutile, soit du chaos.</p>
-
-<h3>Fixed pipeline (prompt chaining)</h3>
-<p>Chaque étape est définie à l'avance et s'exécute en séquence :</p>
-<pre>Document → Metadata extraction → Data extraction → Validation → Enrichment → Output</pre>
-<p><strong>Quand l'utiliser :</strong> la structure de la tâche est prévisible, toutes les étapes sont connues, et on a besoin de stabilité et de reproductibilité.</p>
-
-<h3>Dynamic adaptive décomposition</h3>
-<p>Les sous-tâches émergent en fonction des résultats intermédiaires :</p>
-<ol>
-<li>Objectif : « Ajouter des tests pour un codebase legacy. »</li>
-<li>Première étape : mapper la structure (<code>Glob</code>, <code>Grep</code>).</li>
-<li>Découverte : trois modules sans tests, deux avec une couverture partielle.</li>
-<li>Priorisation : commencer par le module de paiements (risque élevé).</li>
-<li>Surprise en cours de route : une dépendance vers une API externe non mockée.</li>
-<li>Adaptation : créer le mock avant d'écrire les tests.</li>
-</ol>
-<p><strong>Quand l'utiliser :</strong> tâches d'investigation ouvertes, périmètre inconnu au départ, chaque étape dépend de ce que la précédente a révélé.</p>
-
-<h3>La multi-pass review pour les grosses PR</h3>
-<p>Quand une pull request touche plus de dix fichiers, une analyse en une seule passe produit des résultats inconsistants : commentaires détaillés sur certains fichiers, superficiels sur d'autres, et des contradictions (un pattern signalé dans un fichier, approuvé dans un autre).</p>
-
-<p>La solution : découper en <strong>deux passes</strong> :</p>
-<table>
-<tr><th>Passe</th><th>Périmètre</th><th>Ce qu'elle détecte</th></tr>
-<tr><td><strong>Pass 1 — per-file</strong></td><td>Chaque fichier analysé individuellement</td><td>Bugs locaux, problèmes de qualité, vulnérabilités</td></tr>
-<tr><td><strong>Pass 2 — intégration</strong></td><td>Relations entre les fichiers</td><td>Types inconsistants, dépendances circulaires, flux de données cassés</td></tr>
-</table>
-
-<div class="exam-tip">
-<strong>Pour l'examen :</strong> le prompt chaining convient aux tâches prévisibles et répétables (review, migration). La dynamic décomposition convient aux investigations ouvertes où les sous-tâches émergent en cours d'exécution.
-</div>
-
-<div class="anti-pattern">
-<strong>Les distracteurs qui visent le mauvais choix de décomposition :</strong>
-<ul>
-<li><strong>La revue multi-passes</strong> proposée pour une investigation ouverte — elle est conçue pour un périmètre borné et énumérable, comme les fichiers d'une PR, pas pour un sujet dont on ignore l'étendue.</li>
-<li><strong>Un prompt exhaustif unique</strong> qui couvrirait tout d'un coup — il suppose de connaître le périmètre à l'avance, ce qui est précisément l'inconnue.</li>
-<li><strong>Un pipeline fixe sur un périmètre inconnu</strong> — il exige la liste des étapes avant de commencer, alors que chaque étape ne se révèle qu'avec les découvertes de la précédente.</li>
+<li><strong>Parser le texte de l'assistant</strong> à la recherche de « task completed » ou
+« I'm done ». Le langage naturel n'est pas un signal ; Claude peut écrire
+« done » alors qu'un bloc <code>tool_use</code> est encore en attente dans la même réponse.</li>
+<li><strong>Utiliser un plafond d'itérations arbitraire</strong> (<code>max_iterations = 5</code>) comme
+mécanisme d'arrêt principal. Un plafond est un garde-fou contre un agent qui
+s'emballe, pas un constat sur l'achèvement du travail — il interrompt des
+exécutions légitimes.</li>
+<li><strong>Vérifier la présence de texte</strong> comme indicateur de complétion. Texte et
+<code>tool_use</code> voyagent dans la même réponse ; la présence de l'un ne dit rien de
+l'autre.</li>
 </ul>
 </div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s5">5. Le Task tool, context passing et spawning (Task 1.3)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Le coordinateur a besoin d'un mécanisme concret pour créer des subagents et leur transmettre leur mission. Dans le Claude Agent SDK, ce mécanisme s'appelle l'outil <strong>Task</strong>.</p>
-
-<h3>Comment ça fonctionne</h3>
-<p>Pour qu'un coordinateur puisse créer des subagents, son <code>allowedTools</code> doit inclure <code>"Task"</code>. Chaque appel à Task crée un subagent avec son propre contexte isolé.</p>
-
-<p><em>Note : dans la CLI récente, l'outil peut apparaître sous le nom <code>Agent</code>, mais le référentiel et l'examen emploient le nom <code>Task</code>. Pour l'examen, retenez <code>"Task"</code> — c'est le terme utilisé par le guide officiel.</em></p>
-
-<p>⚠️ Pseudocode illustratif — la syntaxe exacte varie selon la version du SDK ; les concepts (hooks PreToolUse/PostToolUse, définition d'agents) sont, eux, officiels.</p>
-<pre>coordinator = AgentDefinition(
-    name="coordinator",
-    allowed_tools=["Task", "get_customer", "lookup_order"]
-)</pre>
-
-<h3>Le context passing explicite</h3>
-<p>Les subagents ne reçoivent rien automatiquement du coordinateur. Tout le contexte nécessaire doit figurer dans le prompt de la tâche déléguée.</p>
-
-<div class="anti-pattern">
-<strong>Mauvais :</strong> <code>Task: "Analyse le document."</code> — le subagent ne sait pas quel document, n'a aucun résultat antérieur et ignore le format de sortie attendu.
-</div>
-
-<div class="key-concept">
-<strong>Bon :</strong> <code>Task: "Analyse le document suivant. Document : [texte complet]. Résultats de recherche préalables : [données]. Format de sortie attendu : [schéma]."</code> — le subagent dispose de tout ce qu'il faut pour travailler de manière autonome.
-</div>
-
-<p>Lors du context passing, utilisez des <strong>formats structurés qui séparent clairement les données des métadonnées</strong> (source, date, type). Cela évite toute confusion et facilite l'agrégation par le coordinateur. En particulier, inclure explicitement dans le contexte transmis au subagent : <strong>l'URL source ou le nom du document, le type de contenu (web, local, API), et le numéro de page</strong> (si applicable). Ces métadonnées explicites <strong>préservent l'attribution</strong> des claims jusqu'au rapport final — essentielles pour la traçabilité, surtout en domaines réglementaires. <em>(Source : guide officiel, Task 1.3, Skills.)</em></p>
-
-<h3>Le parallel spawning</h3>
-<p>Le coordinateur peut émettre <strong>plusieurs appels Task dans une seule réponse</strong>. Les subagents s'exécutent alors en parallèle, ce qui accélère considérablement le traitement :</p>
-<pre># Une seule réponse du coordinateur contient :
-Task 1 : "Rechercher des articles sur X"
-Task 2 : "Analyser le document Y"
-Task 3 : "Rechercher des articles sur Z"
-# → Les trois s'exécutent simultanément (parallel execution).</pre>
-
-<h3>La configuration AgentDefinition</h3>
-<pre>agent = AgentDefinition(
-    name="customer_support",
-    description="Handles customer returns and order issues",
-    system_prompt="You are a customer support agent...",
-    allowed_tools=["get_customer", "lookup_order",
-                   "process_refund", "escalate_to_human"]
-)</pre>
-
-<p>La <strong>description</strong> joue un double rôle : elle détermine <em>quand</em> le coordinateur décide de lancer ce subagent, et elle influence la qualité du <em>prompt</em> que le coordinateur rédige pour lui. Une description vague produit des délégations vagues.</p>
-
-<p>Rédigez les prompts du coordinateur en termes d'<strong>objectifs et de critères de qualité</strong> (« le rapport doit couvrir au moins cinq secteurs avec des sources datées ») plutôt qu'en instructions procédurales étape par étape.</p>
-
-<h3>Les quatre caractéristiques d'un subagent efficace</h3>
-<table>
-<tr><th>#</th><th>Caractéristique</th><th>Pourquoi c'est important</th></tr>
-<tr><td>1</td><td><strong>Une description spécifique</strong></td><td>Elle contrôle quand le subagent est lancé et influence la qualité du prompt d'entrée.</td></tr>
-<tr><td>2</td><td><strong>Un structured output format</strong></td><td>Il crée des points d'arrêt naturels et empêche le subagent de tourner trop longtemps. Ce que le guide retient, ce sont les formats structurés qui séparent le contenu des métadonnées lors du context passing — pas un classement des leviers.</td></tr>
-<tr><td>3</td><td><strong>Le signalement des obstacles</strong></td><td>Si le subagent découvre un contournement (dépendance manquante, flag spécial), cette information doit remonter pour éviter que le thread principal ne la redécouvre.</td></tr>
-<tr><td>4</td><td><strong>Des outils limités au strict nécessaire</strong></td><td>Un subagent de recherche n'a besoin que de <code>Glob, Grep, Read</code>. Un reviewer y ajoute <code>Bash</code>. Trop d'outils (18 au lieu de 4-5) dégrade la fiabilité de sélection.</td></tr>
-</table>
-
+<p>Les plafonds ont leur place, tant qu'ils restent des plafonds. L'Agent SDK expose
+<code>max_turns</code> / <code>maxTurns</code> (allers-retours agentiques) et <code>max_budget_usd</code> /
+<code>maxBudgetUsd</code> (dépense) ; les deux sont sans limite par défaut, et poser un
+budget est un bon défaut de production sur un prompt ouvert. Ni l'un ni l'autre
+n'est une condition de terminaison, et le SDK marque une exécution qui en a
+atteint un comme un subtype d'erreur, pas comme un succès.</p>
 <div class="exam-tip">
-<strong>Le réflexe :</strong> trois faits décident de la bonne option. <code>allowedTools</code> doit contenir <code>"Task"</code> pour qu'un coordinateur puisse lancer des subagents ; les subagents n'héritent d'aucun contexte, tout ce dont ils ont besoin passe par le prompt ; le parallélisme s'obtient en émettant plusieurs appels <code>Task</code> dans <strong>une seule</strong> réponse du coordinateur. Les distracteurs : agrandir la fenêtre de contexte du subagent (rien ne lui a été transmis, la taille n'y change rien), laisser les subagents s'appeler entre eux (cela casse le hub-and-spoke et l'observabilité), ou émettre les appels sur des tours successifs (c'est du séquentiel avec des étapes en plus, pas du parallèle).
+<p>Dès qu'une question demande comment décider si la boucle continue ou s'arrête, la
+réponse est <code>stop_reason</code>, et précisément <code>&quot;tool_use&quot;</code> contre <code>&quot;end_turn&quot;</code>. Toute
+alternative plausible dans la liste d'options — parsing de texte, plafond
+d'itérations, test de présence d'un bloc de texte — est l'un des trois
+anti-patterns ci-dessus, déguisé.</p>
 </div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.1&quot;</code>.</p>
 
-<p><em>Voir aussi : D2, section 3 pour le paramètre <code>tool_choice</code> et D2, section 5 pour la référence complète des outils intégrés.</em></p>
+<div class="section-header"><h2 id="s2">2. 1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns</h2></div>
 
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s6">6. Programmatic enforcement et hooks (Task 1.4 &amp; 1.5)</h2></div>
+<p>Avant l'architecture, la décision. Un subagent tourne dans sa propre fenêtre de
+contexte, fait son travail et ne renvoie qu'un résumé ; les lectures, recherches
+et appels d'outils intermédiaires sont jetés avec lui. Ce compromis tient en une
+question : <strong>le travail intermédiaire intéresse-t-il l'appelant ?</strong> Si seule la
+réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main
+dans le thread principal.</p>
+<p>Quand une tâche est vraiment trop large pour un seul agent — un rapport de
+recherche qui demande recherche web, analyse documentaire et synthèse — on
+obtient une architecture <strong>hub-and-spoke</strong> : un coordinateur (le hub) pilote
+plusieurs subagents spécialisés (les spokes), et <em>tout</em> le trafic passe par le hub.</p>
+<pre><code class="language-text">              Coordinateur (hub)
+             /        |         \
+   subagent recherche  analyse    synthèse
+        (web)        (documents)  (rapport)
 
-<h3>Le problème que cela résout</h3>
-<p>Dans un workflow de support client, il est critique de vérifier l'identité du client <em>avant</em> de traiter un remboursement. On peut l'écrire dans le prompt… mais une instruction de prompt reste probabiliste : le guide oppose la <em>garantie déterministe</em> d'un hook au fait de s'en remettre à une instruction, et ne chiffre pas ce que cette dernière laisse passer. Sur des milliers d'interactions, ce reliquat suffit à verser des remboursements au mauvais client.</p>
-
-<p>Le <strong>programmatic enforcement</strong> résout ce problème en rendant la violation <em>impossible</em> par le code, plutôt qu'<em>improbable</em> par le prompt.</p>
-
-<p>De même, les outils MCP tiers renvoient souvent des données dans des formats hétérogènes : un outil retourne des timestamps Unix, un autre de l'ISO 8601, un troisième des codes numériques de statut. Si Claude reçoit ces formats bruts, il peut mal les interpréter. Les <strong>hooks</strong> répondent à ces besoins en interceptant les tool calls à des points précis de l'agentic loop.</p>
-
-<p><em>Note : cette section couvre les hooks de l'Agent SDK (niveau programmatique). Pour les hooks de Claude Code (niveau configuration), voir D3, section 7.</em></p>
-
-<div class="key-concept">
-<strong>Exemple concret :</strong> les logs de production montrent que dans 12 % des cas, l'agent saute l'appel à <code>get_customer</code> et appelle directement <code>lookup_order</code> en se fiant au nom fourni par le client, ce qui entraîne parfois des remboursements incorrects.
-<br><br>
-<strong>La solution :</strong> un prérequis programmatique qui <strong>bloque</strong> les appels à <code>lookup_order</code> et <code>process_refund</code> tant que <code>get_customer</code> n'a pas retourné un identifiant client vérifié. Ni les few-shot examples ni un prompt renforcé ne suffisent — les conséquences financières exigent une garantie déterministe.
-</div>
-
-<h3><code>PreToolUse</code> : bloquer les actions non conformes</h3>
-<p>Ce hook intercepte un tool call <em>avant</em> son exécution et peut le bloquer ou le rediriger :</p>
-<pre>@hook("PreToolUse")
-def enforce_refund_limit(tool_call):
-    if tool_call.name == "process_refund" and tool_call.args.amount > 500:
-        return redirect_to_escalation(tool_call)</pre>
-
-<h3><code>PostToolUse</code> : normaliser les données avant qu'elles n'atteignent Claude</h3>
-<p>Ce hook intercepte le tool result <em>après</em> l'exécution de l'outil, mais <em>avant</em> que le modèle ne le traite :</p>
-<pre>@hook("PostToolUse")
-def normalize_dates(tool_result):
-    # Unix timestamp  →  ISO 8601
-    # "Mar 5, 2025"   →  "2025-03-05"
-    # Status code 2   →  "shipped"
-    return normalized_result</pre>
-
-<h3>Hooks vs. instructions dans le prompt</h3>
-<p>C'est l'une des distinctions les plus testées à l'examen. La règle est simple :</p>
+   chaque résultat, chaque erreur, chaque retry
+   passe hub ↔ spoke — jamais spoke ↔ spoke
+</code></pre>
+<p>Rien dans le SDK n'impose cette forme. C'est un choix de conception, et le guide
+en nomme les trois motifs : l'<strong>observabilité</strong> (un seul endroit voit toute
+l'exécution), la <strong>cohérence du traitement d'erreur</strong> (une politique, pas une par
+agent) et le <strong>contrôle du flux d'information</strong> (le hub décide de ce que chaque
+spoke apprend).</p>
+<p>Le travail du coordinateur, tel que le guide l'énonce :</p>
 <table>
-<tr><th></th><th>Hooks (programmatic enforcement)</th><th>Prompt instructions</th></tr>
-<tr><td><strong>Garantie</strong></td><td>Déterministe (100 %)</td><td>Probabiliste — aucune garantie</td></tr>
-<tr><td><strong>Quand les utiliser</strong></td><td>Business rules critiques, opérations financières, conformité réglementaire</td><td>Préférences générales, formatting, recommandations</td></tr>
-<tr><td><strong>Exemple</strong></td><td>Bloquer les remboursements supérieurs à 500 $</td><td>« Try to resolve the issue before escalating »</td></tr>
+<thead>
+<tr>
+<th>Responsabilité</th>
+<th>Ce que cela veut dire en pratique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Task decomposition</td>
+<td>Découper la demande en sous-tâches qui, ensemble, la couvrent</td>
+</tr>
+<tr>
+<td>Délégation dynamique</td>
+<td>Choisir les subagents dont une requête donnée a réellement besoin, plutôt que de router chaque requête à travers tout le pipeline</td>
+</tr>
+<tr>
+<td>Agrégation des résultats</td>
+<td>Collecter les sorties des spokes et assembler la réponse</td>
+</tr>
+<tr>
+<td>Gestion d'erreur</td>
+<td>Décider de réessayer, d'adapter la requête, ou de continuer avec des résultats partiels</td>
+</tr>
+</tbody>
 </table>
+<p>Deux compétences méritent d'être énoncées à part, parce que ce sont elles que les
+questions de scénario mettent en jeu.</p>
+<p><strong>Partitionner le périmètre avant de déléguer.</strong> Donnez à chaque subagent de
+recherche un sous-thème distinct ou un type de source distinct. Des briefs qui se
+recouvrent produisent du travail dupliqué et, pire, des angles morts corrélés.</p>
+<p><strong>Raffiner par itération.</strong> Le coordinateur lit la sortie de synthèse, y cherche
+les manques, re-délègue aux subagents de recherche et d'analyse avec des requêtes
+<em>ciblées</em>, et relance la synthèse jusqu'à couverture suffisante. C'est une boucle
+de qualité posée au-dessus de la boucle d'exécution de 1.1, et c'est le remède
+que le guide nomme contre une couverture incomplète.</p>
+<div class="key-concept">
+<p>Les subagents démarrent d'un <strong>contexte isolé</strong> : ils n'héritent pas de
+l'historique de conversation du coordinateur et ne partagent aucune mémoire d'une
+invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le
+hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.</p>
+</div>
+<p>Le risque que le guide nomme explicitement est une <strong>décomposition trop étroite
+par le coordinateur</strong>. Chargé d'un rapport sur « AI impact on creative
+industries », un coordinateur le découpe en « AI in digital art », « AI in
+graphic design » et « AI in photography ». Chaque subagent exécute correctement
+son brief. Le rapport ne couvre que l'art visuel ; la musique, la littérature et
+le cinéma sont simplement absents. Rien n'a échoué en aval — l'assignation était
+déjà incomplète.</p>
+<div class="exam-tip">
+<p>Quand chaque subagent a fait ce qu'on lui demandait et que le rapport final rate
+encore des pans entiers du sujet, le défaut est la <strong>décomposition du
+coordinateur</strong>, pas un spoke. Les distracteurs incrimineront un composant réel —
+requêtes de recherche trop étroites, absence de détection de lacunes dans la
+synthèse, critères de pertinence trop stricts dans l'analyse — et ils séduisent
+parce qu'ils nomment quelque chose qui existe. L'énoncé vous a déjà dit que
+chaque agent avait correctement exécuté son assignation. Ce qui a été mal fait,
+c'est l'assignation.</p>
+</div>
+<div class="anti-pattern">
+<p>Laisser un subagent passer sa sortie directement à un autre pour économiser un
+saut. Cela paraît efficace et cela casse les trois raisons d'être du hub : plus
+aucun endroit ne voit l'exécution entière, le traitement d'erreur cesse d'être
+uniforme, et personne ne contrôle ce que le second agent a réellement reçu.</p>
+<p>Router chaque requête à travers tout le pipeline est l'erreur symétrique : le
+coordinateur est censé <em>analyser la requête</em> et n'invoquer que les subagents
+nécessaires.</p>
+</div>
+<p>Les erreurs voyagent de la même façon. Le pattern attendu est la <strong>récupération
+locale d'abord</strong> : le subagent traite lui-même les échecs transitoires et ne
+propage au coordinateur que ce qu'il ne peut pas résoudre, accompagné de ses
+résultats partiels et de ce qu'il a déjà tenté. Le coordinateur continue avec des
+résultats partiels et annote la sortie finale de ce qui est resté non couvert.
+<strong>La forme de ces réponses d'erreur — catégories, caractère réessayable, échec
+métier contre échec de permission — relève de la conception des erreurs
+structurées, développée en D2.2.</strong></p>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.2&quot;</code>.</p>
 
-<h3>Le structured handoff lors d'une escalation</h3>
-<p>Quand l'agent décide d'escalader vers un opérateur humain, celui-ci n'a <em>pas</em> accès au transcript complet de la conversation. Le résumé transmis doit donc être complet et autosuffisant :</p>
-<pre>{
-  "customer_id": "CUST-12345",
-  "issue_summary": "Refund request for damaged item",
-  "order_id": "ORD-67890",
-  "root_cause": "Item arrived damaged; photos attached",
-  "actions_taken": [
-    "Identity verified via get_customer",
-    "Order confirmed via lookup_order",
-    "Replacement offered — customer insists on refund"
+<div class="section-header"><h2 id="s3">3. 1.3 — Configure subagent invocation, context passing, and spawning</h2></div>
+
+<p>Le mécanisme est un outil. Un coordinateur lance un subagent en appelant
+l'<strong>outil <code>Task</code></strong>, et son <code>allowedTools</code> doit inclure <code>&quot;Task&quot;</code> pour que ces
+invocations soient auto-approuvées. Omettez-le et l'appel retombe dans le flux de
+permission : en mode par défaut, sans callback <code>canUseTool</code> pour y répondre, il
+est refusé. Le coordinateur ne délègue pas, quoi que dise son prompt.</p>
+<div class="exam-tip">
+<p>Les versions récentes du SDK ont renommé cet outil de <code>Task</code> en <code>Agent</code>, et le
+code actuel émet <code>Agent</code> dans les blocs <code>tool_use</code>. Le guide d'examen v1.0 dit
+encore <code>Task</code>, et pose l'inclusion de <code>&quot;Task&quot;</code> dans <code>allowedTools</code> comme
+l'exigence. À l'examen, <code>Task</code> est la réponse attendue. En vrai code, écrivez
+<code>Agent</code> et testez les deux noms quand vous détectez une invocation.</p>
+</div>
+<p>Ce qu'un subagent reçoit, et ce qu'il ne reçoit pas, est le fait le plus testé de
+ce domaine :</p>
+<table>
+<thead>
+<tr>
+<th>Le subagent reçoit</th>
+<th>Le subagent ne reçoit pas</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Son propre system prompt, issu de sa définition d'agent</td>
+<td>L'historique de conversation du parent et ses résultats d'outils</td>
+</tr>
+<tr>
+<td>La chaîne de prompt de l'appel qui le lance</td>
+<td>Le system prompt du parent</td>
+</tr>
+<tr>
+<td>Ses définitions d'outils — héritées, ou le sous-ensemble qu'on lui a donné</td>
+<td>Le moindre souvenir d'une invocation précédente de lui-même</td>
+</tr>
+</tbody>
+</table>
+<p>La conséquence est décisive : <strong>le seul contenu qui passe du parent au subagent
+est la chaîne de prompt de l'appel qui le lance.</strong> Chemins de fichiers, messages
+d'erreur, résultats de recherche antérieurs, décisions déjà prises — s'ils ne
+sont pas dans cette chaîne, le subagent ne les a pas.</p>
+<pre><code class="language-text">Mauvais  Task: « Analyse le document. »
+         → quel document ? aucun résultat antérieur, aucun format de sortie attendu.
+
+Bon      Task: « Analyse le document ci-dessous et renvoie le tableau des clauses.
+              DOCUMENT (source: vendor-contract-2026.pdf, pages 4-9) :
+                &lt;texte intégral&gt;
+              RÉSULTATS ANTÉRIEURS (du subagent de recherche) :
+                - claim: 'net-45 payment terms'
+                  source_url: https://…  retrieved: 2026-08-14
+              FORMAT DE SORTIE : une ligne par clause — clause_type, text, page. »
+</code></pre>
+<p>Notez ce que la bonne version fait au-delà d'être longue. Elle emploie un
+<strong>format structuré qui sépare le contenu des métadonnées</strong> — URL source, nom du
+document, numéro de page, date de collecte vivent dans leurs propres champs, pas
+fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,
+et le guide le nomme parmi les skills de ce task statement.</p>
+<p>Le parallélisme vient d'<strong>une réponse, plusieurs appels</strong>. Un coordinateur qui
+émet trois appels <code>Task</code> dans une seule réponse obtient trois subagents qui
+tournent en même temps ; les mêmes trois appels répartis sur trois tours
+consécutifs s'exécutent l'un après l'autre. C'est le même mécanisme que les
+appels d'outils parallèles de 1.1 — plusieurs blocs <code>tool_use</code> dans un même
+message assistant — appliqué à l'outil <code>Task</code>.</p>
+<pre><code class="language-python">agents = {
+    &quot;code-reviewer&quot;: AgentDefinition(
+        description=&quot;Spécialiste de la revue de code. À utiliser pour la &quot;
+                    &quot;qualité, la sécurité et la maintenabilité. Indique à &quot;
+                    &quot;l'agent précisément quels fichiers relire.&quot;,
+        prompt=&quot;Tu es un spécialiste de la revue de code…\n&quot;
+               &quot;Rends : 1. Résumé  2. Problèmes critiques  3. Problèmes majeurs  &quot;
+               &quot;4. Problèmes mineurs  5. Verdict  6. Obstacles rencontrés&quot;,
+        tools=[&quot;Read&quot;, &quot;Grep&quot;, &quot;Glob&quot;],
+        model=&quot;sonnet&quot;,
+    ),
+}
+</code></pre>
+<p>Quatre champs, quatre décisions :</p>
+<table>
+<thead>
+<tr>
+<th>Champ</th>
+<th>Obligatoire</th>
+<th>Ce qu'il décide</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>description</code></td>
+<td>oui</td>
+<td>Quand le coordinateur lance ce subagent — <strong>et</strong> ce qu'il écrit dans le prompt de délégation</td>
+</tr>
+<tr>
+<td><code>prompt</code></td>
+<td>oui</td>
+<td>Le system prompt du subagent : son rôle, sa méthode, son format de sortie</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td>non</td>
+<td>Les outils qu'il peut utiliser ; omis, il hérite de tout ce qui est disponible aux subagents</td>
+</tr>
+<tr>
+<td><code>model</code></td>
+<td>non</td>
+<td><code>opus</code>, <code>sonnet</code>, <code>haiku</code>, <code>inherit</code>, ou un identifiant de modèle complet</td>
+</tr>
+</tbody>
+</table>
+<p>La <code>description</code> a ce double rôle, et il est facile de le manquer. Le nom et la
+description de chaque subagent disponible sont placés dans le system prompt de
+l'agent principal : ils décident donc <em>quand</em> la délégation a lieu ; l'agent
+principal se sert ensuite de la description comme guide pour rédiger le prompt
+d'entrée, si bien qu'elle façonne aussi <em>ce qu'on dit au subagent de faire</em>. Une
+description qui dit « vous devez indiquer à l'agent précisément quels fichiers
+relire » produit des prompts de délégation qui listent des fichiers. Une
+description vague produit des délégations vagues.</p>
+<p>Deux autres leviers de conception. Le premier vient du cours Subagents ; le
+second est le quatrième skill que le guide liste sous ce task statement :</p>
+<ul>
+<li>
+<p><strong>Définissez un format de sortie dans le system prompt.</strong> Il donne au subagent
+une liste à remplir, donc il sait quand il a fini ; sans lui, les subagents
+peinent à décider quand la recherche a assez duré et tournent bien plus longtemps
+que nécessaire. Une section « Obstacles rencontrés » vaut d'être ajoutée exprès :
+les contournements et bizarreries d'environnement découverts par le subagent
+meurent sinon avec son contexte, et le thread principal doit les redécouvrir.</p>
+</li>
+<li>
+<p><strong>Rédigez les prompts de coordinateur en objectifs et critères de qualité, pas en
+procédures.</strong> « Le rapport doit couvrir au moins cinq secteurs avec des sources
+datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.</p>
+</li>
+</ul>
+<p>Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les
+connaissances de ce task statement. Un subagent de recherche en lecture seule
+reçoit <code>Read</code>, <code>Grep</code>, <code>Glob</code> ; un relecteur y ajoute <code>Bash</code> pour lancer
+<code>git diff</code> ; seul un agent dont le métier est de modifier du code reçoit <code>Edit</code>
+et <code>Write</code>. Un outil que vous laissez de côté n'est pas du tout dans la session
+du subagent : ni prompt de permission, ni erreur, l'agent travaille simplement
+sans. <strong>Pourquoi une grande surface d'outils dégrade la fiabilité de sélection,
+et comment répartir les outils entre agents, relève de la distribution des
+outils, développée en D2.3.</strong></p>
+<div class="anti-pattern">
+<p>Trois gestes qui ressemblent à des correctifs et n'en sont pas :</p>
+<ul>
+<li><strong>Agrandir la fenêtre de contexte du subagent</strong> quand il a rendu une réponse
+maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change rien.</li>
+<li><strong>Lancer sur des tours successifs</strong> en appelant cela du parallélisme. Des tours
+consécutifs, c'est de l'exécution séquentielle avec des allers-retours en plus.</li>
+<li><strong>Compter sur l'héritage</strong> — « le subagent verra ce que le coordinateur a
+trouvé ». L'isolation est la propriété qui définit un subagent, pas une
+limitation à contourner.</li>
+</ul>
+</div>
+<p><strong>Forker une session pour donner à deux subagents une base d'analyse commune
+relève de la gestion des sessions, développée en 1.7 ci-dessous.</strong> <strong>Définir des
+subagents comme fichiers markdown sous <code>.claude/agents/</code>, et la commande
+<code>/agents</code> qui les crée, relève de la configuration Claude Code, développée au
+domaine 3.</strong></p>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.3&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s4">4. 1.4 — Implement multi-step workflows with enforcement and handoff patterns</h2></div>
+
+<p>Certains ordonnancements doivent tenir à chaque fois. Vérifier l'identité du
+client avant de traiter un remboursement ; contrôler les interactions
+médicamenteuses avant de délivrer. Vous pouvez l'écrire dans le system prompt —
+et une instruction de prompt est une demande que le modèle honore généralement.
+La formulation du guide est nette : <strong>quand une conformité déterministe est
+requise, les instructions de prompt seules ont un taux d'échec non nul.</strong> Sur des
+milliers d'interactions, ce reliquat, ce sont des remboursements versés au
+mauvais client.</p>
+<p>Le <strong>programmatic enforcement</strong> referme cet écart en rendant la violation
+impossible par le code plutôt qu'improbable par la prose. Sa forme concrète est
+un <strong>prerequisite gate</strong> : un appel d'outil en aval est bloqué tant qu'une étape
+amont n'a pas retourné.</p>
+<pre><code class="language-python">async def require_verified_customer(input_data, tool_use_id, context):
+    if input_data[&quot;tool_name&quot;] != &quot;process_refund&quot;:
+        return {}
+    if not session_state.get(&quot;verified_customer_id&quot;):
+        return {&quot;hookSpecificOutput&quot;: {
+            &quot;hookEventName&quot;: &quot;PreToolUse&quot;,
+            &quot;permissionDecision&quot;: &quot;deny&quot;,
+            &quot;permissionDecisionReason&quot;:
+                &quot;Appelez d'abord get_customer : process_refund exige un ID &quot;
+                &quot;client vérifié pour cette session.&quot;,
+        }}
+    return {}
+</code></pre>
+<p><code>process_refund</code> ne peut pas s'exécuter tant que <code>get_customer</code> n'a pas retourné
+un identifiant vérifié. Pas « a peu de chances de » — ne peut pas. La chaîne de
+raison compte autant que le blocage : le modèle la lit, donc il réessaie la bonne
+chose au lieu de réessayer à l'aveugle. <strong>L'API des hooks elle-même — événements,
+matchers, champs de décision — est en TS 1.5, ci-dessous.</strong></p>
+<p>Un second pattern de ce task statement est la <strong>demande multi-sujets</strong>. Un client
+écrit : « Je veux un remboursement sur la commande #1234 <em>et</em> l'adresse de
+livraison a changé sur la commande #5678. » Traiter cela séquentiellement et
+répondre en deux blocs déconnectés est l'échec. Le geste attendu : décomposer en
+items distincts, investiguer chacun en parallèle sur le contexte client
+<em>partagé</em>, puis synthétiser une résolution unifiée.</p>
+<p>Le troisième est le <strong>structured handoff</strong>. Quand l'agent escalade en cours de
+traitement, l'humain qui reprend n'a pas accès au transcript de la conversation.
+Le résumé doit donc se tenir seul :</p>
+<pre><code class="language-json">{
+  &quot;customer_id&quot;: &quot;CUST-12345&quot;,
+  &quot;order_id&quot;: &quot;ORD-67890&quot;,
+  &quot;issue_summary&quot;: &quot;Demande de remboursement pour article endommagé&quot;,
+  &quot;root_cause&quot;: &quot;Article arrivé endommagé ; photos jointes&quot;,
+  &quot;actions_taken&quot;: [
+    &quot;Identité vérifiée via get_customer&quot;,
+    &quot;Commande confirmée via lookup_order&quot;,
+    &quot;Remplacement proposé — le client insiste pour un remboursement&quot;
   ],
-  "refund_amount": "$89.99",
-  "recommended_action": "Approve full refund",
-  "escalation_reason": "Customer requested to speak with a manager"
-}</pre>
-
-<p><em>Voir aussi : D5, section 2 pour les escalation patterns détaillés et la calibration par critères + few-shot.</em></p>
-
-<h3>Les requêtes multi-aspects</h3>
-<p>Quand un client inclut plusieurs problèmes dans un même message (« Je veux un remboursement pour la commande #1234 ET mettre à jour l'adresse de livraison de la commande #5678 »), la bonne approche consiste à <strong>décomposer en éléments distincts</strong>, les traiter en parallèle avec un contexte client partagé, puis synthétiser une réponse unifiée.</p>
-
-<div class="exam-tip">
-<strong>La règle absolue :</strong> quand l'échec a des conséquences financières, légales ou de sécurité → <strong>hooks</strong>. Les prompt instructions ne suffisent jamais pour ces cas-là.
-</div>
-
+  &quot;refund_amount&quot;: &quot;$89.99&quot;,
+  &quot;recommended_action&quot;: &quot;Approuver le remboursement intégral&quot;,
+  &quot;escalation_reason&quot;: &quot;Le client a demandé à parler à un responsable&quot;
+}
+</code></pre>
+<p>Identité du client, cause racine, montant, action recommandée : les quatre que le
+guide nomme. Un handoff qui suppose que l'humain lira la conversation est un
+handoff raté.</p>
 <div class="anti-pattern">
-<strong>Les distracteurs qui visent l'enforcement programmatique :</strong>
+<p>Les distracteurs des questions d'enforcement sont les mesures qui font réellement
+baisser le taux d'échec sans jamais atteindre zéro :</p>
 <ul>
-<li><strong>Renforcer le system prompt</strong> (« la vérification est obligatoire »).</li>
-<li><strong>Ajouter des few-shot examples</strong> montrant l'agent appelant toujours l'outil de vérification en premier.</li>
-<li><strong>Auditer après coup</strong> les transactions pour repérer les violations.</li>
-<li><strong>Déployer un classifieur de routage</strong> qui n'active que le sous-ensemble d'outils pertinent pour chaque requête.</li>
+<li>Renforcer le system prompt — « la vérification est obligatoire ».</li>
+<li>Ajouter des few-shot examples montrant l'outil de vérification appelé en premier.</li>
+<li>Auditer les transactions après coup pour repérer les violations.</li>
+<li>Déployer un classifieur de routage qui n'active que le sous-ensemble d'outils
+pertinent.</li>
 </ul>
-<p>Les trois premiers séduisent parce qu'ils font réellement baisser le taux d'échec — mais l'énoncé demande une <em>garantie</em>, et un audit ne détecte la violation qu'une fois l'argent parti. Le quatrième traite la <em>disponibilité</em> des outils, pas leur <em>ordre</em> d'appel : ce n'est pas le problème posé.</p>
+<p>Les trois premiers font baisser le taux ; la question demandait une garantie, et
+un audit trouve la violation une fois l'argent parti. Le quatrième traite les
+outils <em>disponibles</em>, pas l'ordre dans lequel ils sont appelés — un autre problème.</p>
 </div>
-
-<!-- ================================================================== -->
-<div class="section-header"><h2 id="s7">7. La gestion des sessions (Task 1.7)</h2></div>
-
-<h3>Le problème que cela résout</h3>
-<p>Les investigations complexes s'étalent souvent sur plusieurs sessions de travail. Entre deux sessions, des fichiers peuvent être modifiés, et le contexte accumulé peut devenir obsolète. Il faut des mécanismes pour reprendre intelligemment là où l'on s'est arrêté — ou choisir de repartir de zéro avec un résumé.</p>
-
-<h3><code>--resume</code> : reprendre une session</h3>
-<pre>claude --resume investigation-auth-bug</pre>
-<p>Continue la conversation avec le contexte sauvegardé. Utile quand le travail s'étale sur plusieurs heures ou jours, à condition que les fichiers n'aient pas trop changé entre-temps.</p>
-
-<h3><code>fork_session</code> : explorer deux pistes en parallèle</h3>
-<pre>     Investigation du codebase
-              |
-         fork_session
-          /         \
-     Approach A      Approach B
-      (Redux)        (Context API)</pre>
-<p>Les deux branches héritent du contexte commun jusqu'au point de bifurcation, puis divergent indépendamment. Idéal pour comparer des stratégies ou tester des hypothèses.</p>
-
-<h3>Quand choisir quoi</h3>
-<table>
-<tr><th>Situation</th><th>Choix recommandé</th></tr>
-<tr><td>Le contexte précédent est encore valide (fichiers inchangés)</td><td><code>--resume</code></td></tr>
-<tr><td>Un nombre limité de fichiers précis ont changé, le reste du contexte reste valide</td><td><code>--resume</code> en informant explicitement l'agent des fichiers précisément modifiés, pour une ré-analyse ciblée (plutôt qu'une ré-exploration complète)</td></tr>
-<tr><td>Les tool results sont obsolètes (fichiers modifiés de façon étendue ou incertaine)</td><td>Nouvelle session avec un résumé structuré injecté</td></tr>
-<tr><td>On veut comparer deux approches</td><td><code>fork_session</code></td></tr>
-<tr><td>Beaucoup de temps a passé et le contexte s'est dégradé</td><td>Nouvelle session : « Here's a summary of our findings… »</td></tr>
-</table>
-
-<div class="key-concept">
-Il est souvent plus fiable de démarrer une nouvelle session avec un résumé structuré que de reprendre avec des tool results potentiellement obsolètes. Un résumé bien écrit perd peu d'information et offre un contexte frais.
-</div>
-
 <div class="exam-tip">
-<strong>Le réflexe :</strong> trois situations, trois réponses. Le contexte antérieur reste majoritairement valide → <code>--resume</code>, en <strong>nommant les fichiers modifiés</strong> pour une ré-analyse ciblée. Les tool results sont largement périmés → session neuve avec un résumé structuré injecté. On veut explorer deux approches depuis une base d'analyse commune → <code>fork_session</code>. Les distracteurs : tout ré-explorer de zéro (cela jette du travail encore valide), reprendre sans signaler les changements (l'agent garde une vue fausse des fichiers et raisonne sur des tool results morts), ou forker pour comparer l'ancienne et la nouvelle version d'un fichier (le fork sert à explorer des approches divergentes, pas à réconcilier un état disque).
+<p>La règle à emporter : <strong>conséquences financières, légales ou de sécurité →
+programmatic enforcement.</strong> Préférences, ton et mise en forme → instructions de
+prompt. Si l'énoncé contient le mot « garantie », ou décrit une action
+irréversible, aucune dose de prompt engineering n'est la réponse.</p>
 </div>
+<p><strong>Quand escalader — les critères, le respect d'une préférence explicite du
+client, la détection d'un trou dans la politique — relève de la décision
+d'escalade, développée en D5.2.</strong></p>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.4&quot;</code>.</p>
 
-<!-- ================================================================== -->
-<div class="section-header page-break"><h2 id="s8">8. Synthèse + questions d'auto-évaluation</h2></div>
+<div class="section-header"><h2 id="s5">5. 1.5 — Apply Agent SDK hooks for tool call interception and data normalization</h2></div>
 
-<p>Si vous ne deviez retenir que l'essentiel de ce domaine :</p>
+<p>Un <strong>hook</strong> est une fonction de rappel à vous que le SDK exécute quand un
+événement de l'agent se déclenche. Elle tourne dans le process de votre
+application, pas dans la fenêtre de contexte de l'agent — elle ne coûte donc
+aucun token, et c'est du code ordinaire avec des garanties ordinaires.</p>
+<p>Deux événements portent ce task statement :</p>
+<table>
+<thead>
+<tr>
+<th>Événement</th>
+<th>Se déclenche</th>
+<th>Peut-il encore changer l'issue ?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PreToolUse</code></td>
+<td>Un appel d'outil est demandé, avant qu'il ne s'exécute</td>
+<td>Oui — autoriser, refuser, ou réécrire l'entrée</td>
+</tr>
+<tr>
+<td><code>PostToolUse</code></td>
+<td>L'outil a retourné, avant que le modèle ne lise le résultat</td>
+<td>L'appel a déjà eu lieu ; vous pouvez remplacer ce que le modèle lit</td>
+</tr>
+</tbody>
+</table>
+<p><code>PreToolUse</code> est le primitif d'application de règles. Son callback retourne un
+<code>hookSpecificOutput</code> portant <code>permissionDecision</code> (<code>&quot;allow&quot;</code>, <code>&quot;deny&quot;</code>, <code>&quot;ask&quot;</code>,
+<code>&quot;defer&quot;</code>), un <code>permissionDecisionReason</code> que le modèle lit, et éventuellement
+<code>updatedInput</code> pour réécrire l'appel plutôt que le refuser.</p>
+<pre><code class="language-python">async def cap_refunds(input_data, tool_use_id, context):
+    if input_data[&quot;tool_name&quot;] != &quot;process_refund&quot;:
+        return {}
+    if input_data[&quot;tool_input&quot;].get(&quot;amount&quot;, 0) &gt; 500:
+        return {&quot;hookSpecificOutput&quot;: {
+            &quot;hookEventName&quot;: &quot;PreToolUse&quot;,
+            &quot;permissionDecision&quot;: &quot;deny&quot;,
+            &quot;permissionDecisionReason&quot;:
+                &quot;Un remboursement au-dessus de 500 $ exige un validateur &quot;
+                &quot;humain. Appelez escalate_to_human avec le résumé du dossier.&quot;,
+        }}
+    return {}
+</code></pre>
+<p>Le blocage est la moitié du travail ; la raison redirige l'agent vers le workflow
+alternatif au lieu de le laisser deviner. Quand plusieurs hooks et règles de
+permission divergent, le SDK tranche par priorité — <code>deny</code> l'emporte sur <code>defer</code>,
+qui l'emporte sur <code>ask</code>, qui l'emporte sur <code>allow</code> — donc un seul <code>deny</code> suffit.</p>
+<p><code>PostToolUse</code> est le primitif de normalisation. Son champ <code>updatedToolOutput</code>
+remplace la sortie de l'outil avant que Claude ne la voie ; <code>additionalContext</code>
+la complète sans la remplacer.</p>
+<pre><code class="language-python">async def normalize_dates(input_data, tool_use_id, context):
+    if input_data[&quot;tool_name&quot;] not in ORDER_TOOLS:
+        return {}
+    raw = json.loads(input_data[&quot;tool_response&quot;][&quot;content&quot;])
+    return {&quot;hookSpecificOutput&quot;: {
+        &quot;hookEventName&quot;: &quot;PostToolUse&quot;,
+        &quot;updatedToolOutput&quot;: json.dumps({
+            **raw,
+            &quot;shipped_at&quot;: to_iso8601(raw[&quot;shipped_at&quot;]),   # 1743800400 → &quot;2025-04-04&quot;
+            &quot;status&quot;: STATUS_NAMES[raw[&quot;status&quot;]],          # 2 → &quot;shipped&quot;
+        }),
+    }}
+</code></pre>
+<p>C'est le cas du guide, littéralement : plusieurs outils MCP renvoient des dates
+en timestamps Unix, d'autres en ISO 8601, des statuts en codes numériques. Les
+faire correspondre est une table fixe, pas un jugement — cela relève donc d'un
+code qui tourne sur chaque résultat, pas d'un prompt qui demande au modèle de
+composer avec trois formats.</p>
+<div class="key-concept">
+<p>Le choix entre un hook et une instruction de prompt est le même qu'en 1.4, un
+niveau plus bas :</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Hook</th>
+<th>Instruction de prompt</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Garantie</td>
+<td>Déterministe — c'est du code qui s'exécute</td>
+<td>Probabiliste — aucune garantie</td>
+</tr>
+<tr>
+<td>À utiliser pour</td>
+<td>Règles métier, plafonds financiers et réglementaires</td>
+<td>Préférences, ton, mise en forme</td>
+</tr>
+<tr>
+<td>Exemple</td>
+<td>Bloquer les remboursements au-dessus de 500 $</td>
+<td>« Essaie de résoudre le problème avant d'escalader »</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="anti-pattern">
+<p>Recourir à <code>PostToolUse</code> pour empêcher quelque chose. Il se déclenche après
+l'exécution de l'outil — le remboursement est versé, les lignes sont supprimées.
+Bloquer, c'est <code>PreToolUse</code>.</p>
+<p>L'erreur miroir est un blocage <code>PreToolUse</code> employé pour corriger un problème de
+<em>lecture</em>. Si un outil renvoie un champ surchargé que le modèle interprète mal,
+bloquer l'appel en aval supprime aussi les appels corrects ; le correctif est de
+réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le modèle.</p>
+</div>
+<div class="exam-tip">
+<p>Deux questions séparent proprement les deux hooks. <em>Faut-il que quelque chose
+n'arrive pas ?</em> → <code>PreToolUse</code>. <em>Faut-il que le modèle lise autre chose que ce
+que l'outil a retourné ?</em> → <code>PostToolUse</code>. Les distracteurs placeront le bon
+mécanisme au mauvais endroit de la boucle.</p>
+</div>
+<p><strong>Les hooks de Claude Code au niveau configuration, déclarés dans les settings
+plutôt que dans du code SDK, sont développés au domaine 3.</strong></p>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.5&quot;</code>.</p>
 
-<h3>L'agentic loop</h3>
+<div class="section-header"><h2 id="s6">6. 1.6 — Design task decomposition strategies for complex workflows</h2></div>
+
+<p>Toutes les tâches ne se découpent pas de la même façon, et se tromper de régime
+coûte soit de la rigidité, soit du chaos. Il y en a deux.</p>
+<p><strong>Pipeline séquentiel fixe — prompt chaining.</strong> Chaque étape est décidée à
+l'avance et s'exécute dans l'ordre. À utiliser quand la structure de la tâche est
+prévisible, que toutes les étapes sont connues et que vous voulez des résultats
+stables et comparables d'une exécution à l'autre.</p>
+<p><strong>Décomposition dynamique adaptative.</strong> Les sous-tâches émergent de ce que
+l'étape précédente a trouvé. À utiliser pour l'investigation ouverte, quand le
+périmètre est inconnu au départ.</p>
+<div class="key-concept">
+<p>Le critère est la <strong>prévisibilité, pas la taille</strong>. Une pull request de douze
+fichiers a un ensemble de cibles connu et énumérable : pipeline fixe. Un bug d'un
+seul fichier dont on ignore l'origine, non.</p>
+</div>
+<p>L'exemple de prompt chaining du guide lui-même est la revue de code
+multi-aspects. Une passe unique sur un gros diff produit une sortie inégale :
+commentaires détaillés sur certains fichiers, superficiels sur d'autres, et
+contradictions entre eux. Découpez :</p>
+<pre><code class="language-text">Passe 1 — par fichier, une analyse ciblée chacun
+          → bugs locaux, problèmes de qualité, vulnérabilités
+Passe 2 — une passe d'intégration inter-fichiers sur les résultats de la passe 1
+          → types incohérents, dépendances circulaires, flux de données cassés
+
+Découper ainsi est ce qui évite la dilution de l'attention sur une grosse revue.
+</code></pre>
+<p>L'exemple de décomposition adaptative du guide est « ajouter une couverture de
+tests complète à un codebase legacy ». Vous ne pouvez pas lister les sous-tâches
+d'avance, parce qu'elles sont précisément ce que vous allez découvrir :</p>
+<pre><code class="language-text">1. Cartographier la structure         (Glob, Grep)
+2. Découverte : 3 modules sans tests, 2 partiellement couverts
+3. Prioriser par impact               → le module de paiements d'abord (risque élevé)
+4. Surprise : une dépendance vers une API externe non mockée
+5. Adapter le plan                    → construire le mock, puis écrire les tests
+</code></pre>
+<p>Cartographier la structure, identifier les zones à fort impact, produire un plan
+priorisé qui s'adapte à mesure que les dépendances apparaissent — c'est la
+formulation du guide, et l'étape 4 est tout l'enjeu : le plan a changé à cause de
+ce que l'étape 1 a trouvé.</p>
+<div class="anti-pattern">
+<p>Trois mauvais appariements, et ce sont exactement les distracteurs :</p>
 <ul>
-<li>Boucle agentique pilotée par <code>stop_reason</code> : <code>"tool_use"</code> → exécuter l'outil et itérer ; <code>"end_turn"</code> → terminer.</li>
-<li>Les deux valeurs testées : <code>"tool_use"</code> → continuer, <code>"end_turn"</code> → terminer. Les autres (<code>"pause_turn"</code>, <code>"refusal"</code>, <code>"model_context_window_exceeded"</code>) existent en production mais ne sont pas matière d'examen.</li>
-<li>Ne jamais parser le texte de l'assistant, utiliser des limites d'itérations arbitraires ou vérifier la présence de texte comme signal de fin.</li>
-<li>Hooks <code>PreToolUse</code> = entre la décision d'appel (bloc <code>tool_use</code> émis) et l'exécution de l'outil ; <code>PostToolUse</code> = au début de l'observe suivant.</li>
+<li>Un <strong>pipeline fixe sur un périmètre inconnu</strong> — il exige la liste des étapes
+avant de commencer, ce qui est précisément ce dont vous ne disposez pas.</li>
+<li>Une <strong>revue multi-passes proposée pour une investigation ouverte</strong> — elle est
+conçue pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.</li>
+<li>Un <strong>prompt exhaustif unique</strong> censé tout couvrir d'un coup — il suppose que
+vous connaissez déjà le périmètre.</li>
 </ul>
+<p>Et le quatrième, plus discret : la décomposition adaptative sur des cibles
+figées. Elle n'apporte rien dès lors que les cibles ne varient jamais, et elle
+rend les exécutions successives plus difficiles à comparer.</p>
+</div>
+<div class="exam-tip">
+<p>Lisez l'énoncé pour une seule chose : <strong>la liste des cibles est-elle connaissable
+avant le premier appel ?</strong> Oui → prompt chaining. Non → décomposition dynamique.
+Des formules comme « les mêmes six adaptateurs, chaque trimestre » pointent d'un
+côté ; « personne ne sait combien d'étages il comporte » pointe de l'autre.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.6&quot;</code>.</p>
 
-<h3>L'architecture multi-agents (hub-and-spoke)</h3>
+<div class="section-header"><h2 id="s7">7. 1.7 — Manage session state, resumption, and forking</h2></div>
+
+<p>Une <strong>session</strong> est l'historique de conversation que le SDK accumule pendant le
+travail de l'agent — votre prompt, chaque appel d'outil, chaque résultat, chaque
+réponse — écrit sur disque automatiquement. Les longues investigations s'étalent
+sur plusieurs sessions de travail, et entre-temps les fichiers changent et les
+résultats d'outils enregistrés se périment.</p>
+<p>Trois opérations, trois métiers différents :</p>
+<table>
+<thead>
+<tr>
+<th>Opération</th>
+<th>Ce qu'elle fait</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--resume &lt;session-name&gt;</code></td>
+<td>Continue une conversation antérieure précise, par son nom</td>
+</tr>
+<tr>
+<td><code>fork_session</code></td>
+<td>Crée une branche indépendante à partir de l'historique d'une session existante ; l'originale reste intacte et le fork obtient son propre id</td>
+</tr>
+<tr>
+<td>Session neuve + résumé injecté</td>
+<td>Démarre à vide et reçoit, dans le prompt, un résumé structuré de ce qui tient encore</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-python"># Forker la base d'analyse pour explorer une seconde approche.
+async for message in query(
+    prompt=&quot;Plutôt que Redux, décris comment la Context API fonctionnerait ici&quot;,
+    options=ClaudeAgentOptions(
+        resume=session_id,      # un fork branche toujours une session existante
+        fork_session=True,
+        max_turns=5,
+    ),
+):
+    if isinstance(message, ResultMessage):
+        forked_id = message.session_id     # distinct de session_id
+</code></pre>
+<p>Deux faits sur le fork sur lesquels les questions se jouent. Il se combine
+toujours à la reprise — on forke <em>une session existante</em>, jamais à partir de
+rien. Et il branche l'<strong>historique de conversation, pas le système de fichiers</strong> :
+deux agents forkés qui modifient des fichiers dans le même répertoire modifient
+les mêmes fichiers.</p>
+<p>Choisir entre les trois est la compétence que le guide teste :</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Choix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Le contexte antérieur est encore valide, fichiers inchangés</td>
+<td><code>--resume</code></td>
+</tr>
+<tr>
+<td>Quelques fichiers précis ont changé, le reste tient encore</td>
+<td><code>--resume</code>, en <strong>nommant les fichiers modifiés</strong> pour que l'agent les ré-analyse plutôt que de tout ré-explorer</td>
+</tr>
+<tr>
+<td>Les résultats d'outils sont périmés — fichiers modifiés largement ou de façon incertaine</td>
+<td>Session neuve, amorcée par un résumé structuré</td>
+</tr>
+<tr>
+<td>Comparer deux approches depuis une base d'analyse commune</td>
+<td><code>fork_session</code></td>
+</tr>
+</tbody>
+</table>
+<p>La troisième ligne est le jugement du guide lui-même, et il est assez
+contre-intuitif pour être testé : <strong>démarrer une session neuve avec un résumé
+structuré est plus fiable que reprendre avec des résultats d'outils périmés.</strong>
+Une session reprise transporte des réponses enregistrées qui décrivent un système
+qui n'existe plus, et l'agent raisonne dessus comme si elles étaient à jour. Un
+résumé écrit emporte les conclusions qui ont survécu et laisse derrière les
+payloads morts.</p>
+<div class="anti-pattern">
+<p>Trois gestes que les distracteurs proposent à la place des trois réponses ci-dessus :</p>
 <ul>
-<li>Le coordinateur (hub) gère <em>toute</em> la communication entre subagents (spokes).</li>
-<li>Les subagents ont un contexte isolé : le context passing doit être explicite.</li>
-<li>L'outil <code>Task</code> est le mécanisme de création ; <code>allowedTools</code> doit inclure <code>"Task"</code>.</li>
-<li>Plusieurs appels <code>Task</code> dans une seule réponse = parallel exécution.</li>
-<li>Attention à la décomposition trop étroite → couverture incomplète.</li>
+<li><strong>Reprendre sans dire ce qui a changé.</strong> L'agent garde une image fausse des
+fichiers et raisonne sur des résultats d'outils morts — précisément l'échec que
+la reprise devait éviter.</li>
+<li><strong>Tout ré-explorer de zéro</strong> alors que seuls trois fichiers ont bougé. C'est
+jeter du travail encore valide.</li>
+<li><strong>Forker pour comparer une ancienne et une nouvelle version d'un fichier.</strong> Un
+fork explore des <em>approches</em> divergentes depuis une base commune ; il ne
+réconcilie pas un état disque.</li>
 </ul>
+</div>
+<div class="exam-tip">
+<p>Trois situations, trois réponses, et les distracteurs les permutent. Contexte
+majoritairement valide → <code>--resume</code> accompagné de la liste des fichiers modifiés.
+Résultats d'outils largement périmés → session neuve avec un résumé injecté. Deux
+approches à comparer → <code>fork_session</code>. Notez aussi que le guide écrit <code>--resume &lt;session-name&gt;</code> alors que le SDK documente <code>resume</code> prenant un session ID ; c'est
+le concept — reprendre une investigation <em>nommée</em> à travers plusieurs sessions de
+travail — qui est testé, pas la syntaxe.</p>
+</div>
+<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.7&quot;</code>.</p>
 
-<h3>Le programmatic enforcement et les hooks</h3>
-<ul>
-<li>Conséquences financières, légales ou de sécurité → <strong>hooks</strong> (garantie à 100 %).</li>
-<li>Préférences et recommandations → prompt instructions (probabiliste).</li>
-<li><code>PostToolUse</code> pour normaliser les données hétérogènes. <code>PreToolUse</code> pour bloquer les actions non conformes.</li>
-</ul>
-
-<h3>La décomposition</h3>
-<ul>
-<li>Fixed pipeline (prompt chaining) pour les tâches prévisibles. Dynamic décomposition pour les investigations ouvertes.</li>
-<li>Multi-pass review pour les grosses PR : pass per-file + pass intégration.</li>
-</ul>
-
-<h3>Les sessions</h3>
-<ul>
-<li><code>--resume</code> si le contexte est encore valide, <code>fork_session</code> pour comparer, nouvelle session si les données sont obsolètes.</li>
-<li>4-5 outils maximum par subagent ; un structured output format pour borner sa sortie.</li>
-</ul>
-
-<h3>Questions d'auto-évaluation</h3>
+<div class="section-header"><h2 id="s8" class="page-break">8. Questions d'auto-évaluation</h2></div>
 
 <details id="d1-q1" data-domain="D1" data-task="1.4">
 <summary>Q1 (D1) — A dose released before the interaction check</summary>
@@ -614,7 +988,7 @@ Il est souvent plus fiable de démarrer une nouvelle session avec un résumé st
 
 <hr>
 <p style="text-align:center;color:#888;font-size:9pt;">
-CCA Révision — D1 Architecture et orchestration · Sources : guide officiel CCA (chapitres 3, 8, 9) · 2026
+CCA Révision — D1 — Architecture et orchestration des agents (27 %) · 2026
 </p>
 
 

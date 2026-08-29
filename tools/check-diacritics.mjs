@@ -108,6 +108,15 @@ for (const file of [...files, ...frFiles, ...corpusDocs]) {
     if (insideBefore || opens > 0) return;
 
     const prose = line
+      // Un commentaire HTML porte des métadonnées machine (<!-- src:… -->,
+      // <!-- owns:… -->), pas de la prose : il reste en anglais dans les deux
+      // langues, comme le contenu des <code> juste en dessous.
+      .replace(/<!--[\s\S]*?-->/g, ' ')
+      // Le libellé d'un task statement (« 1.6 — Design task decomposition
+      // strategies for complex workflows ») reproduit le guide d'examen mot
+      // pour mot : il est invariant en anglais dans le cours français, et
+      // courses/po/fr.po le déclare tel avec sa raison.
+      .replace(/\d\.\d\s+—\s+[A-Z][^<]*/g, ' ')
       .replace(/<code>[\s\S]*?<\/code>/g, ' ')
       .replace(/https?:\/\/\S+/g, ' ')
       .replace(/\b[\w./-]+\.(html|js|css|md|json|mjs|py|pdf)\b/g, ' ')

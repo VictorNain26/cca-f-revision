@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cca-f-revision\n"
-"POT-Creation-Date: 2026-08-29 20:27+0200\n"
+"POT-Creation-Date: 2026-08-29 22:30+0200\n"
 "PO-Revision-Date: 2026-08-29 20:27+0200\n"
 "Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
 "Language-Team: French\n"
@@ -15,29 +15,23 @@ msgstr ""
 
 #. type: Title #
 #: courses/en/00-api-foundations.md:1
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "D0 — API foundations"
 msgstr "D0 — Fondamentaux de l'API"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
 #: courses/en/00-api-foundations.md:4
-#, markdown-text, no-wrap
-msgid ""
-"<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 "
-"and 3 ; exam guide appendix (Claude API, Context window management) -->\n"
-msgstr ""
-"<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 "
-"and 3 ; exam guide appendix (Claude API, Context window management) -->\n"
+#, no-wrap
+msgid "<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->\n"
+msgstr "<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:8
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"These are the prerequisites the exam guide assumes you already "
-"have. Nothing\n"
-"here is a task statement of its own: the guide tests what you *build* on top "
-"of\n"
+"These are the prerequisites the exam guide assumes you already have. Nothing\n"
+"here is a task statement of its own: the guide tests what you *build* on top of\n"
 "this. Read it once, then move to D1.\n"
 msgstr ""
 "Voici les prérequis que le guide d'examen suppose acquis. Rien ici n'est un task\n"
@@ -46,12 +40,10 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:12
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Each section stops where a task statement starts. Where a notion belongs "
-"to\n"
-"another domain, you get one sentence of definition and a pointer, never a "
-"bare\n"
+"Each section stops where a task statement starts. Where a notion belongs to\n"
+"another domain, you get one sentence of definition and a pointer, never a bare\n"
 "link.\n"
 msgstr ""
 "Chaque section s'arrête là où commence un task statement. Quand une notion\n"
@@ -60,14 +52,12 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:18
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
 "The guide also decides what is *not* here. Its out-of-scope list rules out\n"
 "Claude's internal architecture, tokenization specifics, embedding models,\n"
-"streaming, and API authentication — so the request lifecycle stops at the "
-"shape\n"
-"of the call, and never goes inside the model. What the guide leaves out, "
-"the\n"
+"streaming, and API authentication — so the request lifecycle stops at the shape\n"
+"of the call, and never goes inside the model. What the guide leaves out, the\n"
 "corpus records with its motive in `courses/out-of-scope.md`.\n"
 msgstr ""
 "Le guide décide aussi de ce qui n'est *pas* ici. Son hors-périmètre écarte\n"
@@ -79,29 +69,26 @@ msgstr ""
 
 #. type: Title ##
 #: courses/en/00-api-foundations.md:19
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "Anatomy of a Messages API request"
 msgstr "Anatomie d'une requête Messages API"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
 #: courses/en/00-api-foundations.md:22
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide "
-"appendix (Claude API — max_tokens, system prompts) -->\n"
+"<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->\n"
 "<!-- owns:messages-api -->\n"
 msgstr ""
-"<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide "
-"appendix (Claude API — max_tokens, system prompts) -->\n"
+"<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->\n"
 "<!-- owns:messages-api -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:25
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"One call carries everything: `client.messages.create()`. There is no session "
-"to\n"
+"One call carries everything: `client.messages.create()`. There is no session to\n"
 "open and nothing to close.\n"
 msgstr ""
 "Un seul appel porte tout : `client.messages.create()`. Il n'y a pas de session à\n"
@@ -109,21 +96,17 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:35
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
 "| Field | Required | What it does |\n"
 "|---|---|---|\n"
 "| `model` | yes | Which Claude model answers the request |\n"
-"| `messages` | yes | The conversation history you are sending, oldest first "
-"|\n"
-"| `max_tokens` | yes | Ceiling on how many tokens the response may contain "
-"|\n"
+"| `messages` | yes | The conversation history you are sending, oldest first |\n"
+"| `max_tokens` | yes | Ceiling on how many tokens the response may contain |\n"
 "| `system` | no | Standing instructions, outside the conversation |\n"
 "| `tools` | no | The tool schemas the model may call — designed in D2.1 |\n"
-"| `tool_choice` | no | Whether the model may answer in prose or must call a "
-"tool — developed in D4.3 |\n"
-"| `temperature` | no | How much randomness enters token selection, from 0 to "
-"1 |\n"
+"| `tool_choice` | no | Whether the model may answer in prose or must call a tool — developed in D4.3 |\n"
+"| `temperature` | no | How much randomness enters token selection, from 0 to 1 |\n"
 msgstr ""
 "| Champ | Obligatoire | Rôle |\n"
 "|---|---|---|\n"
@@ -137,17 +120,15 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:37
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "Two of these are read wrong often enough to be worth stating plainly.\n"
-msgstr ""
-"Deux d'entre eux sont assez souvent mal compris pour mériter d'être énoncés clairement.\n"
+msgstr "Deux d'entre eux sont assez souvent mal compris pour mériter d'être énoncés clairement.\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:41
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"`max_tokens` is a safety limit, not a target. Set it to 1000 and Claude "
-"stops\n"
+"`max_tokens` is a safety limit, not a target. Set it to 1000 and Claude stops\n"
 "after 1000 tokens even if it had more to say; it never tries to reach the\n"
 "number. It bounds the output, not the request you send.\n"
 msgstr ""
@@ -158,12 +139,10 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:45
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"`system` is a sibling of `messages`, not one of them. Every other field on "
-"this\n"
-"list is a sibling too: `tools` and `tool_choice` sit at the top level of "
-"the\n"
+"`system` is a sibling of `messages`, not one of them. Every other field on this\n"
+"list is a sibling too: `tools` and `tool_choice` sit at the top level of the\n"
 "body, never inside a message.\n"
 msgstr ""
 "`system` est un voisin de `messages`, pas l'un d'eux. Tous les autres champs de\n"
@@ -177,11 +156,9 @@ msgid ""
 "{\n"
 "  \"model\": \"claude-sonnet-5\",\n"
 "  \"max_tokens\": 1024,\n"
-"  \"system\": \"You are a financial analysis assistant. Answer "
-"concisely.\",\n"
+"  \"system\": \"You are a financial analysis assistant. Answer concisely.\",\n"
 "  \"messages\": [\n"
-"    { \"role\": \"user\", \"content\": \"What was company X's revenue in "
-"Q3?\" }\n"
+"    { \"role\": \"user\", \"content\": \"What was company X's revenue in Q3?\" }\n"
 "  ]\n"
 "}\n"
 msgstr ""
@@ -199,8 +176,7 @@ msgstr ""
 #, no-wrap
 msgid ""
 "`system` sits beside `messages`, never inside it. Sliding the standing\n"
-"instructions in as a first `user` message is the most common shape error "
-"on\n"
+"instructions in as a first `user` message is the most common shape error on\n"
 "this endpoint, and it changes how the model weighs them.\n"
 msgstr ""
 "`system` se place à côté de `messages`, jamais dedans. Glisser les instructions\n"
@@ -209,14 +185,11 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:66
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Exact model identifiers are not exam material. `temperature` is not either "
-"—\n"
-"the guide never names it, and no task statement turns on it; the row is here "
-"so\n"
-"you recognize the field in a request body you are handed, not to be "
-"memorized.\n"
+"Exact model identifiers are not exam material. `temperature` is not either —\n"
+"the guide never names it, and no task statement turns on it; the row is here so\n"
+"you recognize the field in a request body you are handed, not to be memorized.\n"
 msgstr ""
 "Les identifiants exacts de modèles ne sont pas matière d'examen. `temperature`\n"
 "non plus — le guide ne la nomme jamais et aucun task statement n'en dépend ; la\n"
@@ -225,36 +198,32 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:68
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "**To test** — the self-assessment questions of this page.\n"
-msgstr ""
-"**À tester** — les questions d'auto-évaluation de cette page.\n"
+msgstr "**À tester** — les questions d'auto-évaluation de cette page.\n"
 
 #. type: Title ##
 #: courses/en/00-api-foundations.md:69
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "Roles, turns, and a stateless API"
 msgstr "Rôles, tours de parole et API sans état"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
 #: courses/en/00-api-foundations.md:72
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS "
-"1.1, TS 1.3 -->\n"
+"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->\n"
 "<!-- owns:message-roles -->\n"
 msgstr ""
-"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS "
-"1.1, TS 1.3 -->\n"
+"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->\n"
 "<!-- owns:message-roles -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:75
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"`messages` is a list of dictionaries, each with a `role` and a "
-"`content`. There\n"
+"`messages` is a list of dictionaries, each with a `role` and a `content`. There\n"
 "are two roles:\n"
 msgstr ""
 "`messages` est une liste de dictionnaires, chacun avec un `role` et un `content`.\n"
@@ -262,7 +231,7 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:80
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
 "| Role | Who writes it |\n"
 "|---|---|\n"
@@ -276,25 +245,18 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:82
-#, markdown-text, no-wrap
-msgid ""
-"A conversation alternates between the two: user turn, assistant turn, user "
-"turn.\n"
-msgstr ""
-"Une conversation alterne entre les deux : tour user, tour assistant, tour user.\n"
+#, no-wrap
+msgid "A conversation alternates between the two: user turn, assistant turn, user turn.\n"
+msgstr "Une conversation alterne entre les deux : tour user, tour assistant, tour user.\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:87
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"**The API stores nothing.** Every request is independent and carries no "
-"memory\n"
-"of the ones before it. Ask \"What is quantum computing?\", get an answer, "
-"then\n"
-"send \"Write another sentence\" on its own, and the model has no idea what "
-"it is\n"
-"being asked to extend — it will write a sentence about something else "
-"entirely.\n"
+"**The API stores nothing.** Every request is independent and carries no memory\n"
+"of the ones before it. Ask \"What is quantum computing?\", get an answer, then\n"
+"send \"Write another sentence\" on its own, and the model has no idea what it is\n"
+"being asked to extend — it will write a sentence about something else entirely.\n"
 msgstr ""
 "**L'API ne stocke rien.** Chaque requête est indépendante et ne garde aucune\n"
 "mémoire des précédentes. Demandez « Qu'est-ce que l'informatique quantique ? »,\n"
@@ -304,13 +266,11 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:92
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Multi-turn conversation is therefore work you do, not a service the API "
-"renders:\n"
+"Multi-turn conversation is therefore work you do, not a service the API renders:\n"
 "send the first user message, append Claude's reply to your list as an\n"
-"`assistant` message, append the follow-up as a `user` message, and send "
-"the\n"
+"`assistant` message, append the follow-up as a `user` message, and send the\n"
 "whole list again.\n"
 msgstr ""
 "La conversation multi-tours est donc un travail que vous faites, pas un service\n"
@@ -323,10 +283,8 @@ msgstr ""
 #, no-wrap
 msgid ""
 "\"messages\": [\n"
-"  { \"role\": \"user\",      \"content\": \"Define quantum computing in one "
-"sentence\" },\n"
-"  { \"role\": \"assistant\", \"content\": \"Quantum computing uses quantum "
-"states to process information.\" },\n"
+"  { \"role\": \"user\",      \"content\": \"Define quantum computing in one sentence\" },\n"
+"  { \"role\": \"assistant\", \"content\": \"Quantum computing uses quantum states to process information.\" },\n"
 "  { \"role\": \"user\",      \"content\": \"Write another sentence\" }\n"
 "]\n"
 msgstr ""
@@ -338,10 +296,9 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:103
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Only because the first two turns are still in the array does \"Write "
-"another\n"
+"Only because the first two turns are still in the array does \"Write another\n"
 "sentence\" mean anything on the third.\n"
 msgstr ""
 "C'est uniquement parce que les deux premiers tours sont encore dans le tableau\n"
@@ -351,14 +308,10 @@ msgstr ""
 #: courses/en/00-api-foundations.md:104
 #, no-wrap
 msgid ""
-"Everything that must still be visible on turn five has to be in the array "
-"you\n"
-"send on turn five. This is the rule behind most \"the model forgot\" bugs, "
-"and it\n"
-"applies to tool results exactly as it applies to text. The same rule is why "
-"a\n"
-"spawned subagent has to be handed its context explicitly — it inherits "
-"nothing.\n"
+"Everything that must still be visible on turn five has to be in the array you\n"
+"send on turn five. This is the rule behind most \"the model forgot\" bugs, and it\n"
+"applies to tool results exactly as it applies to text. The same rule is why a\n"
+"spawned subagent has to be handed its context explicitly — it inherits nothing.\n"
 msgstr ""
 "Tout ce qui doit encore être visible au cinquième tour doit se trouver dans le\n"
 "tableau que vous envoyez au cinquième tour. C'est la règle derrière la plupart\n"
@@ -370,8 +323,7 @@ msgstr ""
 #: courses/en/00-api-foundations.md:111
 #, no-wrap
 msgid ""
-"Sending only the latest message and expecting the earlier turns to still "
-"be\n"
+"Sending only the latest message and expecting the earlier turns to still be\n"
 "there. Nothing expires server-side, because nothing is stored server-side;\n"
 "rebuilding the history is the caller's job, on every single request.\n"
 msgstr ""
@@ -380,43 +332,36 @@ msgstr ""
 "reconstruire l'historique est le travail de l'appelant, à chaque requête.\n"
 
 #. type: Plain text
-#: courses/en/00-api-foundations.md:118
-#, markdown-text, no-wrap
+#: courses/en/00-api-foundations.md:118 courses/en/01-orchestration.md:341
+#, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.3\"`.\n"
-msgstr ""
-"**À tester** — les questions de la banque étiquetées `data-task=\"1.3\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.3\"`.\n"
 
 #. type: Title ##
 #: courses/en/00-api-foundations.md:119
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "Content blocks"
 msgstr "Les blocs de contenu"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
 #: courses/en/00-api-foundations.md:122
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam "
-"guide TS 1.1 (tool results appended to history) -->\n"
+"<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->\n"
 "<!-- owns:content-blocks -->\n"
 msgstr ""
-"<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam "
-"guide TS 1.1 (tool results appended to history) -->\n"
+"<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->\n"
 "<!-- owns:content-blocks -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:128
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"A reply's `content` is never a bare string — it is a **list of blocks**, "
-"each\n"
-"with its own type. Reading a reply as text works only because you indexed "
-"into\n"
-"that list: `message.content[0].text` is the first block's text, not the "
-"message.\n"
-"The two directions are not symmetrical: a request accepts either form, a "
-"plain\n"
+"A reply's `content` is never a bare string — it is a **list of blocks**, each\n"
+"with its own type. Reading a reply as text works only because you indexed into\n"
+"that list: `message.content[0].text` is the first block's text, not the message.\n"
+"The two directions are not symmetrical: a request accepts either form, a plain\n"
 "string or a list of blocks.\n"
 msgstr ""
 "Le `content` d'une réponse n'est jamais une simple chaîne — c'est une **liste de\n"
@@ -428,15 +373,13 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:134
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
 "| Block type | Direction | Carries |\n"
 "|---|---|---|\n"
 "| `text` | both ways | Prose, for the user to read |\n"
-"| `tool_use` | from the assistant | The tool name and the arguments the "
-"model chose |\n"
-"| `tool_result` | from you, in a `user` message | The output of the tool you "
-"ran |\n"
+"| `tool_use` | from the assistant | The tool name and the arguments the model chose |\n"
+"| `tool_result` | from you, in a `user` message | The output of the tool you ran |\n"
 msgstr ""
 "| Type de bloc | Sens | Contenu |\n"
 "|---|---|---|\n"
@@ -446,18 +389,13 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:141
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"A single assistant reply routinely holds several blocks at once — a text "
-"block\n"
-"explaining what it is about to do, plus a `tool_use` block requesting "
-"it. A\n"
-"`tool_result` block carries three fields: `tool_use_id`, matching the id of "
-"the\n"
-"`tool_use` block it answers; `content`, the function output serialized as "
-"a\n"
-"string; and `is_error`, a boolean. It travels back inside a `user` "
-"message,\n"
+"A single assistant reply routinely holds several blocks at once — a text block\n"
+"explaining what it is about to do, plus a `tool_use` block requesting it. A\n"
+"`tool_result` block carries three fields: `tool_use_id`, matching the id of the\n"
+"`tool_use` block it answers; `content`, the function output serialized as a\n"
+"string; and `is_error`, a boolean. It travels back inside a `user` message,\n"
 "alongside the complete history.\n"
 msgstr ""
 "Une seule réponse d'assistant porte couramment plusieurs blocs à la fois — un\n"
@@ -473,14 +411,12 @@ msgstr ""
 msgid ""
 "{ \"role\": \"assistant\", \"content\": [\n"
 "    { \"type\": \"text\", \"text\": \"Let me look that order up.\" },\n"
-"    { \"type\": \"tool_use\", \"id\": \"toolu_01X\", \"name\": "
-"\"lookup_order\",\n"
+"    { \"type\": \"tool_use\", \"id\": \"toolu_01X\", \"name\": \"lookup_order\",\n"
 "      \"input\": { \"order_id\": \"ORD-67890\" } }\n"
 "]},\n"
 "{ \"role\": \"user\", \"content\": [\n"
 "    { \"type\": \"tool_result\", \"tool_use_id\": \"toolu_01X\",\n"
-"      \"content\": \"{ \\\"status\\\": \\\"shipped\\\", \\\"total\\\": 42.90 "
-"}\",\n"
+"      \"content\": \"{ \\\"status\\\": \\\"shipped\\\", \\\"total\\\": 42.90 }\",\n"
 "      \"is_error\": false }\n"
 "]}\n"
 msgstr ""
@@ -497,10 +433,9 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:157
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Between those two messages, **your code** ran `lookup_order`. The model "
-"never\n"
+"Between those two messages, **your code** ran `lookup_order`. The model never\n"
 "executes anything; it emits a structured request and waits.\n"
 msgstr ""
 "Entre ces deux messages, c'est **votre code** qui a exécuté `lookup_order`. Le\n"
@@ -510,13 +445,10 @@ msgstr ""
 #: courses/en/00-api-foundations.md:158
 #, no-wrap
 msgid ""
-"Appending only the text you displayed and dropping the `tool_use` "
-"block. The\n"
-"pairing with `tool_result` is what the next request depends on, so the "
-"history\n"
+"Appending only the text you displayed and dropping the `tool_use` block. The\n"
+"pairing with `tool_result` is what the next request depends on, so the history\n"
 "becomes unanswerable. Append **all** of `response.content`, and keep the\n"
-"original tool schemas on the follow-up request even when no further call "
-"is\n"
+"original tool schemas on the follow-up request even when no further call is\n"
 "expected.\n"
 msgstr ""
 "N'ajouter que le texte affiché et laisser tomber le bloc `tool_use`. C'est\n"
@@ -527,18 +459,13 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:172
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"A tool is declared as a JSON schema with three parts: `name`, `description` "
-"—\n"
-"what the tool does, when to use it, what it returns — and `input_schema` for "
-"the\n"
-"arguments. That is the anatomy, and it stops there. **Which wording makes "
-"the\n"
-"model pick the right tool among several similar ones is tool design, "
-"developed\n"
-"in D2.1**; **using a schema to force a conforming payload is structured "
-"output,\n"
+"A tool is declared as a JSON schema with three parts: `name`, `description` —\n"
+"what the tool does, when to use it, what it returns — and `input_schema` for the\n"
+"arguments. That is the anatomy, and it stops there. **Which wording makes the\n"
+"model pick the right tool among several similar ones is tool design, developed\n"
+"in D2.1**; **using a schema to force a conforming payload is structured output,\n"
 "developed in D4.3.**\n"
 msgstr ""
 "Un outil se déclare en JSON Schema, en trois parties : `name`, `description` — ce\n"
@@ -550,42 +477,33 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:174 courses/en/00-api-foundations.md:279
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"2.1\"`.\n"
-msgstr ""
-"**À tester** — les questions de la banque étiquetées `data-task=\"2.1\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"2.1\"`.\n"
 
 #. type: Title ##
 #: courses/en/00-api-foundations.md:175
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "`stop_reason`"
 msgstr "Le champ `stop_reason`"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
 #: courses/en/00-api-foundations.md:178
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic "
-"docs, Stop reasons and fallback (seven values, stop_details null except "
-"refusal, pause_turn default limit of 10 iterations, "
-"model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
+"<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
 "<!-- owns:stop-reason -->\n"
 msgstr ""
-"<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic "
-"docs, Stop reasons and fallback (seven values, stop_details null except "
-"refusal, pause_turn default limit of 10 iterations, "
-"model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
+"<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->\n"
 "<!-- owns:stop-reason -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:181
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"When the model stops, the response says why in `stop_reason` — and that "
-"field,\n"
-"not the presence of a text block, is what tells you whether a reply is "
-"finished.\n"
+"When the model stops, the response says why in `stop_reason` — and that field,\n"
+"not the presence of a text block, is what tells you whether a reply is finished.\n"
 msgstr ""
 "Quand le modèle s'arrête, la réponse dit pourquoi dans `stop_reason` — et c'est\n"
 "ce champ, pas la présence d'un bloc texte, qui vous dit si une réponse est\n"
@@ -593,21 +511,17 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:191
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
 "| Value | What ended generation |\n"
 "|---|---|\n"
-"| `end_turn` | The model reached a natural end and had nothing more to say "
-"|\n"
+"| `end_turn` | The model reached a natural end and had nothing more to say |\n"
 "| `max_tokens` | The output budget you set ran out mid-generation |\n"
 "| `stop_sequence` | One of your `stop_sequences` strings appeared |\n"
-"| `tool_use` | The model is calling one of your tools and is waiting for you "
-"to run it |\n"
-"| `pause_turn` | A server-tool loop hit its iteration limit, 10 per request "
-"by default |\n"
+"| `tool_use` | The model is calling one of your tools and is waiting for you to run it |\n"
+"| `pause_turn` | A server-tool loop hit its iteration limit, 10 per request by default |\n"
 "| `refusal` | The model declined for safety-policy reasons |\n"
-"| `model_context_window_exceeded` | The response filled the model's context "
-"window |\n"
+"| `model_context_window_exceeded` | The response filled the model's context window |\n"
 msgstr ""
 "| Valeur | Ce qui a mis fin à la génération |\n"
 "|---|---|\n"
@@ -621,14 +535,11 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:196
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"`stop_details` is `null` for every value but `refusal`, where it carries "
-"the\n"
-"policy category. `model_context_window_exceeded` is the recent one: Sonnet "
-"4.5\n"
-"and newer models return it without a beta header, and earlier models need "
-"the\n"
+"`stop_details` is `null` for every value but `refusal`, where it carries the\n"
+"policy category. `model_context_window_exceeded` is the recent one: Sonnet 4.5\n"
+"and newer models return it without a beta header, and earlier models need the\n"
 "`model-context-window-exceeded-2025-08-26` header to enable it.\n"
 msgstr ""
 "`stop_details` vaut `null` pour toutes les valeurs sauf `refusal`, où il porte la\n"
@@ -646,8 +557,7 @@ msgid ""
 "  \"role\": \"assistant\",\n"
 "  \"content\": [\n"
 "    { \"type\": \"text\", \"text\": \"Let me look that order up.\" },\n"
-"    { \"type\": \"tool_use\", \"id\": \"toolu_01X\", \"name\": "
-"\"lookup_order\",\n"
+"    { \"type\": \"tool_use\", \"id\": \"toolu_01X\", \"name\": \"lookup_order\",\n"
 "      \"input\": { \"order_id\": \"ORD-67890\" } }\n"
 "  ],\n"
 "  \"stop_reason\": \"tool_use\",\n"
@@ -668,7 +578,7 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:213
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
 "That response carries text *and* a tool request — which is exactly why the\n"
 "presence of text cannot serve as a completion signal.\n"
@@ -681,11 +591,9 @@ msgstr ""
 #, no-wrap
 msgid ""
 "`end_turn` is the only value that means *complete*. A response with\n"
-"`stop_reason: \"max_tokens\"` holds a text block like any other, but it was "
-"cut\n"
+"`stop_reason: \"max_tokens\"` holds a text block like any other, but it was cut\n"
 "off mid-sentence — display code that checks for text instead of checking\n"
-"`stop_reason` will present a truncated draft as a finished one. That is "
-"the\n"
+"`stop_reason` will present a truncated draft as a finished one. That is the\n"
 "classic distractor on this field.\n"
 msgstr ""
 "`end_turn` est la seule valeur qui signifie *terminé*. Une réponse avec\n"
@@ -696,16 +604,12 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:226
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Two values are worth telling apart even though only one pair is tested. A "
-"reply\n"
-"waiting on **your** tool always says `tool_use`, and you continue it by "
-"sending\n"
-"`tool_result` blocks. `pause_turn` concerns a **server** tool that ran out "
-"of\n"
-"iterations, and you continue it by sending the assistant content back "
-"unchanged.\n"
+"Two values are worth telling apart even though only one pair is tested. A reply\n"
+"waiting on **your** tool always says `tool_use`, and you continue it by sending\n"
+"`tool_result` blocks. `pause_turn` concerns a **server** tool that ran out of\n"
+"iterations, and you continue it by sending the assistant content back unchanged.\n"
 msgstr ""
 "Deux valeurs méritent d'être distinguées même si une seule paire est testée. Une\n"
 "réponse qui attend **votre** outil dit toujours `tool_use`, et vous la poursuivez\n"
@@ -715,14 +619,11 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:231
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"The guide only ever asks you to tell `tool_use` from `end_turn` — that "
-"pair\n"
-"drives the loop, and it is all TS 1.1 tests. **Turning the check into a loop "
-"—\n"
-"call, inspect `stop_reason`, execute, append, call again — is the agentic "
-"loop,\n"
+"The guide only ever asks you to tell `tool_use` from `end_turn` — that pair\n"
+"drives the loop, and it is all TS 1.1 tests. **Turning the check into a loop —\n"
+"call, inspect `stop_reason`, execute, append, call again — is the agentic loop,\n"
 "developed in D1.1.** D0 stops at naming the signal.\n"
 msgstr ""
 "Le guide ne vous demande jamais que de distinguer `tool_use` de `end_turn` —\n"
@@ -732,39 +633,31 @@ msgstr ""
 "s'arrête à nommer le signal.\n"
 
 #. type: Plain text
-#: courses/en/00-api-foundations.md:233
-#, markdown-text, no-wrap
+#: courses/en/00-api-foundations.md:233 courses/en/01-orchestration.md:115
+#, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.1\"`.\n"
-msgstr ""
-"**À tester** — les questions de la banque étiquetées `data-task=\"1.1\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.1\"`.\n"
 
 #. type: Title ##
 #: courses/en/00-api-foundations.md:234
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "System prompts"
 msgstr "Les system prompts"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
 #: courses/en/00-api-foundations.md:236
-#, markdown-text, no-wrap
-msgid ""
-"<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix "
-"(Claude API — system prompts), TS 2.1 -->\n"
-msgstr ""
-"<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix "
-"(Claude API — system prompts), TS 2.1 -->\n"
+#, no-wrap
+msgid "<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->\n"
+msgstr "<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:241
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"The `system` parameter is a plain string passed alongside `messages`, and "
-"it\n"
-"sits **outside** the conversation: it is not a turn, it has no role, and it "
-"is\n"
-"not something the model answers. It shapes *how* Claude responds, not *what* "
-"it\n"
+"The `system` parameter is a plain string passed alongside `messages`, and it\n"
+"sits **outside** the conversation: it is not a turn, it has no role, and it is\n"
+"not something the model answers. It shapes *how* Claude responds, not *what* it\n"
 "responds.\n"
 msgstr ""
 "Le paramètre `system` est une simple chaîne passée à côté de `messages`, et il se\n"
@@ -774,12 +667,10 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:245
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Take a maths tutor. Without a system prompt, \"How do I solve 5x + 2 = 3 for "
-"x?\"\n"
-"gets a complete step-by-step solution immediately — correct, and useless "
-"for\n"
+"Take a maths tutor. Without a system prompt, \"How do I solve 5x + 2 = 3 for x?\"\n"
+"gets a complete step-by-step solution immediately — correct, and useless for\n"
 "teaching. With:\n"
 msgstr ""
 "Prenez l'exemple d'un tuteur de maths. Sans system prompt, « Comment résoudre\n"
@@ -800,12 +691,10 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:255
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"the same question comes back as \"What do you think would be a good first "
-"step to\n"
-"isolate x?\". Same model, same user turn; the standing instruction changed "
-"the\n"
+"the same question comes back as \"What do you think would be a good first step to\n"
+"isolate x?\". Same model, same user turn; the standing instruction changed the\n"
 "behaviour.\n"
 msgstr ""
 "la même question revient en « Quelle serait selon toi une bonne première étape\n"
@@ -814,15 +703,12 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:260
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"That is what a system prompt is for: assign a role, and the model answers "
-"the\n"
-"way someone in that role would; state durable constraints, and they hold "
-"across\n"
+"That is what a system prompt is for: assign a role, and the model answers the\n"
+"way someone in that role would; state durable constraints, and they hold across\n"
 "every turn without being restated. They hold because you resend them every\n"
-"request, not because the API remembers them — and you pay for them every "
-"time.\n"
+"request, not because the API remembers them — and you pay for them every time.\n"
 msgstr ""
 "Voilà à quoi sert un system prompt : assigner un rôle, et le modèle répond comme\n"
 "quelqu'un dans ce rôle le ferait ; énoncer des contraintes durables, et elles\n"
@@ -835,8 +721,7 @@ msgstr ""
 #, no-wrap
 msgid ""
 "Putting the system prompt in as the first `user` message. It then reads as\n"
-"conversational context rather than a standing instruction, and it competes "
-"with\n"
+"conversational context rather than a standing instruction, and it competes with\n"
 "the turns around it instead of sitting above them.\n"
 msgstr ""
 "Mettre le system prompt en premier message `user`. Il se lit alors comme du\n"
@@ -847,13 +732,10 @@ msgstr ""
 #: courses/en/00-api-foundations.md:267
 #, no-wrap
 msgid ""
-"A system instruction carries further than any per-turn wording — far enough "
-"that\n"
-"a single absolute keyword can override tool descriptions that are "
-"otherwise\n"
+"A system instruction carries further than any per-turn wording — far enough that\n"
+"a single absolute keyword can override tool descriptions that are otherwise\n"
 "well written. \"Always verify the customer's identity\" will drag the\n"
-"nearest-matching tool onto every turn. **How that overriding works, and how "
-"to\n"
+"nearest-matching tool onto every turn. **How that overriding works, and how to\n"
 "word around it, is developed in D2.1.**\n"
 msgstr ""
 "Une instruction system porte plus loin que n'importe quelle formulation à\n"
@@ -865,10 +747,9 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:277
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"One practical note: the API does not accept `system=None`, so a reusable "
-"chat\n"
+"One practical note: the API does not accept `system=None`, so a reusable chat\n"
 "helper has to add the key only when a prompt was actually given.\n"
 msgstr ""
 "Une note pratique : l'API n'accepte pas `system=None`, donc une fonction de chat\n"
@@ -876,29 +757,26 @@ msgstr ""
 
 #. type: Title ##
 #: courses/en/00-api-foundations.md:280
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "The context window"
 msgstr "La fenêtre de contexte"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
 #: courses/en/00-api-foundations.md:283
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam "
-"guide appendix (Context window management), TS 5.1 -->\n"
+"<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->\n"
 "<!-- owns:context-window -->\n"
 msgstr ""
-"<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam "
-"guide appendix (Context window management), TS 5.1 -->\n"
+"<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->\n"
 "<!-- owns:context-window -->\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:288
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Put the two previous facts together. The API keeps no state, so every "
-"request\n"
+"Put the two previous facts together. The API keeps no state, so every request\n"
 "ships the entire history; and every request has a finite token budget. The\n"
 "history is therefore not free — it is a recurring cost that grows with the\n"
 "conversation, monotonically, unless you do something about it.\n"
@@ -911,24 +789,20 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:290
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "What accumulates, per request:\n"
-msgstr ""
-"Ce qui s'accumule, à chaque requête :\n"
+msgstr "Ce qui s'accumule, à chaque requête :\n"
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:297
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
 "| What you resend | Why it is there |\n"
 "|---|---|\n"
-"| The `system` prompt | It holds across turns because you resend it, not "
-"because it is stored |\n"
+"| The `system` prompt | It holds across turns because you resend it, not because it is stored |\n"
 "| Every past `user` and `assistant` turn | Nothing is stored server-side |\n"
-"| Every `tool_use` and `tool_result` block | Dropping them breaks the "
-"pairing |\n"
-"| The full tool schemas | Required on every request, even when no call "
-"follows |\n"
+"| Every `tool_use` and `tool_result` block | Dropping them breaks the pairing |\n"
+"| The full tool schemas | Required on every request, even when no call follows |\n"
 msgstr ""
 "| Ce que vous renvoyez | Pourquoi c'est là |\n"
 "|---|---|\n"
@@ -939,12 +813,10 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:301
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"Tool results are the part people underestimate. A tool that returns a "
-"large\n"
-"record puts that record into the history for the rest of the run, and you "
-"pay\n"
+"Tool results are the part people underestimate. A tool that returns a large\n"
+"record puts that record into the history for the rest of the run, and you pay\n"
 "for it on every subsequent turn — not once.\n"
 msgstr ""
 "Les résultats d'outils sont la part qu'on sous-estime. Un outil qui retourne un\n"
@@ -958,11 +830,9 @@ msgid ""
 "lookup_order → 42 fields returned, 5 useful for return eligibility\n"
 "  order_id, status, total, items, return_eligible          ← useful\n"
 "  warehouse_route, carrier_scac, pick_wave, audit_flags,\n"
-"  promo_ledger, tax_jurisdiction, … (37 more)              ← dead weight "
-"here\n"
+"  promo_ledger, tax_jurisdiction, … (37 more)              ← dead weight here\n"
 "\n"
-"3 orders looked up = 126 fields resent on every later turn, 15 of them "
-"earning it.\n"
+"3 orders looked up = 126 fields resent on every later turn, 15 of them earning it.\n"
 msgstr ""
 "lookup_order → 42 champs retournés, 5 utiles pour l'éligibilité au retour\n"
 "  order_id, status, total, items, return_eligible          ← utiles\n"
@@ -973,17 +843,13 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:317
-#, markdown-text, no-wrap
+#, no-wrap
 msgid ""
-"The guide names three failure modes of a full window, and D0 goes exactly as "
-"far\n"
-"as naming them: **lost-in-the-middle**, where material buried in the middle "
-"of a\n"
+"The guide names three failure modes of a full window, and D0 goes exactly as far\n"
+"as naming them: **lost-in-the-middle**, where material buried in the middle of a\n"
 "long context is missed while the start and the end are read reliably;\n"
-"**accumulation**, the growth shown above; and **progressive "
-"summarization**,\n"
-"where compressing the history to make room trades away the numbers, dates "
-"and\n"
+"**accumulation**, the growth shown above; and **progressive summarization**,\n"
+"where compressing the history to make room trades away the numbers, dates and\n"
 "specifics first.\n"
 msgstr ""
 "Le guide nomme trois modes de défaillance d'une fenêtre pleine, et D0 va\n"
@@ -999,8 +865,7 @@ msgstr ""
 msgid ""
 "Recognize the three failure modes here; the fixes are not D0's. **Trimming\n"
 "verbose tool outputs, extracting structured facts, and ordering input by\n"
-"position are developed in D5.1.** Retrieval and chunking are not the answer "
-"the\n"
+"position are developed in D5.1.** Retrieval and chunking are not the answer the\n"
 "guide asks for — it puts them out of scope, and so does this corpus.\n"
 msgstr ""
 "Reconnaissez ici les trois modes de défaillance ; les remèdes ne sont pas ceux de\n"
@@ -1011,7 +876,1726 @@ msgstr ""
 
 #. type: Plain text
 #: courses/en/00-api-foundations.md:325
-#, markdown-text, no-wrap
+#, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"5.1\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"5.1\"`.\n"
+
+#. type: Title #
+#: courses/en/01-orchestration.md:1
+#, no-wrap
+msgid "D1 — Agentic architecture and orchestration (27 %)"
+msgstr "D1 — Architecture et orchestration des agents (27 %)"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:4
+#, no-wrap
+msgid "<!-- src:exam guide domain 1 (the seven task statements) ; 08agentsdk L2-L11, L14, L15 ; 03subagents L1-L4 -->\n"
+msgstr "<!-- src:exam guide domain 1 (the seven task statements) ; 08agentsdk L2-L11, L14, L15 ; 03subagents L1-L4 -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:9
+#, no-wrap
+msgid ""
+"The heaviest domain of the exam: seven task statements, 27 % of the score. One\n"
+"section per task statement, in the guide's own order and under the guide's own\n"
+"wording — so that a question spotted on exam day maps to a section here\n"
+"without translation.\n"
 msgstr ""
-"**À tester** — les questions de la banque étiquetées `data-task=\"5.1\"`.\n"
+"Le domaine le plus lourd de l'examen : sept task statements, 27 % de la note. Une\n"
+"section par task statement, dans l'ordre du guide et sous le libellé du guide —\n"
+"pour qu'une question repérée le jour J renvoie ici sans traduction.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:13
+#, no-wrap
+msgid ""
+"D0 is assumed. This course starts where D0 stopped: D0 named `stop_reason` and\n"
+"said what each value means; D1 turns that check into a loop, then into a system\n"
+"of agents around it.\n"
+msgstr ""
+"D0 est supposé acquis. Ce cours commence là où D0 s'arrête : D0 a nommé\n"
+"`stop_reason` et dit ce que vaut chaque valeur ; D1 transforme cette vérification\n"
+"en boucle, puis en système d'agents autour d'elle.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:19
+#, no-wrap
+msgid ""
+"The guide places neighbouring notions elsewhere, and this course honours that.\n"
+"`tool_choice` and JSON Schemas are tested in TS 2.3 and TS 4.3; structured error\n"
+"responses in TS 2.2 and TS 5.3; the `.claude/agents/` files and the `/agents`\n"
+"command are Claude Code configuration, tested in domain 3. Each of those gets a\n"
+"sentence and a pointer here, never a second development.\n"
+msgstr ""
+"Le guide place les notions voisines ailleurs, et ce cours le respecte.\n"
+"`tool_choice` et les JSON Schemas sont testés en TS 2.3 et TS 4.3 ; les réponses\n"
+"d'erreur structurées en TS 2.2 et TS 5.3 ; les fichiers `.claude/agents/` et la\n"
+"commande `/agents` relèvent de la configuration Claude Code, testée au domaine 3.\n"
+"Chacune reçoit ici une phrase et un renvoi, jamais un second développement.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/01-orchestration.md:20
+#, no-wrap
+msgid "1.1 — Design and implement agentic loops for autonomous task execution"
+msgstr "1.1 — Design and implement agentic loops for autonomous task execution"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:23
+#, no-wrap
+msgid ""
+"<!-- ts:1.1 | src:08agentsdk L2 (the five-step cycle, the stop_reason table, several tool_use blocks in one reply and their results returned in one user message, the three named anti-patterns, model-driven vs pre-configured decision tree), L3 (maxTurns and maxBudgetUsd as bounds) ; exam guide TS 1.1 -->\n"
+"<!-- owns:agentic-loop -->\n"
+msgstr ""
+"<!-- ts:1.1 | src:08agentsdk L2 (the five-step cycle, the stop_reason table, several tool_use blocks in one reply and their results returned in one user message, the three named anti-patterns, model-driven vs pre-configured decision tree), L3 (maxTurns and maxBudgetUsd as bounds) ; exam guide TS 1.1 -->\n"
+"<!-- owns:agentic-loop -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:29
+#, no-wrap
+msgid ""
+"A single Messages API call produces one answer. A real task — find the\n"
+"customer, look up the order, decide on a refund — needs several actions, each\n"
+"chosen in the light of what the previous one returned. The **agentic loop** is\n"
+"the mechanism: request, response, tool execution, new request, until the model\n"
+"says it is done.\n"
+msgstr ""
+"Un seul appel à la Messages API produit une réponse. Une vraie tâche — retrouver\n"
+"le client, consulter la commande, décider d'un remboursement — demande plusieurs\n"
+"actions, chacune choisie à la lumière de ce que la précédente a retourné.\n"
+"L'**agentic loop** est ce mécanisme : requête, réponse, exécution d'outil,\n"
+"nouvelle requête, jusqu'à ce que le modèle signale qu'il a terminé.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:31
+#, no-wrap
+msgid "The cycle, five steps:\n"
+msgstr "Le cycle, en cinq étapes :\n"
+
+#. type: Bullet: '1. '
+#: courses/en/01-orchestration.md:37
+#, no-wrap
+msgid "You send a request with the conversation history and the `tools` parameter.\n"
+msgstr "Vous envoyez une requête avec l'historique de conversation et le paramètre `tools`.\n"
+
+#. type: Bullet: '2. '
+#: courses/en/01-orchestration.md:37
+#, no-wrap
+msgid "Claude answers. The reply may hold text, one or more `tool_use` blocks, or both.\n"
+msgstr "Claude répond. La réponse peut porter du texte, un ou plusieurs blocs `tool_use`, ou les deux.\n"
+
+#. type: Bullet: '3. '
+#: courses/en/01-orchestration.md:37
+#, no-wrap
+msgid "Your code executes each requested tool and collects the results.\n"
+msgstr "Votre code exécute chaque outil demandé et collecte les résultats.\n"
+
+#. type: Bullet: '4. '
+#: courses/en/01-orchestration.md:37
+#, no-wrap
+msgid "You append the assistant reply **and** the `tool_result` blocks to the history.\n"
+msgstr "Vous ajoutez à l'historique la réponse de l'assistant **et** les blocs `tool_result`.\n"
+
+#. type: Bullet: '5. '
+#: courses/en/01-orchestration.md:37
+#, no-wrap
+msgid "You send the whole history again. Repeat until `stop_reason` is terminal.\n"
+msgstr "Vous renvoyez tout l'historique. On recommence jusqu'à ce que `stop_reason` soit terminal.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:40
+#, no-wrap
+msgid ""
+"`stop_reason` is the field on the response that says why generation stopped;\n"
+"its full set of values is catalogued in D0. Only two of them drive this loop:\n"
+msgstr ""
+"`stop_reason` est le champ de la réponse qui dit pourquoi la génération s'est\n"
+"arrêtée ; l'ensemble de ses valeurs est catalogué en D0. Deux seulement pilotent\n"
+"cette boucle :\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:45
+#, no-wrap
+msgid ""
+"| `stop_reason` | What your code does |\n"
+"|---|---|\n"
+"| `\"tool_use\"` | Execute the requested tools, append their results, iterate |\n"
+"| `\"end_turn\"` | The model has nothing more to ask for — leave the loop |\n"
+msgstr ""
+"| `stop_reason` | Ce que fait votre code |\n"
+"|---|---|\n"
+"| `\"tool_use\"` | Exécuter les outils demandés, ajouter leurs résultats, itérer |\n"
+"| `\"end_turn\"` | Le modèle n'a plus rien à demander — sortir de la boucle |\n"
+
+#. type: Fenced code block (python)
+#: courses/en/01-orchestration.md:46
+#, no-wrap
+msgid ""
+"while True:\n"
+"    response = client.messages.create(\n"
+"        model=\"claude-sonnet-5\",\n"
+"        messages=messages,\n"
+"        tools=tools,\n"
+"    )\n"
+"    # The whole reply goes back, text blocks and tool_use blocks together.\n"
+"    messages.append({\"role\": \"assistant\", \"content\": response.content})\n"
+"\n"
+"    if response.stop_reason != \"tool_use\":\n"
+"        break                      # terminal — D0 catalogues the other values\n"
+"\n"
+"    tool_results = execute_tools(response.content)\n"
+"    messages.append({\"role\": \"user\", \"content\": tool_results})\n"
+msgstr ""
+"while True:\n"
+"    response = client.messages.create(\n"
+"        model=\"claude-sonnet-5\",\n"
+"        messages=messages,\n"
+"        tools=tools,\n"
+"    )\n"
+"    # Toute la réponse repart : blocs de texte et blocs tool_use ensemble.\n"
+"    messages.append({\"role\": \"assistant\", \"content\": response.content})\n"
+"\n"
+"    if response.stop_reason != \"tool_use\":\n"
+"        break                      # terminal — D0 catalogue les autres valeurs\n"
+"\n"
+"    tool_results = execute_tools(response.content)\n"
+"    messages.append({\"role\": \"user\", \"content\": tool_results})\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:69
+#, no-wrap
+msgid ""
+"Two lines carry the whole task statement. The `break` is on `stop_reason`, on\n"
+"nothing else. And the second `append` is what makes the next iteration a\n"
+"*reasoning* step rather than a repetition: tool results enter the conversation\n"
+"history, so the model's next choice of tool is made in the light of what the\n"
+"last one returned. A loop that runs the tools but never appends their results\n"
+"asks the same question forever.\n"
+msgstr ""
+"Deux lignes portent tout le task statement. Le `break` s'appuie sur\n"
+"`stop_reason`, sur rien d'autre. Et le second `append` est ce qui fait de\n"
+"l'itération suivante une étape de *raisonnement* plutôt qu'une répétition : les\n"
+"résultats d'outils entrent dans l'historique de conversation, donc le prochain\n"
+"choix d'outil se fait à la lumière de ce que le dernier a retourné. Une boucle\n"
+"qui exécute les outils sans jamais ajouter leurs résultats repose éternellement\n"
+"la même question.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:75
+#, no-wrap
+msgid ""
+"One reply can also carry **several** `tool_use` blocks at once — two lookups the\n"
+"model wants done together, for instance. Run them all, then send every\n"
+"`tool_result` back in a *single* `user` message, one block per call. That is the\n"
+"same mechanism a coordinator uses to start several subagents at once, developed\n"
+"in 1.3.\n"
+msgstr ""
+"Une même réponse peut aussi porter **plusieurs** blocs `tool_use` — deux\n"
+"recherches que le modèle veut mener ensemble, par exemple. Exécutez-les toutes,\n"
+"puis renvoyez chaque `tool_result` dans un *seul* message `user`, un bloc par\n"
+"appel. C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à\n"
+"la fois, développé en 1.3.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/01-orchestration.md:76
+#, no-wrap
+msgid ""
+"The loop is **model-driven**: Claude reads the accumulated context and decides\n"
+"which tool comes next. That is what separates an agent from a workflow. A\n"
+"**pre-configured decision tree** — your code fixing the sequence\n"
+"`read_schema → plan_changes → apply_migration` in advance — is legitimate\n"
+"engineering, but it can only ever handle the cases whoever wrote it foresaw.\n"
+"The guide tests your ability to tell the two apart and to pick by how\n"
+"predictable the task is.\n"
+msgstr ""
+"La boucle est **model-driven** : Claude lit le contexte accumulé et décide quel\n"
+"outil vient ensuite. C'est ce qui sépare un agent d'un workflow. Un\n"
+"**pre-configured decision tree** — votre code fixant à l'avance la séquence\n"
+"`read_schema → plan_changes → apply_migration` — est de l'ingénierie légitime,\n"
+"mais il ne traitera jamais que les cas prévus par qui l'a écrit. Le guide teste\n"
+"votre capacité à distinguer les deux et à choisir selon la prévisibilité de la\n"
+"tâche.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/01-orchestration.md:86
+#, no-wrap
+msgid ""
+"The guide names three wrong ways to drive the loop, and they are the\n"
+"distractors on this task statement:\n"
+"\n"
+"- **Parsing the assistant's text** for \"task completed\" or \"I'm done\". Natural\n"
+"  language is not a signal; Claude can write \"done\" while a `tool_use` block is\n"
+"  still pending in the same reply.\n"
+"- **Using an arbitrary iteration cap** (`max_iterations = 5`) as the primary\n"
+"  stopping mechanism. A cap is a guardrail against a runaway agent, not a\n"
+"  statement about whether the work is finished — it cuts legitimate runs short.\n"
+"- **Checking for text content** as a completion indicator. Text and `tool_use`\n"
+"  travel in the same reply; the presence of one says nothing about the other.\n"
+msgstr ""
+"Le guide nomme trois mauvaises façons de piloter la boucle, et ce sont les\n"
+"distracteurs de ce task statement :\n"
+"\n"
+"- **Parser le texte de l'assistant** à la recherche de « task completed » ou\n"
+"  « I'm done ». Le langage naturel n'est pas un signal ; Claude peut écrire\n"
+"  « done » alors qu'un bloc `tool_use` est encore en attente dans la même réponse.\n"
+"- **Utiliser un plafond d'itérations arbitraire** (`max_iterations = 5`) comme\n"
+"  mécanisme d'arrêt principal. Un plafond est un garde-fou contre un agent qui\n"
+"  s'emballe, pas un constat sur l'achèvement du travail — il interrompt des\n"
+"  exécutions légitimes.\n"
+"- **Vérifier la présence de texte** comme indicateur de complétion. Texte et\n"
+"  `tool_use` voyagent dans la même réponse ; la présence de l'un ne dit rien de\n"
+"  l'autre.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:105
+#, no-wrap
+msgid ""
+"Caps do have a place, as long as they stay caps. The Agent SDK exposes\n"
+"`max_turns` / `maxTurns` (agentic round-trips) and `max_budget_usd` /\n"
+"`maxBudgetUsd` (spend); both default to no limit, and a budget is a sound\n"
+"production default on an open-ended prompt. Neither is a termination condition,\n"
+"and the SDK marks a run that hit one as an error subtype rather than a success.\n"
+msgstr ""
+"Les plafonds ont leur place, tant qu'ils restent des plafonds. L'Agent SDK expose\n"
+"`max_turns` / `maxTurns` (allers-retours agentiques) et `max_budget_usd` /\n"
+"`maxBudgetUsd` (dépense) ; les deux sont sans limite par défaut, et poser un\n"
+"budget est un bon défaut de production sur un prompt ouvert. Ni l'un ni l'autre\n"
+"n'est une condition de terminaison, et le SDK marque une exécution qui en a\n"
+"atteint un comme un subtype d'erreur, pas comme un succès.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/01-orchestration.md:106
+#, no-wrap
+msgid ""
+"Whenever a question asks how to decide that the loop should continue or stop,\n"
+"the answer is `stop_reason`, and specifically `\"tool_use\"` versus `\"end_turn\"`.\n"
+"Every plausible-looking alternative in the option list — text parsing, an\n"
+"iteration ceiling, a check for a text block — is one of the three anti-patterns\n"
+"above, dressed up.\n"
+msgstr ""
+"Dès qu'une question demande comment décider si la boucle continue ou s'arrête, la\n"
+"réponse est `stop_reason`, et précisément `\"tool_use\"` contre `\"end_turn\"`. Toute\n"
+"alternative plausible dans la liste d'options — parsing de texte, plafond\n"
+"d'itérations, test de présence d'un bloc de texte — est l'un des trois\n"
+"anti-patterns ci-dessus, déguisé.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/01-orchestration.md:116
+#, no-wrap
+msgid "1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns"
+msgstr "1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:118
+#, no-wrap
+msgid "<!-- ts:1.2 | src:08agentsdk L4 (hub-and-spoke as a design choice, the coordinator's role, the narrow-decomposition risk), L14 (iterative refinement, scope partitioning, local recovery before propagation) ; 03subagents L1 (context isolation, the summary that comes back), L4 (the decision rule: does the intermediate work matter to the caller) ; exam guide TS 1.2 -->\n"
+msgstr "<!-- ts:1.2 | src:08agentsdk L4 (hub-and-spoke as a design choice, the coordinator's role, the narrow-decomposition risk), L14 (iterative refinement, scope partitioning, local recovery before propagation) ; 03subagents L1 (context isolation, the summary that comes back), L4 (the decision rule: does the intermediate work matter to the caller) ; exam guide TS 1.2 -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:125
+#, no-wrap
+msgid ""
+"Before the architecture, the decision. A subagent runs in its own context\n"
+"window, does its work, and returns only a summary; the intermediate reads,\n"
+"searches and tool calls are discarded with it. That trade has one question:\n"
+"**does the intermediate work matter to the caller?** If you only need the\n"
+"answer, delegate. If you need to see and react to each step, keep it in the\n"
+"main thread.\n"
+msgstr ""
+"Avant l'architecture, la décision. Un subagent tourne dans sa propre fenêtre de\n"
+"contexte, fait son travail et ne renvoie qu'un résumé ; les lectures, recherches\n"
+"et appels d'outils intermédiaires sont jetés avec lui. Ce compromis tient en une\n"
+"question : **le travail intermédiaire intéresse-t-il l'appelant ?** Si seule la\n"
+"réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main\n"
+"dans le thread principal.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:130
+#, no-wrap
+msgid ""
+"When a task is genuinely too broad for one agent — a research brief needing web\n"
+"search, document analysis and synthesis — you get a **hub-and-spoke**\n"
+"architecture: one coordinator (the hub) drives several specialized subagents\n"
+"(the spokes), and *all* traffic goes through the hub.\n"
+msgstr ""
+"Quand une tâche est vraiment trop large pour un seul agent — un rapport de\n"
+"recherche qui demande recherche web, analyse documentaire et synthèse — on\n"
+"obtient une architecture **hub-and-spoke** : un coordinateur (le hub) pilote\n"
+"plusieurs subagents spécialisés (les spokes), et *tout* le trafic passe par le hub.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/01-orchestration.md:131
+#, no-wrap
+msgid ""
+"                Coordinator (hub)\n"
+"              /         |         \\\n"
+"     search subagent  analysis   synthesis\n"
+"        (web)        (documents)  (report)\n"
+"\n"
+"     every result, every error, every retry\n"
+"     travels hub ↔ spoke — never spoke ↔ spoke\n"
+msgstr ""
+"              Coordinateur (hub)\n"
+"             /        |         \\\n"
+"   subagent recherche  analyse    synthèse\n"
+"        (web)        (documents)  (rapport)\n"
+"\n"
+"   chaque résultat, chaque erreur, chaque retry\n"
+"   passe hub ↔ spoke — jamais spoke ↔ spoke\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:145
+#, no-wrap
+msgid ""
+"Nothing in the SDK forces that shape. It is a design choice, and the guide\n"
+"names its three motives: **observability** (one place sees the whole run),\n"
+"**consistent error handling** (one policy, not one per agent), and **controlled\n"
+"information flow** (the hub decides what each spoke is told).\n"
+msgstr ""
+"Rien dans le SDK n'impose cette forme. C'est un choix de conception, et le guide\n"
+"en nomme les trois motifs : l'**observabilité** (un seul endroit voit toute\n"
+"l'exécution), la **cohérence du traitement d'erreur** (une politique, pas une par\n"
+"agent) et le **contrôle du flux d'information** (le hub décide de ce que chaque\n"
+"spoke apprend).\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:147
+#, no-wrap
+msgid "The coordinator's job, as the guide states it:\n"
+msgstr "Le travail du coordinateur, tel que le guide l'énonce :\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:154
+#, no-wrap
+msgid ""
+"| Responsibility | What it means in practice |\n"
+"|---|---|\n"
+"| Task decomposition | Cut the request into subtasks that jointly cover it |\n"
+"| Dynamic delegation | Select which subagents a given query actually needs, rather than routing every query through the full pipeline |\n"
+"| Result aggregation | Collect the spokes' outputs and assemble the answer |\n"
+"| Error handling | Decide to retry, adapt the request, or continue with partial results |\n"
+msgstr ""
+"| Responsabilité | Ce que cela veut dire en pratique |\n"
+"|---|---|\n"
+"| Task decomposition | Découper la demande en sous-tâches qui, ensemble, la couvrent |\n"
+"| Délégation dynamique | Choisir les subagents dont une requête donnée a réellement besoin, plutôt que de router chaque requête à travers tout le pipeline |\n"
+"| Agrégation des résultats | Collecter les sorties des spokes et assembler la réponse |\n"
+"| Gestion d'erreur | Décider de réessayer, d'adapter la requête, ou de continuer avec des résultats partiels |\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:157
+#, no-wrap
+msgid ""
+"Two skills are worth stating on their own because they are what the scenario\n"
+"questions turn on.\n"
+msgstr ""
+"Deux compétences méritent d'être énoncées à part, parce que ce sont elles que les\n"
+"questions de scénario mettent en jeu.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:161
+#, no-wrap
+msgid ""
+"**Partition the scope before delegating.** Give each search subagent a distinct\n"
+"subtopic or a distinct source type. Overlapping briefs produce duplicated work\n"
+"and, worse, correlated blind spots.\n"
+msgstr ""
+"**Partitionner le périmètre avant de déléguer.** Donnez à chaque subagent de\n"
+"recherche un sous-thème distinct ou un type de source distinct. Des briefs qui se\n"
+"recouvrent produisent du travail dupliqué et, pire, des angles morts corrélés.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:167
+#, no-wrap
+msgid ""
+"**Refine iteratively.** The coordinator reads the synthesis output, looks for\n"
+"gaps, re-delegates to the search and analysis subagents with *targeted*\n"
+"queries, and re-invokes synthesis until coverage is sufficient. This is a\n"
+"quality loop sitting above the execution loop of 1.1, and it is the guide's\n"
+"named remedy for incomplete coverage.\n"
+msgstr ""
+"**Raffiner par itération.** Le coordinateur lit la sortie de synthèse, y cherche\n"
+"les manques, re-délègue aux subagents de recherche et d'analyse avec des requêtes\n"
+"*ciblées*, et relance la synthèse jusqu'à couverture suffisante. C'est une boucle\n"
+"de qualité posée au-dessus de la boucle d'exécution de 1.1, et c'est le remède\n"
+"que le guide nomme contre une couverture incomplète.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/01-orchestration.md:168
+#, no-wrap
+msgid ""
+"Subagents start from an **isolated context**: they do not inherit the\n"
+"coordinator's conversation history, and they share no memory between\n"
+"invocations. Everything a spoke needs travels in the prompt the hub writes for\n"
+"it — the mechanics are TS 1.3, below.\n"
+msgstr ""
+"Les subagents démarrent d'un **contexte isolé** : ils n'héritent pas de\n"
+"l'historique de conversation du coordinateur et ne partagent aucune mémoire d'une\n"
+"invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le\n"
+"hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:181
+#, no-wrap
+msgid ""
+"The risk the guide names by name is **overly narrow decomposition by the\n"
+"coordinator**. Asked for a brief on \"AI impact on creative industries\", a\n"
+"coordinator splits it into \"AI in digital art\", \"AI in graphic design\" and \"AI\n"
+"in photography\". Each subagent executes its brief correctly. The report covers\n"
+"visual art only; music, literature and film are simply absent. Nothing failed\n"
+"downstream — the assignment was already incomplete.\n"
+msgstr ""
+"Le risque que le guide nomme explicitement est une **décomposition trop étroite\n"
+"par le coordinateur**. Chargé d'un rapport sur « AI impact on creative\n"
+"industries », un coordinateur le découpe en « AI in digital art », « AI in\n"
+"graphic design » et « AI in photography ». Chaque subagent exécute correctement\n"
+"son brief. Le rapport ne couvre que l'art visuel ; la musique, la littérature et\n"
+"le cinéma sont simplement absents. Rien n'a échoué en aval — l'assignation était\n"
+"déjà incomplète.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/01-orchestration.md:182
+#, no-wrap
+msgid ""
+"When every subagent did what it was asked and the final report still misses\n"
+"whole areas of the topic, the defect is the **coordinator's decomposition**,\n"
+"not any spoke. The distractors will accuse a real component — search queries\n"
+"too narrow, no gap detection in synthesis, relevance criteria too strict in\n"
+"analysis — and they are seductive because they name something that exists. The\n"
+"scenario has already told you each agent executed its assignment correctly.\n"
+"What was done badly is the assigning.\n"
+msgstr ""
+"Quand chaque subagent a fait ce qu'on lui demandait et que le rapport final rate\n"
+"encore des pans entiers du sujet, le défaut est la **décomposition du\n"
+"coordinateur**, pas un spoke. Les distracteurs incrimineront un composant réel —\n"
+"requêtes de recherche trop étroites, absence de détection de lacunes dans la\n"
+"synthèse, critères de pertinence trop stricts dans l'analyse — et ils séduisent\n"
+"parce qu'ils nomment quelque chose qui existe. L'énoncé vous a déjà dit que\n"
+"chaque agent avait correctement exécuté son assignation. Ce qui a été mal fait,\n"
+"c'est l'assignation.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/01-orchestration.md:192
+#, no-wrap
+msgid ""
+"Letting one subagent hand its output straight to another to save a hop. It\n"
+"looks efficient and it breaks the three things the hub was for: no single place\n"
+"sees the run, error handling stops being uniform, and nobody controls what the\n"
+"second agent was actually told.\n"
+"\n"
+"Routing every query through the full pipeline is the mirror mistake: the\n"
+"coordinator is supposed to *analyze the query* and invoke only the subagents it\n"
+"needs.\n"
+msgstr ""
+"Laisser un subagent passer sa sortie directement à un autre pour économiser un\n"
+"saut. Cela paraît efficace et cela casse les trois raisons d'être du hub : plus\n"
+"aucun endroit ne voit l'exécution entière, le traitement d'erreur cesse d'être\n"
+"uniforme, et personne ne contrôle ce que le second agent a réellement reçu.\n"
+"\n"
+"Router chaque requête à travers tout le pipeline est l'erreur symétrique : le\n"
+"coordinateur est censé *analyser la requête* et n'invoquer que les subagents\n"
+"nécessaires.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:210
+#, no-wrap
+msgid ""
+"Errors travel the same way. The expected pattern is **local recovery first**:\n"
+"the subagent handles transient failures itself and propagates to the\n"
+"coordinator only what it cannot resolve, together with its partial results and\n"
+"what it already tried. The coordinator continues on partial results and\n"
+"annotates the final output with what stayed uncovered. **The shape of those\n"
+"error payloads — categories, retryability, business versus permission failures\n"
+"— is structured error design, developed in D2.2.**\n"
+msgstr ""
+"Les erreurs voyagent de la même façon. Le pattern attendu est la **récupération\n"
+"locale d'abord** : le subagent traite lui-même les échecs transitoires et ne\n"
+"propage au coordinateur que ce qu'il ne peut pas résoudre, accompagné de ses\n"
+"résultats partiels et de ce qu'il a déjà tenté. Le coordinateur continue avec des\n"
+"résultats partiels et annote la sortie finale de ce qui est resté non couvert.\n"
+"**La forme de ces réponses d'erreur — catégories, caractère réessayable, échec\n"
+"métier contre échec de permission — relève de la conception des erreurs\n"
+"structurées, développée en D2.2.**\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:212
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"1.2\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.2\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/01-orchestration.md:213
+#, no-wrap
+msgid "1.3 — Configure subagent invocation, context passing, and spawning"
+msgstr "1.3 — Configure subagent invocation, context passing, and spawning"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:216
+#, no-wrap
+msgid ""
+"<!-- ts:1.3 | src:08agentsdk L2 (parallel spawning: several calls emitted in one response, not one per turn), L4 (the receives/does-not-receive table, what it implies for context passing and attribution metadata), L5 (AgentDefinition fields, the tool-restriction table, Agent in allowedTools for auto-approval), L13 (default permission mode: without a canUseTool callback an unapproved call is refused), L15 §1 (the Task → Agent rename, and what the exam expects) ; 03subagents L2 (the config fields), L3 (the description's double role, output format as a stopping point, limiting tool access) ; exam guide TS 1.3 -->\n"
+"<!-- owns:subagent-isolation -->\n"
+msgstr ""
+"<!-- ts:1.3 | src:08agentsdk L2 (parallel spawning: several calls emitted in one response, not one per turn), L4 (the receives/does-not-receive table, what it implies for context passing and attribution metadata), L5 (AgentDefinition fields, the tool-restriction table, Agent in allowedTools for auto-approval), L13 (default permission mode: without a canUseTool callback an unapproved call is refused), L15 §1 (the Task → Agent rename, and what the exam expects) ; 03subagents L2 (the config fields), L3 (the description's double role, output format as a stopping point, limiting tool access) ; exam guide TS 1.3 -->\n"
+"<!-- owns:subagent-isolation -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:222
+#, no-wrap
+msgid ""
+"The mechanism is a tool. A coordinator spawns a subagent by calling the\n"
+"**`Task` tool**, and its `allowedTools` must include `\"Task\"` for those\n"
+"invocations to be auto-approved. Leave it out and the call falls back to the\n"
+"permission flow: under the default mode, with no `canUseTool` callback to answer\n"
+"it, it is refused. The coordinator does not delegate, whatever its prompt says.\n"
+msgstr ""
+"Le mécanisme est un outil. Un coordinateur lance un subagent en appelant\n"
+"l'**outil `Task`**, et son `allowedTools` doit inclure `\"Task\"` pour que ces\n"
+"invocations soient auto-approuvées. Omettez-le et l'appel retombe dans le flux de\n"
+"permission : en mode par défaut, sans callback `canUseTool` pour y répondre, il\n"
+"est refusé. Le coordinateur ne délègue pas, quoi que dise son prompt.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/01-orchestration.md:223
+#, no-wrap
+msgid ""
+"Recent SDK versions renamed this tool from `Task` to `Agent`, and current code\n"
+"emits `Agent` in `tool_use` blocks. The exam guide v1.0 still says `Task`, and\n"
+"names including `\"Task\"` in `allowedTools` as the requirement. On the exam,\n"
+"`Task` is the expected answer. In real code, write `Agent` and test for both\n"
+"names when you detect an invocation.\n"
+msgstr ""
+"Les versions récentes du SDK ont renommé cet outil de `Task` en `Agent`, et le\n"
+"code actuel émet `Agent` dans les blocs `tool_use`. Le guide d'examen v1.0 dit\n"
+"encore `Task`, et pose l'inclusion de `\"Task\"` dans `allowedTools` comme\n"
+"l'exigence. À l'examen, `Task` est la réponse attendue. En vrai code, écrivez\n"
+"`Agent` et testez les deux noms quand vous détectez une invocation.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:233
+#, no-wrap
+msgid ""
+"What a subagent gets, and what it does not, is the single most tested fact of\n"
+"this domain:\n"
+msgstr ""
+"Ce qu'un subagent reçoit, et ce qu'il ne reçoit pas, est le fait le plus testé de\n"
+"ce domaine :\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:239
+#, no-wrap
+msgid ""
+"| The subagent receives | The subagent does not receive |\n"
+"|---|---|\n"
+"| Its own system prompt, from its agent definition | The parent's conversation history and tool results |\n"
+"| The prompt string of the spawning call | The parent's system prompt |\n"
+"| Its tool definitions — inherited, or the subset it was given | Any memory of a previous invocation of itself |\n"
+msgstr ""
+"| Le subagent reçoit | Le subagent ne reçoit pas |\n"
+"|---|---|\n"
+"| Son propre system prompt, issu de sa définition d'agent | L'historique de conversation du parent et ses résultats d'outils |\n"
+"| La chaîne de prompt de l'appel qui le lance | Le system prompt du parent |\n"
+"| Ses définitions d'outils — héritées, ou le sous-ensemble qu'on lui a donné | Le moindre souvenir d'une invocation précédente de lui-même |\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:244
+#, no-wrap
+msgid ""
+"The consequence is decisive: **the only content that crosses from parent to\n"
+"subagent is the prompt string of the spawning call.** File paths, error\n"
+"messages, prior search results, decisions already taken — if they are not in\n"
+"that string, the subagent does not have them.\n"
+msgstr ""
+"La conséquence est décisive : **le seul contenu qui passe du parent au subagent\n"
+"est la chaîne de prompt de l'appel qui le lance.** Chemins de fichiers, messages\n"
+"d'erreur, résultats de recherche antérieurs, décisions déjà prises — s'ils ne\n"
+"sont pas dans cette chaîne, le subagent ne les a pas.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/01-orchestration.md:245
+#, no-wrap
+msgid ""
+"Bad   Task: \"Analyse the document.\"\n"
+"      → which document? no prior findings, no expected output shape.\n"
+"\n"
+"Good  Task: \"Analyse the document below and return the clause table.\n"
+"             DOCUMENT (source: vendor-contract-2026.pdf, pages 4-9):\n"
+"               <full text>\n"
+"             PRIOR FINDINGS (from the search subagent):\n"
+"               - claim: 'net-45 payment terms'\n"
+"                 source_url: https://…  retrieved: 2026-08-14\n"
+"             OUTPUT FORMAT: one row per clause — clause_type, text, page.\"\n"
+msgstr ""
+"Mauvais  Task: « Analyse le document. »\n"
+"         → quel document ? aucun résultat antérieur, aucun format de sortie attendu.\n"
+"\n"
+"Bon      Task: « Analyse le document ci-dessous et renvoie le tableau des clauses.\n"
+"              DOCUMENT (source: vendor-contract-2026.pdf, pages 4-9) :\n"
+"                <texte intégral>\n"
+"              RÉSULTATS ANTÉRIEURS (du subagent de recherche) :\n"
+"                - claim: 'net-45 payment terms'\n"
+"                  source_url: https://…  retrieved: 2026-08-14\n"
+"              FORMAT DE SORTIE : une ligne par clause — clause_type, text, page. »\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:263
+#, no-wrap
+msgid ""
+"Note what the good version does beyond being long. It uses a **structured\n"
+"format that separates content from metadata** — source URL, document name, page\n"
+"number, retrieval date live in their own fields, not woven into prose. That is\n"
+"what preserves attribution all the way to the final report, and the guide names\n"
+"it as a skill of this task statement.\n"
+msgstr ""
+"Notez ce que la bonne version fait au-delà d'être longue. Elle emploie un\n"
+"**format structuré qui sépare le contenu des métadonnées** — URL source, nom du\n"
+"document, numéro de page, date de collecte vivent dans leurs propres champs, pas\n"
+"fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,\n"
+"et le guide le nomme parmi les skills de ce task statement.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:269
+#, no-wrap
+msgid ""
+"Parallelism comes from **one response, several calls**. A coordinator that\n"
+"emits three `Task` calls in a single reply gets three subagents running at the\n"
+"same time; the same three calls spread over three consecutive turns run one\n"
+"after another. This is the same mechanism as parallel tool use in 1.1 — several\n"
+"`tool_use` blocks in one assistant message — applied to the `Task` tool.\n"
+msgstr ""
+"Le parallélisme vient d'**une réponse, plusieurs appels**. Un coordinateur qui\n"
+"émet trois appels `Task` dans une seule réponse obtient trois subagents qui\n"
+"tournent en même temps ; les mêmes trois appels répartis sur trois tours\n"
+"consécutifs s'exécutent l'un après l'autre. C'est le même mécanisme que les\n"
+"appels d'outils parallèles de 1.1 — plusieurs blocs `tool_use` dans un même\n"
+"message assistant — appliqué à l'outil `Task`.\n"
+
+#. type: Fenced code block (python)
+#: courses/en/01-orchestration.md:270
+#, no-wrap
+msgid ""
+"agents = {\n"
+"    \"code-reviewer\": AgentDefinition(\n"
+"        description=\"Expert code review specialist. Use for quality, security \"\n"
+"                    \"and maintainability reviews. Tell the agent precisely \"\n"
+"                    \"which files to review.\",\n"
+"        prompt=\"You are a code review specialist…\\n\"\n"
+"               \"Return: 1. Summary  2. Critical issues  3. Major issues  \"\n"
+"               \"4. Minor issues  5. Approval status  6. Obstacles encountered\",\n"
+"        tools=[\"Read\", \"Grep\", \"Glob\"],\n"
+"        model=\"sonnet\",\n"
+"    ),\n"
+"}\n"
+msgstr ""
+"agents = {\n"
+"    \"code-reviewer\": AgentDefinition(\n"
+"        description=\"Spécialiste de la revue de code. À utiliser pour la \"\n"
+"                    \"qualité, la sécurité et la maintenabilité. Indique à \"\n"
+"                    \"l'agent précisément quels fichiers relire.\",\n"
+"        prompt=\"Tu es un spécialiste de la revue de code…\\n\"\n"
+"               \"Rends : 1. Résumé  2. Problèmes critiques  3. Problèmes majeurs  \"\n"
+"               \"4. Problèmes mineurs  5. Verdict  6. Obstacles rencontrés\",\n"
+"        tools=[\"Read\", \"Grep\", \"Glob\"],\n"
+"        model=\"sonnet\",\n"
+"    ),\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:286
+#, no-wrap
+msgid "Four fields, four decisions:\n"
+msgstr "Quatre champs, quatre décisions :\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:293
+#, no-wrap
+msgid ""
+"| Field | Required | What it decides |\n"
+"|---|---|---|\n"
+"| `description` | yes | When the coordinator launches this subagent — **and** what it writes in the delegation prompt |\n"
+"| `prompt` | yes | The subagent's system prompt: its role, its method, its output format |\n"
+"| `tools` | no | The tools it may use; omitted, it inherits everything available to subagents |\n"
+"| `model` | no | `opus`, `sonnet`, `haiku`, `inherit`, or a full model id |\n"
+msgstr ""
+"| Champ | Obligatoire | Ce qu'il décide |\n"
+"|---|---|---|\n"
+"| `description` | oui | Quand le coordinateur lance ce subagent — **et** ce qu'il écrit dans le prompt de délégation |\n"
+"| `prompt` | oui | Le system prompt du subagent : son rôle, sa méthode, son format de sortie |\n"
+"| `tools` | non | Les outils qu'il peut utiliser ; omis, il hérite de tout ce qui est disponible aux subagents |\n"
+"| `model` | non | `opus`, `sonnet`, `haiku`, `inherit`, ou un identifiant de modèle complet |\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:301
+#, no-wrap
+msgid ""
+"The `description` has that double role and it is easy to miss. The name and\n"
+"description of every available subagent are placed in the main agent's system\n"
+"prompt, so they decide *when* delegation happens; the main agent then uses the\n"
+"description as guidance while writing the input prompt, so they also shape\n"
+"*what the subagent is told to do*. A description that says \"you must tell the\n"
+"agent precisely which files to review\" produces delegation prompts that list\n"
+"files. A vague description produces vague delegations.\n"
+msgstr ""
+"La `description` a ce double rôle, et il est facile de le manquer. Le nom et la\n"
+"description de chaque subagent disponible sont placés dans le system prompt de\n"
+"l'agent principal : ils décident donc *quand* la délégation a lieu ; l'agent\n"
+"principal se sert ensuite de la description comme guide pour rédiger le prompt\n"
+"d'entrée, si bien qu'elle façonne aussi *ce qu'on dit au subagent de faire*. Une\n"
+"description qui dit « vous devez indiquer à l'agent précisément quels fichiers\n"
+"relire » produit des prompts de délégation qui listent des fichiers. Une\n"
+"description vague produit des délégations vagues.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:304
+#, no-wrap
+msgid ""
+"Two more design levers. The first comes from the Subagents course; the second\n"
+"is the fourth skill the guide lists under this task statement:\n"
+msgstr ""
+"Deux autres leviers de conception. Le premier vient du cours Subagents ; le\n"
+"second est le quatrième skill que le guide liste sous ce task statement :\n"
+
+#. type: Bullet: '- '
+#: courses/en/01-orchestration.md:314
+#, no-wrap
+msgid ""
+"**Define an output format in the system prompt.** It gives the subagent a\n"
+"checklist, so it knows when it is finished; without one, subagents struggle\n"
+"to decide when enough research is enough and run far longer than needed. An\n"
+"\"Obstacles encountered\" section is worth adding on purpose: workarounds and\n"
+"environment quirks the subagent discovered otherwise die with its context and\n"
+"have to be rediscovered by the main thread.\n"
+msgstr ""
+"**Définissez un format de sortie dans le system prompt.** Il donne au subagent\n"
+"une liste à remplir, donc il sait quand il a fini ; sans lui, les subagents\n"
+"peinent à décider quand la recherche a assez duré et tournent bien plus longtemps\n"
+"que nécessaire. Une section « Obstacles rencontrés » vaut d'être ajoutée exprès :\n"
+"les contournements et bizarreries d'environnement découverts par le subagent\n"
+"meurent sinon avec son contexte, et le thread principal doit les redécouvrir.\n"
+
+#. type: Bullet: '- '
+#: courses/en/01-orchestration.md:314
+#, no-wrap
+msgid ""
+"**Write coordinator prompts as goals and quality criteria, not procedures.**\n"
+"\"The brief must cover at least five sectors with dated sources\" leaves the\n"
+"subagent free to adapt; a step-by-step script does not.\n"
+msgstr ""
+"**Rédigez les prompts de coordinateur en objectifs et critères de qualité, pas en\n"
+"procédures.** « Le rapport doit couvrir au moins cinq secteurs avec des sources\n"
+"datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:322
+#, no-wrap
+msgid ""
+"Tool restrictions belong here too — the guide lists them among this task\n"
+"statement's knowledge. A read-only research subagent gets `Read`, `Grep`,\n"
+"`Glob`; a reviewer adds `Bash` to run `git diff`; only an agent whose job is to\n"
+"change code gets `Edit` and `Write`. A tool you leave out is not in the\n"
+"subagent's session at all: no permission prompt, no error, the agent simply\n"
+"works without it. **Why a large tool set degrades selection reliability, and\n"
+"how to scope tools across agents, is tool distribution, developed in D2.3.**\n"
+msgstr ""
+"Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les\n"
+"connaissances de ce task statement. Un subagent de recherche en lecture seule\n"
+"reçoit `Read`, `Grep`, `Glob` ; un relecteur y ajoute `Bash` pour lancer\n"
+"`git diff` ; seul un agent dont le métier est de modifier du code reçoit `Edit`\n"
+"et `Write`. Un outil que vous laissez de côté n'est pas du tout dans la session\n"
+"du subagent : ni prompt de permission, ni erreur, l'agent travaille simplement\n"
+"sans. **Pourquoi une grande surface d'outils dégrade la fiabilité de sélection,\n"
+"et comment répartir les outils entre agents, relève de la distribution des\n"
+"outils, développée en D2.3.**\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/01-orchestration.md:323
+#, no-wrap
+msgid ""
+"Three moves that look like fixes and are not:\n"
+"\n"
+"- **Enlarging the subagent's context window** when it produced a thin answer.\n"
+"  Nothing was passed to it; the size of an empty window changes nothing.\n"
+"- **Spawning across successive turns** and calling it parallel. Consecutive\n"
+"  turns are sequential execution with extra round-trips.\n"
+"- **Counting on inheritance** — \"the subagent will see what the coordinator\n"
+"  found\". Isolation is the defining property of a subagent, not a limitation to\n"
+"  work around.\n"
+msgstr ""
+"Trois gestes qui ressemblent à des correctifs et n'en sont pas :\n"
+"\n"
+"- **Agrandir la fenêtre de contexte du subagent** quand il a rendu une réponse\n"
+"  maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change rien.\n"
+"- **Lancer sur des tours successifs** en appelant cela du parallélisme. Des tours\n"
+"  consécutifs, c'est de l'exécution séquentielle avec des allers-retours en plus.\n"
+"- **Compter sur l'héritage** — « le subagent verra ce que le coordinateur a\n"
+"  trouvé ». L'isolation est la propriété qui définit un subagent, pas une\n"
+"  limitation à contourner.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:339
+#, no-wrap
+msgid ""
+"**Forking a session to give two subagents a shared analysis baseline is session\n"
+"management, developed in 1.7 below.** **Defining subagents as markdown files\n"
+"under `.claude/agents/`, and the `/agents` command that creates them, is Claude\n"
+"Code configuration, developed in domain 3.**\n"
+msgstr ""
+"**Forker une session pour donner à deux subagents une base d'analyse commune\n"
+"relève de la gestion des sessions, développée en 1.7 ci-dessous.** **Définir des\n"
+"subagents comme fichiers markdown sous `.claude/agents/`, et la commande\n"
+"`/agents` qui les crée, relève de la configuration Claude Code, développée au\n"
+"domaine 3.**\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/01-orchestration.md:342
+#, no-wrap
+msgid "1.4 — Implement multi-step workflows with enforcement and handoff patterns"
+msgstr "1.4 — Implement multi-step workflows with enforcement and handoff patterns"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:344
+#, no-wrap
+msgid "<!-- ts:1.4 | src:08agentsdk L10 (why a hook rather than an instruction, the get_customer / process_refund gate), L14 (structured human handoff, decomposing a multi-concern request) ; exam guide TS 1.4 -->\n"
+msgstr "<!-- ts:1.4 | src:08agentsdk L10 (why a hook rather than an instruction, the get_customer / process_refund gate), L14 (structured human handoff, decomposing a multi-concern request) ; exam guide TS 1.4 -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:352
+#, no-wrap
+msgid ""
+"Some orderings must hold every time. Verify the customer's identity before\n"
+"processing a refund; check drug interactions before dispensing. You can write\n"
+"that in the system prompt — and a prompt instruction is a request the model\n"
+"usually honours. The guide's formulation is blunt: **when deterministic\n"
+"compliance is required, prompt instructions alone have a non-zero failure\n"
+"rate.** Over thousands of interactions, that remainder is refunds paid to the\n"
+"wrong customer.\n"
+msgstr ""
+"Certains ordonnancements doivent tenir à chaque fois. Vérifier l'identité du\n"
+"client avant de traiter un remboursement ; contrôler les interactions\n"
+"médicamenteuses avant de délivrer. Vous pouvez l'écrire dans le system prompt —\n"
+"et une instruction de prompt est une demande que le modèle honore généralement.\n"
+"La formulation du guide est nette : **quand une conformité déterministe est\n"
+"requise, les instructions de prompt seules ont un taux d'échec non nul.** Sur des\n"
+"milliers d'interactions, ce reliquat, ce sont des remboursements versés au\n"
+"mauvais client.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:356
+#, no-wrap
+msgid ""
+"**Programmatic enforcement** closes it by making the violation impossible in\n"
+"code rather than improbable in prose. The concrete shape is a **prerequisite\n"
+"gate**: a downstream tool call is blocked until an upstream step has returned.\n"
+msgstr ""
+"Le **programmatic enforcement** referme cet écart en rendant la violation\n"
+"impossible par le code plutôt qu'improbable par la prose. Sa forme concrète est\n"
+"un **prerequisite gate** : un appel d'outil en aval est bloqué tant qu'une étape\n"
+"amont n'a pas retourné.\n"
+
+#. type: Fenced code block (python)
+#: courses/en/01-orchestration.md:357
+#, no-wrap
+msgid ""
+"async def require_verified_customer(input_data, tool_use_id, context):\n"
+"    if input_data[\"tool_name\"] != \"process_refund\":\n"
+"        return {}\n"
+"    if not session_state.get(\"verified_customer_id\"):\n"
+"        return {\"hookSpecificOutput\": {\n"
+"            \"hookEventName\": \"PreToolUse\",\n"
+"            \"permissionDecision\": \"deny\",\n"
+"            \"permissionDecisionReason\":\n"
+"                \"Call get_customer first: process_refund requires a verified \"\n"
+"                \"customer ID for this session.\",\n"
+"        }}\n"
+"    return {}\n"
+msgstr ""
+"async def require_verified_customer(input_data, tool_use_id, context):\n"
+"    if input_data[\"tool_name\"] != \"process_refund\":\n"
+"        return {}\n"
+"    if not session_state.get(\"verified_customer_id\"):\n"
+"        return {\"hookSpecificOutput\": {\n"
+"            \"hookEventName\": \"PreToolUse\",\n"
+"            \"permissionDecision\": \"deny\",\n"
+"            \"permissionDecisionReason\":\n"
+"                \"Appelez d'abord get_customer : process_refund exige un ID \"\n"
+"                \"client vérifié pour cette session.\",\n"
+"        }}\n"
+"    return {}\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:376
+#, no-wrap
+msgid ""
+"`process_refund` cannot run until `get_customer` has returned a verified id.\n"
+"Not \"is unlikely to\" — cannot. The reason string matters as much as the block:\n"
+"the model reads it, so it retries the right thing instead of retrying blindly.\n"
+"**The hook API itself — events, matchers, decision fields — is TS 1.5, below.**\n"
+msgstr ""
+"`process_refund` ne peut pas s'exécuter tant que `get_customer` n'a pas retourné\n"
+"un identifiant vérifié. Pas « a peu de chances de » — ne peut pas. La chaîne de\n"
+"raison compte autant que le blocage : le modèle la lit, donc il réessaie la bonne\n"
+"chose au lieu de réessayer à l'aveugle. **L'API des hooks elle-même — événements,\n"
+"matchers, champs de décision — est en TS 1.5, ci-dessous.**\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:383
+#, no-wrap
+msgid ""
+"A second pattern of this task statement is the **multi-concern request**. A\n"
+"customer writes: \"I want a refund on order #1234 *and* the delivery address\n"
+"changed on order #5678.\" Handling that sequentially and answering in two\n"
+"disconnected blocks is the failure. The expected move is to decompose it into\n"
+"distinct items, investigate each in parallel against the *shared* customer\n"
+"context, then synthesize one unified resolution.\n"
+msgstr ""
+"Un second pattern de ce task statement est la **demande multi-sujets**. Un client\n"
+"écrit : « Je veux un remboursement sur la commande #1234 *et* l'adresse de\n"
+"livraison a changé sur la commande #5678. » Traiter cela séquentiellement et\n"
+"répondre en deux blocs déconnectés est l'échec. Le geste attendu : décomposer en\n"
+"items distincts, investiguer chacun en parallèle sur le contexte client\n"
+"*partagé*, puis synthétiser une résolution unifiée.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:387
+#, no-wrap
+msgid ""
+"The third is the **structured handoff**. When the agent escalates mid-process,\n"
+"the human who takes over has no access to the conversation transcript. The\n"
+"summary therefore has to stand alone:\n"
+msgstr ""
+"Le troisième est le **structured handoff**. Quand l'agent escalade en cours de\n"
+"traitement, l'humain qui reprend n'a pas accès au transcript de la conversation.\n"
+"Le résumé doit donc se tenir seul :\n"
+
+#. type: Fenced code block (json)
+#: courses/en/01-orchestration.md:388
+#, no-wrap
+msgid ""
+"{\n"
+"  \"customer_id\": \"CUST-12345\",\n"
+"  \"order_id\": \"ORD-67890\",\n"
+"  \"issue_summary\": \"Refund request for damaged item\",\n"
+"  \"root_cause\": \"Item arrived damaged; photos attached\",\n"
+"  \"actions_taken\": [\n"
+"    \"Identity verified via get_customer\",\n"
+"    \"Order confirmed via lookup_order\",\n"
+"    \"Replacement offered — customer insists on refund\"\n"
+"  ],\n"
+"  \"refund_amount\": \"$89.99\",\n"
+"  \"recommended_action\": \"Approve full refund\",\n"
+"  \"escalation_reason\": \"Customer asked to speak with a manager\"\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"customer_id\": \"CUST-12345\",\n"
+"  \"order_id\": \"ORD-67890\",\n"
+"  \"issue_summary\": \"Demande de remboursement pour article endommagé\",\n"
+"  \"root_cause\": \"Article arrivé endommagé ; photos jointes\",\n"
+"  \"actions_taken\": [\n"
+"    \"Identité vérifiée via get_customer\",\n"
+"    \"Commande confirmée via lookup_order\",\n"
+"    \"Remplacement proposé — le client insiste pour un remboursement\"\n"
+"  ],\n"
+"  \"refund_amount\": \"$89.99\",\n"
+"  \"recommended_action\": \"Approuver le remboursement intégral\",\n"
+"  \"escalation_reason\": \"Le client a demandé à parler à un responsable\"\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:408
+#, no-wrap
+msgid ""
+"Customer identity, root cause, amount, recommended action: the four the guide\n"
+"names. A handoff that assumes the human will read the conversation is a failed\n"
+"handoff.\n"
+msgstr ""
+"Identité du client, cause racine, montant, action recommandée : les quatre que le\n"
+"guide nomme. Un handoff qui suppose que l'humain lira la conversation est un\n"
+"handoff raté.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/01-orchestration.md:409
+#, no-wrap
+msgid ""
+"The distractors on enforcement questions are the measures that genuinely lower\n"
+"the failure rate without ever reaching zero:\n"
+"\n"
+"- Strengthening the system prompt — \"verification is mandatory\".\n"
+"- Adding few-shot examples showing the verification tool called first.\n"
+"- Auditing transactions afterwards to catch violations.\n"
+"- Deploying a routing classifier that only enables the relevant tool subset.\n"
+"\n"
+"The first three lower the rate; the question asked for a guarantee, and an\n"
+"audit finds the violation after the money is gone. The fourth addresses which\n"
+"tools are *available*, not the order in which they are called — a different\n"
+"problem.\n"
+msgstr ""
+"Les distracteurs des questions d'enforcement sont les mesures qui font réellement\n"
+"baisser le taux d'échec sans jamais atteindre zéro :\n"
+"\n"
+"- Renforcer le system prompt — « la vérification est obligatoire ».\n"
+"- Ajouter des few-shot examples montrant l'outil de vérification appelé en premier.\n"
+"- Auditer les transactions après coup pour repérer les violations.\n"
+"- Déployer un classifieur de routage qui n'active que le sous-ensemble d'outils\n"
+"  pertinent.\n"
+"\n"
+"Les trois premiers font baisser le taux ; la question demandait une garantie, et\n"
+"un audit trouve la violation une fois l'argent parti. Le quatrième traite les\n"
+"outils *disponibles*, pas l'ordre dans lequel ils sont appelés — un autre problème.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/01-orchestration.md:424
+#, no-wrap
+msgid ""
+"The rule to carry in: **financial, legal or safety consequences → programmatic\n"
+"enforcement.** Preferences, tone and formatting → prompt instructions. If the\n"
+"scenario contains the word \"guarantee\", or describes an irreversible action,\n"
+"no amount of prompt engineering is the answer.\n"
+msgstr ""
+"La règle à emporter : **conséquences financières, légales ou de sécurité →\n"
+"programmatic enforcement.** Préférences, ton et mise en forme → instructions de\n"
+"prompt. Si l'énoncé contient le mot « garantie », ou décrit une action\n"
+"irréversible, aucune dose de prompt engineering n'est la réponse.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:434
+#, no-wrap
+msgid ""
+"**When to escalate at all — the criteria, honouring a customer's stated\n"
+"preference, spotting a policy gap — is escalation decision-making, developed in\n"
+"D5.2.**\n"
+msgstr ""
+"**Quand escalader — les critères, le respect d'une préférence explicite du\n"
+"client, la détection d'un trou dans la politique — relève de la décision\n"
+"d'escalade, développée en D5.2.**\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:436
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"1.4\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.4\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/01-orchestration.md:437
+#, no-wrap
+msgid "1.5 — Apply Agent SDK hooks for tool call interception and data normalization"
+msgstr "1.5 — Apply Agent SDK hooks for tool call interception and data normalization"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:440
+#, no-wrap
+msgid ""
+"<!-- ts:1.5 | src:08agentsdk L9 (what a hook is, the event table, matchers, callback outputs, deny > defer > ask > allow), L10 (PreToolUse: permissionDecision, permissionDecisionReason, updatedInput), L11 (PostToolUse: updatedToolOutput and additionalContext, the heterogeneous-format case) ; exam guide TS 1.5 -->\n"
+"<!-- owns:hooks -->\n"
+msgstr ""
+"<!-- ts:1.5 | src:08agentsdk L9 (what a hook is, the event table, matchers, callback outputs, deny > defer > ask > allow), L10 (PreToolUse: permissionDecision, permissionDecisionReason, updatedInput), L11 (PostToolUse: updatedToolOutput and additionalContext, the heterogeneous-format case) ; exam guide TS 1.5 -->\n"
+"<!-- owns:hooks -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:444
+#, no-wrap
+msgid ""
+"A **hook** is a callback of yours that the SDK runs when an agent event fires.\n"
+"It executes in your application process, not in the agent's context window — so\n"
+"it costs no tokens, and it is ordinary code with ordinary guarantees.\n"
+msgstr ""
+"Un **hook** est une fonction de rappel à vous que le SDK exécute quand un\n"
+"événement de l'agent se déclenche. Elle tourne dans le process de votre\n"
+"application, pas dans la fenêtre de contexte de l'agent — elle ne coûte donc\n"
+"aucun token, et c'est du code ordinaire avec des garanties ordinaires.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:446
+#, no-wrap
+msgid "Two events carry this task statement:\n"
+msgstr "Deux événements portent ce task statement :\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:451
+#, no-wrap
+msgid ""
+"| Event | Fires | Can it still change the outcome? |\n"
+"|---|---|---|\n"
+"| `PreToolUse` | A tool call has been requested, before it runs | Yes — allow, deny, or rewrite the input |\n"
+"| `PostToolUse` | The tool has returned, before the model reads the result | The call already happened; you can replace what the model reads |\n"
+msgstr ""
+"| Événement | Se déclenche | Peut-il encore changer l'issue ? |\n"
+"|---|---|---|\n"
+"| `PreToolUse` | Un appel d'outil est demandé, avant qu'il ne s'exécute | Oui — autoriser, refuser, ou réécrire l'entrée |\n"
+"| `PostToolUse` | L'outil a retourné, avant que le modèle ne lise le résultat | L'appel a déjà eu lieu ; vous pouvez remplacer ce que le modèle lit |\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:456
+#, no-wrap
+msgid ""
+"`PreToolUse` is the enforcement primitive. Its callback returns a\n"
+"`hookSpecificOutput` carrying `permissionDecision` (`\"allow\"`, `\"deny\"`,\n"
+"`\"ask\"`, `\"defer\"`), a `permissionDecisionReason` the model reads, and\n"
+"optionally `updatedInput` to rewrite the call rather than refuse it.\n"
+msgstr ""
+"`PreToolUse` est le primitif d'application de règles. Son callback retourne un\n"
+"`hookSpecificOutput` portant `permissionDecision` (`\"allow\"`, `\"deny\"`, `\"ask\"`,\n"
+"`\"defer\"`), un `permissionDecisionReason` que le modèle lit, et éventuellement\n"
+"`updatedInput` pour réécrire l'appel plutôt que le refuser.\n"
+
+#. type: Fenced code block (python)
+#: courses/en/01-orchestration.md:457
+#, no-wrap
+msgid ""
+"async def cap_refunds(input_data, tool_use_id, context):\n"
+"    if input_data[\"tool_name\"] != \"process_refund\":\n"
+"        return {}\n"
+"    if input_data[\"tool_input\"].get(\"amount\", 0) > 500:\n"
+"        return {\"hookSpecificOutput\": {\n"
+"            \"hookEventName\": \"PreToolUse\",\n"
+"            \"permissionDecision\": \"deny\",\n"
+"            \"permissionDecisionReason\":\n"
+"                \"Refunds above $500 require a human approver. \"\n"
+"                \"Call escalate_to_human with the case summary instead.\",\n"
+"        }}\n"
+"    return {}\n"
+msgstr ""
+"async def cap_refunds(input_data, tool_use_id, context):\n"
+"    if input_data[\"tool_name\"] != \"process_refund\":\n"
+"        return {}\n"
+"    if input_data[\"tool_input\"].get(\"amount\", 0) > 500:\n"
+"        return {\"hookSpecificOutput\": {\n"
+"            \"hookEventName\": \"PreToolUse\",\n"
+"            \"permissionDecision\": \"deny\",\n"
+"            \"permissionDecisionReason\":\n"
+"                \"Un remboursement au-dessus de 500 $ exige un validateur \"\n"
+"                \"humain. Appelez escalate_to_human avec le résumé du dossier.\",\n"
+"        }}\n"
+"    return {}\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:476
+#, no-wrap
+msgid ""
+"The block is half the work; the reason redirects the agent to the alternative\n"
+"workflow instead of leaving it to guess. When several hooks and permission\n"
+"rules disagree, the SDK resolves them by precedence — `deny` beats `defer`\n"
+"beats `ask` beats `allow` — so a single `deny` is enough.\n"
+msgstr ""
+"Le blocage est la moitié du travail ; la raison redirige l'agent vers le workflow\n"
+"alternatif au lieu de le laisser deviner. Quand plusieurs hooks et règles de\n"
+"permission divergent, le SDK tranche par priorité — `deny` l'emporte sur `defer`,\n"
+"qui l'emporte sur `ask`, qui l'emporte sur `allow` — donc un seul `deny` suffit.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:480
+#, no-wrap
+msgid ""
+"`PostToolUse` is the normalization primitive. Its `updatedToolOutput` field\n"
+"replaces the tool's output before Claude sees it; `additionalContext` adds to\n"
+"it instead.\n"
+msgstr ""
+"`PostToolUse` est le primitif de normalisation. Son champ `updatedToolOutput`\n"
+"remplace la sortie de l'outil avant que Claude ne la voie ; `additionalContext`\n"
+"la complète sans la remplacer.\n"
+
+# invariant: bloc de code sans texte en langue naturelle : identifiants, champs de hook et valeurs renvoyées par l’API
+#. type: Fenced code block (python)
+#: courses/en/01-orchestration.md:481
+#, no-wrap
+msgid ""
+"async def normalize_dates(input_data, tool_use_id, context):\n"
+"    if input_data[\"tool_name\"] not in ORDER_TOOLS:\n"
+"        return {}\n"
+"    raw = json.loads(input_data[\"tool_response\"][\"content\"])\n"
+"    return {\"hookSpecificOutput\": {\n"
+"        \"hookEventName\": \"PostToolUse\",\n"
+"        \"updatedToolOutput\": json.dumps({\n"
+"            **raw,\n"
+"            \"shipped_at\": to_iso8601(raw[\"shipped_at\"]),   # 1743800400 → \"2025-04-04\"\n"
+"            \"status\": STATUS_NAMES[raw[\"status\"]],          # 2 → \"shipped\"\n"
+"        }),\n"
+"    }}\n"
+msgstr ""
+"async def normalize_dates(input_data, tool_use_id, context):\n"
+"    if input_data[\"tool_name\"] not in ORDER_TOOLS:\n"
+"        return {}\n"
+"    raw = json.loads(input_data[\"tool_response\"][\"content\"])\n"
+"    return {\"hookSpecificOutput\": {\n"
+"        \"hookEventName\": \"PostToolUse\",\n"
+"        \"updatedToolOutput\": json.dumps({\n"
+"            **raw,\n"
+"            \"shipped_at\": to_iso8601(raw[\"shipped_at\"]),   # 1743800400 → \"2025-04-04\"\n"
+"            \"status\": STATUS_NAMES[raw[\"status\"]],          # 2 → \"shipped\"\n"
+"        }),\n"
+"    }}\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:500
+#, no-wrap
+msgid ""
+"That is the guide's case, literally: several MCP tools return dates as Unix\n"
+"timestamps, others as ISO 8601, statuses as numeric codes. Mapping them is a\n"
+"fixed table, not a judgement call — so it belongs in code that runs on every\n"
+"result, not in a prompt asking the model to cope with three formats.\n"
+msgstr ""
+"C'est le cas du guide, littéralement : plusieurs outils MCP renvoient des dates\n"
+"en timestamps Unix, d'autres en ISO 8601, des statuts en codes numériques. Les\n"
+"faire correspondre est une table fixe, pas un jugement — cela relève donc d'un\n"
+"code qui tourne sur chaque résultat, pas d'un prompt qui demande au modèle de\n"
+"composer avec trois formats.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/01-orchestration.md:501
+#, no-wrap
+msgid ""
+"The choice between a hook and a prompt instruction is the same choice as in\n"
+"1.4, one level down:\n"
+"\n"
+"| | Hook | Prompt instruction |\n"
+"|---|---|---|\n"
+"| Guarantee | Deterministic — it is code that runs | Probabilistic — no guarantee |\n"
+"| Use for | Business rules, financial and regulatory limits | Preferences, tone, formatting |\n"
+"| Example | Block refunds above $500 | \"Try to resolve the issue before escalating\" |\n"
+msgstr ""
+"Le choix entre un hook et une instruction de prompt est le même qu'en 1.4, un\n"
+"niveau plus bas :\n"
+"\n"
+"| | Hook | Instruction de prompt |\n"
+"|---|---|---|\n"
+"| Garantie | Déterministe — c'est du code qui s'exécute | Probabiliste — aucune garantie |\n"
+"| À utiliser pour | Règles métier, plafonds financiers et réglementaires | Préférences, ton, mise en forme |\n"
+"| Exemple | Bloquer les remboursements au-dessus de 500 $ | « Essaie de résoudre le problème avant d'escalader » |\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/01-orchestration.md:512
+#, no-wrap
+msgid ""
+"Reaching for `PostToolUse` to stop something. It fires after the tool has run —\n"
+"the refund is paid, the rows are deleted. Blocking is `PreToolUse`.\n"
+"\n"
+"The mirror error is a `PreToolUse` block used to fix a *reading* problem. If a\n"
+"tool returns an overloaded field the model misinterprets, blocking the\n"
+"downstream call suppresses the correct calls too; the fix is to rewrite the\n"
+"result on the way back so the ambiguity never reaches the model.\n"
+msgstr ""
+"Recourir à `PostToolUse` pour empêcher quelque chose. Il se déclenche après\n"
+"l'exécution de l'outil — le remboursement est versé, les lignes sont supprimées.\n"
+"Bloquer, c'est `PreToolUse`.\n"
+"\n"
+"L'erreur miroir est un blocage `PreToolUse` employé pour corriger un problème de\n"
+"*lecture*. Si un outil renvoie un champ surchargé que le modèle interprète mal,\n"
+"bloquer l'appel en aval supprime aussi les appels corrects ; le correctif est de\n"
+"réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le modèle.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/01-orchestration.md:522
+#, no-wrap
+msgid ""
+"Two questions separate the two hooks cleanly. *Must something not happen?* →\n"
+"`PreToolUse`. *Must the model read something different from what the tool\n"
+"returned?* → `PostToolUse`. Distractors will place the right mechanism at the\n"
+"wrong point in the loop.\n"
+msgstr ""
+"Deux questions séparent proprement les deux hooks. *Faut-il que quelque chose\n"
+"n'arrive pas ?* → `PreToolUse`. *Faut-il que le modèle lise autre chose que ce\n"
+"que l'outil a retourné ?* → `PostToolUse`. Les distracteurs placeront le bon\n"
+"mécanisme au mauvais endroit de la boucle.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:531
+#, no-wrap
+msgid ""
+"**Claude Code's own configuration-level hooks, declared in settings rather than\n"
+"in SDK code, are developed in domain 3.**\n"
+msgstr ""
+"**Les hooks de Claude Code au niveau configuration, déclarés dans les settings\n"
+"plutôt que dans du code SDK, sont développés au domaine 3.**\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:533
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"1.5\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.5\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/01-orchestration.md:534
+#, no-wrap
+msgid "1.6 — Design task decomposition strategies for complex workflows"
+msgstr "1.6 — Design task decomposition strategies for complex workflows"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:537
+#, no-wrap
+msgid ""
+"<!-- ts:1.6 | src:08agentsdk L14 (fixed pipeline versus dynamic decomposition, predictability as the criterion, the per-file plus cross-file review, the legacy-test-coverage example) ; exam guide TS 1.6 -->\n"
+"<!-- owns:task-decomposition -->\n"
+msgstr ""
+"<!-- ts:1.6 | src:08agentsdk L14 (fixed pipeline versus dynamic decomposition, predictability as the criterion, the per-file plus cross-file review, the legacy-test-coverage example) ; exam guide TS 1.6 -->\n"
+"<!-- owns:task-decomposition -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:540
+#, no-wrap
+msgid ""
+"Not every task splits the same way, and picking the wrong regime costs you\n"
+"either rigidity or chaos. There are two.\n"
+msgstr ""
+"Toutes les tâches ne se découpent pas de la même façon, et se tromper de régime\n"
+"coûte soit de la rigidité, soit du chaos. Il y en a deux.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:545
+#, no-wrap
+msgid ""
+"**Fixed sequential pipeline — prompt chaining.** Every step is decided in\n"
+"advance and runs in order. Use it when the structure of the task is\n"
+"predictable, the steps are all known, and you want stable, comparable results\n"
+"run after run.\n"
+msgstr ""
+"**Pipeline séquentiel fixe — prompt chaining.** Chaque étape est décidée à\n"
+"l'avance et s'exécute dans l'ordre. À utiliser quand la structure de la tâche est\n"
+"prévisible, que toutes les étapes sont connues et que vous voulez des résultats\n"
+"stables et comparables d'une exécution à l'autre.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:549
+#, no-wrap
+msgid ""
+"**Dynamic adaptive decomposition.** Subtasks emerge from what the previous step\n"
+"found. Use it for open-ended investigation, where the scope is unknown at the\n"
+"start.\n"
+msgstr ""
+"**Décomposition dynamique adaptative.** Les sous-tâches émergent de ce que\n"
+"l'étape précédente a trouvé. À utiliser pour l'investigation ouverte, quand le\n"
+"périmètre est inconnu au départ.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/01-orchestration.md:550
+#, no-wrap
+msgid ""
+"The criterion is **predictability, not size**. A twelve-file pull request has a\n"
+"known, enumerable set of targets and takes a fixed pipeline. A one-file bug of\n"
+"unknown origin does not.\n"
+msgstr ""
+"Le critère est la **prévisibilité, pas la taille**. Une pull request de douze\n"
+"fichiers a un ensemble de cibles connu et énumérable : pipeline fixe. Un bug d'un\n"
+"seul fichier dont on ignore l'origine, non.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:559
+#, no-wrap
+msgid ""
+"The guide's own example of prompt chaining is the multi-aspect code review. A\n"
+"single pass over a large diff produces uneven output: detailed comments on some\n"
+"files, superficial on others, and contradictions between them. Split it:\n"
+msgstr ""
+"L'exemple de prompt chaining du guide lui-même est la revue de code\n"
+"multi-aspects. Une passe unique sur un gros diff produit une sortie inégale :\n"
+"commentaires détaillés sur certains fichiers, superficiels sur d'autres, et\n"
+"contradictions entre eux. Découpez :\n"
+
+#. type: Fenced code block (text)
+#: courses/en/01-orchestration.md:560
+#, no-wrap
+msgid ""
+"Pass 1 — per file, one focused analysis each\n"
+"         → local bugs, quality issues, vulnerabilities\n"
+"Pass 2 — one cross-file integration pass over the results of pass 1\n"
+"         → inconsistent types, circular dependencies, broken data flow\n"
+"\n"
+"Splitting this way is what avoids attention dilution on a large review.\n"
+msgstr ""
+"Passe 1 — par fichier, une analyse ciblée chacun\n"
+"          → bugs locaux, problèmes de qualité, vulnérabilités\n"
+"Passe 2 — une passe d'intégration inter-fichiers sur les résultats de la passe 1\n"
+"          → types incohérents, dépendances circulaires, flux de données cassés\n"
+"\n"
+"Découper ainsi est ce qui évite la dilution de l'attention sur une grosse revue.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:572
+#, no-wrap
+msgid ""
+"The guide's example of adaptive decomposition is \"add comprehensive tests to a\n"
+"legacy codebase\". You cannot list the subtasks up front, because they are what\n"
+"you are about to discover:\n"
+msgstr ""
+"L'exemple de décomposition adaptative du guide est « ajouter une couverture de\n"
+"tests complète à un codebase legacy ». Vous ne pouvez pas lister les sous-tâches\n"
+"d'avance, parce qu'elles sont précisément ce que vous allez découvrir :\n"
+
+#. type: Fenced code block (text)
+#: courses/en/01-orchestration.md:573
+#, no-wrap
+msgid ""
+"1. Map the structure                (Glob, Grep)\n"
+"2. Discover: 3 modules untested, 2 partially covered\n"
+"3. Prioritize by impact             → payments module first (high risk)\n"
+"4. Surprise: an unmocked external API dependency\n"
+"5. Adapt the plan                   → build the mock, then write the tests\n"
+msgstr ""
+"1. Cartographier la structure         (Glob, Grep)\n"
+"2. Découverte : 3 modules sans tests, 2 partiellement couverts\n"
+"3. Prioriser par impact               → le module de paiements d'abord (risque élevé)\n"
+"4. Surprise : une dépendance vers une API externe non mockée\n"
+"5. Adapter le plan                    → construire le mock, puis écrire les tests\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:584
+#, no-wrap
+msgid ""
+"Map structure, identify high-impact areas, produce a prioritized plan that\n"
+"adapts as dependencies surface — that is the guide's wording, and step 4 is the\n"
+"whole point: the plan changed because of what step 1 found.\n"
+msgstr ""
+"Cartographier la structure, identifier les zones à fort impact, produire un plan\n"
+"priorisé qui s'adapte à mesure que les dépendances apparaissent — c'est la\n"
+"formulation du guide, et l'étape 4 est tout l'enjeu : le plan a changé à cause de\n"
+"ce que l'étape 1 a trouvé.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/01-orchestration.md:585
+#, no-wrap
+msgid ""
+"Three mismatches, and they are exactly the distractors:\n"
+"\n"
+"- A **fixed pipeline on unknown scope** — it demands the list of steps before\n"
+"  you start, which is precisely what you do not have.\n"
+"- A **multi-pass review offered for an open-ended investigation** — it is built\n"
+"  for a bounded, enumerable set of targets like the files of a PR.\n"
+"- A **single exhaustive prompt** meant to cover everything at once — it assumes\n"
+"  you already know the scope.\n"
+"\n"
+"And the fourth, quieter one: adaptive decomposition on frozen targets. It buys\n"
+"nothing once the targets never vary, and it makes successive runs harder to\n"
+"compare.\n"
+msgstr ""
+"Trois mauvais appariements, et ce sont exactement les distracteurs :\n"
+"\n"
+"- Un **pipeline fixe sur un périmètre inconnu** — il exige la liste des étapes\n"
+"  avant de commencer, ce qui est précisément ce dont vous ne disposez pas.\n"
+"- Une **revue multi-passes proposée pour une investigation ouverte** — elle est\n"
+"  conçue pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.\n"
+"- Un **prompt exhaustif unique** censé tout couvrir d'un coup — il suppose que\n"
+"  vous connaissez déjà le périmètre.\n"
+"\n"
+"Et le quatrième, plus discret : la décomposition adaptative sur des cibles\n"
+"figées. Elle n'apporte rien dès lors que les cibles ne varient jamais, et elle\n"
+"rend les exécutions successives plus difficiles à comparer.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/01-orchestration.md:600
+#, no-wrap
+msgid ""
+"Read the scenario for one thing: **is the list of targets knowable before the\n"
+"first call?** Yes → prompt chaining. No → dynamic decomposition. Words like\n"
+"\"the same six adapters, every quarter\" point one way; \"nobody knows how many\n"
+"stages it has\" points the other.\n"
+msgstr ""
+"Lisez l'énoncé pour une seule chose : **la liste des cibles est-elle connaissable\n"
+"avant le premier appel ?** Oui → prompt chaining. Non → décomposition dynamique.\n"
+"Des formules comme « les mêmes six adaptateurs, chaque trimestre » pointent d'un\n"
+"côté ; « personne ne sait combien d'étages il comporte » pointe de l'autre.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:608
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"1.6\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.6\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/01-orchestration.md:609
+#, no-wrap
+msgid "1.7 — Manage session state, resumption, and forking"
+msgstr "1.7 — Manage session state, resumption, and forking"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/01-orchestration.md:611
+#, no-wrap
+msgid "<!-- ts:1.7 | src:08agentsdk L8 (what a session is, continue vs resume vs fork, capturing the session id, when to resume and when to start fresh), L15 §2 (fork combines with resume and branches history, not the filesystem), §3 (named resumption in the guide versus session ids in the SDK) ; exam guide TS 1.7 -->\n"
+msgstr "<!-- ts:1.7 | src:08agentsdk L8 (what a session is, continue vs resume vs fork, capturing the session id, when to resume and when to start fresh), L15 §2 (fork combines with resume and branches history, not the filesystem), §3 (named resumption in the guide versus session ids in the SDK) ; exam guide TS 1.7 -->\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:616
+#, no-wrap
+msgid ""
+"A **session** is the conversation history the SDK accumulates while the agent\n"
+"works — your prompt, every tool call, every result, every reply — written to\n"
+"disk automatically. Long investigations span several working sessions, and\n"
+"between them files change and stored tool results go stale.\n"
+msgstr ""
+"Une **session** est l'historique de conversation que le SDK accumule pendant le\n"
+"travail de l'agent — votre prompt, chaque appel d'outil, chaque résultat, chaque\n"
+"réponse — écrit sur disque automatiquement. Les longues investigations s'étalent\n"
+"sur plusieurs sessions de travail, et entre-temps les fichiers changent et les\n"
+"résultats d'outils enregistrés se périment.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:618
+#, no-wrap
+msgid "Three operations, three different jobs:\n"
+msgstr "Trois opérations, trois métiers différents :\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:624
+#, no-wrap
+msgid ""
+"| Operation | What it does |\n"
+"|---|---|\n"
+"| `--resume <session-name>` | Continues one specific prior conversation, by name |\n"
+"| `fork_session` | Creates an independent branch from an existing session's history; the original is untouched and the fork gets its own id |\n"
+"| Fresh session + injected summary | Starts empty and receives, in the prompt, a structured summary of what still holds |\n"
+msgstr ""
+"| Opération | Ce qu'elle fait |\n"
+"|---|---|\n"
+"| `--resume <session-name>` | Continue une conversation antérieure précise, par son nom |\n"
+"| `fork_session` | Crée une branche indépendante à partir de l'historique d'une session existante ; l'originale reste intacte et le fork obtient son propre id |\n"
+"| Session neuve + résumé injecté | Démarre à vide et reçoit, dans le prompt, un résumé structuré de ce qui tient encore |\n"
+
+#. type: Fenced code block (python)
+#: courses/en/01-orchestration.md:625
+#, no-wrap
+msgid ""
+"# Fork the analysis baseline to explore a second approach.\n"
+"async for message in query(\n"
+"    prompt=\"Instead of Redux, outline how the Context API would work here\",\n"
+"    options=ClaudeAgentOptions(\n"
+"        resume=session_id,      # fork always branches an existing session\n"
+"        fork_session=True,\n"
+"        max_turns=5,\n"
+"    ),\n"
+"):\n"
+"    if isinstance(message, ResultMessage):\n"
+"        forked_id = message.session_id     # distinct from session_id\n"
+msgstr ""
+"# Forker la base d'analyse pour explorer une seconde approche.\n"
+"async for message in query(\n"
+"    prompt=\"Plutôt que Redux, décris comment la Context API fonctionnerait ici\",\n"
+"    options=ClaudeAgentOptions(\n"
+"        resume=session_id,      # un fork branche toujours une session existante\n"
+"        fork_session=True,\n"
+"        max_turns=5,\n"
+"    ),\n"
+"):\n"
+"    if isinstance(message, ResultMessage):\n"
+"        forked_id = message.session_id     # distinct de session_id\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:643
+#, no-wrap
+msgid ""
+"Two facts about forking that questions turn on. It always combines with\n"
+"resumption — you fork *an existing session*, never out of nothing. And it\n"
+"branches the **conversation history, not the filesystem**: two forked agents\n"
+"editing files in the same directory are editing the same files.\n"
+msgstr ""
+"Deux faits sur le fork sur lesquels les questions se jouent. Il se combine\n"
+"toujours à la reprise — on forke *une session existante*, jamais à partir de\n"
+"rien. Et il branche l'**historique de conversation, pas le système de fichiers** :\n"
+"deux agents forkés qui modifient des fichiers dans le même répertoire modifient\n"
+"les mêmes fichiers.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:645
+#, no-wrap
+msgid "Choosing between the three is the skill the guide tests:\n"
+msgstr "Choisir entre les trois est la compétence que le guide teste :\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:652
+#, no-wrap
+msgid ""
+"| Situation | Choice |\n"
+"|---|---|\n"
+"| Prior context still valid, files unchanged | `--resume` |\n"
+"| A few specific files changed, the rest still holds | `--resume`, **naming the changed files** so the agent re-analyses those rather than re-exploring everything |\n"
+"| Tool results are stale — files changed extensively or unverifiably | New session, seeded with a structured summary |\n"
+"| Comparing two approaches from a shared analysis baseline | `fork_session` |\n"
+msgstr ""
+"| Situation | Choix |\n"
+"|---|---|\n"
+"| Le contexte antérieur est encore valide, fichiers inchangés | `--resume` |\n"
+"| Quelques fichiers précis ont changé, le reste tient encore | `--resume`, en **nommant les fichiers modifiés** pour que l'agent les ré-analyse plutôt que de tout ré-explorer |\n"
+"| Les résultats d'outils sont périmés — fichiers modifiés largement ou de façon incertaine | Session neuve, amorcée par un résumé structuré |\n"
+"| Comparer deux approches depuis une base d'analyse commune | `fork_session` |\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:659
+#, no-wrap
+msgid ""
+"The third row is the guide's own judgement call, and it is counter-intuitive\n"
+"enough to be tested: **starting a new session with a structured summary is more\n"
+"reliable than resuming with stale tool results.** A resumed session carries\n"
+"recorded responses that describe a system that no longer exists, and the agent\n"
+"reasons on them as if they were current. A written summary carries the\n"
+"conclusions that survived and leaves the dead payloads behind.\n"
+msgstr ""
+"La troisième ligne est le jugement du guide lui-même, et il est assez\n"
+"contre-intuitif pour être testé : **démarrer une session neuve avec un résumé\n"
+"structuré est plus fiable que reprendre avec des résultats d'outils périmés.**\n"
+"Une session reprise transporte des réponses enregistrées qui décrivent un système\n"
+"qui n'existe plus, et l'agent raisonne dessus comme si elles étaient à jour. Un\n"
+"résumé écrit emporte les conclusions qui ont survécu et laisse derrière les\n"
+"payloads morts.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/01-orchestration.md:660
+#, no-wrap
+msgid ""
+"Three moves the distractors put in place of the three answers above:\n"
+"\n"
+"- **Resuming without saying what changed.** The agent keeps a false picture of\n"
+"  the files and reasons on dead tool results — the very failure resumption was\n"
+"  supposed to avoid.\n"
+"- **Re-exploring everything from scratch** when only three files moved. It\n"
+"  throws away work that is still valid.\n"
+"- **Forking to compare an old and a new version of a file.** A fork explores\n"
+"  divergent *approaches* from a shared baseline; it does not reconcile a disk\n"
+"  state.\n"
+msgstr ""
+"Trois gestes que les distracteurs proposent à la place des trois réponses ci-dessus :\n"
+"\n"
+"- **Reprendre sans dire ce qui a changé.** L'agent garde une image fausse des\n"
+"  fichiers et raisonne sur des résultats d'outils morts — précisément l'échec que\n"
+"  la reprise devait éviter.\n"
+"- **Tout ré-explorer de zéro** alors que seuls trois fichiers ont bougé. C'est\n"
+"  jeter du travail encore valide.\n"
+"- **Forker pour comparer une ancienne et une nouvelle version d'un fichier.** Un\n"
+"  fork explore des *approches* divergentes depuis une base commune ; il ne\n"
+"  réconcilie pas un état disque.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/01-orchestration.md:673
+#, no-wrap
+msgid ""
+"Three situations, three answers, and the distractors trade them around. Context\n"
+"mostly valid → `--resume` plus a list of the changed files. Tool results\n"
+"largely stale → fresh session with an injected summary. Two approaches to\n"
+"compare → `fork_session`. Note also that the guide says `--resume\n"
+"<session-name>` while the SDK documents `resume` taking a session id; the\n"
+"concept — resuming a *named* investigation across working sessions — is what is\n"
+"tested, not the syntax.\n"
+msgstr ""
+"Trois situations, trois réponses, et les distracteurs les permutent. Contexte\n"
+"majoritairement valide → `--resume` accompagné de la liste des fichiers modifiés.\n"
+"Résultats d'outils largement périmés → session neuve avec un résumé injecté. Deux\n"
+"approches à comparer → `fork_session`. Notez aussi que le guide écrit `--resume\n"
+"<session-name>` alors que le SDK documente `resume` prenant un session ID ; c'est\n"
+"le concept — reprendre une investigation *nommée* à travers plusieurs sessions de\n"
+"travail — qui est testé, pas la syntaxe.\n"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:683
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"1.7\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.7\"`.\n"

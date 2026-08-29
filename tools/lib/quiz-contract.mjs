@@ -15,7 +15,23 @@
  * banque de questions.
  */
 
-const OPTION_LETTERS = ['a', 'b', 'c', 'd'];
+/* Quatre options a-d dans le cas général ; cinq a-e quand l'énoncé demande
+ * plusieurs bonnes réponses (« Select the 2 correct answers »), forme déjà
+ * présente dans les auto-évaluations manuscrites et gérée par quiz.js, qui lit
+ * data-answer comme une liste de lettres séparées par des espaces. Un contrat
+ * figé sur quatre options aurait obligé à réécrire ces questions pour les
+ * faire entrer dans le corpus — c'est-à-dire à changer le contenu pour
+ * satisfaire l'outil. */
+const OPTION_LETTERS = ['a', 'b', 'c', 'd', 'e'];
+const MIN_OPTIONS = 4;
+
+/* data-answer porte une lettre, ou plusieurs séparées par des espaces. Source
+ * unique de cette lecture : le contrôle et le rendu (tools/lib/page.mjs)
+ * doivent découper la chaîne de la même façon, sinon un quiz validé ici peut
+ * se rendre avec le mauvais jeu de distracteurs. */
+export function answerLetters(answer) {
+  return String(answer ?? '').trim().split(/\s+/).filter(Boolean);
+}
 
 /* bankTasks est optionnel : tools/lib/page.mjs appelle ce contrat avant de
  * rendre une page, sans avoir chargé Practice_Questions.html — il ne peut
@@ -39,15 +55,17 @@ export function checkQuizContract(quizzes, { bankTasks } = {}) {
     }
 
     const optionKeys = Object.keys(q.options ?? {}).sort();
-    if (optionKeys.join(',') !== OPTION_LETTERS.join(',')) {
-      say(`options ${JSON.stringify(optionKeys)}, attendu ${JSON.stringify(OPTION_LETTERS)}`);
+    const expectedOptions = OPTION_LETTERS.slice(0, Math.max(optionKeys.length, MIN_OPTIONS));
+    if (optionKeys.length < MIN_OPTIONS || optionKeys.join(',') !== expectedOptions.join(',')) {
+      say(`options ${JSON.stringify(optionKeys)}, attendu un préfixe contigu de ${JSON.stringify(OPTION_LETTERS)} d'au moins ${MIN_OPTIONS} lettres`);
     }
 
-    if (!optionKeys.includes(q.answer)) {
+    const answers = answerLetters(q.answer);
+    if (!answers.length || answers.some((letter) => !optionKeys.includes(letter))) {
       say(`answer « ${q.answer} » ne désigne aucune option`);
     }
 
-    const expectedDistractors = OPTION_LETTERS.filter((letter) => letter !== q.answer).sort();
+    const expectedDistractors = optionKeys.filter((letter) => !answers.includes(letter)).sort();
     const distractorKeys = Object.keys(q.distractors ?? {}).sort();
     if (distractorKeys.join(',') !== expectedDistractors.join(',')) {
       say(`distracteurs ${JSON.stringify(distractorKeys)}, attendu ${JSON.stringify(expectedDistractors)}`);

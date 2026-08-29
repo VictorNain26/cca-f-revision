@@ -13,7 +13,12 @@ import { JSDOM } from 'jsdom';
 
 export const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
-const OPTION_LETTERS = ['a', 'b', 'c', 'd'];
+/* Les lettres viennent des <p data-opt> réellement présents, pas d'une liste
+ * figée : une question à réponses multiples en porte cinq (a-e), et une liste
+ * arrêtée à d en perdrait la cinquième option en silence — l'extraction
+ * réécrirait alors la question qu'elle est censée transcrire. */
+const optionLettersOf = (details) =>
+  [...details.querySelectorAll(':scope > div > p[data-opt]')].map((p) => p.dataset.opt);
 
 /* Le préfixe « A) » est un artefact de présentation : il ouvre les options à
  * l'identique et n'appartient pas à leur contenu, ni au scénario ou à la
@@ -30,7 +35,7 @@ const normalizeHtml = (html) =>
 export const parseQuiz = (details) => {
   const domain = details.dataset.domain || null;
   const task = details.dataset.task || null;
-  const summary = (details.querySelector(':scope > summary')?.textContent || '').trim();
+  const summary = normalizeHtml(details.querySelector(':scope > summary')?.innerHTML);
 
   const paragraphs = [...details.querySelectorAll(':scope > div > p')];
   const scenarioP = paragraphs.find((p) => /^\s*<strong>Scenario:<\/strong>/.test(p.innerHTML));
@@ -40,16 +45,15 @@ export const parseQuiz = (details) => {
   const stripLabel = (p, label) =>
     p ? normalizeHtml(p.innerHTML.replace(new RegExp(`^\\s*<strong>${label}:<\\/strong>\\s*`), '')) : '';
 
-  const optionEls = OPTION_LETTERS.map((letter) =>
-    details.querySelector(`:scope > div > p[data-opt="${letter}"]`));
   const options = {};
-  for (const [index, letter] of OPTION_LETTERS.entries()) {
-    options[letter] = normalizeHtml(optionEls[index]?.innerHTML);
+  for (const letter of optionLettersOf(details)) {
+    options[letter] = normalizeHtml(
+      details.querySelector(`:scope > div > p[data-opt="${letter}"]`)?.innerHTML);
   }
 
   const correctP = details.querySelector(':scope > div > p.correct[data-answer]');
   const answer = correctP?.dataset.answer || null;
-  const answerLabel = (correctP?.textContent || '').replace(/^Answer:\s*/, '').trim();
+  const answerLabel = (correctP?.textContent || '').replace(/^Answers?:\s*/, '').trim();
 
   const distractorLis = [...details.querySelectorAll(':scope > div ul li[data-opt]')];
   const distractors = {};
@@ -72,13 +76,15 @@ export const parseQuiz = (details) => {
   };
 };
 
-export const parseQuizzesFromHtml = (html) => {
+/* Le préfixe d'id identifie la fiche d'origine (« d0-q », « d1-q »…) : chaque
+ * fiche manuscrite numérote ses quiz dans son propre espace de noms. */
+export const parseQuizzesFromHtml = (html, idPrefix = 'd0-q') => {
   const doc = new JSDOM(html).window.document;
-  return [...doc.querySelectorAll('details[id^="d0-q"]')].map(parseQuiz);
+  return [...doc.querySelectorAll(`details[id^="${idPrefix}"]`)].map(parseQuiz);
 };
 
-export const loadHtmlQuizzes = (file = 'D0_API_Fundamentals.html') =>
-  parseQuizzesFromHtml(fs.readFileSync(path.join(ROOT, file), 'utf8'));
+export const loadHtmlQuizzes = (file = 'D0_API_Fundamentals.html', idPrefix = 'd0-q') =>
+  parseQuizzesFromHtml(fs.readFileSync(path.join(ROOT, file), 'utf8'), idPrefix);
 
 export const loadJsonQuizzes = (domain = 'D0') =>
   JSON.parse(fs.readFileSync(path.join(ROOT, 'courses', 'quizzes', `${domain}.json`), 'utf8'));
