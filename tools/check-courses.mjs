@@ -246,6 +246,12 @@ problems.push(...checkPo4aOptions({ confText, buildScript }).problems);
 problems.push(...checkPublishedCoursesReconciliation({ delivered, publishedCourses: PUBLISHED_COURSES }).problems);
 
 const nav = { links: readLinks(path.join(ROOT, 'nav.js')), translations: readTranslations(path.join(ROOT, 'nav.js')) };
+
+/* Les pages anglaises réellement sur le disque, pas celles que PUBLISHED_COURSES
+ * annonce : c'est l'écart entre le disque et la liste tenue à la main que
+ * checkEnglishPagesReconciliation doit voir. */
+const enDir = path.join(ROOT, 'en');
+const enPages = fs.existsSync(enDir) ? fs.readdirSync(enDir).filter((f) => f.endsWith('.html')).sort() : [];
 const enMarkdownByFile = Object.fromEntries(courses.map((c) => [path.basename(c.file), c.markdown]));
 const pagesCommitted = {};
 const pagesRendered = {};
@@ -290,6 +296,8 @@ const audit = auditCorpus({
   untranslatedFiles,
   fuzzyCount,
   untranslatedCount,
+  enPages,
+  translations: nav.translations,
 });
 problems.push(...audit.problems);
 for (const n of audit.notices) console.log(n);

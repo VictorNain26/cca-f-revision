@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D4 — Prompt engineering and structured output (20 %)</title>
+<link rel="stylesheet" href="../styles.css">
+<script src="../nav.js" defer></script>
+<script src="../quiz.js" defer></script>
+<script>(function(){try{var t=localStorage.getItem('cca-theme');if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="../theme.js" defer></script>
+<script src="../toc.js" defer></script>
+<script src="../site.js" defer></script>
+</head>
+<body id="top">
+
+
+<nav class="navbar">
+  <a class="home" href="../index.html">CCA-F</a>
+  <a href="../index.html">Accueil</a>
+  <a href="../D0_API_Fundamentals.html" title="D0 — Fondamentaux de l'API">D0</a>
+  <a href="../D1_Architecture_Orchestration_27pct.html" title="D1 — Architecture et orchestration (27 %)">D1</a>
+  <a href="../D2_Tool_Design_MCP_18pct.html" title="D2 — Tool design et MCP (18 %)">D2</a>
+  <a href="../D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
+  <a class="current" href="../D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
+  <a href="../D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
+  <a href="../Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
+  <a href="../Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
+  <a href="../Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
+  <a href="../anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf" title="Le guide d'examen officiel (PDF) — la seule source qui fait foi" target="_blank" rel="noopener">Guide</a>
+</nav>
+<div class="lang-switch">
+  <a href="../D4_Prompt_Engineering_20pct.html">FR</a>
+</div>
+
+<div class="header-bar">
+<h1>D4 — Prompt engineering and structured output (20 %)</h1>
+<p>Twenty per cent of the score, six task statements, and the domain where the exam
+stops asking what a mechanism is and starts asking what you write into a prompt,
+a schema and a pipeline. One section per task statement, in the guide's own order
+and under the guide's own wording — so that a question spotted on exam day maps
+to a section here without translation.</p>
+<p>D0 is assumed. It named the anatomy of a tool — <code>name</code>, <code>description</code>,
+<code>input_schema</code> — the <code>tool_use</code> block, and <code>stop_reason</code>. It deliberately stopped
+there and pointed here, twice: <strong><code>tool_choice</code> and the use of a JSON schema to
+force a conforming payload are taught in 4.3</strong>, in full, and D1 defers the same
+pair to the same place. That debt is paid below.</p>
+<p>The guide places neighbouring notions elsewhere, and this course honours that.
+Which wording makes a model pick the right tool among several similar ones is
+tool design, tested in TS 2.1 and 2.5; the agentic loop that turns one
+<code>tool_use</code> block into a conversation is D1's TS 1.1; running a reviewer inside a
+pipeline is D3's TS 3.6, which applies what 4.6 explains. Each of those gets a
+sentence and a pointer here, never a second development.</p>
+</div>
+
+<div class="toc">
+<strong>Table of contents</strong>
+<ol>
+<li><a href="#s1">4.1 — Design prompts with explicit criteria to improve precision and reduce false positives</a></li>
+<li><a href="#s2">4.2 — Apply few-shot prompting to improve output consistency and quality</a></li>
+<li><a href="#s3">4.3 — Enforce structured output using tool use and JSON schemas</a></li>
+<li><a href="#s4">4.4 — Implement validation, retry, and feedback loops for extraction quality</a></li>
+<li><a href="#s5">4.5 — Design efficient batch processing strategies</a></li>
+<li><a href="#s6">4.6 — Design multi-instance and multi-pass review architectures</a></li>
+<li><a href="#s7">Self-assessment questions</a></li>
+</ol>
+</div>
+
+<div class="section-header"><h2 id="s1">1. 4.1 — Design prompts with explicit criteria to improve precision and reduce false positives</h2></div>
+
+<p>An automated reviewer flags a pattern on Monday and approves the same pattern on
+Thursday. Nothing changed in the code, and nothing changed in the prompt. What
+changed is that &quot;be careful about risky migrations&quot; has no fixed meaning, so
+every run reinvents the threshold.</p>
+<p>The remedy the guide names is not a better adjective. It is <strong>explicit
+categorical criteria</strong>: named conditions, each one something you could check by
+hand. The guide's own example is the pair to memorise — &quot;flag comments only when
+claimed behavior contradicts actual code behavior&quot;, against &quot;check that comments
+are accurate&quot;.</p>
+<pre><code class="language-text"># Vague — the version that produces a different verdict every run
+Check code comments for accuracy. Be conservative — report only
+high-confidence findings.
+
+# Explicit criteria — the version that produces the same verdict twice
+Flag a comment ONLY IF one of these holds:
+  1. It describes behaviour that contradicts what the code does.
+  2. It refers to a function or variable that does not exist.
+  3. A TODO or FIXME refers to a bug already fixed in the code.
+
+DO NOT flag:
+  - dated phrasing or style that does not contradict the code;
+  - imprecise wording that is still consistent with the code;
+  - missing comments (a separate category, reported separately).
+
+For each finding, output: file:line, which condition matched, the quoted
+comment, and the code fragment that contradicts it.
+</code></pre>
+<p>The two halves are equally load-bearing. Criteria that only say what to report
+leave everything else to inference; the <strong>skip list</strong> is what stops a reviewer
+from drifting into minor style and local convention.</p>
+<div class="key-concept">
+<p><strong>&quot;Be conservative&quot; and &quot;only report high-confidence findings&quot; do not improve
+precision.</strong> The guide states it flatly, and the reason is worth holding: those
+instructions ask the model to move a threshold it has no shared scale for.
+&quot;Confidence&quot; is not a property you and the model agree on the way you agree on
+&quot;the comment names a function that does not exist&quot;.</p>
+<p>A confidence dial filters; a categorical criterion decides. Only the second one
+produces the same answer twice.</p>
+</div>
+<h3>Severity that classifies consistently</h3>
+<p>The guide's third skill is severity, and it asks for two things: explicit
+criteria for each level, <strong>and a concrete code example per level</strong>. The
+definition alone leaves &quot;medium&quot; to taste; the worked example fixes it.</p>
+<pre><code class="language-text">CRITICAL — fails at runtime for users.
+  Example: payment_total = order.get(&quot;total&quot;) + order[&quot;tip&quot;]   # KeyError when no tip
+HIGH — security vulnerability.
+  Example: db.execute(&quot;SELECT * FROM users WHERE id = &quot; + user_id)
+MEDIUM — logic bug with no immediate outage.
+  Example: for i in range(len(items) - 1):   # last item never processed
+LOW — code quality only.
+  Example: the same six-line block duplicated in three handlers.
+</code></pre>
+<h3>Why one bad category poisons the good ones</h3>
+<p>The guide's knowledge point on false positives is a claim about people, not about
+models: <strong>a high false positive rate in one category undermines developer
+confidence in the accurate categories too.</strong> Once the bot has cried wolf about
+naming conventions three times, its genuine SQL-injection finding is skimmed with
+the same eye.</p>
+<p>That is what makes the guide's remedy counter-intuitive and worth remembering:
+<strong>temporarily disable the high false-positive category</strong>, keep the precise ones
+running, improve the prompt for the disabled one, and re-enable it once its
+criteria are specific. Reviewing less, on purpose, is how the remaining output
+keeps being read.</p>
+<div class="exam-tip">
+<p>Two signatures, two answers.</p>
+<p>Verdicts that vary run to run on identical input → replace the adjective with
+named conditions. Developers ignoring the tool → look for the one noisy category
+and turn it off while its prompt is rewritten.</p>
+<p>The distractors are the plausible next moves, and each one leaves the criterion
+undefined. Adding &quot;be conservative&quot;, &quot;only high-confidence findings&quot; or a
+numeric confidence threshold tunes a dial nobody has calibrated. Running the
+check twice and keeping what both runs agree on intersects two unstable verdicts
+and drops genuine findings. Narrowing the scope to fewer files reduces the volume
+without making a single remaining decision consistent. And switching to a larger
+model answers a specification problem with capacity.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Turning the whole reviewer off because one category is noisy.</strong> The guide's
+move is surgical: the accurate categories keep their value and keep being read.
+Silence costs you the findings that were correct.</p>
+<p><strong>Writing criteria you cannot check.</strong> &quot;Flag anything that could confuse a future
+maintainer&quot; is a categorical sentence in shape only. If you cannot decide the
+verdict yourself from the rule, neither can the model.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;4.1&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s2">2. 4.2 — Apply few-shot prompting to improve output consistency and quality</h2></div>
+
+<p>4.1 fixed what to report. It does not fix a second failure: the criteria are
+written, they are detailed, and the output still comes back in a different shape
+every run — or comes back empty on the case nobody thought to list.</p>
+<p>The guide's answer is unambiguous, and it is the phrase to recognise in an
+option: <strong>few-shot examples are the most effective technique for consistently
+formatted, actionable output when detailed instructions alone produce
+inconsistent results.</strong> One example is one-shot prompting; several is multi-shot.</p>
+<p>Two to four is the guide's own count, and the examples are targeted — they show
+the <strong>ambiguous</strong> cases, not the easy ones. Each carries the reasoning for why
+that action was chosen over a plausible alternative, because the reasoning is
+what transfers.</p>
+<pre><code class="language-text">&lt;examples&gt;
+  &lt;example&gt;
+    &lt;request&gt;My order is broken&lt;/request&gt;
+    &lt;action&gt;get_customer, then lookup_order, then check status&lt;/action&gt;
+    &lt;rationale&gt;&quot;Broken&quot; may mean damaged goods or a failed delivery. The
+    details decide, so gather them before routing anywhere.&lt;/rationale&gt;
+  &lt;/example&gt;
+  &lt;example&gt;
+    &lt;request&gt;Get me a manager&lt;/request&gt;
+    &lt;action&gt;escalate_to_human, immediately&lt;/action&gt;
+    &lt;rationale&gt;The customer asked for a person explicitly. Attempting a
+    resolution first overrides a stated preference.&lt;/rationale&gt;
+  &lt;/example&gt;
+&lt;/examples&gt;
+</code></pre>
+<p>The XML tags are the course's habit and they earn their place here: examples are
+interpolated content sitting next to instructions, and descriptive delimiters —
+<code>&lt;sample_input&gt;</code>, <code>&lt;ideal_output&gt;</code>, <code>&lt;examples&gt;</code> — are what keeps the model from
+reading an example as a request.</p>
+<div class="key-concept">
+<p><strong>Examples generalise; lists enumerate.</strong> The guide's wording is that few-shot
+examples let the model &quot;generalize judgment to novel patterns rather than
+matching only pre-specified cases&quot;, and that is the whole reason they beat a
+longer rulebook. Two examples of an informal measurement — &quot;two handfuls&quot;,
+&quot;a splash&quot; — teach the conversion; a lookup table of informal phrases covers
+exactly the phrases in it, and the next import brings a new one.</p>
+<p>This is also why the rationale matters more than the answer. An example that
+shows only the output teaches a mapping. An example that shows why teaches a
+rule.</p>
+</div>
+<h3>The four jobs the guide gives them</h3>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>What the examples show</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ambiguous cases</td>
+<td>Which action was taken, and why not the plausible alternative</td>
+</tr>
+<tr>
+<td>Output format</td>
+<td>One filled-in record: location, issue, severity, suggested fix</td>
+</tr>
+<tr>
+<td>Acceptable versus genuine</td>
+<td>A pattern that must not be flagged, beside one that must</td>
+</tr>
+<tr>
+<td>Varied document structures</td>
+<td>The same fact extracted from an inline citation and from a bibliography entry</td>
+</tr>
+</tbody>
+</table>
+<p>The last two are the ones people forget, and each answers a specific failure.</p>
+<p><strong>Acceptable versus genuine</strong> is the false-positive lever of 4.1 seen from the
+other side: rather than enumerating every benign pattern, show one benign and one
+genuine, and let the distinction generalise.</p>
+<pre><code class="language-json">{&quot;location&quot;: &quot;src/auth/login.ts:42&quot;,
+ &quot;issue&quot;: &quot;SQL injection in the username parameter&quot;,
+ &quot;severity&quot;: &quot;critical&quot;,
+ &quot;suggested_fix&quot;: &quot;Use a parameterised query&quot;}
+</code></pre>
+<p><strong>Varied document structures</strong> is the guide's extraction case. A rate reported as
+<code>the rate is 42% (Smith, 2023)</code> and the same rate reported as <code>The rate is 42%. [1]</code> with a bibliography at the end are one fact in two shapes, and a model shown
+only the first returns <code>null</code> on the second. The guide names that symptom
+directly: examples are what addresses <strong>empty or null extraction of required
+fields</strong> on documents whose format varies.</p>
+<div class="exam-tip">
+<p>Two signals in the scenario, together, name this answer: <strong>the instructions are
+already detailed</strong> and the output is still inconsistent, and the model has to
+decide cases nobody listed in advance. Few-shot is the only lever that teaches a
+distinction instead of enumerating instances.</p>
+<p>The distractors are all reasonable-sounding next moves. Rewriting the
+instructions more firmly repeats what the scenario says has already failed.
+Maintaining a whitelist or lookup table of accepted patterns covers what is in
+it and nothing else, and the scenario usually says new phrasings keep arriving.
+Post-processing the output with a filter cannot reconstruct a decision the model
+never made. Lowering sensitivity suppresses true positives at the same rate as
+false ones. And rejecting the hard inputs for manual handling buys correctness by
+refusing to do the work.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Twenty examples of the easy case.</strong> Volume is not the variable; targeting is.
+Two to four examples aimed at the cases that are actually ambiguous outperform a
+page of examples the model already handles.</p>
+<p><strong>Examples that show the output without the reasoning.</strong> They pin the format and
+teach nothing transferable, so the first unseen phrasing lands back where it
+started.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;4.2&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s3">3. 4.3 — Enforce structured output using tool use and JSON schemas</h2></div>
+
+<p>Ask for JSON in prose and you get JSON most of the time: a trailing comma here,
+a fenced code block there, a field renamed on the third document. The guide's
+answer is a mechanism rather than a phrasing, and it states it without hedging —
+<strong>tool use with JSON schemas is the most reliable approach for guaranteed
+schema-compliant structured output, and it eliminates JSON syntax errors.</strong></p>
+<p>The move is a small inversion. You declare a tool whose <code>input_schema</code> is the
+shape you want <em>out</em>, you force the model to call it, and you read the extraction
+from the call's <code>input</code>. <strong>The tool is never executed.</strong> Its whole purpose is to
+be a schema the model must fill.</p>
+<pre><code class="language-json">{
+  &quot;tools&quot;: [{
+    &quot;name&quot;: &quot;extract_invoice&quot;,
+    &quot;description&quot;: &quot;Records the fields extracted from an invoice document.&quot;,
+    &quot;input_schema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;properties&quot;: {
+        &quot;invoice_number&quot;: { &quot;type&quot;: &quot;string&quot; },
+        &quot;issue_date&quot;:     { &quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;ISO 8601, YYYY-MM-DD&quot; },
+        &quot;total&quot;:          { &quot;type&quot;: &quot;number&quot; },
+        &quot;company_name&quot;:   { &quot;type&quot;: [&quot;string&quot;, &quot;null&quot;] },
+        &quot;document_kind&quot;:  { &quot;enum&quot;: [&quot;invoice&quot;, &quot;credit_note&quot;, &quot;other&quot;, &quot;unclear&quot;] },
+        &quot;kind_detail&quot;:    { &quot;type&quot;: [&quot;string&quot;, &quot;null&quot;] }
+      },
+      &quot;required&quot;: [&quot;invoice_number&quot;, &quot;total&quot;, &quot;document_kind&quot;]
+    }
+  }],
+  &quot;tool_choice&quot;: { &quot;type&quot;: &quot;tool&quot;, &quot;name&quot;: &quot;extract_invoice&quot; }
+}
+</code></pre>
+<p>The reply carries <code>stop_reason: &quot;tool_use&quot;</code> and a <code>tool_use</code> block whose <code>input</code>
+<em>is</em> your record — no parsing of prose, no repair pass:</p>
+<pre><code class="language-json">{ &quot;type&quot;: &quot;tool_use&quot;, &quot;id&quot;: &quot;toolu_01A&quot;, &quot;name&quot;: &quot;extract_invoice&quot;,
+  &quot;input&quot;: { &quot;invoice_number&quot;: &quot;INV-2024-0912&quot;, &quot;issue_date&quot;: &quot;2024-09-12&quot;,
+             &quot;total&quot;: 1249.90, &quot;company_name&quot;: null,
+             &quot;document_kind&quot;: &quot;invoice&quot;, &quot;kind_detail&quot;: null } }
+</code></pre>
+<h3><code>tool_choice</code></h3>
+<p>This is the field D0 and D1 both deferred here. It decides whether calling a
+tool is optional, mandatory, or mandatory and named.</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>Behaviour</th>
+<th>Reach for it when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{&quot;type&quot;: &quot;auto&quot;}</code></td>
+<td>Default. The model decides, and may answer in text</td>
+<td>The tool is not always relevant</td>
+</tr>
+<tr>
+<td><code>{&quot;type&quot;: &quot;any&quot;}</code></td>
+<td>The model <strong>must</strong> call a tool, and picks which</td>
+<td>Several extraction schemas exist and you do not know the document type</td>
+</tr>
+<tr>
+<td><code>{&quot;type&quot;: &quot;tool&quot;, &quot;name&quot;: &quot;extract_metadata&quot;}</code></td>
+<td>The model must call <strong>that</strong> tool</td>
+<td>One schema is mandatory, or one extraction must run before the rest</td>
+</tr>
+<tr>
+<td><code>{&quot;type&quot;: &quot;none&quot;}</code></td>
+<td>No tool may be called</td>
+<td>You want prose even though tools are declared</td>
+</tr>
+</tbody>
+</table>
+<p>The two uses the guide names are worth memorising as scenarios, because that is
+how they are examined. <strong><code>any</code></strong> is the answer when a pipeline receives invoices,
+purchase orders and delivery notes through the same door: you have a schema for
+each, you cannot say in advance which applies, and what you cannot afford is a
+conversational reply instead of a call. <strong>A forced named tool</strong> is the answer
+when order matters — <code>extract_metadata</code> must run first, and the enrichment steps
+come in later turns.</p>
+<div class="key-concept">
+<p>Field behaviour that follows from forcing a call: under <code>any</code> or a forced tool,
+the model does not produce a natural-language explanation before the call. If you
+want both the reasoning and the call, stay on <code>auto</code> and ask for the tool in the
+prompt — &quot;use the <code>extract_invoice</code> tool in your response&quot;.</p>
+<p>Second constraint, same family: with manually enabled extended thinking, only
+<code>auto</code> and <code>none</code> are supported.</p>
+</div>
+<h3>Designing the schema so it does not invite invention</h3>
+<p>A schema is a contract, and a badly drawn contract makes fabrication the
+compliant answer.</p>
+<table>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Written as</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Optional means optional</td>
+<td>Leave the field out of <code>required</code></td>
+<td>A required field the source does not carry forces the model to choose between breaking the schema and inventing a value</td>
+</tr>
+<tr>
+<td>Nullable</td>
+<td><code>&quot;type&quot;: [&quot;string&quot;, &quot;null&quot;]</code></td>
+<td>Absence needs a representation, otherwise a gift certificate comes back with a plausible price</td>
+</tr>
+<tr>
+<td><code>enum</code> + <code>&quot;other&quot;</code> + detail</td>
+<td><code>&quot;enum&quot;: [..., &quot;other&quot;]</code> plus a free-text field</td>
+<td>A closed enum produces a wrong category rather than an admission that none fits</td>
+</tr>
+<tr>
+<td><code>&quot;unclear&quot;</code></td>
+<td>An enum value of its own</td>
+<td>Lets the model say the document does not settle it</td>
+</tr>
+</tbody>
+</table>
+<p>The guide's last skill on this task statement is easy to skip and cheap to
+apply: <strong>format normalization rules go in the prompt, next to the strict
+schema.</strong> The schema says a field is a string; only the prompt can say which
+string.</p>
+<pre><code class="language-text">Normalise before you fill the schema:
+  dates       → ISO 8601 (YYYY-MM-DD); resolve &quot;yesterday&quot; to an absolute date
+  money       → numeric amount plus a separate ISO 4217 code; &quot;five bucks&quot; → 5, USD
+  percentages → decimal fraction; &quot;half&quot; → 0.5
+  absent      → null, never a placeholder, never a guess
+</code></pre>
+<div class="key-concept">
+<p><strong>The guide is the law here.</strong> Its TS 4.3 tests <code>tool_use</code> with a JSON schema and
+<code>tool_choice</code>. If an option names <code>output_config.format</code> or
+<code>client.messages.parse()</code>, it is not the expected answer on this exam. The same
+verdict falls on message prefilling paired with a stop sequence: the API course
+teaches it as a route to structured output, and <code>courses/out-of-scope.md</code> sets
+it aside on the strength of this task statement — this section is the promise
+that entry makes. It is also incompatible with the newer mechanism below, so
+the two are never combined in practice either.</p>
+<p>Field nuance, so you are not surprised in production: the platform now carries a
+dedicated JSON-outputs mechanism (<code>output_config.format</code>, and <code>messages.parse()</code>
+with a Pydantic model in the Python SDK) that constrains the response text, plus
+<code>strict: true</code> on a tool, which constrains tool arguments by grammar-constrained
+sampling rather than by adherence. Same goal, newer surfaces, absent from the
+guide.</p>
+<p>On that strict path the platform accepts only a subset of JSON Schema, and the
+part worth carrying back to ordinary tool use is the failure mode: constraints
+like <code>minimum</code>, <code>maxLength</code> and <code>pattern</code> are dropped silently rather than
+rejected. A bound you wrote is not a bound that was enforced. If a number has to
+stay in range, your code checks it — which is 4.4.</p>
+</div>
+<div class="exam-tip">
+<p>Three phrasings, three answers. &quot;Guarantee a schema-conformant payload&quot; →
+<code>tool_use</code> with a JSON schema. &quot;The document type is unknown and several schemas
+exist&quot; → <code>tool_choice: {&quot;type&quot;: &quot;any&quot;}</code>. &quot;This extraction must run before the
+enrichment steps&quot; → force it by name.</p>
+<p>The distractors are consistent across questions. <code>tool_choice: &quot;auto&quot;</code> leaves the
+model free to answer in prose, so the extraction stops being guaranteed — it is
+the closest wrong answer and the one to read for. Describing the schema in the
+prompt and asking for JSON reintroduces exactly the syntax errors the mechanism
+removes. Repairing the output with a regular expression afterwards treats the
+symptom and moves the fragility into your code. And raising <code>max_tokens</code> answers
+a shape problem with length.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Believing the schema validated the content.</strong> A forced call guarantees the
+<em>shape</em> of the payload and nothing about the truth of its values: line items that
+do not sum to the total, a date in the wrong field, an amount that never appeared
+in the document. The guide says so explicitly, and 4.4 is where that is handled.</p>
+<p><strong>Marking every field <code>required</code> for a tidy downstream type.</strong> The tidiness is
+bought with invented values, which is the more expensive defect.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;4.3&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s4">4. 4.4 — Implement validation, retry, and feedback loops for extraction quality</h2></div>
+
+<p>4.3 ended on the sentence this task statement starts from: the payload conforms
+and the values are wrong. <code>total</code> reads 150 while the line items sum to 145; a
+supplier name sits in the customer field. Nothing in the schema can see it,
+because nothing in the schema knows arithmetic.</p>
+<p>The mechanism is a loop, and the guide tests its four steps:</p>
+<ol>
+<li>The model produces an extraction.</li>
+<li>Your code validates it — JSON Schema for structure, then business rules for
+meaning. Pydantic is the appendix's named tool, and it does both: types and
+required fields in the model, cross-field rules in a validator.</li>
+<li>On failure, you send a follow-up request carrying <strong>three things</strong>: the
+original document, the failed extraction, and the <strong>specific</strong> validation
+error.</li>
+<li>You track which errors retries actually fix.</li>
+</ol>
+<p>Step 3 is the whole of &quot;retry with error feedback&quot;, and its adjective is the
+substance. &quot;There is an error, try again&quot; re-rolls the same dice. The error has
+to name the field and the gap.</p>
+<pre><code class="language-python">try:
+    invoice = Invoice.model_validate(tool_use.input)   # types, then @model_validator
+    return invoice
+except ValidationError as e:
+    messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: response.content})
+    messages.append({&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: [{
+        &quot;type&quot;: &quot;tool_result&quot;,
+        &quot;tool_use_id&quot;: tool_use.id,
+        &quot;is_error&quot;: True,
+        &quot;content&quot;: (
+            &quot;total is 150.00 but the line_items sum to 145.00. &quot;
+            &quot;Re-read the line items and resubmit; do not adjust total to fit.&quot;
+        ),
+    }]})
+</code></pre>
+<p>The follow-up rides the ordinary conversation: the assistant message holding the
+<code>tool_use</code> block goes back in the history, and the answer to it is a
+<code>tool_result</code> block carrying the same <code>tool_use_id</code>, with <code>is_error: true</code>. The
+document is already in the history, so the model sees all three of the guide's
+ingredients at once.</p>
+<h3>When a retry cannot work</h3>
+<p>This is the judgement the task statement is built around, and it is a question
+about the <strong>source document</strong>, never about the number of attempts.</p>
+<table>
+<thead>
+<tr>
+<th>Retry will fix it</th>
+<th>Retry cannot fix it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Format errors — a date written <code>09/12/24</code> where the schema wants ISO 8601</td>
+<td>The information is not in the document at all</td>
+</tr>
+<tr>
+<td>Structural errors — a value in the wrong field, a list where an object belongs</td>
+<td>The figure lives in an appendix or an external document you did not provide</td>
+</tr>
+<tr>
+<td>Arithmetic inconsistencies the document itself can settle</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The left column shares one property: the model had the information and shaped it
+badly. Feeding back the exact error is enough. The right column shares the
+opposite one, and a retry there can only produce a more confident invention. The
+answer is a nullable field and a <code>null</code> — 4.3's design rule, arriving as an
+operational decision.</p>
+<h3>Two fields that make the pipeline self-diagnosing</h3>
+<p>The guide names both, and both are cheap additions to a schema.</p>
+<p><strong><code>stated_total</code> beside <code>calculated_total</code>, plus <code>conflict_detected</code>.</strong> Have the
+model extract the figure the document declares <em>and</em> the sum it computes from the
+lines, then flag the disagreement instead of silently picking one. The conflict
+survives into your code, where a human can arbitrate.</p>
+<pre><code class="language-json">{&quot;stated_total&quot;: 150.00, &quot;calculated_total&quot;: 145.00,
+ &quot;conflict_detected&quot;: true, &quot;line_items&quot;: [ … ]}
+</code></pre>
+<p><strong><code>detected_pattern</code> on every finding.</strong> A code-review pipeline that records
+which construct triggered each finding turns dismissals into data: when
+developers reject findings, you can group the rejections by pattern and see that
+one construct produces most of the noise — which is precisely the category 4.1
+tells you to disable and rewrite.</p>
+<pre><code class="language-json">{&quot;location&quot;: &quot;src/auth/login.ts:42&quot;,
+ &quot;issue&quot;: &quot;Possible null dereference&quot;,
+ &quot;severity&quot;: &quot;medium&quot;,
+ &quot;detected_pattern&quot;: &quot;no optional chaining on user.profile.email&quot;,
+ &quot;suggested_fix&quot;: &quot;user?.profile?.email&quot;}
+</code></pre>
+<div class="key-concept">
+<p>Two failure signals your validation code should not confuse with a bad
+extraction. <code>stop_reason: &quot;refusal&quot;</code> means the model declined on safety grounds —
+and it comes back with <strong>HTTP 200</strong>, so code that only checks the status treats a
+refusal as a success and parses a non-conforming reply. <code>stop_reason: &quot;max_tokens&quot;</code> means the output was cut off mid-generation; the retry there is a
+larger budget, not a better prompt. The full set of <code>stop_reason</code> values is D0's.</p>
+<p>The last floor of the pattern, and a guide skill: have the model report a
+confidence per field, route low-confidence extractions to human review, and
+measure accuracy by document type and by field. An acceptable overall accuracy
+can hide one document type that fails systematically.</p>
+</div>
+<div class="exam-tip">
+<p>Read for where the missing information is. &quot;The value appears nowhere in the
+document&quot; or &quot;that figure is in the contract, which was not provided&quot; → the retry
+is pointless; make the field nullable and record the gap. &quot;The date came back in
+the wrong format&quot;, &quot;the values do not sum&quot; → the retry works, provided the
+feedback names the field and the discrepancy.</p>
+<p>The distractors on validation questions are neighbouring good practices applied
+to the wrong failure. More few-shot examples improve the extraction upstream and
+do nothing about a runtime validation failure. A stricter schema removes
+malformed payloads, not disagreements between fields. A custom post-processing
+parser reimplements what the validator already does. Raising <code>max_tokens</code> bounds
+length, not correctness. And retrying with the same prompt, harder, is the
+control condition.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Retrying without the error.</strong> Resending the document and hoping is a lottery,
+and it is billed per ticket.</p>
+<p><strong>Letting the validator repair the value quietly.</strong> Overwriting <code>total</code> with the
+computed sum makes the pipeline green and destroys the signal that the document
+or the extraction was wrong. Flag the conflict; decide it elsewhere.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;4.4&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s5">5. 4.5 — Design efficient batch processing strategies</h2></div>
+
+<p>The Message Batches API processes large volumes of Messages API requests
+asynchronously. Three properties decide every question about it:</p>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cost</td>
+<td><strong>50 % off</strong> standard rates</td>
+</tr>
+<tr>
+<td>Processing window</td>
+<td>Up to <strong>24 hours</strong>; most batches finish in under an hour</td>
+</tr>
+<tr>
+<td>Latency SLA</td>
+<td><strong>None</strong></td>
+</tr>
+<tr>
+<td>Correlation</td>
+<td><code>custom_id</code>, set by you on each request</td>
+</tr>
+<tr>
+<td>Results order</td>
+<td>Not guaranteed</td>
+</tr>
+<tr>
+<td>Multi-turn tool calling in one request</td>
+<td>Not supported</td>
+</tr>
+</tbody>
+</table>
+<p>The third row is the one that decides fit, and it is the one distractors attack.
+&quot;Most batches finish within the hour&quot; is an observation about queues; the
+twenty-four hours bound how long processing <em>may</em> run. Neither is a promise about
+any single submission.</p>
+<pre><code class="language-json">POST /v1/messages/batches
+{ &quot;requests&quot;: [
+    { &quot;custom_id&quot;: &quot;invoice-10231&quot;,
+      &quot;params&quot;: { &quot;model&quot;: &quot;claude-sonnet-5&quot;, &quot;max_tokens&quot;: 1024,
+                  &quot;messages&quot;: [{ &quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Extract: …&quot; }] } },
+    { &quot;custom_id&quot;: &quot;invoice-10232&quot;,
+      &quot;params&quot;: { &quot;model&quot;: &quot;claude-sonnet-5&quot;, &quot;max_tokens&quot;: 1024,
+                  &quot;messages&quot;: [{ &quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;Extract: …&quot; }] } }
+] }
+</code></pre>
+<pre><code class="language-json">// Results come back unordered; pair by custom_id, never by position.
+{ &quot;custom_id&quot;: &quot;invoice-10232&quot;, &quot;result&quot;: { &quot;type&quot;: &quot;succeeded&quot;, &quot;message&quot;: { … } } }
+{ &quot;custom_id&quot;: &quot;invoice-10231&quot;, &quot;result&quot;: { &quot;type&quot;: &quot;errored&quot;,  &quot;error&quot;: { … } } }
+// → resubmit invoice-10231 alone.
+</code></pre>
+<p><code>custom_id</code> is not decoration. Because results are unordered, it is the only
+reliable way to say which response belongs to which document — which is also what
+makes selective resubmission possible.</p>
+<h3>Which workload goes where</h3>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>API</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pre-merge check, a developer waiting</td>
+<td>Synchronous</td>
+<td>Blocking; twenty-four hours is not a possible answer</td>
+</tr>
+<tr>
+<td>Interactive code review</td>
+<td>Synchronous</td>
+<td>Immediate response required</td>
+</tr>
+<tr>
+<td>Overnight technical-debt report</td>
+<td>Batch</td>
+<td>Wanted by morning; half price</td>
+</tr>
+<tr>
+<td>Weekly security audit</td>
+<td>Batch</td>
+<td>Latency-tolerant, high volume</td>
+</tr>
+<tr>
+<td>Nightly test generation</td>
+<td>Batch</td>
+<td>Non-blocking by construction</td>
+</tr>
+</tbody>
+</table>
+<p>The criterion is a single question: <strong>is anyone waiting?</strong> Cost savings never
+promote a blocking workflow into a batch.</p>
+<div class="key-concept">
+<p><strong>A batch request buys one pass and one answer.</strong> You may declare tools and send
+a multi-turn history, but nothing executes a tool in the middle of a batch
+request and hands the result back to the model for another turn. Any step whose
+design requires the model to ask for a file, receive it, and continue does not
+fit — and no amount of polling changes that, because the limitation is structural
+rather than temporal.</p>
+<p>That is the fact behind an entire family of questions: an agentic loop belongs to
+the synchronous API, and D1's TS 1.1 is where that loop is taught.</p>
+</div>
+<h3>Submission cadence under an SLA</h3>
+<p>The guide asks you to compute one. The arithmetic first: with a <strong>30-hour</strong>
+commitment and processing that may take up to <strong>24 hours</strong>, a submission can wait
+at most <code>30 − 24 = 6</code> hours in the queue before it is sent.</p>
+<p>Six hours is the ceiling, not the answer. A batch submitted exactly at the six
+hour mark and processed at the cap consumes the entire budget, leaving nothing
+for a document that failed and must be resubmitted. <strong>The guide's own example
+answers 4-hour windows for a 30-hour SLA</strong> — the ceiling minus a margin.</p>
+<p>Note which number entered that calculation. Most batches finish in under an
+hour, and that observation has no place in the arithmetic: you size on the
+<strong>24 hours the platform bounds</strong>, never on the hour you have been getting.</p>
+<div class="exam-tip">
+<p>The trap on cadence questions is the arithmetically exact number. Six hours is
+correct arithmetic and a wrong operational answer, which is what makes it
+attractive. Compute <code>commitment − processing cap</code> to find the ceiling, then take
+the option below it.</p>
+</div>
+<h3>Handling failures</h3>
+<p>Four result types come back: <code>succeeded</code>, <code>errored</code>, <code>canceled</code>, <code>expired</code>, and
+only <code>succeeded</code> is billed. One failed request does not affect the others.</p>
+<ul>
+<li><strong>Identify failures by <code>custom_id</code></strong> and resubmit only those. Re-running the
+whole batch pays again for everything that worked.</li>
+<li><strong>Resubmit with a modification, not identically</strong>, when the cause is in the
+request: a document that exceeded the context limit goes back as chunks. An
+<code>invalid_request_error</code> means the body must be corrected before it is sent
+again; a server error can be retried as it stands.</li>
+<li><strong>Refine the prompt on a sample first.</strong> Dry-run one representative request
+through the synchronous Messages API, get the extraction right, and only then
+submit the thousand — otherwise you discover a prompt defect after paying for
+every document in the batch.</li>
+</ul>
+<p>Two operational numbers worth carrying: a batch holds up to 100 000 requests or
+256 MB, whichever comes first, and results stay retrievable for 29 days. And a
+short list of parameters a batch refuses, each for the same reason — they are
+synchronous-only settings: <code>stream: true</code> (results come back as files),
+<code>speed</code>, <code>store</code> and <code>previous_thread_event_id</code>, <code>cache_hint</code> and
+<code>context_hint</code>, and <code>max_tokens: 0</code>.</p>
+<div class="anti-pattern">
+<p><strong>Moving a blocking check to the batch API for the discount.</strong> The saving is
+real, the developer is still waiting, and no latency is promised. A distractor
+often softens it with status polling; polling reads a state, it does not create a
+guarantee.</p>
+<p><strong>Pairing responses to requests by position.</strong> Results are unordered. Code that
+zips two lists together will mis-attribute extractions silently, and the defect
+surfaces as data that is subtly wrong rather than as an error.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;4.5&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s6">6. 4.6 — Design multi-instance and multi-pass review architectures</h2></div>
+
+<p>Ask the session that just wrote the code to review it, and it will find little.
+Not because it is careless, but because of what it carries: <strong>the model retains
+its reasoning context from generation, which makes it less likely to question its
+own decisions in the same session.</strong> It already considered the alternative and
+rejected it. Re-reading confirms; it does not test.</p>
+<p>The guide's remedy is architectural rather than instructional, and the comparison
+it draws is the point: <strong>an independent review instance, with no prior reasoning
+context, catches subtle issues better than a self-review instruction or extended
+thinking.</strong> Telling the model to be critical of itself, or giving it more room to
+deliberate, both operate inside the transcript that produced the bias.</p>
+<p>&quot;Independent&quot; has an operational meaning: a separate session, or a subagent,
+which receives the artifact and the criteria and <strong>not</strong> the conversation that
+produced them. In Claude Code that is a reviewer subagent — its own context
+window, read-only tools, checked into the repository so the team shares one
+reviewer. D3's TS 3.6 puts the same instance in a pipeline; what belongs here is
+why the instance has to be a different one.</p>
+<h3>Splitting a review that is too large for one pass</h3>
+<p>A pull request touching thirty files reviewed in a single pass produces
+inconsistent output: a pattern flagged in one file and approved in another,
+findings that thin out towards the end. The cause the guide names is <strong>attention
+dilution</strong>, and the remedy is to shrink each pass rather than to enlarge the
+context.</p>
+<table>
+<thead>
+<tr>
+<th>Pass</th>
+<th>Scope</th>
+<th>Finds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Per-file</td>
+<td>One file at a time</td>
+<td>Local bugs, security issues, quality</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>Signatures and call sites across the changed set</td>
+<td>Type mismatches across module boundaries, circular dependencies, broken data flow</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Pass 1 — local, one invocation per file.
+for file in $(git diff --name-only main...HEAD); do
+  review --scope=&quot;$file&quot; \
+         --prompt=&quot;Local issues only: bugs, security, quality in THIS file.&quot;
+done
+
+# Pass 2 — integration, one invocation over the changed set.
+review --scope=&quot;$(git diff --name-only main...HEAD)&quot; \
+       --prompt=&quot;Cross-file only: type mismatches across module boundaries,
+                 circular dependencies, broken data flow. Ignore local issues.&quot;
+</code></pre>
+<p>Splitting a task into focused passes is D1's task decomposition (TS 1.6) applied to
+review; what is specific here is the <em>cut</em>, local against cross-file, because
+those are the two things one undifferentiated pass does worst.</p>
+<h3>Confidence, self-reported</h3>
+<p>The third skill is a verification pass in which the model reports a confidence
+alongside each finding. The value is not the number itself but the routing it
+enables: high-confidence findings go straight to the developer, low-confidence
+ones to a human check, and the threshold moves as you observe which band is
+worth reading.</p>
+<pre><code class="language-json">{&quot;file&quot;: &quot;src/billing/refund.ts&quot;, &quot;line&quot;: 88,
+ &quot;issue&quot;: &quot;Refund may exceed the original charge when a partial refund precedes it&quot;,
+ &quot;confidence&quot;: 0.42,
+ &quot;detected_pattern&quot;: &quot;no accumulated-refund check before subtraction&quot;}
+</code></pre>
+<p>Two cautions keep this honest. A confidence reported from inside the generating
+context inherits that context's blind spot — the verification pass is worth
+running in the independent instance. And a self-reported number is a signal for
+routing, not a measurement: what turns it into one is comparing it against
+findings whose verdict you already know.</p>
+<div class="exam-tip">
+<p>Three symptoms, three answers. Generated code reviewed clean by the session that
+wrote it → a second instance that never saw the generation. Contradictory
+findings across files in one large review → split into per-file passes plus an
+integration pass; name the cause as attention dilution, not missing context.
+Too many findings for humans to triage → a self-reported confidence per finding,
+used to route.</p>
+<p>The distractors are seductive because each names a real capability. Moving to a
+model with a larger context window answers dilution with capacity, confusing how
+much can be held with how evenly it is attended to. Instructing the same session
+to &quot;review your work critically&quot; or enabling extended thinking on it both stay
+inside the transcript that caused the bias — the guide rules out exactly these
+two by name. Three full passes with a consensus vote sounds rigorous and
+discards every genuine bug that only one pass saw. And asking developers to split
+their pull requests moves the work onto people without changing the system.</p>
+</div>
+<div class="anti-pattern">
+<p><strong>Handing the reviewer the generation transcript &quot;for context&quot;.</strong> It is the one
+thing that must not travel: the transcript is the reasoning you want the reviewer
+not to share. Pass the artifact and the criteria.</p>
+<p><strong>Reviewing the diff in the generating session to save a call.</strong> The saving is
+real and the review is worth less than the call it saved.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;4.6&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s7" class="page-break">7. Self-assessment questions</h2></div>
+
+<details id="d4-q1" data-domain="D4" data-task="4.1">
+<summary>Q1 (D4) — A rule the reviewer reads differently every run</summary>
+<div>
+<p><strong>Scenario:</strong> A reviewer inspects database migration scripts under the instruction "flag risky migrations, and be careful". The same <code>DROP COLUMN</code> statement is flagged on Monday and approved on Thursday.</p>
+<p><strong>Question:</strong> What change makes the verdicts stable?</p>
+<p data-opt="a">A) Add few-shot examples of migrations the team called risky, letting the reviewer infer the threshold.</p>
+<p data-opt="b">B) Spell out the criteria: a dropped column, an in-place table rewrite, or an unbatched backfill.</p>
+<p data-opt="c">C) Run the check twice and keep the findings both runs agree on, taking agreement for stability.</p>
+<p data-opt="d">D) Restrict the check to migrations touching production schemas, where an inconsistent verdict actually costs something.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: replace the adjective with named, testable conditions</p>
+<p><strong>Why:</strong> "risky" carries no operational meaning, so every run reinvents the threshold. Named conditions — flag a migration only when it drops a column, rewrites a table in place, or backfills rows without batching — turn a matter of taste into something the model applies the same way twice.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Illustrates a rule that still has not been defined.</li>
+<li data-opt="c">Intersecting two unstable verdicts drops genuine findings.</li>
+<li data-opt="d">Shrinks the volume without making any remaining decision consistent.</li>
+</ul>
+</div>
+</details>
+
+<details id="d4-q2" data-domain="D4" data-task="4.5">
+<summary>Q2 (D4) — A nightly job's clock, borrowed by a live feature</summary>
+<div>
+<p><strong>Scenario:</strong> A retailer re-translates its whole product catalog every night through the Message Batches API, and the job has come back within twenty minutes every night this quarter. A product manager cites that record to move the storefront's live "translate this review" button onto the same endpoint.</p>
+<p><strong>Question:</strong> Where does the argument break?</p>
+<p data-opt="a">A) A live button submits one request at a time, and the endpoint prices a submission as a unit rather than per token, so a batch holding a single review would forfeit the discount that motivates the move.</p>
+<p data-opt="b">B) The nightly run clears in twenty minutes because it lands in the emptiest hours of the queue, while the button would submit all day long, when the same endpoint runs slower.</p>
+<p data-opt="c">C) Twenty minutes is an observation, not a commitment: this endpoint publishes no latency guarantee at all, and the twenty-four hours it quotes bound how long processing may run rather than promise when any one submission will be handed back.</p>
+<p data-opt="d">D) The endpoint draws no line between a scheduled caller and an interactive one, so the button is entitled to whatever treatment the nightly job already gets.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: a measured time is not a service commitment</p>
+<p><strong>Why:</strong> no latency is promised here at all. The twenty-four hours describe how long processing may run, not what a given run will take, and last quarter's twenty minutes records the queue those particular nights happened to meet. A shopper waiting in front of a button needs a bound this endpoint never offers.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">The discount applies per token, so a submission of one still earns it.</li>
+<li data-opt="b">Makes the flaw a matter of which hour it is, when no hour comes with a promised turnaround.</li>
+<li data-opt="d">True of the endpoint, and beside the point: the requirement lives in the workload.</li>
+</ul>
+</div>
+</details>
+
+<details id="d4-q3" data-domain="D4" data-task="4.6">
+<summary>Q3 (D4) — Cases graded by whoever invented them</summary>
+<div>
+<p><strong>Scenario:</strong> A pipeline invents synthetic test cases for a billing rules engine, then asks the same conversation to mark which ones actually break the stated rule. The marking comes back almost entirely clean, yet a QA engineer opens the file and finds cases that break nothing at all.</p>
+<p><strong>Question:</strong> What restores the marking?</p>
+<p data-opt="a">A) Score each generated case for confidence, and review only the weak ones.</p>
+<p data-opt="b">B) Keep the marking in the same conversation, but restate the rule in a fresh turn before the model decides, so it judges against the wording rather than its memory.</p>
+<p data-opt="c">C) Hand the rule and the bare cases to a second instance that never saw the generation turn.</p>
+<p data-opt="d">D) Ask for the marking inline, one verdict written under each case as it is produced, so no case is judged far from the rule that prompted it.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: a second instance carrying none of the generation context</p>
+<p><strong>Why:</strong> the generator still holds the reasoning that produced each case, so rereading confirms those choices instead of testing them. An instance handed only the rule and the artifact reads them the way an outside grader would.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Confidence reported from inside the same context inherits the same blind spot.</li>
+<li data-opt="b">Restating the rule leaves the anchoring transcript exactly where it was.</li>
+<li data-opt="d">Ties the verdict tighter still to the moment of generation.</li>
+</ul>
+</div>
+</details>
+
+<details id="d4-q4" data-domain="D4" data-task="4.3">
+<summary>Q4 (D4) — A gift with no price on it</summary>
+<div>
+<p><strong>Scenario:</strong> A museum catalogs donation paperwork into a schema where <code>acquisition_price</code> is a compulsory string. Many pieces arrive as gifts and carry no amount anywhere on the paperwork, yet those records come back with tidy round figures nobody can trace.</p>
+<p><strong>Question:</strong> What should change?</p>
+<p data-opt="a">A) Fill the field with zero when the paperwork names no amount, so every record can satisfy the schema without invention.</p>
+<p data-opt="b">B) Let the field accept <code>null</code> and take it out of the compulsory set.</p>
+<p data-opt="c">C) Split the intake in two: route gift paperwork to a second schema without the field, and keep purchases on the current one.</p>
+<p data-opt="d">D) Have the model report how sure it is of each amount, so catalogers can set aside the values it is least sure of.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: let absence be a legal value, and stop demanding one</p>
+<p><strong>Why:</strong> as long as the field is compulsory, the model chooses between breaking the schema and producing an amount, and it produces one. A field the source may leave empty needs a representation for empty; a gift then comes back with no price instead of a convincing one.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Zero is an amount, and downstream nothing separates a gift from a bargain.</li>
+<li data-opt="c">Whoever routes the paperwork faces the same missing information first.</li>
+<li data-opt="d">The invented figure stays in the catalog, and the field still demands one.</li>
+</ul>
+</div>
+</details>
+
+<details id="d4-q5" data-domain="D4" data-task="4.4">
+<summary>Q5 (D4) — Hours that do not add up <strong>(Select the 2 correct answers.)</strong></summary>
+<div>
+<p><strong>Scenario:</strong> A payroll extractor returns a timesheet whose <code>reported_hours</code> reads 38, while the daily entries sum to 41. The payload parses and matches the schema.</p>
+<p><strong>Question:</strong> Which two statements fit this situation?</p>
+<p data-opt="a">A) It is a syntax error; enforcing the tool schema more strictly makes the payload conform.</p>
+<p data-opt="b">B) It is a semantic error; validate programmatically and resubmit on failure with the exact discrepancy named.</p>
+<p data-opt="c">C) It is a syntax error; a few more worked examples keep the arithmetic from drifting.</p>
+<p data-opt="d">D) It is a semantic error; carry <code>computed_hours</code> beside <code>reported_hours</code> with a <code>conflict_detected</code> flag.</p>
+<p data-opt="e">E) It is a syntax error; a higher output token cap leaves room to finish the arithmetic.</p>
+<hr>
+<p class="correct" data-answer="b d">Answers: a semantic error, handled by a validate-retry loop and by an explicit conflict flag</p>
+<p><strong>Why:</strong> a forced tool call guarantees the shape of the payload, never the truth of its values. The retry carries the document, the rejected extraction and the named gap, which lets the model correct itself; carrying both figures plus a flag keeps the conflict visible to downstream code.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Schema enforcement removes malformed payloads, not disagreement between fields.</li>
+<li data-opt="c">Confuses shape with meaning; examples do not repair a systematic arithmetic gap.</li>
+<li data-opt="e">The token cap bounds output length, not the correctness of a sum.</li>
+</ul>
+</div>
+</details>
+
+<details id="d4-q6" data-domain="D4" data-task="4.5">
+<summary>Q6 (D4) — What the batch endpoint will and will not do <strong>(Select the 2 correct answers.)</strong></summary>
+<div>
+<p><strong>Scenario:</strong> A media team scores the sentiment of 40,000 archived reviews every Sunday night through the Message Batches API.</p>
+<p><strong>Question:</strong> Which two statements about that run are correct?</p>
+<p data-opt="a">A) Results come back in submission order, so a response position is a safe key to its review.</p>
+<p data-opt="b">B) Results come back unordered, so each one is paired with its request through the <code>custom_id</code> the team set.</p>
+<p data-opt="c">C) A batch request buys one pass and one answer, so a multi-turn tool loop does not fit.</p>
+<p data-opt="d">D) The endpoint halves latency along with price, so the weekly job finishes well inside its window.</p>
+<p data-opt="e">E) Results are discarded once the batch completes, so the run must stream them out as they land.</p>
+<hr>
+<p class="correct" data-answer="b c">Answers: pair results by their correlation key, and expect a single pass per request</p>
+<p><strong>Why:</strong> the two structural facts that decide whether a workload fits. The correlation key ties each response to its document and lets the team resubmit only the failures; a batch request buys one turn, so a step whose code must execute a tool and hand the result back to the model has nowhere to run.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Position is exactly what must not be trusted; results are unordered.</li>
+<li data-opt="d">Confuses price with latency: the discount is real, the latency is not guaranteed.</li>
+<li data-opt="e">Results stay retrievable for 29 days; no streaming workaround is needed.</li>
+</ul>
+</div>
+</details>
+
+<details id="d4-q7" data-domain="D4" data-task="4.2">
+<summary>Q7 (D4) — Quantities nobody can enumerate</summary>
+<div>
+<p><strong>Scenario:</strong> A recipe importer turns ingredient lines into structured quantities. Informal amounts such as "a couple of handfuls" or "a splash" come back empty or wildly wrong, and fresh phrasings appear with every new import.</p>
+<p><strong>Question:</strong> What is the most effective fix?</p>
+<p data-opt="a">A) Lower the extractor's sensitivity so it reports fewer questionable quantities and the wildest values disappear.</p>
+<p data-opt="b">B) Keep a lookup table mapping every informal phrase to a quantity, extended by hand as new phrasings appear in the imports.</p>
+<p data-opt="c">C) Show two to four worked examples, each one carrying the reasoning that takes an informal phrase to a converted amount rather than the amount alone.</p>
+<p data-opt="d">D) Reject ingredient lines carrying no explicit unit and route them to manual entry, so no invented quantity ever reaches a published recipe.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: worked examples that teach the conversion, not a dictionary of phrases</p>
+<p><strong>Why:</strong> two to four targeted examples are enough, and the reasoning each one carries is what does the teaching: the model reads how the phrase was resolved, not merely what it was resolved to. A rationale shown inside the example teaches a transferable rule, so the model generalizes to phrasings it has never seen — which is what a space nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Suppresses good extractions at the same rate as bad ones.</li>
+<li data-opt="b">Covers only what is listed, and the scenario says the list is never complete.</li>
+<li data-opt="d">Buys correctness by refusing to do the work: every informal line becomes a manual task, and informal lines are most of the corpus.</li>
+</ul>
+</div>
+</details>
+
+<nav class="doc-nav">
+  <a class="prev" href="../D3_Claude_Code_Config_20pct.html"><span class="label">Previous</span><span class="title">D3 — Configuration Claude Code</span></a>
+  <a class="next" href="../D5_Context_Fiabilite_15pct.html"><span class="label">Next</span><span class="title">D5 — Context et reliability</span></a>
+</nav>
+
+<hr>
+<p style="text-align:center;color:#888;font-size:9pt;">
+CCA Revision — D4 — Prompt engineering and structured output (20 %) · 2026
+</p>
+
+
+<a href="#top" class="back-to-top" aria-label="Back to top" id="back-to-top">↑</a>
+
+</body>
+</html>

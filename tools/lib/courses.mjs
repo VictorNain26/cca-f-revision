@@ -541,6 +541,37 @@ export function checkPublishedCoursesReconciliation({ delivered, publishedCourse
   return { problems };
 }
 
+/* Les pages anglaises publiées sous en/ ne sont atteignables que par le
+ * sélecteur de langue, dont la source unique est le littéral TRANSLATIONS de
+ * nav.js (lu par readTranslations). Le défaut que ce contrôle attrape s'est
+ * produit : D3 puis D4 ont été rendues dans en/ sans y être déclarées, donc
+ * publiées et inaccessibles — aucun lien du site n'y menait, et aucun
+ * contrôle ne pouvait le voir puisque check-links ne suit que les liens qui
+ * existent. C'est la troisième occurrence de la même classe de défaut après
+ * la navbar recopiée dans chaque page et PUBLISHED_COURSES face aux cours
+ * cochés : une liste tenue à la main qui diverge de la réalité du disque.
+ *
+ * Les deux sens comptent, et ils échouent différemment : une page sans entrée
+ * est du contenu injoignable, une entrée sans page est un lien mort dans le
+ * sélecteur. */
+export function checkEnglishPagesReconciliation({ enPages, translations }) {
+  const problems = [];
+  const declared = new Map(Object.entries(translations).map(([fr, en]) => [en, fr]));
+
+  for (const page of enPages) {
+    if (!declared.has(`en/${page}`)) {
+      problems.push(`en/${page} — page anglaise publiée mais absente de TRANSLATIONS (nav.js) : aucun sélecteur de langue n'y mène, elle est inaccessible depuis le site`);
+    }
+  }
+  for (const [en, fr] of declared) {
+    if (!enPages.includes(en.replace(/^en\//, ''))) {
+      problems.push(`nav.js — TRANSLATIONS déclare « ${fr} » → « ${en} », qui n'existe pas sur le disque : le sélecteur de langue pointe vers une page absente`);
+    }
+  }
+
+  return { problems };
+}
+
 /* Un commentaire de traçabilité (<!-- src:… --> ou <!-- owns:… -->) qui fuit
  * dans une page publiée est un artefact interne visible du lecteur — le
  * stripping de tools/lib/render.mjs a échoué. Vérifié sur les pages telles
@@ -649,13 +680,15 @@ export function checkTaskReferenceDrift(entries, { poPath = 'courses/po/fr.po' }
  * rendre le contrôle vert par accident. */
 export function auditCorpus({
   courses, bankTasks, delivered, poEntries, expectedPoEntryCount, masters, frBefore, frAfter,
-  fuzzyFiles, untranslatedFiles, fuzzyCount, untranslatedCount,
+  fuzzyFiles, untranslatedFiles, fuzzyCount, untranslatedCount, enPages, translations,
 }) {
   for (const [name, value] of [
     ['fuzzyFiles', fuzzyFiles],
     ['untranslatedFiles', untranslatedFiles],
     ['fuzzyCount', fuzzyCount],
     ['untranslatedCount', untranslatedCount],
+    ['enPages', enPages],
+    ['translations', translations],
   ]) {
     if (value === undefined) {
       throw new TypeError(`auditCorpus requiert ${name} : le débrancher désactiverait le contrôle de fraîcheur des traductions en silence plutôt que de le faire échouer bruyamment.`);
@@ -674,6 +707,7 @@ export function auditCorpus({
       ...diffRenderedFiles(frBefore, frAfter).problems,
       ...checkInvariantMarkers(poEntries, { expectedCount: expectedPoEntryCount }).problems,
       ...checkTaskReferenceDrift(poEntries).problems,
+      ...checkEnglishPagesReconciliation({ enPages, translations }).problems,
       ...completeness.problems,
     ],
     notices: completeness.notices,

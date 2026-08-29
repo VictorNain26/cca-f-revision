@@ -1,0 +1,158 @@
+[
+  {
+    "id": "d4-q1",
+    "domain": "D4",
+    "task": "4.1",
+    "summary": "Q1 (D4) — A rule the reviewer reads differently every run",
+    "scenario": "A reviewer inspects database migration scripts under the instruction \"flag risky migrations, and be careful\". The same <code>DROP COLUMN</code> statement is flagged on Monday and approved on Thursday.",
+    "question": "What change makes the verdicts stable?",
+    "options": {
+      "a": "Add few-shot examples of migrations the team called risky, letting the reviewer infer the threshold.",
+      "b": "Spell out the criteria: a dropped column, an in-place table rewrite, or an unbatched backfill.",
+      "c": "Run the check twice and keep the findings both runs agree on, taking agreement for stability.",
+      "d": "Restrict the check to migrations touching production schemas, where an inconsistent verdict actually costs something."
+    },
+    "answer": "b",
+    "answerLabel": "replace the adjective with named, testable conditions",
+    "why": "\"risky\" carries no operational meaning, so every run reinvents the threshold. Named conditions — flag a migration only when it drops a column, rewrites a table in place, or backfills rows without batching — turn a matter of taste into something the model applies the same way twice.",
+    "distractors": {
+      "a": "Illustrates a rule that still has not been defined.",
+      "c": "Intersecting two unstable verdicts drops genuine findings.",
+      "d": "Shrinks the volume without making any remaining decision consistent."
+    }
+  },
+  {
+    "id": "d4-q2",
+    "domain": "D4",
+    "task": "4.5",
+    "summary": "Q2 (D4) — A nightly job's clock, borrowed by a live feature",
+    "scenario": "A retailer re-translates its whole product catalog every night through the Message Batches API, and the job has come back within twenty minutes every night this quarter. A product manager cites that record to move the storefront's live \"translate this review\" button onto the same endpoint.",
+    "question": "Where does the argument break?",
+    "options": {
+      "a": "A live button submits one request at a time, and the endpoint prices a submission as a unit rather than per token, so a batch holding a single review would forfeit the discount that motivates the move.",
+      "b": "The nightly run clears in twenty minutes because it lands in the emptiest hours of the queue, while the button would submit all day long, when the same endpoint runs slower.",
+      "c": "Twenty minutes is an observation, not a commitment: this endpoint publishes no latency guarantee at all, and the twenty-four hours it quotes bound how long processing may run rather than promise when any one submission will be handed back.",
+      "d": "The endpoint draws no line between a scheduled caller and an interactive one, so the button is entitled to whatever treatment the nightly job already gets."
+    },
+    "answer": "c",
+    "answerLabel": "a measured time is not a service commitment",
+    "why": "no latency is promised here at all. The twenty-four hours describe how long processing may run, not what a given run will take, and last quarter's twenty minutes records the queue those particular nights happened to meet. A shopper waiting in front of a button needs a bound this endpoint never offers.",
+    "distractors": {
+      "a": "The discount applies per token, so a submission of one still earns it.",
+      "b": "Makes the flaw a matter of which hour it is, when no hour comes with a promised turnaround.",
+      "d": "True of the endpoint, and beside the point: the requirement lives in the workload."
+    }
+  },
+  {
+    "id": "d4-q3",
+    "domain": "D4",
+    "task": "4.6",
+    "summary": "Q3 (D4) — Cases graded by whoever invented them",
+    "scenario": "A pipeline invents synthetic test cases for a billing rules engine, then asks the same conversation to mark which ones actually break the stated rule. The marking comes back almost entirely clean, yet a QA engineer opens the file and finds cases that break nothing at all.",
+    "question": "What restores the marking?",
+    "options": {
+      "a": "Score each generated case for confidence, and review only the weak ones.",
+      "b": "Keep the marking in the same conversation, but restate the rule in a fresh turn before the model decides, so it judges against the wording rather than its memory.",
+      "c": "Hand the rule and the bare cases to a second instance that never saw the generation turn.",
+      "d": "Ask for the marking inline, one verdict written under each case as it is produced, so no case is judged far from the rule that prompted it."
+    },
+    "answer": "c",
+    "answerLabel": "a second instance carrying none of the generation context",
+    "why": "the generator still holds the reasoning that produced each case, so rereading confirms those choices instead of testing them. An instance handed only the rule and the artifact reads them the way an outside grader would.",
+    "distractors": {
+      "a": "Confidence reported from inside the same context inherits the same blind spot.",
+      "b": "Restating the rule leaves the anchoring transcript exactly where it was.",
+      "d": "Ties the verdict tighter still to the moment of generation."
+    }
+  },
+  {
+    "id": "d4-q4",
+    "domain": "D4",
+    "task": "4.3",
+    "summary": "Q4 (D4) — A gift with no price on it",
+    "scenario": "A museum catalogs donation paperwork into a schema where <code>acquisition_price</code> is a compulsory string. Many pieces arrive as gifts and carry no amount anywhere on the paperwork, yet those records come back with tidy round figures nobody can trace.",
+    "question": "What should change?",
+    "options": {
+      "a": "Fill the field with zero when the paperwork names no amount, so every record can satisfy the schema without invention.",
+      "b": "Let the field accept <code>null</code> and take it out of the compulsory set.",
+      "c": "Split the intake in two: route gift paperwork to a second schema without the field, and keep purchases on the current one.",
+      "d": "Have the model report how sure it is of each amount, so catalogers can set aside the values it is least sure of."
+    },
+    "answer": "b",
+    "answerLabel": "let absence be a legal value, and stop demanding one",
+    "why": "as long as the field is compulsory, the model chooses between breaking the schema and producing an amount, and it produces one. A field the source may leave empty needs a representation for empty; a gift then comes back with no price instead of a convincing one.",
+    "distractors": {
+      "a": "Zero is an amount, and downstream nothing separates a gift from a bargain.",
+      "c": "Whoever routes the paperwork faces the same missing information first.",
+      "d": "The invented figure stays in the catalog, and the field still demands one."
+    }
+  },
+  {
+    "id": "d4-q5",
+    "domain": "D4",
+    "task": "4.4",
+    "summary": "Q5 (D4) — Hours that do not add up <strong>(Select the 2 correct answers.)</strong>",
+    "scenario": "A payroll extractor returns a timesheet whose <code>reported_hours</code> reads 38, while the daily entries sum to 41. The payload parses and matches the schema.",
+    "question": "Which two statements fit this situation?",
+    "options": {
+      "a": "It is a syntax error; enforcing the tool schema more strictly makes the payload conform.",
+      "b": "It is a semantic error; validate programmatically and resubmit on failure with the exact discrepancy named.",
+      "c": "It is a syntax error; a few more worked examples keep the arithmetic from drifting.",
+      "d": "It is a semantic error; carry <code>computed_hours</code> beside <code>reported_hours</code> with a <code>conflict_detected</code> flag.",
+      "e": "It is a syntax error; a higher output token cap leaves room to finish the arithmetic."
+    },
+    "answer": "b d",
+    "answerLabel": "a semantic error, handled by a validate-retry loop and by an explicit conflict flag",
+    "why": "a forced tool call guarantees the shape of the payload, never the truth of its values. The retry carries the document, the rejected extraction and the named gap, which lets the model correct itself; carrying both figures plus a flag keeps the conflict visible to downstream code.",
+    "distractors": {
+      "a": "Schema enforcement removes malformed payloads, not disagreement between fields.",
+      "c": "Confuses shape with meaning; examples do not repair a systematic arithmetic gap.",
+      "e": "The token cap bounds output length, not the correctness of a sum."
+    }
+  },
+  {
+    "id": "d4-q6",
+    "domain": "D4",
+    "task": "4.5",
+    "summary": "Q6 (D4) — What the batch endpoint will and will not do <strong>(Select the 2 correct answers.)</strong>",
+    "scenario": "A media team scores the sentiment of 40,000 archived reviews every Sunday night through the Message Batches API.",
+    "question": "Which two statements about that run are correct?",
+    "options": {
+      "a": "Results come back in submission order, so a response position is a safe key to its review.",
+      "b": "Results come back unordered, so each one is paired with its request through the <code>custom_id</code> the team set.",
+      "c": "A batch request buys one pass and one answer, so a multi-turn tool loop does not fit.",
+      "d": "The endpoint halves latency along with price, so the weekly job finishes well inside its window.",
+      "e": "Results are discarded once the batch completes, so the run must stream them out as they land."
+    },
+    "answer": "b c",
+    "answerLabel": "pair results by their correlation key, and expect a single pass per request",
+    "why": "the two structural facts that decide whether a workload fits. The correlation key ties each response to its document and lets the team resubmit only the failures; a batch request buys one turn, so a step whose code must execute a tool and hand the result back to the model has nowhere to run.",
+    "distractors": {
+      "a": "Position is exactly what must not be trusted; results are unordered.",
+      "d": "Confuses price with latency: the discount is real, the latency is not guaranteed.",
+      "e": "Results stay retrievable for 29 days; no streaming workaround is needed."
+    }
+  },
+  {
+    "id": "d4-q7",
+    "domain": "D4",
+    "task": "4.2",
+    "summary": "Q7 (D4) — Quantities nobody can enumerate",
+    "scenario": "A recipe importer turns ingredient lines into structured quantities. Informal amounts such as \"a couple of handfuls\" or \"a splash\" come back empty or wildly wrong, and fresh phrasings appear with every new import.",
+    "question": "What is the most effective fix?",
+    "options": {
+      "a": "Lower the extractor's sensitivity so it reports fewer questionable quantities and the wildest values disappear.",
+      "b": "Keep a lookup table mapping every informal phrase to a quantity, extended by hand as new phrasings appear in the imports.",
+      "c": "Show two to four worked examples, each one carrying the reasoning that takes an informal phrase to a converted amount rather than the amount alone.",
+      "d": "Reject ingredient lines carrying no explicit unit and route them to manual entry, so no invented quantity ever reaches a published recipe."
+    },
+    "answer": "c",
+    "answerLabel": "worked examples that teach the conversion, not a dictionary of phrases",
+    "why": "two to four targeted examples are enough, and the reasoning each one carries is what does the teaching: the model reads how the phrase was resolved, not merely what it was resolved to. A rationale shown inside the example teaches a transferable rule, so the model generalizes to phrasings it has never seen — which is what a space nobody can enumerate demands. Written instructions cannot describe this mapping; examples demonstrate it.",
+    "distractors": {
+      "a": "Suppresses good extractions at the same rate as bad ones.",
+      "b": "Covers only what is listed, and the scenario says the list is never complete.",
+      "d": "Buys correctness by refusing to do the work: every informal line becomes a manual task, and informal lines are most of the corpus."
+    }
+  }
+]

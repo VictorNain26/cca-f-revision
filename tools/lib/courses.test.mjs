@@ -22,9 +22,11 @@ import {
   checkPo4aOptions,
   checkTranslationCompleteness,
   checkPublishedCoursesReconciliation,
+  checkEnglishPagesReconciliation,
   checkNoLeakedMetadata,
   checkTaskReferenceDrift,
 } from './courses.mjs';
+import { readTranslations } from './nav.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
 
@@ -549,6 +551,8 @@ test('auditCorpus rassemble les problèmes des quatre vérifications', () => {
     untranslatedFiles: [],
     fuzzyCount: 0,
     untranslatedCount: 0,
+    enPages: [],
+    translations: {},
   });
   assert.ok(problems.some((p) => p.includes('sans src')), 'checkCorpus doit contribuer');
   assert.ok(problems.some((p) => p.includes('non déclaré')), 'reconcileCourseFiles doit contribuer');
@@ -568,6 +572,8 @@ test('auditCorpus voit une dérive du français prise entre le snapshot avant et
     untranslatedFiles: [],
     fuzzyCount: 0,
     untranslatedCount: 0,
+    enPages: [],
+    translations: {},
   };
   const drift = auditCorpus({ ...base, frBefore: { 'courses/fr/00.md': 'x' }, frAfter: { 'courses/fr/00.md': 'y' } });
   const clean = auditCorpus({ ...base, frBefore: { 'courses/fr/00.md': 'x' }, frAfter: { 'courses/fr/00.md': 'x' } });
@@ -575,7 +581,7 @@ test('auditCorpus voit une dérive du français prise entre le snapshot avant et
   assert.deepEqual(clean.problems, []);
 });
 
-test('auditCorpus exige fuzzyFiles, untranslatedFiles, fuzzyCount et untranslatedCount, pour ne pas pouvoir se débrancher en silence', () => {
+test('auditCorpus exige fuzzyFiles, untranslatedFiles, fuzzyCount, untranslatedCount, enPages et translations, pour ne pas pouvoir se débrancher en silence', () => {
   const base = {
     courses: [],
     bankTasks: new Set(),
@@ -589,8 +595,10 @@ test('auditCorpus exige fuzzyFiles, untranslatedFiles, fuzzyCount et untranslate
     untranslatedFiles: [],
     fuzzyCount: 0,
     untranslatedCount: 0,
+    enPages: [],
+    translations: {},
   };
-  for (const missing of ['fuzzyFiles', 'untranslatedFiles', 'fuzzyCount', 'untranslatedCount']) {
+  for (const missing of ['fuzzyFiles', 'untranslatedFiles', 'fuzzyCount', 'untranslatedCount', 'enPages', 'translations']) {
     const { [missing]: _drop, ...rest } = base;
     assert.throws(() => auditCorpus(rest), TypeError, `omettre ${missing} doit lever, pas rendre le contrôle vert par accident`);
   }
@@ -684,6 +692,42 @@ test('checkTranslationCompleteness accepte l absence d entrée fuzzy ou vide', (
   });
   assert.deepEqual(problems, []);
   assert.deepEqual(notices, []);
+});
+
+test('checkEnglishPagesReconciliation accepte une page anglaise déclarée dans TRANSLATIONS', () => {
+  const { problems } = checkEnglishPagesReconciliation({
+    enPages: ['D0_API_Fundamentals.html'],
+    translations: { 'D0_API_Fundamentals.html': 'en/D0_API_Fundamentals.html' },
+  });
+  assert.deepEqual(problems, []);
+});
+
+test('checkEnglishPagesReconciliation signale une page publiée sous en/ qu aucune entrée ne rend atteignable', () => {
+  const { problems } = checkEnglishPagesReconciliation({
+    enPages: ['D0_API_Fundamentals.html', 'D4_Prompt_Engineering_20pct.html'],
+    translations: { 'D0_API_Fundamentals.html': 'en/D0_API_Fundamentals.html' },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /D4_Prompt_Engineering_20pct\.html — page anglaise publiée mais absente de TRANSLATIONS/);
+  assert.match(problems[0], /inaccessible/);
+});
+
+test('checkEnglishPagesReconciliation signale une entrée TRANSLATIONS sans page sur le disque', () => {
+  const { problems } = checkEnglishPagesReconciliation({
+    enPages: [],
+    translations: { 'D2_Tool_Design_MCP_18pct.html': 'en/D2_Tool_Design_MCP_18pct.html' },
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /nav\.js — TRANSLATIONS déclare/);
+  assert.match(problems[0], /n'existe pas sur le disque/);
+});
+
+test('nav.js déclare une traduction pour chaque page réellement publiée sous en/', () => {
+  const enDir = path.join(ROOT, 'en');
+  const enPages = fs.readdirSync(enDir).filter((f) => f.endsWith('.html')).sort();
+  const translations = readTranslations(path.join(ROOT, 'nav.js'));
+  const { problems } = checkEnglishPagesReconciliation({ enPages, translations });
+  assert.deepEqual(problems, [], problems.join('\n'));
 });
 
 test('checkPublishedCoursesReconciliation accepte un domaine coché avec son entrée', () => {

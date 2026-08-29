@@ -28,7 +28,7 @@ Ne pas s'étonner de le voir apparaître localement ni tenter de le committer.
 | ✅ | D1 | 27 % | 1.1 – 1.7 |
 | | D2 | 18 % | 2.1 – 2.5 |
 | ✅ | D3 | 20 % | 3.1 – 3.6 |
-| | D4 | 20 % | 4.1 – 4.6 |
+| ✅ | D4 | 20 % | 4.1 – 4.6 |
 | | D5 | 15 % | 5.1 – 5.6 |
 
 Un cours coché est annoncé complet : `check:courses` exige alors que tous ses task

@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cca-f-revision\n"
-"POT-Creation-Date: 2026-08-29 23:18+0200\n"
+"POT-Creation-Date: 2026-08-29 23:51+0200\n"
 "PO-Revision-Date: 2026-08-29 20:27+0200\n"
 "Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
 "Language-Team: French\n"
@@ -3872,10 +3872,8 @@ msgstr "3.5 — Apply iterative refinement techniques for progressive improvemen
 #. type: Plain text
 #: courses/en/03-claude-code-config.md:490
 #, no-wrap
-msgid ""
-"<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
-msgstr ""
-"<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
+msgid "<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
+msgstr "<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
 
 #. type: Plain text
 #: courses/en/03-claude-code-config.md:494
@@ -4152,10 +4150,8 @@ msgstr "3.6 — Integrate Claude Code into CI/CD pipelines"
 #. type: Plain text
 #: courses/en/03-claude-code-config.md:597
 #, no-wrap
-msgid ""
-"<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
-msgstr ""
-"<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
+msgid "<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
+msgstr "<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
 
 #. type: Plain text
 #: courses/en/03-claude-code-config.md:601
@@ -4443,3 +4439,1901 @@ msgstr ""
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"3.6\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.6\"`.\n"
+
+#. type: Title #
+#: courses/en/04-prompt-engineering.md:1
+#, no-wrap
+msgid "D4 — Prompt engineering and structured output (20 %)"
+msgstr "D4 — Prompt engineering et sorties structurées (20 %)"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:4
+#, no-wrap
+msgid "<!-- src:exam guide domain 4 (the six task statements) ; 05claudeapi L25-L28, L34-L36 ; 09apicomplements L2-L9 ; 01claudecodeinaction L8 ; 06claudecode101 L7 -->\n"
+msgstr "<!-- src:exam guide domain 4 (the six task statements) ; 05claudeapi L25-L28, L34-L36 ; 09apicomplements L2-L9 ; 01claudecodeinaction L8 ; 06claudecode101 L7 -->\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:10
+#, no-wrap
+msgid ""
+"Twenty per cent of the score, six task statements, and the domain where the exam\n"
+"stops asking what a mechanism is and starts asking what you write into a prompt,\n"
+"a schema and a pipeline. One section per task statement, in the guide's own order\n"
+"and under the guide's own wording — so that a question spotted on exam day maps\n"
+"to a section here without translation.\n"
+msgstr ""
+"Vingt pour cent du score, six task statements, et le domaine où l'examen cesse\n"
+"de demander ce qu'est un mécanisme pour demander ce que vous écrivez dans un\n"
+"prompt, un schéma et un pipeline. Une section par task statement, dans l'ordre\n"
+"du guide et sous le libellé du guide — pour qu'une question repérée le jour J\n"
+"corresponde à une section d'ici sans traduction.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:16
+#, no-wrap
+msgid ""
+"D0 is assumed. It named the anatomy of a tool — `name`, `description`,\n"
+"`input_schema` — the `tool_use` block, and `stop_reason`. It deliberately stopped\n"
+"there and pointed here, twice: **`tool_choice` and the use of a JSON schema to\n"
+"force a conforming payload are taught in 4.3**, in full, and D1 defers the same\n"
+"pair to the same place. That debt is paid below.\n"
+msgstr ""
+"D0 est supposé acquis. Il a nommé l'anatomie d'un outil — `name`, `description`,\n"
+"`input_schema` —, le bloc `tool_use` et `stop_reason`. Il s'est arrêté là\n"
+"délibérément et a renvoyé ici, deux fois : **`tool_choice` et l'usage d'un JSON\n"
+"Schema pour forcer une charge utile conforme s'enseignent en 4.3**, en entier,\n"
+"et D1 diffère le même couple au même endroit. Cette dette est payée ci-dessous.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:23
+#, no-wrap
+msgid ""
+"The guide places neighbouring notions elsewhere, and this course honours that.\n"
+"Which wording makes a model pick the right tool among several similar ones is\n"
+"tool design, tested in TS 2.1 and 2.5; the agentic loop that turns one\n"
+"`tool_use` block into a conversation is D1's TS 1.1; running a reviewer inside a\n"
+"pipeline is D3's TS 3.6, which applies what 4.6 explains. Each of those gets a\n"
+"sentence and a pointer here, never a second development.\n"
+msgstr ""
+"Le guide place les notions voisines ailleurs, et ce cours le respecte. Quelle\n"
+"formulation fait choisir le bon outil parmi plusieurs semblables relève du tool\n"
+"design, testé en TS 2.1 et 2.5 ; la boucle agentique qui transforme un bloc\n"
+"`tool_use` en conversation est le TS 1.1 de D1 ; faire tourner un relecteur dans\n"
+"un pipeline est le TS 3.6 de D3, qui applique ce que 4.6 explique. Chacune\n"
+"reçoit ici une phrase et un renvoi, jamais un second développement.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/04-prompt-engineering.md:24
+#, no-wrap
+msgid "4.1 — Design prompts with explicit criteria to improve precision and reduce false positives"
+msgstr "4.1 — Design prompts with explicit criteria to improve precision and reduce false positives"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:26
+#, no-wrap
+msgid "<!-- ts:4.1 | src:exam guide TS 4.1 (explicit criteria over vague instructions and its comment-versus-code example, why \"be conservative\" and \"only report high-confidence findings\" fail against specific categorical criteria, a high false positive rate in one category undermining confidence in the accurate ones; the skills: criteria that say what to report and what to skip rather than confidence-based filtering, temporarily disabling a high false-positive category while its prompt is improved, explicit severity criteria with a concrete code example per level) ; 05claudeapi L25 (replacing a vague request with a direct statement of the task) ; L26 (being specific: listing the guidelines the output must satisfy instead of leaving them to interpretation) -->\n"
+msgstr "<!-- ts:4.1 | src:exam guide TS 4.1 (explicit criteria over vague instructions and its comment-versus-code example, why \"be conservative\" and \"only report high-confidence findings\" fail against specific categorical criteria, a high false positive rate in one category undermining confidence in the accurate ones; the skills: criteria that say what to report and what to skip rather than confidence-based filtering, temporarily disabling a high false-positive category while its prompt is improved, explicit severity criteria with a concrete code example per level) ; 05claudeapi L25 (replacing a vague request with a direct statement of the task) ; L26 (being specific: listing the guidelines the output must satisfy instead of leaving them to interpretation) -->\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:31
+#, no-wrap
+msgid ""
+"An automated reviewer flags a pattern on Monday and approves the same pattern on\n"
+"Thursday. Nothing changed in the code, and nothing changed in the prompt. What\n"
+"changed is that \"be careful about risky migrations\" has no fixed meaning, so\n"
+"every run reinvents the threshold.\n"
+msgstr ""
+"Un relecteur automatique signale un pattern le lundi et approuve le même pattern\n"
+"le jeudi. Rien n'a changé dans le code, rien n'a changé dans le prompt. Ce qui a\n"
+"changé, c'est que « être prudent sur les migrations risquées » n'a aucun sens\n"
+"fixe : chaque exécution réinvente le seuil.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:37
+#, no-wrap
+msgid ""
+"The remedy the guide names is not a better adjective. It is **explicit\n"
+"categorical criteria**: named conditions, each one something you could check by\n"
+"hand. The guide's own example is the pair to memorise — \"flag comments only when\n"
+"claimed behavior contradicts actual code behavior\", against \"check that comments\n"
+"are accurate\".\n"
+msgstr ""
+"Le remède que nomme le guide n'est pas un meilleur adjectif. Ce sont des\n"
+"**critères catégoriels explicites** : des conditions nommées, chacune\n"
+"vérifiable à la main. L'exemple du guide lui-même est la paire à mémoriser —\n"
+"« flag comments only when claimed behavior contradicts actual code behavior »,\n"
+"contre « check that comments are accurate ».\n"
+
+#. type: Fenced code block (text)
+#: courses/en/04-prompt-engineering.md:38
+#, no-wrap
+msgid ""
+"# Vague — the version that produces a different verdict every run\n"
+"Check code comments for accuracy. Be conservative — report only\n"
+"high-confidence findings.\n"
+"\n"
+"# Explicit criteria — the version that produces the same verdict twice\n"
+"Flag a comment ONLY IF one of these holds:\n"
+"  1. It describes behaviour that contradicts what the code does.\n"
+"  2. It refers to a function or variable that does not exist.\n"
+"  3. A TODO or FIXME refers to a bug already fixed in the code.\n"
+"\n"
+"DO NOT flag:\n"
+"  - dated phrasing or style that does not contradict the code;\n"
+"  - imprecise wording that is still consistent with the code;\n"
+"  - missing comments (a separate category, reported separately).\n"
+"\n"
+"For each finding, output: file:line, which condition matched, the quoted\n"
+"comment, and the code fragment that contradicts it.\n"
+msgstr ""
+"# Vague — la version qui produit un verdict différent à chaque exécution\n"
+"Check code comments for accuracy. Be conservative — report only\n"
+"high-confidence findings.\n"
+"\n"
+"# Critères explicites — la version qui produit deux fois le même verdict\n"
+"Flag a comment ONLY IF one of these holds:\n"
+"  1. It describes behaviour that contradicts what the code does.\n"
+"  2. It refers to a function or variable that does not exist.\n"
+"  3. A TODO or FIXME refers to a bug already fixed in the code.\n"
+"\n"
+"DO NOT flag:\n"
+"  - dated phrasing or style that does not contradict the code;\n"
+"  - imprecise wording that is still consistent with the code;\n"
+"  - missing comments (a separate category, reported separately).\n"
+"\n"
+"For each finding, output: file:line, which condition matched, the quoted\n"
+"comment, and the code fragment that contradicts it.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:61
+#, no-wrap
+msgid ""
+"The two halves are equally load-bearing. Criteria that only say what to report\n"
+"leave everything else to inference; the **skip list** is what stops a reviewer\n"
+"from drifting into minor style and local convention.\n"
+msgstr ""
+"Les deux moitiés portent autant l'une que l'autre. Des critères qui disent\n"
+"seulement quoi signaler laissent tout le reste à l'inférence ; c'est la **liste\n"
+"de ce qu'il faut ignorer** qui empêche un relecteur de dériver vers le style\n"
+"mineur et les conventions locales.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/04-prompt-engineering.md:62
+#, no-wrap
+msgid ""
+"**\"Be conservative\" and \"only report high-confidence findings\" do not improve\n"
+"precision.** The guide states it flatly, and the reason is worth holding: those\n"
+"instructions ask the model to move a threshold it has no shared scale for.\n"
+"\"Confidence\" is not a property you and the model agree on the way you agree on\n"
+"\"the comment names a function that does not exist\".\n"
+"\n"
+"A confidence dial filters; a categorical criterion decides. Only the second one\n"
+"produces the same answer twice.\n"
+msgstr ""
+"**« Be conservative » et « only report high-confidence findings » n'améliorent\n"
+"pas la précision.** Le guide l'énonce sans réserve, et la raison mérite d'être\n"
+"tenue : ces instructions demandent au modèle de déplacer un seuil dont vous\n"
+"n'avez aucune échelle commune. La « confiance » n'est pas une propriété sur\n"
+"laquelle vous et le modèle vous accordez comme vous vous accordez sur « le\n"
+"commentaire nomme une fonction qui n'existe pas ».\n"
+"\n"
+"Un curseur de confiance filtre ; un critère catégoriel décide. Seul le second\n"
+"produit deux fois la même réponse.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:73
+#, no-wrap
+msgid "Severity that classifies consistently"
+msgstr "Des critères de severity qui classent de la même façon"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:78
+#, no-wrap
+msgid ""
+"The guide's third skill is severity, and it asks for two things: explicit\n"
+"criteria for each level, **and a concrete code example per level**. The\n"
+"definition alone leaves \"medium\" to taste; the worked example fixes it.\n"
+msgstr ""
+"Le troisième skill du guide porte sur la severity, et il demande deux choses :\n"
+"des critères explicites pour chaque niveau, **et un exemple de code concret par\n"
+"niveau**. La définition seule laisse « medium » au goût de chacun ; l'exemple\n"
+"travaillé le fixe.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/04-prompt-engineering.md:79
+#, no-wrap
+msgid ""
+"CRITICAL — fails at runtime for users.\n"
+"  Example: payment_total = order.get(\"total\") + order[\"tip\"]   # KeyError when no tip\n"
+"HIGH — security vulnerability.\n"
+"  Example: db.execute(\"SELECT * FROM users WHERE id = \" + user_id)\n"
+"MEDIUM — logic bug with no immediate outage.\n"
+"  Example: for i in range(len(items) - 1):   # last item never processed\n"
+"LOW — code quality only.\n"
+"  Example: the same six-line block duplicated in three handlers.\n"
+msgstr ""
+"CRITICAL — échoue à l'exécution pour les utilisateurs.\n"
+"  Exemple : payment_total = order.get(\"total\") + order[\"tip\"]   # KeyError s'il n'y a pas de tip\n"
+"HIGH — vulnérabilité de sécurité.\n"
+"  Exemple : db.execute(\"SELECT * FROM users WHERE id = \" + user_id)\n"
+"MEDIUM — bug de logique sans panne immédiate.\n"
+"  Exemple : for i in range(len(items) - 1):   # le dernier élément n'est jamais traité\n"
+"LOW — qualité de code seulement.\n"
+"  Exemple : le même bloc de six lignes dupliqué dans trois handlers.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:90
+#, no-wrap
+msgid "Why one bad category poisons the good ones"
+msgstr "Pourquoi une mauvaise catégorie empoisonne les bonnes"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:97
+#, no-wrap
+msgid ""
+"The guide's knowledge point on false positives is a claim about people, not about\n"
+"models: **a high false positive rate in one category undermines developer\n"
+"confidence in the accurate categories too.** Once the bot has cried wolf about\n"
+"naming conventions three times, its genuine SQL-injection finding is skimmed with\n"
+"the same eye.\n"
+msgstr ""
+"Le point de connaissance du guide sur les faux positifs est une affirmation sur\n"
+"les gens, pas sur les modèles : **un taux élevé de faux positifs dans une\n"
+"catégorie érode aussi la confiance des développeurs dans les catégories\n"
+"justes.** Une fois que le bot a crié au loup trois fois sur des conventions de\n"
+"nommage, son vrai signalement d'injection SQL est parcouru du même œil.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:103
+#, no-wrap
+msgid ""
+"That is what makes the guide's remedy counter-intuitive and worth remembering:\n"
+"**temporarily disable the high false-positive category**, keep the precise ones\n"
+"running, improve the prompt for the disabled one, and re-enable it once its\n"
+"criteria are specific. Reviewing less, on purpose, is how the remaining output\n"
+"keeps being read.\n"
+msgstr ""
+"C'est ce qui rend le remède du guide contre-intuitif et digne d'être retenu :\n"
+"**désactiver temporairement la catégorie à fort taux de faux positifs**, laisser\n"
+"tourner les catégories précises, améliorer le prompt de celle qui est\n"
+"désactivée, et la réactiver une fois ses critères devenus spécifiques. Relire\n"
+"moins, volontairement, c'est ainsi que le reste de la sortie continue d'être lu.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/04-prompt-engineering.md:104
+#, no-wrap
+msgid ""
+"Two signatures, two answers.\n"
+"\n"
+"Verdicts that vary run to run on identical input → replace the adjective with\n"
+"named conditions. Developers ignoring the tool → look for the one noisy category\n"
+"and turn it off while its prompt is rewritten.\n"
+"\n"
+"The distractors are the plausible next moves, and each one leaves the criterion\n"
+"undefined. Adding \"be conservative\", \"only high-confidence findings\" or a\n"
+"numeric confidence threshold tunes a dial nobody has calibrated. Running the\n"
+"check twice and keeping what both runs agree on intersects two unstable verdicts\n"
+"and drops genuine findings. Narrowing the scope to fewer files reduces the volume\n"
+"without making a single remaining decision consistent. And switching to a larger\n"
+"model answers a specification problem with capacity.\n"
+msgstr ""
+"Deux signatures, deux réponses.\n"
+"\n"
+"Des verdicts qui varient d'une exécution à l'autre sur une entrée identique →\n"
+"remplacer l'adjectif par des conditions nommées. Des développeurs qui ignorent\n"
+"l'outil → chercher l'unique catégorie bruyante et la couper le temps de\n"
+"réécrire son prompt.\n"
+"\n"
+"Les distracteurs sont les suites plausibles, et chacun laisse le critère\n"
+"indéfini. Ajouter « be conservative », « only high-confidence findings » ou un\n"
+"seuil numérique de confiance règle un curseur que personne n'a calibré. Lancer\n"
+"le contrôle deux fois et garder ce sur quoi les deux exécutions s'accordent\n"
+"intersecte deux verdicts instables et supprime de vrais signalements. Restreindre\n"
+"le périmètre à moins de fichiers réduit le volume sans rendre cohérente une\n"
+"seule des décisions restantes. Et passer à un modèle plus gros répond à un\n"
+"problème de spécification par de la capacité.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/04-prompt-engineering.md:120
+#, no-wrap
+msgid ""
+"**Turning the whole reviewer off because one category is noisy.** The guide's\n"
+"move is surgical: the accurate categories keep their value and keep being read.\n"
+"Silence costs you the findings that were correct.\n"
+"\n"
+"**Writing criteria you cannot check.** \"Flag anything that could confuse a future\n"
+"maintainer\" is a categorical sentence in shape only. If you cannot decide the\n"
+"verdict yourself from the rule, neither can the model.\n"
+msgstr ""
+"**Couper tout le relecteur parce qu'une catégorie est bruyante.** Le geste du\n"
+"guide est chirurgical : les catégories justes gardent leur valeur et continuent\n"
+"d'être lues. Le silence vous coûte les signalements qui étaient corrects.\n"
+"\n"
+"**Écrire des critères que vous ne pouvez pas vérifier.** « Signaler tout ce qui\n"
+"pourrait dérouter un futur mainteneur » n'est catégorique que par la forme. Si\n"
+"vous ne pouvez pas trancher vous-même à partir de la règle, le modèle non plus.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:131
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"4.1\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"4.1\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/04-prompt-engineering.md:132
+#, no-wrap
+msgid "4.2 — Apply few-shot prompting to improve output consistency and quality"
+msgstr "4.2 — Apply few-shot prompting to improve output consistency and quality"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:134
+#, no-wrap
+msgid "<!-- ts:4.2 | src:exam guide TS 4.2 (few-shot examples as the most effective technique when detailed instructions alone still produce inconsistent output, their role in demonstrating ambiguous-case handling, generalisation to novel patterns rather than matching pre-specified cases, hallucination reduction in extraction with informal measurements and varied document structures; the skills: 2-4 targeted examples showing why one action was chosen over plausible alternatives, examples demonstrating the location/issue/severity/suggested-fix output format, examples distinguishing acceptable code patterns from genuine issues, examples covering inline citations versus bibliographies, examples addressing empty or null extraction of required fields) ; 05claudeapi L28 (one-shot and multi-shot prompting, examples for corner cases and complex output formats, sample_input and ideal_output wrapped in XML tags, and explaining why an example output is good rather than only showing it) ; L27 (XML tags as delimiters for interpolated content, descriptive tag names over generic ones) -->\n"
+msgstr "<!-- ts:4.2 | src:exam guide TS 4.2 (few-shot examples as the most effective technique when detailed instructions alone still produce inconsistent output, their role in demonstrating ambiguous-case handling, generalisation to novel patterns rather than matching pre-specified cases, hallucination reduction in extraction with informal measurements and varied document structures; the skills: 2-4 targeted examples showing why one action was chosen over plausible alternatives, examples demonstrating the location/issue/severity/suggested-fix output format, examples distinguishing acceptable code patterns from genuine issues, examples covering inline citations versus bibliographies, examples addressing empty or null extraction of required fields) ; 05claudeapi L28 (one-shot and multi-shot prompting, examples for corner cases and complex output formats, sample_input and ideal_output wrapped in XML tags, and explaining why an example output is good rather than only showing it) ; L27 (XML tags as delimiters for interpolated content, descriptive tag names over generic ones) -->\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:138
+#, no-wrap
+msgid ""
+"4.1 fixed what to report. It does not fix a second failure: the criteria are\n"
+"written, they are detailed, and the output still comes back in a different shape\n"
+"every run — or comes back empty on the case nobody thought to list.\n"
+msgstr ""
+"4.1 a réglé ce qu'il faut signaler. Il ne règle pas une seconde défaillance :\n"
+"les critères sont écrits, ils sont détaillés, et la sortie revient malgré tout\n"
+"sous une forme différente à chaque exécution — ou revient vide sur le cas que\n"
+"personne n'avait pensé à énumérer.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:143
+#, no-wrap
+msgid ""
+"The guide's answer is unambiguous, and it is the phrase to recognise in an\n"
+"option: **few-shot examples are the most effective technique for consistently\n"
+"formatted, actionable output when detailed instructions alone produce\n"
+"inconsistent results.** One example is one-shot prompting; several is multi-shot.\n"
+msgstr ""
+"La réponse du guide est sans ambiguïté, et c'est la formule à reconnaître dans\n"
+"une option : **les few-shot examples sont la technique la plus efficace pour une\n"
+"sortie cohérente et actionnable quand des instructions détaillées produisent\n"
+"encore des résultats inconsistants.** Un exemple, c'est du one-shot prompting ;\n"
+"plusieurs, du multi-shot.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:148
+#, no-wrap
+msgid ""
+"Two to four is the guide's own count, and the examples are targeted — they show\n"
+"the **ambiguous** cases, not the easy ones. Each carries the reasoning for why\n"
+"that action was chosen over a plausible alternative, because the reasoning is\n"
+"what transfers.\n"
+msgstr ""
+"Deux à quatre, c'est le compte du guide lui-même, et les exemples sont ciblés —\n"
+"ils montrent les cas **ambigus**, pas les faciles. Chacun porte le raisonnement\n"
+"qui explique pourquoi cette action a été choisie plutôt qu'une alternative\n"
+"plausible, parce que c'est le raisonnement qui se transfère.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/04-prompt-engineering.md:149
+#, no-wrap
+msgid ""
+"<examples>\n"
+"  <example>\n"
+"    <request>My order is broken</request>\n"
+"    <action>get_customer, then lookup_order, then check status</action>\n"
+"    <rationale>\"Broken\" may mean damaged goods or a failed delivery. The\n"
+"    details decide, so gather them before routing anywhere.</rationale>\n"
+"  </example>\n"
+"  <example>\n"
+"    <request>Get me a manager</request>\n"
+"    <action>escalate_to_human, immediately</action>\n"
+"    <rationale>The customer asked for a person explicitly. Attempting a\n"
+"    resolution first overrides a stated preference.</rationale>\n"
+"  </example>\n"
+"</examples>\n"
+msgstr ""
+"<examples>\n"
+"  <example>\n"
+"    <request>My order is broken</request>\n"
+"    <action>get_customer, puis lookup_order, puis vérifier le statut</action>\n"
+"    <rationale>« Broken » peut désigner un article endommagé comme une\n"
+"    livraison ratée. Les détails tranchent : les recueillir avant de router\n"
+"    vers quoi que ce soit.</rationale>\n"
+"  </example>\n"
+"  <example>\n"
+"    <request>Get me a manager</request>\n"
+"    <action>escalate_to_human, immédiatement</action>\n"
+"    <rationale>Le client demande explicitement une personne. Tenter d'abord\n"
+"    une résolution passe outre une préférence énoncée.</rationale>\n"
+"  </example>\n"
+"</examples>\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:170
+#, no-wrap
+msgid ""
+"The XML tags are the course's habit and they earn their place here: examples are\n"
+"interpolated content sitting next to instructions, and descriptive delimiters —\n"
+"`<sample_input>`, `<ideal_output>`, `<examples>` — are what keeps the model from\n"
+"reading an example as a request.\n"
+msgstr ""
+"Les balises XML sont une habitude du cours et elles se justifient ici : les\n"
+"exemples sont du contenu interpolé posé à côté des instructions, et des\n"
+"délimiteurs descriptifs — `<sample_input>`, `<ideal_output>`, `<examples>` —\n"
+"sont ce qui empêche le modèle de lire un exemple comme une requête.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/04-prompt-engineering.md:171
+#, no-wrap
+msgid ""
+"**Examples generalise; lists enumerate.** The guide's wording is that few-shot\n"
+"examples let the model \"generalize judgment to novel patterns rather than\n"
+"matching only pre-specified cases\", and that is the whole reason they beat a\n"
+"longer rulebook. Two examples of an informal measurement — \"two handfuls\",\n"
+"\"a splash\" — teach the conversion; a lookup table of informal phrases covers\n"
+"exactly the phrases in it, and the next import brings a new one.\n"
+"\n"
+"This is also why the rationale matters more than the answer. An example that\n"
+"shows only the output teaches a mapping. An example that shows why teaches a\n"
+"rule.\n"
+msgstr ""
+"**Les exemples généralisent ; les listes énumèrent.** Le guide écrit que les\n"
+"few-shot examples permettent au modèle de « generalize judgment to novel\n"
+"patterns rather than matching only pre-specified cases », et c'est toute la\n"
+"raison pour laquelle ils battent un règlement plus long. Deux exemples de mesure\n"
+"informelle — « two handfuls », « a splash » — enseignent la conversion ; une\n"
+"table de correspondance des formulations informelles couvre exactement celles\n"
+"qui y figurent, et l'import suivant en apporte une nouvelle.\n"
+"\n"
+"C'est aussi pourquoi le raisonnement compte plus que la réponse. Un exemple qui\n"
+"ne montre que la sortie enseigne une correspondance. Un exemple qui montre\n"
+"pourquoi enseigne une règle.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:184
+#, no-wrap
+msgid "The four jobs the guide gives them"
+msgstr "Les quatre rôles que le guide leur donne"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:192
+#, no-wrap
+msgid ""
+"| Job | What the examples show |\n"
+"|---|---|\n"
+"| Ambiguous cases | Which action was taken, and why not the plausible alternative |\n"
+"| Output format | One filled-in record: location, issue, severity, suggested fix |\n"
+"| Acceptable versus genuine | A pattern that must not be flagged, beside one that must |\n"
+"| Varied document structures | The same fact extracted from an inline citation and from a bibliography entry |\n"
+msgstr ""
+"| Rôle | Ce que les exemples montrent |\n"
+"|---|---|\n"
+"| Cas ambigus | Quelle action a été prise, et pourquoi pas l'alternative plausible |\n"
+"| Format de sortie | Un enregistrement rempli : location, issue, severity, suggested fix |\n"
+"| Acceptable contre vrai problème | Un pattern à ne pas signaler, à côté d'un pattern à signaler |\n"
+"| Structures de documents variées | Le même fait extrait d'une citation inline puis d'une entrée bibliographique |\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:194
+#, no-wrap
+msgid "The last two are the ones people forget, and each answers a specific failure.\n"
+msgstr ""
+"Les deux derniers sont ceux qu'on oublie, et chacun répond à une défaillance\n"
+"précise.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:198
+#, no-wrap
+msgid ""
+"**Acceptable versus genuine** is the false-positive lever of 4.1 seen from the\n"
+"other side: rather than enumerating every benign pattern, show one benign and one\n"
+"genuine, and let the distinction generalise.\n"
+msgstr ""
+"**Acceptable contre vrai problème** est le levier anti-faux-positifs de 4.1 vu\n"
+"de l'autre côté : plutôt que d'énumérer tous les patterns bénins, en montrer un\n"
+"bénin et un vrai, et laisser la distinction se généraliser.\n"
+
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:199
+#, no-wrap
+msgid ""
+"{\"location\": \"src/auth/login.ts:42\",\n"
+" \"issue\": \"SQL injection in the username parameter\",\n"
+" \"severity\": \"critical\",\n"
+" \"suggested_fix\": \"Use a parameterised query\"}\n"
+msgstr ""
+"{\"location\": \"src/auth/login.ts:42\",\n"
+" \"issue\": \"Injection SQL dans le paramètre username\",\n"
+" \"severity\": \"critical\",\n"
+" \"suggested_fix\": \"Utiliser une requête paramétrée\"}\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:212
+#, no-wrap
+msgid ""
+"**Varied document structures** is the guide's extraction case. A rate reported as\n"
+"`the rate is 42% (Smith, 2023)` and the same rate reported as `The rate is 42%.\n"
+"[1]` with a bibliography at the end are one fact in two shapes, and a model shown\n"
+"only the first returns `null` on the second. The guide names that symptom\n"
+"directly: examples are what addresses **empty or null extraction of required\n"
+"fields** on documents whose format varies.\n"
+msgstr ""
+"**Les structures de documents variées** sont le cas d'extraction du guide. Un\n"
+"taux rapporté par `the rate is 42% (Smith, 2023)` et le même taux rapporté par\n"
+"`The rate is 42%. [1]` avec une bibliographie en fin de document sont un seul\n"
+"fait sous deux formes, et un modèle à qui on n'a montré que la première renvoie\n"
+"`null` sur la seconde. Le guide nomme ce symptôme directement : les exemples\n"
+"sont ce qui traite l'**extraction vide ou nulle de champs requis** sur des\n"
+"documents dont le format varie.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/04-prompt-engineering.md:213
+#, no-wrap
+msgid ""
+"Two signals in the scenario, together, name this answer: **the instructions are\n"
+"already detailed** and the output is still inconsistent, and the model has to\n"
+"decide cases nobody listed in advance. Few-shot is the only lever that teaches a\n"
+"distinction instead of enumerating instances.\n"
+"\n"
+"The distractors are all reasonable-sounding next moves. Rewriting the\n"
+"instructions more firmly repeats what the scenario says has already failed.\n"
+"Maintaining a whitelist or lookup table of accepted patterns covers what is in\n"
+"it and nothing else, and the scenario usually says new phrasings keep arriving.\n"
+"Post-processing the output with a filter cannot reconstruct a decision the model\n"
+"never made. Lowering sensitivity suppresses true positives at the same rate as\n"
+"false ones. And rejecting the hard inputs for manual handling buys correctness by\n"
+"refusing to do the work.\n"
+msgstr ""
+"Deux signaux dans l'énoncé, réunis, désignent cette réponse : **les instructions\n"
+"sont déjà détaillées** et la sortie reste inconsistante, et le modèle doit\n"
+"trancher des cas que personne n'a listés à l'avance. Le few-shot est le seul\n"
+"levier qui enseigne une distinction au lieu d'énumérer des instances.\n"
+"\n"
+"Les distracteurs sont tous des suites qui sonnent raisonnable. Réécrire les\n"
+"instructions plus fermement répète ce que l'énoncé dit avoir déjà échoué.\n"
+"Maintenir une liste blanche ou une table de correspondance des patterns acceptés\n"
+"couvre ce qui y figure et rien d'autre, et l'énoncé dit en général que de\n"
+"nouvelles formulations continuent d'arriver. Post-traiter la sortie avec un\n"
+"filtre ne peut pas reconstruire une décision que le modèle n'a jamais prise.\n"
+"Baisser la sensibilité supprime les vrais positifs au même rythme que les faux.\n"
+"Et écarter les entrées difficiles vers un traitement manuel achète la\n"
+"correction en refusant de faire le travail.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/04-prompt-engineering.md:229
+#, no-wrap
+msgid ""
+"**Twenty examples of the easy case.** Volume is not the variable; targeting is.\n"
+"Two to four examples aimed at the cases that are actually ambiguous outperform a\n"
+"page of examples the model already handles.\n"
+"\n"
+"**Examples that show the output without the reasoning.** They pin the format and\n"
+"teach nothing transferable, so the first unseen phrasing lands back where it\n"
+"started.\n"
+msgstr ""
+"**Vingt exemples du cas facile.** La variable n'est pas le volume, c'est le\n"
+"ciblage. Deux à quatre exemples visant les cas réellement ambigus l'emportent\n"
+"sur une page d'exemples que le modèle traite déjà.\n"
+"\n"
+"**Des exemples qui montrent la sortie sans le raisonnement.** Ils fixent le\n"
+"format et n'enseignent rien de transférable : la première formulation inédite\n"
+"ramène au point de départ.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:240
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"4.2\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"4.2\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/04-prompt-engineering.md:241
+#, no-wrap
+msgid "4.3 — Enforce structured output using tool use and JSON schemas"
+msgstr "4.3 — Enforce structured output using tool use and JSON schemas"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:244
+#, no-wrap
+msgid ""
+"<!-- ts:4.3 | src:exam guide TS 4.3 (tool use with JSON schemas as the most reliable approach to guaranteed schema-compliant output and the elimination of JSON syntax errors, the distinction between tool_choice \"auto\", \"any\" and a forced named tool, strict schemas not preventing semantic errors, required versus optional fields and the enum plus \"other\" and detail-string pattern; the skills: defining an extraction tool and reading the structured data from the tool_use response, \"any\" when several extraction schemas exist and the document type is unknown, forcing extract_metadata before enrichment steps, nullable fields so the model does not fabricate values, \"unclear\" enum values, and format normalization rules in the prompt alongside a strict output schema) ; 09apicomplements L5 (the four tool_choice values including \"none\", the absence of a natural-language explanation before the call under \"any\" or a forced tool, and manual extended thinking supporting only auto and none) ; L3 (the supported JSON Schema subset and the constraints silently dropped, nullable written as type: [\"string\", \"null\"], the enum plus \"other\" escape hatch, structured outputs being incompatible with message prefilling) ; L2 (field nuance: output_config.format and strict tool use exist on the platform today) ; 05claudeapi L34 (a tool is name, description and input_schema) ; L35 (the tool_use block carries an id, the tool name and the input dictionary) -->\n"
+"<!-- owns:tool-choice -->\n"
+msgstr ""
+"<!-- ts:4.3 | src:exam guide TS 4.3 (tool use with JSON schemas as the most reliable approach to guaranteed schema-compliant output and the elimination of JSON syntax errors, the distinction between tool_choice \"auto\", \"any\" and a forced named tool, strict schemas not preventing semantic errors, required versus optional fields and the enum plus \"other\" and detail-string pattern; the skills: defining an extraction tool and reading the structured data from the tool_use response, \"any\" when several extraction schemas exist and the document type is unknown, forcing extract_metadata before enrichment steps, nullable fields so the model does not fabricate values, \"unclear\" enum values, and format normalization rules in the prompt alongside a strict output schema) ; 09apicomplements L5 (the four tool_choice values including \"none\", the absence of a natural-language explanation before the call under \"any\" or a forced tool, and manual extended thinking supporting only auto and none) ; L3 (the supported JSON Schema subset and the constraints silently dropped, nullable written as type: [\"string\", \"null\"], the enum plus \"other\" escape hatch, structured outputs being incompatible with message prefilling) ; L2 (field nuance: output_config.format and strict tool use exist on the platform today) ; 05claudeapi L34 (a tool is name, description and input_schema) ; L35 (the tool_use block carries an id, the tool name and the input dictionary) -->\n"
+"<!-- owns:tool-choice -->\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:250
+#, no-wrap
+msgid ""
+"Ask for JSON in prose and you get JSON most of the time: a trailing comma here,\n"
+"a fenced code block there, a field renamed on the third document. The guide's\n"
+"answer is a mechanism rather than a phrasing, and it states it without hedging —\n"
+"**tool use with JSON schemas is the most reliable approach for guaranteed\n"
+"schema-compliant structured output, and it eliminates JSON syntax errors.**\n"
+msgstr ""
+"Demandez du JSON en prose et vous obtenez du JSON la plupart du temps : une\n"
+"virgule en trop ici, un bloc de code entouré de backticks là, un champ renommé\n"
+"au troisième document. La réponse du guide est un mécanisme plutôt qu'une\n"
+"formulation, et il l'énonce sans nuance — **le tool use avec des JSON Schemas\n"
+"est l'approche la plus fiable pour une sortie structurée garantie conforme au\n"
+"schéma, et il élimine les erreurs de syntaxe JSON.**\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:255
+#, no-wrap
+msgid ""
+"The move is a small inversion. You declare a tool whose `input_schema` is the\n"
+"shape you want *out*, you force the model to call it, and you read the extraction\n"
+"from the call's `input`. **The tool is never executed.** Its whole purpose is to\n"
+"be a schema the model must fill.\n"
+msgstr ""
+"Le geste est une petite inversion. Vous déclarez un outil dont l'`input_schema`\n"
+"est la forme que vous voulez *en sortie*, vous forcez le modèle à l'appeler, et\n"
+"vous lisez l'extraction dans l'`input` de l'appel. **L'outil n'est jamais\n"
+"exécuté.** Il n'a d'autre raison d'être que d'être un schéma que le modèle doit\n"
+"remplir.\n"
+
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:256
+#, no-wrap
+msgid ""
+"{\n"
+"  \"tools\": [{\n"
+"    \"name\": \"extract_invoice\",\n"
+"    \"description\": \"Records the fields extracted from an invoice document.\",\n"
+"    \"input_schema\": {\n"
+"      \"type\": \"object\",\n"
+"      \"properties\": {\n"
+"        \"invoice_number\": { \"type\": \"string\" },\n"
+"        \"issue_date\":     { \"type\": \"string\", \"description\": \"ISO 8601, YYYY-MM-DD\" },\n"
+"        \"total\":          { \"type\": \"number\" },\n"
+"        \"company_name\":   { \"type\": [\"string\", \"null\"] },\n"
+"        \"document_kind\":  { \"enum\": [\"invoice\", \"credit_note\", \"other\", \"unclear\"] },\n"
+"        \"kind_detail\":    { \"type\": [\"string\", \"null\"] }\n"
+"      },\n"
+"      \"required\": [\"invoice_number\", \"total\", \"document_kind\"]\n"
+"    }\n"
+"  }],\n"
+"  \"tool_choice\": { \"type\": \"tool\", \"name\": \"extract_invoice\" }\n"
+"}\n"
+msgstr ""
+"{\n"
+"  \"tools\": [{\n"
+"    \"name\": \"extract_invoice\",\n"
+"    \"description\": \"Enregistre les champs extraits d'un document de facture.\",\n"
+"    \"input_schema\": {\n"
+"      \"type\": \"object\",\n"
+"      \"properties\": {\n"
+"        \"invoice_number\": { \"type\": \"string\" },\n"
+"        \"issue_date\":     { \"type\": \"string\", \"description\": \"ISO 8601, YYYY-MM-DD\" },\n"
+"        \"total\":          { \"type\": \"number\" },\n"
+"        \"company_name\":   { \"type\": [\"string\", \"null\"] },\n"
+"        \"document_kind\":  { \"enum\": [\"invoice\", \"credit_note\", \"other\", \"unclear\"] },\n"
+"        \"kind_detail\":    { \"type\": [\"string\", \"null\"] }\n"
+"      },\n"
+"      \"required\": [\"invoice_number\", \"total\", \"document_kind\"]\n"
+"    }\n"
+"  }],\n"
+"  \"tool_choice\": { \"type\": \"tool\", \"name\": \"extract_invoice\" }\n"
+"}\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:280
+#, no-wrap
+msgid ""
+"The reply carries `stop_reason: \"tool_use\"` and a `tool_use` block whose `input`\n"
+"*is* your record — no parsing of prose, no repair pass:\n"
+msgstr ""
+"La réponse porte `stop_reason: \"tool_use\"` et un bloc `tool_use` dont l'`input`\n"
+"*est* votre enregistrement — aucune prose à parser, aucune passe de réparation :\n"
+
+# invariant: bloc de code sans texte en langue naturelle : identifiants, champs et valeurs de l'API
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:281
+#, no-wrap
+msgid ""
+"{ \"type\": \"tool_use\", \"id\": \"toolu_01A\", \"name\": \"extract_invoice\",\n"
+"  \"input\": { \"invoice_number\": \"INV-2024-0912\", \"issue_date\": \"2024-09-12\",\n"
+"             \"total\": 1249.90, \"company_name\": null,\n"
+"             \"document_kind\": \"invoice\", \"kind_detail\": null } }\n"
+msgstr ""
+"{ \"type\": \"tool_use\", \"id\": \"toolu_01A\", \"name\": \"extract_invoice\",\n"
+"  \"input\": { \"invoice_number\": \"INV-2024-0912\", \"issue_date\": \"2024-09-12\",\n"
+"             \"total\": 1249.90, \"company_name\": null,\n"
+"             \"document_kind\": \"invoice\", \"kind_detail\": null } }\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:288
+#, no-wrap
+msgid "`tool_choice`"
+msgstr "Le paramètre `tool_choice`"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:292
+#, no-wrap
+msgid ""
+"This is the field D0 and D1 both deferred here. It decides whether calling a\n"
+"tool is optional, mandatory, or mandatory and named.\n"
+msgstr ""
+"C'est le champ que D0 et D1 ont tous deux différé jusqu'ici. Il décide si\n"
+"l'appel d'un outil est facultatif, obligatoire, ou obligatoire et nommé.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:299
+#, no-wrap
+msgid ""
+"| Value | Behaviour | Reach for it when |\n"
+"|---|---|---|\n"
+"| `{\"type\": \"auto\"}` | Default. The model decides, and may answer in text | The tool is not always relevant |\n"
+"| `{\"type\": \"any\"}` | The model **must** call a tool, and picks which | Several extraction schemas exist and you do not know the document type |\n"
+"| `{\"type\": \"tool\", \"name\": \"extract_metadata\"}` | The model must call **that** tool | One schema is mandatory, or one extraction must run before the rest |\n"
+"| `{\"type\": \"none\"}` | No tool may be called | You want prose even though tools are declared |\n"
+msgstr ""
+"| Valeur | Comportement | À choisir quand |\n"
+"|---|---|---|\n"
+"| `{\"type\": \"auto\"}` | Défaut. Le modèle décide, et peut répondre en texte | L'outil n'est pas toujours pertinent |\n"
+"| `{\"type\": \"any\"}` | Le modèle **doit** appeler un outil, et choisit lequel | Plusieurs schémas d'extraction existent et vous ignorez le type de document |\n"
+"| `{\"type\": \"tool\", \"name\": \"extract_metadata\"}` | Le modèle doit appeler **cet** outil | Un schéma est obligatoire, ou une extraction doit précéder les autres |\n"
+"| `{\"type\": \"none\"}` | Aucun outil ne peut être appelé | Vous voulez de la prose alors que des outils sont déclarés |\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:307
+#, no-wrap
+msgid ""
+"The two uses the guide names are worth memorising as scenarios, because that is\n"
+"how they are examined. **`any`** is the answer when a pipeline receives invoices,\n"
+"purchase orders and delivery notes through the same door: you have a schema for\n"
+"each, you cannot say in advance which applies, and what you cannot afford is a\n"
+"conversational reply instead of a call. **A forced named tool** is the answer\n"
+"when order matters — `extract_metadata` must run first, and the enrichment steps\n"
+"come in later turns.\n"
+msgstr ""
+"Les deux usages que le guide nomme méritent d'être mémorisés comme des\n"
+"scénarios, parce que c'est ainsi qu'ils sont examinés. **`any`** est la réponse\n"
+"quand un pipeline reçoit factures, bons de commande et bons de livraison par la\n"
+"même porte : vous avez un schéma pour chacun, vous ne pouvez pas dire à l'avance\n"
+"lequel s'applique, et ce que vous ne pouvez pas vous permettre est une réponse\n"
+"conversationnelle au lieu d'un appel. **Un outil forcé par son nom** est la\n"
+"réponse quand l'ordre compte — `extract_metadata` doit tourner en premier, et\n"
+"les étapes d'enrichissement viennent aux tours suivants.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/04-prompt-engineering.md:308
+#, no-wrap
+msgid ""
+"Field behaviour that follows from forcing a call: under `any` or a forced tool,\n"
+"the model does not produce a natural-language explanation before the call. If you\n"
+"want both the reasoning and the call, stay on `auto` and ask for the tool in the\n"
+"prompt — \"use the `extract_invoice` tool in your response\".\n"
+"\n"
+"Second constraint, same family: with manually enabled extended thinking, only\n"
+"`auto` and `none` are supported.\n"
+msgstr ""
+"Un comportement de terrain qui découle du fait de forcer l'appel : sous `any` ou\n"
+"sous un outil forcé, le modèle ne produit pas d'explication en langage naturel\n"
+"avant l'appel. Si vous voulez à la fois le raisonnement et l'appel, restez en\n"
+"`auto` et demandez l'outil dans le prompt — « use the `extract_invoice` tool in\n"
+"your response ».\n"
+"\n"
+"Seconde contrainte, même famille : avec l'extended thinking activé\n"
+"manuellement, seuls `auto` et `none` sont supportés.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:318
+#, no-wrap
+msgid "Designing the schema so it does not invite invention"
+msgstr "Concevoir le schéma pour qu'il n'invite pas à l'invention"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:322
+#, no-wrap
+msgid ""
+"A schema is a contract, and a badly drawn contract makes fabrication the\n"
+"compliant answer.\n"
+msgstr ""
+"Un schéma est un contrat, et un contrat mal rédigé fait de la fabrication la\n"
+"réponse conforme.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:329
+#, no-wrap
+msgid ""
+"| Rule | Written as | Why |\n"
+"|---|---|---|\n"
+"| Optional means optional | Leave the field out of `required` | A required field the source does not carry forces the model to choose between breaking the schema and inventing a value |\n"
+"| Nullable | `\"type\": [\"string\", \"null\"]` | Absence needs a representation, otherwise a gift certificate comes back with a plausible price |\n"
+"| `enum` + `\"other\"` + detail | `\"enum\": [..., \"other\"]` plus a free-text field | A closed enum produces a wrong category rather than an admission that none fits |\n"
+"| `\"unclear\"` | An enum value of its own | Lets the model say the document does not settle it |\n"
+msgstr ""
+"| Règle | Écrite comme | Pourquoi |\n"
+"|---|---|---|\n"
+"| Optionnel veut dire optionnel | Laisser le champ hors de `required` | Un champ requis que la source ne porte pas force le modèle à choisir entre casser le schéma et inventer une valeur |\n"
+"| Nullable | `\"type\": [\"string\", \"null\"]` | L'absence a besoin d'une représentation, sinon un don revient avec un prix plausible |\n"
+"| `enum` + `\"other\"` + détail | `\"enum\": [..., \"other\"]` plus un champ de texte libre | Un enum fermé produit une catégorie fausse plutôt que l'aveu qu'aucune ne convient |\n"
+"| `\"unclear\"` | Une valeur d'enum à part entière | Permet au modèle de dire que le document ne tranche pas |\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:334
+#, no-wrap
+msgid ""
+"The guide's last skill on this task statement is easy to skip and cheap to\n"
+"apply: **format normalization rules go in the prompt, next to the strict\n"
+"schema.** The schema says a field is a string; only the prompt can say which\n"
+"string.\n"
+msgstr ""
+"Le dernier skill du guide sur ce task statement est facile à sauter et peu\n"
+"coûteux à appliquer : **les règles de normalisation de format vont dans le\n"
+"prompt, à côté du schéma strict.** Le schéma dit qu'un champ est une chaîne ;\n"
+"seul le prompt peut dire laquelle.\n"
+
+#. type: Fenced code block (text)
+#: courses/en/04-prompt-engineering.md:335
+#, no-wrap
+msgid ""
+"Normalise before you fill the schema:\n"
+"  dates       → ISO 8601 (YYYY-MM-DD); resolve \"yesterday\" to an absolute date\n"
+"  money       → numeric amount plus a separate ISO 4217 code; \"five bucks\" → 5, USD\n"
+"  percentages → decimal fraction; \"half\" → 0.5\n"
+"  absent      → null, never a placeholder, never a guess\n"
+msgstr ""
+"Normaliser avant de remplir le schéma :\n"
+"  dates        → ISO 8601 (YYYY-MM-DD) ; résoudre « yesterday » en date absolue\n"
+"  montants     → valeur numérique plus un code ISO 4217 séparé ; « five bucks » → 5, USD\n"
+"  pourcentages → fraction décimale ; « half » → 0.5\n"
+"  absent       → null, jamais un espace réservé, jamais une supposition\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/04-prompt-engineering.md:343
+#, no-wrap
+msgid ""
+"**The guide is the law here.** Its TS 4.3 tests `tool_use` with a JSON schema and\n"
+"`tool_choice`. If an option names `output_config.format` or\n"
+"`client.messages.parse()`, it is not the expected answer on this exam. The same\n"
+"verdict falls on message prefilling paired with a stop sequence: the API course\n"
+"teaches it as a route to structured output, and `courses/out-of-scope.md` sets\n"
+"it aside on the strength of this task statement — this section is the promise\n"
+"that entry makes. It is also incompatible with the newer mechanism below, so\n"
+"the two are never combined in practice either.\n"
+"\n"
+"Field nuance, so you are not surprised in production: the platform now carries a\n"
+"dedicated JSON-outputs mechanism (`output_config.format`, and `messages.parse()`\n"
+"with a Pydantic model in the Python SDK) that constrains the response text, plus\n"
+"`strict: true` on a tool, which constrains tool arguments by grammar-constrained\n"
+"sampling rather than by adherence. Same goal, newer surfaces, absent from the\n"
+"guide.\n"
+"\n"
+"On that strict path the platform accepts only a subset of JSON Schema, and the\n"
+"part worth carrying back to ordinary tool use is the failure mode: constraints\n"
+"like `minimum`, `maxLength` and `pattern` are dropped silently rather than\n"
+"rejected. A bound you wrote is not a bound that was enforced. If a number has to\n"
+"stay in range, your code checks it — which is 4.4.\n"
+msgstr ""
+"**Le guide fait loi ici.** Son TS 4.3 teste le `tool_use` avec un JSON Schema et\n"
+"`tool_choice`. Si une option nomme `output_config.format` ou\n"
+"`client.messages.parse()`, ce n'est pas la réponse attendue à cet examen. Le\n"
+"même verdict frappe le préremplissage du message assistant couplé à une stop\n"
+"sequence : le cours API l'enseigne comme voie vers la sortie structurée, et\n"
+"`courses/out-of-scope.md` l'écarte au motif de ce task statement — cette\n"
+"section est la promesse que cette entrée engage. Il est de surcroît\n"
+"incompatible avec le mécanisme plus récent décrit ci-dessous : les deux ne se\n"
+"combinent donc jamais en pratique non plus.\n"
+"\n"
+"Nuance de terrain, pour ne pas être surpris en production : la plateforme porte\n"
+"désormais un mécanisme dédié de sorties JSON (`output_config.format`, et\n"
+"`messages.parse()` avec un modèle Pydantic dans le SDK Python) qui contraint le\n"
+"texte de la réponse, plus `strict: true` sur un outil, qui contraint les\n"
+"arguments d'outil par un échantillonnage contraint par grammaire plutôt que par\n"
+"adhérence. Même but, surfaces plus récentes, absentes du guide.\n"
+"\n"
+"Sur cette voie stricte, la plateforme n'accepte qu'un sous-ensemble de JSON\n"
+"Schema, et ce qu'il faut en rapporter au tool use ordinaire est le mode de\n"
+"défaillance : des contraintes comme `minimum`, `maxLength` et `pattern` sont\n"
+"retirées en silence plutôt que refusées. Une borne que vous avez écrite n'est\n"
+"pas une borne appliquée. Si un nombre doit rester dans un intervalle, c'est\n"
+"votre code qui le vérifie — et c'est 4.4.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/04-prompt-engineering.md:367
+#, no-wrap
+msgid ""
+"Three phrasings, three answers. \"Guarantee a schema-conformant payload\" →\n"
+"`tool_use` with a JSON schema. \"The document type is unknown and several schemas\n"
+"exist\" → `tool_choice: {\"type\": \"any\"}`. \"This extraction must run before the\n"
+"enrichment steps\" → force it by name.\n"
+"\n"
+"The distractors are consistent across questions. `tool_choice: \"auto\"` leaves the\n"
+"model free to answer in prose, so the extraction stops being guaranteed — it is\n"
+"the closest wrong answer and the one to read for. Describing the schema in the\n"
+"prompt and asking for JSON reintroduces exactly the syntax errors the mechanism\n"
+"removes. Repairing the output with a regular expression afterwards treats the\n"
+"symptom and moves the fragility into your code. And raising `max_tokens` answers\n"
+"a shape problem with length.\n"
+msgstr ""
+"Trois formulations, trois réponses. « Garantir une charge utile conforme au\n"
+"schéma » → `tool_use` avec un JSON Schema. « Le type de document est inconnu et\n"
+"plusieurs schémas existent » → `tool_choice: {\"type\": \"any\"}`. « Cette\n"
+"extraction doit tourner avant les étapes d'enrichissement » → forcer l'outil par\n"
+"son nom.\n"
+"\n"
+"Les distracteurs sont constants d'une question à l'autre. `tool_choice: \"auto\"`\n"
+"laisse le modèle libre de répondre en prose : l'extraction cesse d'être garantie\n"
+"— c'est la mauvaise réponse la plus proche, celle qu'il faut guetter. Décrire le\n"
+"schéma dans le prompt et demander du JSON réintroduit exactement les erreurs de\n"
+"syntaxe que le mécanisme supprime. Réparer la sortie à l'expression régulière\n"
+"après coup traite le symptôme et déplace la fragilité dans votre code. Et\n"
+"augmenter `max_tokens` répond à un problème de forme par de la longueur.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/04-prompt-engineering.md:382
+#, no-wrap
+msgid ""
+"**Believing the schema validated the content.** A forced call guarantees the\n"
+"*shape* of the payload and nothing about the truth of its values: line items that\n"
+"do not sum to the total, a date in the wrong field, an amount that never appeared\n"
+"in the document. The guide says so explicitly, and 4.4 is where that is handled.\n"
+"\n"
+"**Marking every field `required` for a tidy downstream type.** The tidiness is\n"
+"bought with invented values, which is the more expensive defect.\n"
+msgstr ""
+"**Croire que le schéma a validé le contenu.** Un appel forcé garantit la *forme*\n"
+"de la charge utile et rien de la vérité de ses valeurs : des lignes qui ne\n"
+"s'additionnent pas au total, une date dans le mauvais champ, un montant qui n'a\n"
+"jamais figuré dans le document. Le guide le dit explicitement, et c'est 4.4 qui\n"
+"s'en occupe.\n"
+"\n"
+"**Marquer tous les champs `required` pour obtenir un type propre en aval.** La\n"
+"propreté s'achète avec des valeurs inventées, ce qui est le défaut le plus cher.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:393
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"4.3\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"4.3\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/04-prompt-engineering.md:394
+#, no-wrap
+msgid "4.4 — Implement validation, retry, and feedback loops for extraction quality"
+msgstr "4.4 — Implement validation, retry, and feedback loops for extraction quality"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:396
+#, no-wrap
+msgid "<!-- ts:4.4 | src:exam guide TS 4.4 (retry with error feedback, appending the specific validation errors to the prompt on retry; the limits of retry when the information is simply absent from the source; detected_pattern fields for systematic analysis of dismissal patterns; semantic validation errors against the schema syntax errors eliminated by tool use; the skills: follow-up requests carrying the original document, the failed extraction and the specific validation errors, telling an ineffective retry from a resolvable one, adding detected_pattern to structured findings, and extracting calculated_total beside stated_total with a conflict_detected boolean) ; 09apicomplements L4 (the four-step validation-retry loop, format errors resolvable by retry versus information absent from the source, a refusal returning HTTP 200 with stop_reason \"refusal\", and field-level confidence routing low-confidence extractions to human review) ; 05claudeapi L36 (a tool_result block carries tool_use_id, content and is_error, and travels in a user message) ; exam guide appendix (Pydantic: schema validation, semantic validation errors, validation-retry loops) -->\n"
+msgstr "<!-- ts:4.4 | src:exam guide TS 4.4 (retry with error feedback, appending the specific validation errors to the prompt on retry; the limits of retry when the information is simply absent from the source; detected_pattern fields for systematic analysis of dismissal patterns; semantic validation errors against the schema syntax errors eliminated by tool use; the skills: follow-up requests carrying the original document, the failed extraction and the specific validation errors, telling an ineffective retry from a resolvable one, adding detected_pattern to structured findings, and extracting calculated_total beside stated_total with a conflict_detected boolean) ; 09apicomplements L4 (the four-step validation-retry loop, format errors resolvable by retry versus information absent from the source, a refusal returning HTTP 200 with stop_reason \"refusal\", and field-level confidence routing low-confidence extractions to human review) ; 05claudeapi L36 (a tool_result block carries tool_use_id, content and is_error, and travels in a user message) ; exam guide appendix (Pydantic: schema validation, semantic validation errors, validation-retry loops) -->\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:401
+#, no-wrap
+msgid ""
+"4.3 ended on the sentence this task statement starts from: the payload conforms\n"
+"and the values are wrong. `total` reads 150 while the line items sum to 145; a\n"
+"supplier name sits in the customer field. Nothing in the schema can see it,\n"
+"because nothing in the schema knows arithmetic.\n"
+msgstr ""
+"4.3 s'est terminé sur la phrase dont ce task statement part : la charge utile\n"
+"est conforme et les valeurs sont fausses. `total` vaut 150 alors que les lignes\n"
+"totalisent 145 ; un nom de fournisseur se trouve dans le champ client. Rien dans\n"
+"le schéma ne peut le voir, parce que rien dans le schéma ne connaît\n"
+"l'arithmétique.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:403
+#, no-wrap
+msgid "The mechanism is a loop, and the guide tests its four steps:\n"
+msgstr "Le mécanisme est une boucle, et le guide en teste les quatre étapes :\n"
+
+#. type: Bullet: '1. '
+#: courses/en/04-prompt-engineering.md:412
+#, no-wrap
+msgid "The model produces an extraction.\n"
+msgstr "Le modèle produit une extraction.\n"
+
+#. type: Bullet: '2. '
+#: courses/en/04-prompt-engineering.md:412
+#, no-wrap
+msgid ""
+"Your code validates it — JSON Schema for structure, then business rules for\n"
+"meaning. Pydantic is the appendix's named tool, and it does both: types and\n"
+"required fields in the model, cross-field rules in a validator.\n"
+msgstr ""
+"Votre code la valide — JSON Schema pour la structure, puis règles métier pour le\n"
+"sens. Pydantic est l'outil que l'annexe nomme, et il fait les deux : types et\n"
+"champs requis dans le modèle, règles inter-champs dans un validateur.\n"
+
+#. type: Bullet: '3. '
+#: courses/en/04-prompt-engineering.md:412
+#, no-wrap
+msgid ""
+"On failure, you send a follow-up request carrying **three things**: the\n"
+"original document, the failed extraction, and the **specific** validation\n"
+"error.\n"
+msgstr ""
+"En cas d'échec, vous envoyez une requête de suivi portant **trois choses** : le\n"
+"document d'origine, l'extraction ratée, et l'erreur de validation\n"
+"**précise**.\n"
+
+#. type: Bullet: '4. '
+#: courses/en/04-prompt-engineering.md:412
+#, no-wrap
+msgid "You track which errors retries actually fix.\n"
+msgstr "Vous suivez quelles erreurs les retries corrigent réellement.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:416
+#, no-wrap
+msgid ""
+"Step 3 is the whole of \"retry with error feedback\", and its adjective is the\n"
+"substance. \"There is an error, try again\" re-rolls the same dice. The error has\n"
+"to name the field and the gap.\n"
+msgstr ""
+"L'étape 3 est tout le « retry with error feedback », et son adjectif en est la\n"
+"substance. « Il y a une erreur, réessaie » relance les mêmes dés. L'erreur doit\n"
+"nommer le champ et l'écart.\n"
+
+#. type: Fenced code block (python)
+#: courses/en/04-prompt-engineering.md:417
+#, no-wrap
+msgid ""
+"try:\n"
+"    invoice = Invoice.model_validate(tool_use.input)   # types, then @model_validator\n"
+"    return invoice\n"
+"except ValidationError as e:\n"
+"    messages.append({\"role\": \"assistant\", \"content\": response.content})\n"
+"    messages.append({\"role\": \"user\", \"content\": [{\n"
+"        \"type\": \"tool_result\",\n"
+"        \"tool_use_id\": tool_use.id,\n"
+"        \"is_error\": True,\n"
+"        \"content\": (\n"
+"            \"total is 150.00 but the line_items sum to 145.00. \"\n"
+"            \"Re-read the line items and resubmit; do not adjust total to fit.\"\n"
+"        ),\n"
+"    }]})\n"
+msgstr ""
+"try:\n"
+"    invoice = Invoice.model_validate(tool_use.input)   # types, puis @model_validator\n"
+"    return invoice\n"
+"except ValidationError as e:\n"
+"    messages.append({\"role\": \"assistant\", \"content\": response.content})\n"
+"    messages.append({\"role\": \"user\", \"content\": [{\n"
+"        \"type\": \"tool_result\",\n"
+"        \"tool_use_id\": tool_use.id,\n"
+"        \"is_error\": True,\n"
+"        \"content\": (\n"
+"            \"total is 150.00 but the line_items sum to 145.00. \"\n"
+"            \"Re-read the line items and resubmit; do not adjust total to fit.\"\n"
+"        ),\n"
+"    }]})\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:439
+#, no-wrap
+msgid ""
+"The follow-up rides the ordinary conversation: the assistant message holding the\n"
+"`tool_use` block goes back in the history, and the answer to it is a\n"
+"`tool_result` block carrying the same `tool_use_id`, with `is_error: true`. The\n"
+"document is already in the history, so the model sees all three of the guide's\n"
+"ingredients at once.\n"
+msgstr ""
+"La requête de suivi emprunte la conversation ordinaire : le message assistant\n"
+"qui porte le bloc `tool_use` retourne dans l'historique, et la réponse qui lui\n"
+"est faite est un bloc `tool_result` portant le même `tool_use_id`, avec\n"
+"`is_error: true`. Le document est déjà dans l'historique : le modèle voit donc\n"
+"les trois ingrédients du guide d'un seul coup.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:440
+#, no-wrap
+msgid "When a retry cannot work"
+msgstr "Quand un retry ne peut pas marcher"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:444
+#, no-wrap
+msgid ""
+"This is the judgement the task statement is built around, and it is a question\n"
+"about the **source document**, never about the number of attempts.\n"
+msgstr ""
+"C'est le jugement autour duquel ce task statement est bâti, et c'est une\n"
+"question sur le **document source**, jamais sur le nombre de tentatives.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:450
+#, no-wrap
+msgid ""
+"| Retry will fix it | Retry cannot fix it |\n"
+"|---|---|\n"
+"| Format errors — a date written `09/12/24` where the schema wants ISO 8601 | The information is not in the document at all |\n"
+"| Structural errors — a value in the wrong field, a list where an object belongs | The figure lives in an appendix or an external document you did not provide |\n"
+"| Arithmetic inconsistencies the document itself can settle | |\n"
+msgstr ""
+"| Le retry corrige | Le retry ne peut rien |\n"
+"|---|---|\n"
+"| Erreurs de format — une date écrite `09/12/24` là où le schéma veut de l'ISO 8601 | L'information n'est pas dans le document du tout |\n"
+"| Erreurs structurelles — une valeur dans le mauvais champ, une liste là où un objet est attendu | Le chiffre vit dans une annexe ou un document externe que vous n'avez pas fourni |\n"
+"| Incohérences arithmétiques que le document lui-même permet de trancher | |\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:456
+#, no-wrap
+msgid ""
+"The left column shares one property: the model had the information and shaped it\n"
+"badly. Feeding back the exact error is enough. The right column shares the\n"
+"opposite one, and a retry there can only produce a more confident invention. The\n"
+"answer is a nullable field and a `null` — 4.3's design rule, arriving as an\n"
+"operational decision.\n"
+msgstr ""
+"La colonne de gauche partage une propriété : le modèle avait l'information et\n"
+"l'a mal mise en forme. Lui renvoyer l'erreur exacte suffit. La colonne de droite\n"
+"partage la propriété inverse, et un retry n'y peut produire qu'une invention\n"
+"plus assurée. La réponse est un champ nullable et un `null` — la règle de\n"
+"conception de 4.3, revenue en décision opérationnelle.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:457
+#, no-wrap
+msgid "Two fields that make the pipeline self-diagnosing"
+msgstr "Deux champs qui rendent le pipeline auto-diagnostique"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:460
+#, no-wrap
+msgid "The guide names both, and both are cheap additions to a schema.\n"
+msgstr "Le guide nomme les deux, et tous deux sont des ajouts peu coûteux à un schéma.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:465
+#, no-wrap
+msgid ""
+"**`stated_total` beside `calculated_total`, plus `conflict_detected`.** Have the\n"
+"model extract the figure the document declares *and* the sum it computes from the\n"
+"lines, then flag the disagreement instead of silently picking one. The conflict\n"
+"survives into your code, where a human can arbitrate.\n"
+msgstr ""
+"**`stated_total` à côté de `calculated_total`, plus `conflict_detected`.** Faire\n"
+"extraire au modèle le chiffre que le document déclare *et* la somme qu'il\n"
+"calcule depuis les lignes, puis signaler le désaccord au lieu d'en choisir un en\n"
+"silence. Le conflit survit jusque dans votre code, où un humain peut arbitrer.\n"
+
+# invariant: bloc de code sans texte en langue naturelle : identifiants, champs et valeurs de l'API
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:466
+#, no-wrap
+msgid ""
+"{\"stated_total\": 150.00, \"calculated_total\": 145.00,\n"
+" \"conflict_detected\": true, \"line_items\": [ … ]}\n"
+msgstr ""
+"{\"stated_total\": 150.00, \"calculated_total\": 145.00,\n"
+" \"conflict_detected\": true, \"line_items\": [ … ]}\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:476
+#, no-wrap
+msgid ""
+"**`detected_pattern` on every finding.** A code-review pipeline that records\n"
+"which construct triggered each finding turns dismissals into data: when\n"
+"developers reject findings, you can group the rejections by pattern and see that\n"
+"one construct produces most of the noise — which is precisely the category 4.1\n"
+"tells you to disable and rewrite.\n"
+msgstr ""
+"**`detected_pattern` sur chaque signalement.** Un pipeline de revue de code qui\n"
+"enregistre quelle construction a déclenché chaque signalement transforme les\n"
+"rejets en données : quand les développeurs rejettent des signalements, vous\n"
+"pouvez grouper les rejets par pattern et voir qu'une construction produit\n"
+"l'essentiel du bruit — précisément la catégorie que 4.1 vous dit de désactiver\n"
+"et de réécrire.\n"
+
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:477
+#, no-wrap
+msgid ""
+"{\"location\": \"src/auth/login.ts:42\",\n"
+" \"issue\": \"Possible null dereference\",\n"
+" \"severity\": \"medium\",\n"
+" \"detected_pattern\": \"no optional chaining on user.profile.email\",\n"
+" \"suggested_fix\": \"user?.profile?.email\"}\n"
+msgstr ""
+"{\"location\": \"src/auth/login.ts:42\",\n"
+" \"issue\": \"Déréférencement null possible\",\n"
+" \"severity\": \"medium\",\n"
+" \"detected_pattern\": \"pas d'optional chaining sur user.profile.email\",\n"
+" \"suggested_fix\": \"user?.profile?.email\"}\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/04-prompt-engineering.md:485
+#, no-wrap
+msgid ""
+"Two failure signals your validation code should not confuse with a bad\n"
+"extraction. `stop_reason: \"refusal\"` means the model declined on safety grounds —\n"
+"and it comes back with **HTTP 200**, so code that only checks the status treats a\n"
+"refusal as a success and parses a non-conforming reply. `stop_reason:\n"
+"\"max_tokens\"` means the output was cut off mid-generation; the retry there is a\n"
+"larger budget, not a better prompt. The full set of `stop_reason` values is D0's.\n"
+"\n"
+"The last floor of the pattern, and a guide skill: have the model report a\n"
+"confidence per field, route low-confidence extractions to human review, and\n"
+"measure accuracy by document type and by field. An acceptable overall accuracy\n"
+"can hide one document type that fails systematically.\n"
+msgstr ""
+"Deux signaux d'échec que votre code de validation ne doit pas confondre avec une\n"
+"mauvaise extraction. `stop_reason: \"refusal\"` signifie que le modèle a refusé\n"
+"pour des raisons de sécurité — et cela revient avec un **HTTP 200**, si bien\n"
+"qu'un code qui ne vérifie que le statut traite un refus comme un succès et parse\n"
+"une réponse non conforme. `stop_reason: \"max_tokens\"` signifie que la sortie a\n"
+"été coupée en cours de génération ; le retry est alors un budget plus grand, pas\n"
+"un meilleur prompt. L'ensemble complet des valeurs de `stop_reason` appartient à\n"
+"D0.\n"
+"\n"
+"Le dernier étage du pattern, et un skill du guide : faire produire au modèle une\n"
+"confidence par champ, router les extractions à faible confiance vers une\n"
+"relecture humaine, et mesurer la précision par type de document et par champ.\n"
+"Une précision globale acceptable peut masquer un type de document raté\n"
+"systématiquement.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/04-prompt-engineering.md:499
+#, no-wrap
+msgid ""
+"Read for where the missing information is. \"The value appears nowhere in the\n"
+"document\" or \"that figure is in the contract, which was not provided\" → the retry\n"
+"is pointless; make the field nullable and record the gap. \"The date came back in\n"
+"the wrong format\", \"the values do not sum\" → the retry works, provided the\n"
+"feedback names the field and the discrepancy.\n"
+"\n"
+"The distractors on validation questions are neighbouring good practices applied\n"
+"to the wrong failure. More few-shot examples improve the extraction upstream and\n"
+"do nothing about a runtime validation failure. A stricter schema removes\n"
+"malformed payloads, not disagreements between fields. A custom post-processing\n"
+"parser reimplements what the validator already does. Raising `max_tokens` bounds\n"
+"length, not correctness. And retrying with the same prompt, harder, is the\n"
+"control condition.\n"
+msgstr ""
+"Lisez où se trouve l'information manquante. « La valeur n'apparaît nulle part\n"
+"dans le document » ou « ce chiffre est dans le contrat, qui n'a pas été fourni »\n"
+"→ le retry est inutile ; rendez le champ nullable et enregistrez le manque. « La\n"
+"date est revenue au mauvais format », « les valeurs ne s'additionnent pas » → le\n"
+"retry fonctionne, à condition que le retour nomme le champ et l'écart.\n"
+"\n"
+"Les distracteurs des questions de validation sont de bonnes pratiques voisines\n"
+"appliquées à la mauvaise défaillance. Plus de few-shot examples améliorent\n"
+"l'extraction en amont et ne font rien contre un échec de validation à\n"
+"l'exécution. Un schéma plus strict supprime les charges utiles malformées, pas\n"
+"les désaccords entre champs. Un parseur de post-traitement maison réimplémente\n"
+"ce que le validateur fait déjà. Augmenter `max_tokens` borne la longueur, pas la\n"
+"justesse. Et réessayer avec le même prompt, plus fort, est la condition témoin.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/04-prompt-engineering.md:515
+#, no-wrap
+msgid ""
+"**Retrying without the error.** Resending the document and hoping is a lottery,\n"
+"and it is billed per ticket.\n"
+"\n"
+"**Letting the validator repair the value quietly.** Overwriting `total` with the\n"
+"computed sum makes the pipeline green and destroys the signal that the document\n"
+"or the extraction was wrong. Flag the conflict; decide it elsewhere.\n"
+msgstr ""
+"**Réessayer sans l'erreur.** Renvoyer le document en espérant est une loterie,\n"
+"et elle est facturée au ticket.\n"
+"\n"
+"**Laisser le validateur réparer la valeur en silence.** Écraser `total` par la\n"
+"somme calculée rend le pipeline vert et détruit le signal disant que le document\n"
+"ou l'extraction était faux. Signalez le conflit ; tranchez-le ailleurs.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:525
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"4.4\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"4.4\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/04-prompt-engineering.md:526
+#, no-wrap
+msgid "4.5 — Design efficient batch processing strategies"
+msgstr "4.5 — Design efficient batch processing strategies"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:528
+#, no-wrap
+msgid "<!-- ts:4.5 | src:exam guide TS 4.5 (the Message Batches API with its 50 % cost saving, up to 24-hour processing window and absence of a latency SLA; batch as appropriate for non-blocking latency-tolerant workloads and inappropriate for blocking ones such as pre-merge checks; no multi-turn tool calling within a single request, meaning tools cannot be executed mid-request and their results returned; custom_id for correlating request and response pairs; the skills: matching the API to the latency requirement, calculating submission frequency from an SLA such as 4-hour windows for a 30-hour commitment against 24-hour processing, resubmitting only the failures identified by custom_id with modifications such as chunking oversized documents, and refining prompts on a sample before processing large volumes) ; 09apicomplements L6 (the request shape: custom_id and params on each request) ; L7 (the four result types with only succeeded billed, results returned unordered so custom_id is the only reliable pairing, and invalid_request_error requiring a corrected body before resubmission where a server error can be retried as is) ; L8 (100 000 requests or 256 MB per batch, results retrievable for 29 days, one failed request not affecting the others, and the synchronous-only parameters a batch refuses: stream, speed, store, previous_thread_event_id, cache_hint, context_hint, max_tokens: 0) ; L9 (dry-running a single request through the Messages API before launching the batch) -->\n"
+msgstr "<!-- ts:4.5 | src:exam guide TS 4.5 (the Message Batches API with its 50 % cost saving, up to 24-hour processing window and absence of a latency SLA; batch as appropriate for non-blocking latency-tolerant workloads and inappropriate for blocking ones such as pre-merge checks; no multi-turn tool calling within a single request, meaning tools cannot be executed mid-request and their results returned; custom_id for correlating request and response pairs; the skills: matching the API to the latency requirement, calculating submission frequency from an SLA such as 4-hour windows for a 30-hour commitment against 24-hour processing, resubmitting only the failures identified by custom_id with modifications such as chunking oversized documents, and refining prompts on a sample before processing large volumes) ; 09apicomplements L6 (the request shape: custom_id and params on each request) ; L7 (the four result types with only succeeded billed, results returned unordered so custom_id is the only reliable pairing, and invalid_request_error requiring a corrected body before resubmission where a server error can be retried as is) ; L8 (100 000 requests or 256 MB per batch, results retrievable for 29 days, one failed request not affecting the others, and the synchronous-only parameters a batch refuses: stream, speed, store, previous_thread_event_id, cache_hint, context_hint, max_tokens: 0) ; L9 (dry-running a single request through the Messages API before launching the batch) -->\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:531
+#, no-wrap
+msgid ""
+"The Message Batches API processes large volumes of Messages API requests\n"
+"asynchronously. Three properties decide every question about it:\n"
+msgstr ""
+"La Message Batches API traite de gros volumes de requêtes Messages API de façon\n"
+"asynchrone. Trois propriétés décident de toutes les questions à son sujet :\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:540
+#, no-wrap
+msgid ""
+"| Property | Value |\n"
+"|---|---|\n"
+"| Cost | **50 % off** standard rates |\n"
+"| Processing window | Up to **24 hours**; most batches finish in under an hour |\n"
+"| Latency SLA | **None** |\n"
+"| Correlation | `custom_id`, set by you on each request |\n"
+"| Results order | Not guaranteed |\n"
+"| Multi-turn tool calling in one request | Not supported |\n"
+msgstr ""
+"| Propriété | Valeur |\n"
+"|---|---|\n"
+"| Coût | **50 % de remise** sur les tarifs standards |\n"
+"| Fenêtre de traitement | Jusqu'à **24 heures** ; la plupart des lots finissent en moins d'une heure |\n"
+"| SLA de latence | **Aucun** |\n"
+"| Corrélation | `custom_id`, posé par vous sur chaque requête |\n"
+"| Ordre des résultats | Non garanti |\n"
+"| Tool calling multi-tours dans une requête | Non supporté |\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:545
+#, no-wrap
+msgid ""
+"The third row is the one that decides fit, and it is the one distractors attack.\n"
+"\"Most batches finish within the hour\" is an observation about queues; the\n"
+"twenty-four hours bound how long processing *may* run. Neither is a promise about\n"
+"any single submission.\n"
+msgstr ""
+"La troisième ligne est celle qui décide de la compatibilité, et c'est celle que\n"
+"les distracteurs attaquent. « La plupart des lots finissent en moins d'une\n"
+"heure » est une observation sur les files d'attente ; les vingt-quatre heures\n"
+"bornent la durée que le traitement *peut* prendre. Ni l'une ni l'autre n'est une\n"
+"promesse sur une soumission donnée.\n"
+
+# invariant: bloc de code sans texte en langue naturelle : identifiants, champs et valeurs de l'API
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:546
+#, no-wrap
+msgid ""
+"POST /v1/messages/batches\n"
+"{ \"requests\": [\n"
+"    { \"custom_id\": \"invoice-10231\",\n"
+"      \"params\": { \"model\": \"claude-sonnet-5\", \"max_tokens\": 1024,\n"
+"                  \"messages\": [{ \"role\": \"user\", \"content\": \"Extract: …\" }] } },\n"
+"    { \"custom_id\": \"invoice-10232\",\n"
+"      \"params\": { \"model\": \"claude-sonnet-5\", \"max_tokens\": 1024,\n"
+"                  \"messages\": [{ \"role\": \"user\", \"content\": \"Extract: …\" }] } }\n"
+"] }\n"
+msgstr ""
+"POST /v1/messages/batches\n"
+"{ \"requests\": [\n"
+"    { \"custom_id\": \"invoice-10231\",\n"
+"      \"params\": { \"model\": \"claude-sonnet-5\", \"max_tokens\": 1024,\n"
+"                  \"messages\": [{ \"role\": \"user\", \"content\": \"Extract: …\" }] } },\n"
+"    { \"custom_id\": \"invoice-10232\",\n"
+"      \"params\": { \"model\": \"claude-sonnet-5\", \"max_tokens\": 1024,\n"
+"                  \"messages\": [{ \"role\": \"user\", \"content\": \"Extract: …\" }] } }\n"
+"] }\n"
+
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:558
+#, no-wrap
+msgid ""
+"// Results come back unordered; pair by custom_id, never by position.\n"
+"{ \"custom_id\": \"invoice-10232\", \"result\": { \"type\": \"succeeded\", \"message\": { … } } }\n"
+"{ \"custom_id\": \"invoice-10231\", \"result\": { \"type\": \"errored\",  \"error\": { … } } }\n"
+"// → resubmit invoice-10231 alone.\n"
+msgstr ""
+"// Les résultats reviennent sans ordre ; apparier par custom_id, jamais par position.\n"
+"{ \"custom_id\": \"invoice-10232\", \"result\": { \"type\": \"succeeded\", \"message\": { … } } }\n"
+"{ \"custom_id\": \"invoice-10231\", \"result\": { \"type\": \"errored\",  \"error\": { … } } }\n"
+"// → ne resoumettre que invoice-10231.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:568
+#, no-wrap
+msgid ""
+"`custom_id` is not decoration. Because results are unordered, it is the only\n"
+"reliable way to say which response belongs to which document — which is also what\n"
+"makes selective resubmission possible.\n"
+msgstr ""
+"`custom_id` n'est pas décoratif. Comme les résultats ne sont pas ordonnés, c'est\n"
+"le seul moyen fiable de dire quelle réponse appartient à quel document — et\n"
+"c'est aussi ce qui rend possible la resoumission sélective.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:569
+#, no-wrap
+msgid "Which workload goes where"
+msgstr "Quelle charge va où"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:578
+#, no-wrap
+msgid ""
+"| Workload | API | Why |\n"
+"|---|---|---|\n"
+"| Pre-merge check, a developer waiting | Synchronous | Blocking; twenty-four hours is not a possible answer |\n"
+"| Interactive code review | Synchronous | Immediate response required |\n"
+"| Overnight technical-debt report | Batch | Wanted by morning; half price |\n"
+"| Weekly security audit | Batch | Latency-tolerant, high volume |\n"
+"| Nightly test generation | Batch | Non-blocking by construction |\n"
+msgstr ""
+"| Charge de travail | API | Pourquoi |\n"
+"|---|---|---|\n"
+"| Contrôle pré-merge, un développeur attend | Synchrone | Bloquant ; vingt-quatre heures n'est pas une réponse possible |\n"
+"| Revue de code interactive | Synchrone | Réponse immédiate exigée |\n"
+"| Rapport de dette technique nocturne | Batch | Attendu pour le matin ; moitié prix |\n"
+"| Audit de sécurité hebdomadaire | Batch | Tolérant à la latence, gros volume |\n"
+"| Génération de tests nocturne | Batch | Non bloquant par construction |\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:581
+#, no-wrap
+msgid ""
+"The criterion is a single question: **is anyone waiting?** Cost savings never\n"
+"promote a blocking workflow into a batch.\n"
+msgstr ""
+"Le critère tient en une question : **est-ce que quelqu'un attend ?** Les\n"
+"économies ne promeuvent jamais un workflow bloquant vers le batch.\n"
+
+#. type: Fenced div block (key-concept)
+#: courses/en/04-prompt-engineering.md:582
+#, no-wrap
+msgid ""
+"**A batch request buys one pass and one answer.** You may declare tools and send\n"
+"a multi-turn history, but nothing executes a tool in the middle of a batch\n"
+"request and hands the result back to the model for another turn. Any step whose\n"
+"design requires the model to ask for a file, receive it, and continue does not\n"
+"fit — and no amount of polling changes that, because the limitation is structural\n"
+"rather than temporal.\n"
+"\n"
+"That is the fact behind an entire family of questions: an agentic loop belongs to\n"
+"the synchronous API, and D1's TS 1.1 is where that loop is taught.\n"
+msgstr ""
+"**Une requête de batch achète une passe et une réponse.** Vous pouvez déclarer\n"
+"des outils et envoyer un historique multi-tours, mais rien n'exécute un outil au\n"
+"milieu d'une requête de batch pour en rendre le résultat au modèle pour un tour\n"
+"de plus. Toute étape dont la conception exige que le modèle demande un fichier,\n"
+"le reçoive et continue n'y entre pas — et aucun polling n'y change rien, parce\n"
+"que la limite est structurelle et non temporelle.\n"
+"\n"
+"C'est le fait derrière toute une famille de questions : une boucle agentique\n"
+"relève de l'API synchrone, et le TS 1.1 de D1 est l'endroit où cette boucle est\n"
+"enseignée.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:594
+#, no-wrap
+msgid "Submission cadence under an SLA"
+msgstr "Cadence de soumission sous SLA"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:599
+#, no-wrap
+msgid ""
+"The guide asks you to compute one. The arithmetic first: with a **30-hour**\n"
+"commitment and processing that may take up to **24 hours**, a submission can wait\n"
+"at most `30 − 24 = 6` hours in the queue before it is sent.\n"
+msgstr ""
+"Le guide vous demande d'en calculer une. L'arithmétique d'abord : avec un\n"
+"engagement de **30 heures** et un traitement qui peut prendre jusqu'à **24\n"
+"heures**, une soumission peut attendre au plus `30 − 24 = 6` heures en file\n"
+"avant d'être envoyée.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:604
+#, no-wrap
+msgid ""
+"Six hours is the ceiling, not the answer. A batch submitted exactly at the six\n"
+"hour mark and processed at the cap consumes the entire budget, leaving nothing\n"
+"for a document that failed and must be resubmitted. **The guide's own example\n"
+"answers 4-hour windows for a 30-hour SLA** — the ceiling minus a margin.\n"
+msgstr ""
+"Six heures est le plafond, pas la réponse. Un lot soumis pile à la sixième heure\n"
+"et traité à la limite consomme tout le budget, sans rien laisser pour un\n"
+"document échoué qu'il faut resoumettre. **L'exemple du guide lui-même répond des\n"
+"fenêtres de 4 heures pour un SLA de 30 heures** — le plafond moins une marge.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:608
+#, no-wrap
+msgid ""
+"Note which number entered that calculation. Most batches finish in under an\n"
+"hour, and that observation has no place in the arithmetic: you size on the\n"
+"**24 hours the platform bounds**, never on the hour you have been getting.\n"
+msgstr ""
+"Remarquez quel nombre est entré dans ce calcul. La plupart des lots finissent en\n"
+"moins d'une heure, et cette observation n'a pas sa place dans l'arithmétique :\n"
+"on dimensionne sur les **24 heures que la plateforme borne**, jamais sur\n"
+"l'heure que vous constatez d'ordinaire.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/04-prompt-engineering.md:609
+#, no-wrap
+msgid ""
+"The trap on cadence questions is the arithmetically exact number. Six hours is\n"
+"correct arithmetic and a wrong operational answer, which is what makes it\n"
+"attractive. Compute `commitment − processing cap` to find the ceiling, then take\n"
+"the option below it.\n"
+msgstr ""
+"Le piège des questions de cadence est le nombre arithmétiquement exact. Six\n"
+"heures est un calcul juste et une mauvaise réponse opérationnelle, et c'est ce\n"
+"qui le rend attirant. Calculez `engagement − plafond de traitement` pour trouver\n"
+"le plafond, puis prenez l'option en dessous.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:616
+#, no-wrap
+msgid "Handling failures"
+msgstr "La gestion des échecs"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:620
+#, no-wrap
+msgid ""
+"Four result types come back: `succeeded`, `errored`, `canceled`, `expired`, and\n"
+"only `succeeded` is billed. One failed request does not affect the others.\n"
+msgstr ""
+"Quatre types de résultat reviennent : `succeeded`, `errored`, `canceled`,\n"
+"`expired`, et seul `succeeded` est facturé. Une requête échouée n'affecte pas\n"
+"les autres.\n"
+
+#. type: Bullet: '- '
+#: courses/en/04-prompt-engineering.md:631
+#, no-wrap
+msgid ""
+"**Identify failures by `custom_id`** and resubmit only those. Re-running the\n"
+"whole batch pays again for everything that worked.\n"
+msgstr ""
+"**Identifier les échecs par leur `custom_id`** et ne resoumettre que ceux-là.\n"
+"Relancer tout le lot repaie tout ce qui avait fonctionné.\n"
+
+#. type: Bullet: '- '
+#: courses/en/04-prompt-engineering.md:631
+#, no-wrap
+msgid ""
+"**Resubmit with a modification, not identically**, when the cause is in the\n"
+"request: a document that exceeded the context limit goes back as chunks. An\n"
+"`invalid_request_error` means the body must be corrected before it is sent\n"
+"again; a server error can be retried as it stands.\n"
+msgstr ""
+"**Resoumettre avec une modification, pas à l'identique**, quand la cause est\n"
+"dans la requête : un document qui a dépassé la limite de contexte repart\n"
+"découpé. Une `invalid_request_error` signifie que le corps doit être corrigé\n"
+"avant d'être renvoyé ; une erreur serveur peut être retentée telle quelle.\n"
+
+#. type: Bullet: '- '
+#: courses/en/04-prompt-engineering.md:631
+#, no-wrap
+msgid ""
+"**Refine the prompt on a sample first.** Dry-run one representative request\n"
+"through the synchronous Messages API, get the extraction right, and only then\n"
+"submit the thousand — otherwise you discover a prompt defect after paying for\n"
+"every document in the batch.\n"
+msgstr ""
+"**Affiner le prompt sur un échantillon d'abord.** Faire un dry run d'une requête\n"
+"représentative par l'API Messages synchrone, obtenir la bonne extraction, et\n"
+"seulement ensuite soumettre les mille — sinon vous découvrez un défaut de prompt\n"
+"après avoir payé pour chaque document du lot.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:638
+#, no-wrap
+msgid ""
+"Two operational numbers worth carrying: a batch holds up to 100 000 requests or\n"
+"256 MB, whichever comes first, and results stay retrievable for 29 days. And a\n"
+"short list of parameters a batch refuses, each for the same reason — they are\n"
+"synchronous-only settings: `stream: true` (results come back as files),\n"
+"`speed`, `store` and `previous_thread_event_id`, `cache_hint` and\n"
+"`context_hint`, and `max_tokens: 0`.\n"
+msgstr ""
+"Deux nombres opérationnels à retenir : un lot porte jusqu'à 100 000 requêtes ou\n"
+"256 Mo, la première limite atteinte s'appliquant, et les résultats restent\n"
+"récupérables 29 jours. Et une courte liste de paramètres qu'un lot refuse, tous\n"
+"pour la même raison — ce sont des réglages propres au synchrone :\n"
+"`stream: true` (les résultats reviennent sous forme de fichiers), `speed`,\n"
+"`store` et `previous_thread_event_id`, `cache_hint` et `context_hint`, et\n"
+"`max_tokens: 0`.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/04-prompt-engineering.md:639
+#, no-wrap
+msgid ""
+"**Moving a blocking check to the batch API for the discount.** The saving is\n"
+"real, the developer is still waiting, and no latency is promised. A distractor\n"
+"often softens it with status polling; polling reads a state, it does not create a\n"
+"guarantee.\n"
+"\n"
+"**Pairing responses to requests by position.** Results are unordered. Code that\n"
+"zips two lists together will mis-attribute extractions silently, and the defect\n"
+"surfaces as data that is subtly wrong rather than as an error.\n"
+msgstr ""
+"**Basculer un contrôle bloquant sur le batch pour la remise.** L'économie est\n"
+"réelle, le développeur attend toujours, et aucune latence n'est promise. Un\n"
+"distracteur adoucit souvent la chose avec du polling de statut ; le polling lit\n"
+"un état, il ne crée pas une garantie.\n"
+"\n"
+"**Apparier les réponses aux requêtes par position.** Les résultats ne sont pas\n"
+"ordonnés. Un code qui zippe deux listes attribuera les extractions de travers en\n"
+"silence, et le défaut se manifeste comme des données subtilement fausses plutôt\n"
+"que comme une erreur.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:651
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"4.5\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"4.5\"`.\n"
+
+# invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
+#. type: Title ##
+#: courses/en/04-prompt-engineering.md:652
+#, no-wrap
+msgid "4.6 — Design multi-instance and multi-pass review architectures"
+msgstr "4.6 — Design multi-instance and multi-pass review architectures"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:654
+#, no-wrap
+msgid "<!-- ts:4.6 | src:exam guide TS 4.6 (a model retaining its reasoning context from generation and being less likely to question its own decisions in the same session, independent review instances without prior reasoning context outperforming self-review instructions or extended thinking at catching subtle issues, and multi-pass review splitting a large review into per-file local passes plus cross-file integration passes to avoid attention dilution and contradictory findings; the skills: using a second independent Claude instance to review generated code without the generator's reasoning context, splitting large multi-file reviews into per-file passes plus separate integration passes for cross-file data flow, and running verification passes where the model self-reports confidence alongside each finding to enable calibrated review routing) ; 01claudecodeinaction L8 (opening a fresh session or subagent that reviews the changed code with no memory of how it was built, catching what the original run talked itself past) ; 06claudecode101 L7 (a code-reviewer subagent runs in its own context window with fresh eyes, is restricted to read-only tools, and is checked into the repository so the whole team uses the same reviewer) -->\n"
+msgstr "<!-- ts:4.6 | src:exam guide TS 4.6 (a model retaining its reasoning context from generation and being less likely to question its own decisions in the same session, independent review instances without prior reasoning context outperforming self-review instructions or extended thinking at catching subtle issues, and multi-pass review splitting a large review into per-file local passes plus cross-file integration passes to avoid attention dilution and contradictory findings; the skills: using a second independent Claude instance to review generated code without the generator's reasoning context, splitting large multi-file reviews into per-file passes plus separate integration passes for cross-file data flow, and running verification passes where the model self-reports confidence alongside each finding to enable calibrated review routing) ; 01claudecodeinaction L8 (opening a fresh session or subagent that reviews the changed code with no memory of how it was built, catching what the original run talked itself past) ; 06claudecode101 L7 (a code-reviewer subagent runs in its own context window with fresh eyes, is restricted to read-only tools, and is checked into the repository so the whole team uses the same reviewer) -->\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:660
+#, no-wrap
+msgid ""
+"Ask the session that just wrote the code to review it, and it will find little.\n"
+"Not because it is careless, but because of what it carries: **the model retains\n"
+"its reasoning context from generation, which makes it less likely to question its\n"
+"own decisions in the same session.** It already considered the alternative and\n"
+"rejected it. Re-reading confirms; it does not test.\n"
+msgstr ""
+"Demandez à la session qui vient d'écrire le code de le relire, et elle trouvera\n"
+"peu de chose. Non par négligence, mais à cause de ce qu'elle porte : **le modèle\n"
+"conserve son contexte de raisonnement issu de la génération, ce qui le rend\n"
+"moins susceptible de questionner ses propres décisions dans la même session.**\n"
+"Il a déjà envisagé l'alternative et l'a rejetée. La relecture confirme ; elle ne\n"
+"teste pas.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:666
+#, no-wrap
+msgid ""
+"The guide's remedy is architectural rather than instructional, and the comparison\n"
+"it draws is the point: **an independent review instance, with no prior reasoning\n"
+"context, catches subtle issues better than a self-review instruction or extended\n"
+"thinking.** Telling the model to be critical of itself, or giving it more room to\n"
+"deliberate, both operate inside the transcript that produced the bias.\n"
+msgstr ""
+"Le remède du guide est architectural plutôt qu'instructionnel, et la comparaison\n"
+"qu'il pose est le point important : **une instance de revue indépendante, sans\n"
+"contexte de raisonnement préalable, attrape mieux les problèmes subtils qu'une\n"
+"instruction d'auto-relecture ou que l'extended thinking.** Demander au modèle\n"
+"d'être critique envers lui-même, ou lui donner plus de place pour délibérer,\n"
+"opèrent tous deux à l'intérieur de la trace qui a produit le biais.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:673
+#, no-wrap
+msgid ""
+"\"Independent\" has an operational meaning: a separate session, or a subagent,\n"
+"which receives the artifact and the criteria and **not** the conversation that\n"
+"produced them. In Claude Code that is a reviewer subagent — its own context\n"
+"window, read-only tools, checked into the repository so the team shares one\n"
+"reviewer. D3's TS 3.6 puts the same instance in a pipeline; what belongs here is\n"
+"why the instance has to be a different one.\n"
+msgstr ""
+"« Indépendante » a un sens opérationnel : une session distincte, ou un subagent,\n"
+"qui reçoit l'artefact et les critères et **pas** la conversation qui les a\n"
+"produits. Dans Claude Code, c'est un subagent relecteur — sa propre fenêtre de\n"
+"contexte, des outils en lecture seule, versionné dans le dépôt pour que l'équipe\n"
+"partage un seul relecteur. Le TS 3.6 de D3 met la même instance dans un\n"
+"pipeline ; ce qui relève d'ici, c'est pourquoi l'instance doit en être une\n"
+"autre.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:674
+#, no-wrap
+msgid "Splitting a review that is too large for one pass"
+msgstr "Découper une revue trop grande pour une seule passe"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:681
+#, no-wrap
+msgid ""
+"A pull request touching thirty files reviewed in a single pass produces\n"
+"inconsistent output: a pattern flagged in one file and approved in another,\n"
+"findings that thin out towards the end. The cause the guide names is **attention\n"
+"dilution**, and the remedy is to shrink each pass rather than to enlarge the\n"
+"context.\n"
+msgstr ""
+"Une pull request qui touche trente fichiers, relue en une seule passe, produit\n"
+"une sortie inconsistante : un pattern signalé dans un fichier et approuvé dans\n"
+"un autre, des signalements qui s'épuisent vers la fin. La cause que le guide\n"
+"nomme est la **dilution de l'attention**, et le remède est de rétrécir chaque\n"
+"passe plutôt que d'élargir le contexte.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:686
+#, no-wrap
+msgid ""
+"| Pass | Scope | Finds |\n"
+"|---|---|---|\n"
+"| Per-file | One file at a time | Local bugs, security issues, quality |\n"
+"| Integration | Signatures and call sites across the changed set | Type mismatches across module boundaries, circular dependencies, broken data flow |\n"
+msgstr ""
+"| Passe | Périmètre | Ce qu'elle trouve |\n"
+"|---|---|---|\n"
+"| Per-file | Un fichier à la fois | Bugs locaux, problèmes de sécurité, qualité |\n"
+"| Intégration | Signatures et sites d'appel sur l'ensemble modifié | Types incohérents aux frontières de modules, dépendances circulaires, flux de données cassés |\n"
+
+#. type: Fenced code block (bash)
+#: courses/en/04-prompt-engineering.md:687
+#, no-wrap
+msgid ""
+"# Pass 1 — local, one invocation per file.\n"
+"for file in $(git diff --name-only main...HEAD); do\n"
+"  review --scope=\"$file\" \\\n"
+"         --prompt=\"Local issues only: bugs, security, quality in THIS file.\"\n"
+"done\n"
+"\n"
+"# Pass 2 — integration, one invocation over the changed set.\n"
+"review --scope=\"$(git diff --name-only main...HEAD)\" \\\n"
+"       --prompt=\"Cross-file only: type mismatches across module boundaries,\n"
+"                 circular dependencies, broken data flow. Ignore local issues.\"\n"
+msgstr ""
+"# Passe 1 — local, une invocation par fichier.\n"
+"for file in $(git diff --name-only main...HEAD); do\n"
+"  review --scope=\"$file\" \\\n"
+"         --prompt=\"Local issues only: bugs, security, quality in THIS file.\"\n"
+"done\n"
+"\n"
+"# Passe 2 — intégration, une invocation sur l'ensemble modifié.\n"
+"review --scope=\"$(git diff --name-only main...HEAD)\" \\\n"
+"       --prompt=\"Cross-file only: type mismatches across module boundaries,\n"
+"                 circular dependencies, broken data flow. Ignore local issues.\"\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:703
+#, no-wrap
+msgid ""
+"Splitting a task into focused passes is D1's task decomposition (TS 1.6) applied to\n"
+"review; what is specific here is the *cut*, local against cross-file, because\n"
+"those are the two things one undifferentiated pass does worst.\n"
+msgstr ""
+"Découper une tâche en passes ciblées, c'est la décomposition de tâches de D1\n"
+"(TS 1.6) appliquée à la revue ; ce qui est spécifique ici, c'est la *coupe*,\n"
+"local contre inter-fichiers, parce que ce sont les deux choses qu'une passe\n"
+"indifférenciée fait le plus mal.\n"
+
+#. type: Title ###
+#: courses/en/04-prompt-engineering.md:704
+#, no-wrap
+msgid "Confidence, self-reported"
+msgstr "La confidence, auto-reportée"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:711
+#, no-wrap
+msgid ""
+"The third skill is a verification pass in which the model reports a confidence\n"
+"alongside each finding. The value is not the number itself but the routing it\n"
+"enables: high-confidence findings go straight to the developer, low-confidence\n"
+"ones to a human check, and the threshold moves as you observe which band is\n"
+"worth reading.\n"
+msgstr ""
+"Le troisième skill est une passe de vérification où le modèle reporte une\n"
+"confidence à côté de chaque signalement. La valeur n'est pas le nombre lui-même\n"
+"mais le routage qu'il permet : les signalements à forte confidence vont\n"
+"directement au développeur, ceux à faible confidence vers une vérification\n"
+"humaine, et le seuil bouge à mesure que vous observez quelle bande vaut d'être\n"
+"lue.\n"
+
+#. type: Fenced code block (json)
+#: courses/en/04-prompt-engineering.md:712
+#, no-wrap
+msgid ""
+"{\"file\": \"src/billing/refund.ts\", \"line\": 88,\n"
+" \"issue\": \"Refund may exceed the original charge when a partial refund precedes it\",\n"
+" \"confidence\": 0.42,\n"
+" \"detected_pattern\": \"no accumulated-refund check before subtraction\"}\n"
+msgstr ""
+"{\"file\": \"src/billing/refund.ts\", \"line\": 88,\n"
+" \"issue\": \"Le remboursement peut dépasser le montant initial si un remboursement partiel le précède\",\n"
+" \"confidence\": 0.42,\n"
+" \"detected_pattern\": \"pas de contrôle du cumul des remboursements avant la soustraction\"}\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:724
+#, no-wrap
+msgid ""
+"Two cautions keep this honest. A confidence reported from inside the generating\n"
+"context inherits that context's blind spot — the verification pass is worth\n"
+"running in the independent instance. And a self-reported number is a signal for\n"
+"routing, not a measurement: what turns it into one is comparing it against\n"
+"findings whose verdict you already know.\n"
+msgstr ""
+"Deux précautions gardent cela honnête. Une confidence reportée depuis\n"
+"l'intérieur du contexte de génération hérite de l'angle mort de ce contexte — la\n"
+"passe de vérification vaut d'être exécutée dans l'instance indépendante. Et un\n"
+"nombre auto-reporté est un signal de routage, pas une mesure : ce qui en fait\n"
+"une mesure, c'est de le comparer à des signalements dont vous connaissez déjà le\n"
+"verdict.\n"
+
+#. type: Fenced div block (exam-tip)
+#: courses/en/04-prompt-engineering.md:725
+#, no-wrap
+msgid ""
+"Three symptoms, three answers. Generated code reviewed clean by the session that\n"
+"wrote it → a second instance that never saw the generation. Contradictory\n"
+"findings across files in one large review → split into per-file passes plus an\n"
+"integration pass; name the cause as attention dilution, not missing context.\n"
+"Too many findings for humans to triage → a self-reported confidence per finding,\n"
+"used to route.\n"
+"\n"
+"The distractors are seductive because each names a real capability. Moving to a\n"
+"model with a larger context window answers dilution with capacity, confusing how\n"
+"much can be held with how evenly it is attended to. Instructing the same session\n"
+"to \"review your work critically\" or enabling extended thinking on it both stay\n"
+"inside the transcript that caused the bias — the guide rules out exactly these\n"
+"two by name. Three full passes with a consensus vote sounds rigorous and\n"
+"discards every genuine bug that only one pass saw. And asking developers to split\n"
+"their pull requests moves the work onto people without changing the system.\n"
+msgstr ""
+"Trois symptômes, trois réponses. Du code généré relu comme propre par la session\n"
+"qui l'a écrit → une seconde instance qui n'a pas vu la génération. Des\n"
+"signalements contradictoires d'un fichier à l'autre dans une grande revue →\n"
+"découper en passes per-file plus une passe d'intégration ; nommer la cause\n"
+"« dilution de l'attention », pas « manque de contexte ». Trop de signalements\n"
+"pour que des humains les trient → une confidence auto-reportée par signalement,\n"
+"utilisée pour router.\n"
+"\n"
+"Les distracteurs séduisent parce que chacun nomme une capacité réelle. Passer à\n"
+"un modèle à fenêtre de contexte plus large répond à la dilution par de la\n"
+"capacité, en confondant ce qui peut être tenu et la régularité avec laquelle\n"
+"c'est lu. Demander à la même session de « relire son travail de façon critique »\n"
+"ou y activer l'extended thinking restent tous deux à l'intérieur de la trace qui\n"
+"a causé le biais — le guide écarte précisément ces deux-là par leur nom. Trois\n"
+"passes complètes avec vote de consensus sonne rigoureux et jette tout vrai bug\n"
+"qu'une seule passe a vu. Et demander aux développeurs de découper leurs pull\n"
+"requests déplace le travail sur des personnes sans changer le système.\n"
+
+#. type: Fenced div block (anti-pattern)
+#: courses/en/04-prompt-engineering.md:743
+#, no-wrap
+msgid ""
+"**Handing the reviewer the generation transcript \"for context\".** It is the one\n"
+"thing that must not travel: the transcript is the reasoning you want the reviewer\n"
+"not to share. Pass the artifact and the criteria.\n"
+"\n"
+"**Reviewing the diff in the generating session to save a call.** The saving is\n"
+"real and the review is worth less than the call it saved.\n"
+msgstr ""
+"**Donner au relecteur la trace de génération « pour le contexte ».** C'est la\n"
+"seule chose qui ne doit pas voyager : cette trace est le raisonnement que vous\n"
+"voulez que le relecteur ne partage pas. Passez l'artefact et les critères.\n"
+"\n"
+"**Relire le diff dans la session qui l'a généré pour économiser un appel.**\n"
+"L'économie est réelle et la revue vaut moins que l'appel qu'elle a économisé.\n"
+
+#. type: Plain text
+#: courses/en/04-prompt-engineering.md:752
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"4.6\"`.\n"
+msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"4.6\"`.\n"
+
+#, no-wrap
+#~ msgid ""
+#~ "Two operational numbers worth carrying: a batch holds up to 100 000 requests or\n"
+#~ "256 MB, whichever comes first, and results stay retrievable for 29 days.\n"
+#~ msgstr ""
+#~ "Deux nombres opérationnels à retenir : un lot porte jusqu'à 100 000 requêtes ou\n"
+#~ "256 Mo, la première limite atteinte s'appliquant, et les résultats restent\n"
+#~ "récupérables 29 jours.\n"
