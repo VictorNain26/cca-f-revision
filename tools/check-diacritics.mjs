@@ -16,6 +16,11 @@
  *
  * Les blocs <details> de quiz sont rédigés en anglais : hors périmètre. La
  * prose qui les entoure est contrôlée, y compris dans Practice_Questions.html.
+ *
+ * Périmètre des fichiers : les .html/.md/.js/.css de la racine, courses/fr/
+ * (le rendu français produit par po4a) et les .md à plat de courses/ (README,
+ * out-of-scope.md). courses/en/ est exclu : c'est la source anglaise, hors
+ * sujet pour un contrôle de diacritiques françaises.
  * Sans dépendance. Requiert Node >= 20.11 (pour import.meta.dirname).
  */
 import fs from 'node:fs';
@@ -77,8 +82,18 @@ verites versionnee visee
 
 const files = fs.readdirSync(ROOT).filter((f) => /\.(html|md|js|css)$/.test(f)).sort();
 
+const coursesFr = path.join(ROOT, 'courses', 'fr');
+const frFiles = fs.existsSync(coursesFr)
+  ? fs.readdirSync(coursesFr).filter((f) => f.endsWith('.md')).map((f) => path.join('courses', 'fr', f))
+  : [];
+
+const coursesDir = path.join(ROOT, 'courses');
+const corpusDocs = fs.existsSync(coursesDir)
+  ? fs.readdirSync(coursesDir).filter((f) => f.endsWith('.md')).map((f) => path.join('courses', f))
+  : [];
+
 let hits = 0;
-for (const file of files) {
+for (const file of [...files, ...frFiles, ...corpusDocs]) {
   const lines = fs.readFileSync(path.join(ROOT, file), 'utf8').split(/\r?\n/);
   // Les blocs quiz sont rédigés en anglais : hors périmètre. On les suit par
   // profondeur d'ouverture plutôt que d'exclure des fichiers entiers, sinon la

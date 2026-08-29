@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 /* Contrôle des liens internes, des ancres, et de la couverture des 30 task
  * statements du guide CCAR-F v1.0.
+ * Couvre les .html et .md de la racine, et les .md de courses/ (récursif) :
+ * un lien Markdown relatif doit résoudre vers un fichier du dépôt, une ancre
+ * doit correspondre à un id="" si la cible est HTML, ou à un titre si la
+ * cible est Markdown.
  * Sans dépendance. Requiert Node >= 20.11 (pour import.meta.dirname).
  */
 import fs from 'node:fs';
@@ -8,13 +12,44 @@ import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const pages = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html')).sort();
+// Récursif sous courses/ (courses/en/, courses/fr/, et tout sous-répertoire
+// futur) : un lien croisé entre cours vit dans courses/en/ ou courses/fr/,
+// jamais à plat dans courses/.
+const coursesDir = path.join(ROOT, 'courses');
+const mdFiles = [
+  ...fs.readdirSync(ROOT).filter((f) => f.endsWith('.md')),
+  ...(fs.existsSync(coursesDir)
+    ? fs.readdirSync(coursesDir, { recursive: true }).filter((f) => f.endsWith('.md')).map((f) => path.join('courses', f))
+    : []),
+].sort();
 
-const idsOf = new Map(
-  pages.map((page) => [
-    page,
-    new Set([...fs.readFileSync(path.join(ROOT, page), 'utf8').matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])),
-  ])
-);
+function slugify(title) {
+  return title
+    .trim()
+    .toLowerCase()
+    .replace(/[`*_~]/g, '')
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .replace(/\s+/g, '-');
+}
+
+// Cache paresseux : ancres disponibles dans un fichier cible, identifié par
+// son chemin relatif au dépôt (id="" pour le HTML, titres slugifiés pour le
+// Markdown).
+const anchorsCache = new Map();
+function anchorsOf(relPath) {
+  if (anchorsCache.has(relPath)) return anchorsCache.get(relPath);
+  const abs = path.join(ROOT, relPath);
+  if (!fs.existsSync(abs)) {
+    anchorsCache.set(relPath, new Set());
+    return anchorsCache.get(relPath);
+  }
+  const src = fs.readFileSync(abs, 'utf8');
+  const anchors = relPath.endsWith('.md')
+    ? new Set([...src.matchAll(/^#{1,6}\s+(.+)$/gm)].map((m) => slugify(m[1])))
+    : new Set([...src.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+  anchorsCache.set(relPath, anchors);
+  return anchors;
+}
 
 let broken = 0;
 for (const page of pages) {
@@ -27,12 +62,35 @@ for (const page of pages) {
       broken++;
       continue;
     }
-    if (fragment && !idsOf.get(file || page)?.has(fragment)) {
+    if (fragment && !anchorsOf(file || page)?.has(fragment)) {
       console.log(`${page} — ancre absente : ${href}`);
       broken++;
     }
   }
 }
+
+for (const mdFile of mdFiles) {
+  const abs = path.join(ROOT, mdFile);
+  const lines = fs.readFileSync(abs, 'utf8').split(/\r?\n/);
+  const dir = path.dirname(mdFile);
+  lines.forEach((line, index) => {
+    for (const [, href] of line.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
+      if (/^(https?:|mailto:|#$)/.test(href)) continue;
+      const [file, fragment] = href.split('#');
+      const targetRel = file ? path.normalize(path.join(dir, decodeURIComponent(file))) : mdFile;
+      if (file && !fs.existsSync(path.join(ROOT, targetRel))) {
+        console.log(`${mdFile}:${index + 1} — cible absente : ${href}`);
+        broken++;
+        continue;
+      }
+      if (fragment && !anchorsOf(targetRel)?.has(fragment)) {
+        console.log(`${mdFile}:${index + 1} — ancre absente : ${href}`);
+        broken++;
+      }
+    }
+  });
+}
+
 console.log(`Liens internes : ${broken} cassé(s).`);
 
 // Guide CCAR-F v1.0 : D1 = 1.1-1.7, D2 = 2.1-2.5, D3 = 3.1-3.6, D4 = 4.1-4.6, D5 = 5.1-5.6.

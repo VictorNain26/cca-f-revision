@@ -7,7 +7,7 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "check": "npm run check:chapters && npm run check:questions && npm run check:length && npm run check:dupes && npm run check:nav && npm run check:links && npm run check:diacritics && npm run check:quizzes && npm run check:runtime",
+    "check": "npm run check:chapters && npm run check:questions && npm run check:length && npm run check:dupes && npm run check:nav && npm run check:links && npm run check:diacritics && npm run check:quizzes && npm run check:runtime && npm run check:courses",
     "check:chapters": "node tools/check-chapters.mjs",
     "check:questions": "node tools/check-questions.mjs --strict",
     "check:nav": "node tools/check-nav.mjs",
@@ -18,7 +18,10 @@
     "check:runtime": "node tools/check-runtime.mjs",
     "check:length": "node tools/check-length-tell.mjs --enforce",
     "test": "node --test tools/**/*.test.mjs",
-    "check:dupes": "node tools/check-duplicates.mjs --enforce"
+    "check:dupes": "node tools/check-duplicates.mjs --enforce",
+    "build:courses": "po4a --force courses/po4a.conf",
+    "check:courses": "node tools/check-courses.mjs",
+    "test:mutation": "node tools/lib/mutation-check.mjs"
   },
   "devDependencies": {
     "jsdom": "^29.1.1"

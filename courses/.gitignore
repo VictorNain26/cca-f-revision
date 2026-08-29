@@ -1,0 +1,8 @@
+# courses/po/courses.pot est intégralement dérivable de courses/en/ : po4a le
+# régénère à chaque npm run build:courses (avec un POT-Creation-Date neuf à
+# chaque fois) et npm run check:courses le régénère lui-même dans une copie
+# isolée pour son propre contrôle (tools/check-courses.mjs) — jamais depuis
+# le fichier committé. Aucun consommateur ne lit la version suivie par git ;
+# la committer ne fait que polluer les diffs et créer un aimant à conflits
+# dès que deux lots touchent courses/en/ en parallèle.
+po/courses.pot

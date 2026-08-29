@@ -44,6 +44,7 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | `Practice_Questions.html` | 112 QCM corrigés, **énoncés et corrigés en anglais** (langue de l'examen) — 12 questions officielles + 100 items couvrant les 6 scénarios et les 30 task statements |
 | `Exam_Strategy.html` | Cheat sheet jour J, méthodologie QCM, 5 arbres de décision |
 | `styles.css` | Design system unifié partagé par tous les documents |
+| `courses/` | Corpus de cours dédupliqué, anglais + français généré par po4a — voir [courses/README.md](courses/README.md) |
 
 ## Méthode d'utilisation
 
@@ -58,7 +59,7 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 
 Le **guide d'examen** (CCAR-F v1.0, juillet 2026) définit le périmètre ; la **doc Anthropic** fait autorité sur l'exactitude technique. Les **prep courses** de l'Anthropic Partner Academy ne sont ni l'un ni l'autre — ils débordent largement du programme (RAG, embeddings, streaming, prompt caching, Bedrock, Vertex sont tous hors scope). L'accueil détaille quoi suivre et quoi sauter dans chacun.
 
-Le guide fige l'état de l'outillage en juillet 2026 et la doc a bougé depuis. Sur quatre points, réviser sur la doc à jour conduit à répondre faux — voir [Le guide fait loi](Exam_Strategy.html#guide-vs-doc) :
+Le guide fige l'état de l'outillage en juillet 2026 et la doc a bougé depuis. Sur quatre points, réviser sur la doc à jour conduit à répondre faux — voir [Exam_Strategy.html](Exam_Strategy.html) :
 
 | Sujet | À répondre (guide) | Doc actuelle |
 |---|---|---|
@@ -72,9 +73,11 @@ Le guide fige l'état de l'outillage en juillet 2026 et la doc a bougé depuis. 
 Le site publié reste du HTML statique ; `package.json` ne sert qu'à outiller les contrôles.
 
 ```bash
-npm install     # une fois — installe jsdom (seule dépendance, pour les quiz)
-npm run check   # enchaîne les neuf contrôles, sort en échec au premier problème
-npm run fix:nav # réécrit la navbar des pages depuis nav.js (source unique)
+npm install                # une fois — installe jsdom (seule dépendance, pour les quiz)
+sudo apt install -y po4a   # une fois — dépendance système, pour le corpus de cours
+npm run check              # enchaîne les dix contrôles, sort en échec au premier problème
+npm run fix:nav            # réécrit la navbar des pages depuis nav.js (source unique)
+npm run build:courses      # régénère courses/fr/ depuis courses/en/ + courses/po/fr.po
 ```
 
 | Script | Ce qu'il garantit |
@@ -88,8 +91,11 @@ npm run fix:nav # réécrit la navbar des pages depuis nav.js (source unique)
 | `check:diacritics` | Aucun mot français écrit sans ses accents. Le périmètre se découpe par **bloc quiz**, et non plus par fichier : les `<details>` de quiz sont rédigés en anglais et sont exclus, la prose qui les entoure est contrôlée — y compris celle de `Practice_Questions.html`, dont les titres de section et la note de fidélité sont en français. |
 | `check:quizzes` | `quiz.js` exécuté sur chaque page : l'énoncé et les choix sont visibles, la réponse ne fuite pas avant la révélation. |
 | `check:runtime` | Le chrome exécuté : chaque page est chargée dans un DOM, tous ses `<script src>` doivent exister et s'exécuter sans erreur, et le bouton de retour en haut doit réagir au défilement. **Le défaut qu'il attrape** : un script déplacé, renommé, ou un comportement extrait vers un fichier jamais chargé — tout cela passe silencieusement les autres contrôles. **Angle mort** : jsdom n'implémente ni `IntersectionObserver` ni `ResizeObserver`, remplacés par des stubs inertes ; ce qui repose sur leurs callbacks n'est pas couvert. Il ne dit rien du contenu de la navbar — le HTML statique étant le rendu exact de `nav.js`, on ne peut pas y distinguer un `nav.js` exécuté d'un `nav.js` inerte. C'est `check:nav` qui garde la navbar. |
+| `check:courses` | Le corpus de cours : `courses/fr/` est le rendu exact de `courses/en/` + `po/fr.po`, aucune entrée de traduction périmée, chaque notion transverse enseignée dans un seul cours, chaque renvoi `data-task` existant en banque. **Angle mort** : rien ici ne juge la justesse du contenu — un cours faux mais bien formé passe. |
 
 Une CI GitHub Actions (`.github/workflows/check.yml`) rejoue `npm test` puis `npm run check` sur chaque push vers `main` et chaque pull request.
+
+`npm run test:mutation` neutralise, un à la fois, chaque `problems.push(` et chaque garde `if (…) continue;` de `tools/lib/courses.mjs`, relance `npm test` contre la copie mutée, et signale toute mutation qu'aucun test n'a détectée : c'est soit du code mort, soit un test manquant. Il n'entre pas dans `npm run check` — il relance la suite complète une fois par point de mutation, trop lent pour la boucle courte — mais **c'est un contrôle à passer avant de merger** toute modification de `tools/lib/courses.mjs`.
 
 ## Déploiement
 

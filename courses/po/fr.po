@@ -1,0 +1,876 @@
+# Traduction française du corpus de cours CCA-F.
+# Source unique : courses/en/*.md ; courses/fr/*.md en est le rendu po4a.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: cca-f-revision\n"
+"POT-Creation-Date: 2026-08-29 18:29+0200\n"
+"PO-Revision-Date: 2026-08-29 18:00+0200\n"
+"Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. type: Title #
+#: courses/en/00-api-foundations.md:1
+#, no-wrap
+msgid "D0 — API foundations"
+msgstr "D0 — Fondamentaux de l'API"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:4
+#, no-wrap
+msgid "<!-- src:05claudeapi L2-14 and L30-42, building_claude_api module 1 -->\n"
+msgstr "<!-- src:05claudeapi L2-14 and L30-42, building_claude_api module 1 -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:8
+#, no-wrap
+msgid ""
+"These are the prerequisites the exam guide assumes you already have. Nothing\n"
+"here is a task statement of its own: the guide tests what you *build* on top of\n"
+"this. Read it once, then move to D1.\n"
+msgstr ""
+"Voici les prérequis que le guide d'examen suppose acquis. Rien ici n'est un task\n"
+"statement à part entière : le guide teste ce que vous *construisez* par-dessus.\n"
+"À lire une fois, puis passer à D1.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:12
+#, no-wrap
+msgid ""
+"Each section stops where a task statement starts. Where a notion belongs to\n"
+"another domain, you get one sentence of definition and a pointer, never a bare\n"
+"link.\n"
+msgstr ""
+"Chaque section s'arrête là où commence un task statement. Quand une notion\n"
+"appartient à un autre domaine, vous en avez la définition en une phrase et un\n"
+"renvoi, jamais un lien nu.\n"
+
+#. type: Title ##
+#: courses/en/00-api-foundations.md:13
+#, no-wrap
+msgid "Anatomy of a Messages API request"
+msgstr "Anatomie d'une requête Messages API"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:16
+#, no-wrap
+msgid ""
+"<!-- src:05claudeapi L3, L5, L8, L10 ; building_claude_api module 1 -->\n"
+"<!-- owns:messages-api -->\n"
+msgstr ""
+"<!-- src:05claudeapi L3, L5, L8, L10 ; building_claude_api module 1 -->\n"
+"<!-- owns:messages-api -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:22
+#, no-wrap
+msgid ""
+"A request goes out from your own server, never from the browser or the mobile\n"
+"app. The API key authenticates the request; a key shipped in client code can be\n"
+"extracted by anyone and used to make requests on your account. So the client\n"
+"talks to your server, and your server talks to the Anthropic API with the key\n"
+"kept on the server side.\n"
+msgstr ""
+"Une requête part de votre propre serveur, jamais du navigateur ni de\n"
+"l'application mobile. La clé d'API authentifie la requête ; une clé livrée dans\n"
+"du code client peut être extraite par n'importe qui et utilisée sur votre\n"
+"compte. Le client parle donc à votre serveur, et votre serveur parle à l'API\n"
+"Anthropic avec la clé gardée côté serveur.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:27
+#, no-wrap
+msgid ""
+"The full round trip has five steps: client to your server, your server to the\n"
+"Anthropic API, model processing, response back to your server, response back to\n"
+"the client. Your server can call the API through an official SDK — Python,\n"
+"TypeScript, JavaScript, Go, Ruby — or over plain HTTP.\n"
+msgstr ""
+"L'aller-retour complet compte cinq étapes : le client vers votre serveur, votre\n"
+"serveur vers l'API Anthropic, le traitement par le modèle, la réponse vers votre\n"
+"serveur, la réponse vers le client. Votre serveur peut appeler l'API via un SDK\n"
+"officiel — Python, TypeScript, JavaScript, Go, Ruby — ou en HTTP direct.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:29
+#, no-wrap
+msgid "The call itself is `client.messages.create()`, and it carries these fields:\n"
+msgstr "L'appel lui-même est `client.messages.create()`, et il porte ces champs :\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:37
+#, no-wrap
+msgid ""
+"| Field | Required | What it does |\n"
+"|---|---|---|\n"
+"| `model` | yes | Which Claude model answers the request |\n"
+"| `messages` | yes | The conversation history you are sending, oldest first |\n"
+"| `max_tokens` | yes | Ceiling on how many tokens the response may contain |\n"
+"| `system` | no | Instructions that sit outside the conversation |\n"
+"| `temperature` | no | How much randomness enters token selection, from 0 to 1 |\n"
+msgstr ""
+"| Champ | Requis | Rôle |\n"
+"|---|---|---|\n"
+"| `model` | oui | Le modèle Claude qui répond à la requête |\n"
+"| `messages` | oui | L'historique de conversation que vous envoyez, du plus ancien au plus récent |\n"
+"| `max_tokens` | oui | Plafond du nombre de tokens que la réponse peut contenir |\n"
+"| `system` | non | Des instructions qui se tiennent en dehors de la conversation |\n"
+"| `temperature` | non | La part d'aléatoire dans la sélection des tokens, de 0 à 1 |\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:39
+#, no-wrap
+msgid "Two of these are read wrong often enough to be worth stating plainly.\n"
+msgstr ""
+"Deux d'entre eux sont assez souvent mal lus pour mériter d'être énoncés\n"
+"clairement.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:43
+#, no-wrap
+msgid ""
+"`max_tokens` is a safety limit, not a target. Set it to 1000 and Claude stops\n"
+"after 1000 tokens even if it had more to say; it never tries to reach the\n"
+"number. It bounds the output, not the request you send.\n"
+msgstr ""
+"`max_tokens` est une limite de sécurité, pas une cible. Fixez-le à 1000 et\n"
+"Claude s'arrête après 1000 tokens même s'il avait encore à dire ; il ne cherche\n"
+"jamais à l'atteindre. Il borne la sortie, pas la requête que vous envoyez.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:52
+#, no-wrap
+msgid ""
+"`temperature` moves probability mass between candidate tokens. Near 0 the model\n"
+"is close to deterministic and almost always takes the highest-probability\n"
+"token; near 1 the probabilities spread out and the output varies more. The\n"
+"course groups the useful ranges as: 0.0–0.3 for factual answers, coding help,\n"
+"data extraction and moderation; 0.4–0.7 for summarization, teaching material\n"
+"and problem-solving; 0.8–1.0 for brainstorming, creative writing and marketing\n"
+"copy. Temperature changes probabilities — it does not guarantee that two calls\n"
+"differ.\n"
+msgstr ""
+"`temperature` déplace la masse de probabilité entre les tokens candidats. Près\n"
+"de 0, le modèle est quasi déterministe et prend presque toujours le token le\n"
+"plus probable ; près de 1, les probabilités s'étalent et la sortie varie\n"
+"davantage. Le cours regroupe les plages utiles ainsi : 0.0–0.3 pour les réponses\n"
+"factuelles, l'aide au code, l'extraction de données et la modération ; 0.4–0.7\n"
+"pour le résumé, le matériel pédagogique et la résolution de problèmes ; 0.8–1.0\n"
+"pour le brainstorming, l'écriture créative et le texte marketing. La temperature\n"
+"modifie les probabilités — elle ne garantit pas que deux appels diffèrent.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:60
+#, no-wrap
+msgid ""
+"Between the request and the response, the model runs four internal stages:\n"
+"**tokenization** (the input is cut into tokens — words, word pieces, symbols),\n"
+"**embedding** (each token becomes a list of numbers covering that token's\n"
+"possible meanings), **contextualization** (each embedding is adjusted by its\n"
+"neighbours so the right meaning wins) and **generation** (an output layer scores\n"
+"each possible next token, one is sampled from probability plus controlled\n"
+"randomness, and the whole process repeats for the token after it).\n"
+msgstr ""
+"Entre la requête et la réponse, le modèle enchaîne quatre étapes internes : la\n"
+"**tokenization** (l'entrée est découpée en tokens — mots, fragments de mots,\n"
+"symboles), l'**embedding** (chaque token devient une liste de nombres couvrant\n"
+"les sens qu'il peut prendre), la **contextualization** (chaque embedding est\n"
+"ajusté par ses voisins pour que le bon sens l'emporte) et la **generation** (une\n"
+"couche de sortie note chaque token suivant possible, l'un est tiré à partir des\n"
+"probabilités et d'un aléa contrôlé, et tout le processus recommence pour le\n"
+"token d'après).\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:63
+#, no-wrap
+msgid ""
+"The response object carries the generated message, a `usage` count of input and\n"
+"output tokens, and a `stop_reason`.\n"
+msgstr ""
+"L'objet de réponse porte le message généré, un décompte `usage` des tokens\n"
+"d'entrée et de sortie, et un `stop_reason`.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:65 courses/en/00-api-foundations.md:194
+#: courses/en/00-api-foundations.md:231 courses/en/00-api-foundations.md:269
+#, no-wrap
+msgid "**To test** — the self-assessment questions of `D0_API_Fundamentals.html`.\n"
+msgstr "**À tester** — les questions d'auto-évaluation de `D0_API_Fundamentals.html`.\n"
+
+#. type: Title ##
+#: courses/en/00-api-foundations.md:66
+#, no-wrap
+msgid "Roles and the shape of a turn"
+msgstr "Les rôles et la forme d'un tour"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:69
+#, no-wrap
+msgid ""
+"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 -->\n"
+"<!-- owns:message-roles -->\n"
+msgstr ""
+"<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 -->\n"
+"<!-- owns:message-roles -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:72
+#, no-wrap
+msgid ""
+"`messages` is a list of dictionaries, each with a `role` and a `content`. There\n"
+"are two roles:\n"
+msgstr ""
+"`messages` est une liste de dictionnaires, chacun avec un `role` et un\n"
+"`content`. Il y a deux rôles :\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:77
+#, no-wrap
+msgid ""
+"| Role | Who writes it |\n"
+"|---|---|\n"
+"| `user` | You — what you send to Claude |\n"
+"| `assistant` | Claude — what it generated, or what you prefill on its behalf |\n"
+msgstr ""
+"| Rôle | Qui l'écrit |\n"
+"|---|---|\n"
+"| `user` | Vous — ce que vous envoyez à Claude |\n"
+"| `assistant` | Claude — ce qu'il a généré, ou ce que vous préremplissez en son nom |\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:79
+#, no-wrap
+msgid "A conversation alternates between the two: user turn, assistant turn, user turn.\n"
+msgstr "Une conversation alterne entre les deux : tour user, tour assistant, tour user.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:84
+#, no-wrap
+msgid ""
+"**The API stores nothing.** Every request is independent and carries no memory\n"
+"of the ones before it. Ask \"What is quantum computing?\", get an answer, then\n"
+"send \"Write another sentence\" on its own, and the model has no idea what it is\n"
+"being asked to extend — it will write a sentence about something else entirely.\n"
+msgstr ""
+"**L'API ne stocke rien.** Chaque requête est indépendante et ne garde aucune\n"
+"mémoire des précédentes. Demandez « Qu'est-ce que l'informatique quantique ? »,\n"
+"obtenez une réponse, puis envoyez « Écris une phrase de plus » toute seule : le\n"
+"modèle n'a aucune idée de ce qu'on lui demande de prolonger — il écrira une\n"
+"phrase sur tout autre chose.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:86
+#, no-wrap
+msgid "Multi-turn conversation is therefore work you do, not a service the API renders:\n"
+msgstr ""
+"La conversation multi-tours est donc un travail que vous faites, pas un service\n"
+"que l'API rend :\n"
+
+#. type: Bullet: '1. '
+#: courses/en/00-api-foundations.md:91
+#, no-wrap
+msgid "Send the first user message.\n"
+msgstr "Envoyer le premier message user.\n"
+
+#. type: Bullet: '2. '
+#: courses/en/00-api-foundations.md:91
+#, no-wrap
+msgid "Append Claude's reply to your list as an `assistant` message.\n"
+msgstr "Ajouter la réponse de Claude à votre liste comme message `assistant`.\n"
+
+#. type: Bullet: '3. '
+#: courses/en/00-api-foundations.md:91
+#, no-wrap
+msgid "Append the follow-up as a `user` message.\n"
+msgstr "Ajouter la relance comme message `user`.\n"
+
+#. type: Bullet: '4. '
+#: courses/en/00-api-foundations.md:91
+#, no-wrap
+msgid "Send the whole list again.\n"
+msgstr "Renvoyer la liste entière.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:95
+#, no-wrap
+msgid ""
+"Everything that must still be visible on turn five has to be in the array you\n"
+"send on turn five. This is the rule behind most \"the model forgot\" bugs, and it\n"
+"applies to tool results exactly as it applies to text.\n"
+msgstr ""
+"Tout ce qui doit encore être visible au cinquième tour doit se trouver dans le\n"
+"tableau que vous envoyez au cinquième tour. C'est la règle derrière la plupart\n"
+"des bugs « le modèle a oublié », et elle vaut pour les tool results exactement\n"
+"comme pour le texte.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:106
+#, no-wrap
+msgid ""
+"Assistant messages are not only Claude's output. You can append one yourself to\n"
+"prefill the start of the reply: the model treats that text as something it\n"
+"already wrote and continues from the last character. The prefix is yours, not\n"
+"the model's: the API returns only what came after it, so a prefilled turn has to\n"
+"be concatenated back onto the generated text to be complete. Combined with\n"
+"`stop_sequences` — strings that end generation as soon as they appear, and that\n"
+"are not included in the output — prefilling gives clean structured output. Ask\n"
+"for JSON, prefill the assistant turn with an opening JSON code fence and set the\n"
+"closing fence as the stop sequence: what comes back is the JSON alone, with no\n"
+"preamble and no fences to strip.\n"
+msgstr ""
+"Les messages assistant ne sont pas seulement la sortie de Claude. Vous pouvez en\n"
+"ajouter un vous-même pour préremplir le début de la réponse : le modèle traite\n"
+"ce texte comme quelque chose qu'il a déjà écrit et continue à partir du dernier\n"
+"caractère. Le préfixe est le vôtre, pas celui du modèle : l'API ne renvoie que\n"
+"ce qui vient après, si bien qu'un tour prérempli doit être reconcaténé au texte\n"
+"généré pour être complet. Combiné aux `stop_sequences` — des chaînes qui mettent\n"
+"fin à la génération dès qu'elles apparaissent, et qui ne figurent pas dans la\n"
+"sortie — le prefill donne une sortie structurée propre. Demandez du JSON,\n"
+"préremplissez le tour assistant avec le délimiteur ouvrant d'un bloc de code\n"
+"JSON et fixez le délimiteur fermant comme stop sequence : ce qui revient est le\n"
+"JSON seul, sans préambule et sans délimiteurs à retirer.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:108
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"1.3\"`.\n"
+msgstr "**À tester** — les questions de la banque marquées `data-task=\"1.3\"`.\n"
+
+#. type: Title ##
+#: courses/en/00-api-foundations.md:109
+#, no-wrap
+msgid "Content blocks"
+msgstr "Les blocs de contenu"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:112
+#, no-wrap
+msgid ""
+"<!-- src:05claudeapi L5, L12, L34, L35, L36, L37 ; building_claude_api module 3 -->\n"
+"<!-- owns:content-blocks -->\n"
+msgstr ""
+"<!-- src:05claudeapi L5, L12, L34, L35, L36, L37 ; building_claude_api module 3 -->\n"
+"<!-- owns:content-blocks -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:119
+#, no-wrap
+msgid ""
+"A reply's `content` is never a bare string — it is a **list of blocks**, each\n"
+"with its own type. Reading a reply as text works only because you indexed into\n"
+"that list: `message.content[0].text` is the first block's text, not the message.\n"
+"The two directions are not symmetrical: a request accepts either form, a plain\n"
+"string or a list of blocks, and every example in the source course sends a\n"
+"string.\n"
+msgstr ""
+"Le `content` d'une réponse n'est jamais une simple chaîne — c'est une **liste de\n"
+"blocs**, chacun avec son type. Lire une réponse comme du texte ne marche que\n"
+"parce que vous avez lu cette liste par son index : `message.content[0].text` est\n"
+"le texte du premier bloc, pas le message. Les deux sens ne sont pas\n"
+"symétriques : une requête accepte l'une ou l'autre forme, une chaîne simple ou\n"
+"une liste de blocs, et tous les exemples du cours source envoient une chaîne.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:125
+#, no-wrap
+msgid ""
+"| Block type | Direction | Carries |\n"
+"|---|---|---|\n"
+"| `text` | both ways | Prose, for the user to read |\n"
+"| `tool_use` | from the assistant | The tool name and the arguments the model chose |\n"
+"| `tool_result` | from you, in a `user` message | The output of the tool you ran |\n"
+msgstr ""
+"| Type de bloc | Sens | Contenu |\n"
+"|---|---|---|\n"
+"| `text` | dans les deux sens | De la prose, à lire par l'utilisateur |\n"
+"| `tool_use` | de l'assistant | Le nom de l'outil et les arguments choisis par le modèle |\n"
+"| `tool_result` | de vous, dans un message `user` | La sortie de l'outil que vous avez exécuté |\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:131
+#, no-wrap
+msgid ""
+"A single assistant reply routinely holds several blocks at once — a text block\n"
+"explaining what it is about to do, plus a `tool_use` block requesting it. This\n"
+"is why the rule for tool-using conversations is to append **all** of\n"
+"`response.content` to the history, not just the text you displayed: dropping\n"
+"the `tool_use` block breaks the pairing that the next request depends on.\n"
+msgstr ""
+"Une seule réponse assistant porte couramment plusieurs blocs à la fois — un bloc\n"
+"`text` qui explique ce que le modèle s'apprête à faire, plus un bloc `tool_use`\n"
+"qui le demande. D'où la règle, dans les conversations avec outils : ajouter\n"
+"**tout** `response.content` à l'historique, pas seulement le texte que vous avez\n"
+"affiché — laisser tomber le bloc `tool_use` casse l'appariement dont dépend la\n"
+"requête suivante.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:137
+#, no-wrap
+msgid ""
+"A `tool_result` block carries three fields: `tool_use_id`, matching the id of\n"
+"the `tool_use` block it answers; `content`, the function output serialized as a\n"
+"string; and `is_error`, a boolean. It travels back inside a `user` message,\n"
+"alongside the complete history — and the original tool schemas must still be\n"
+"declared on that request, even if no further tool call is expected.\n"
+msgstr ""
+"Un bloc `tool_result` porte trois champs : `tool_use_id`, qui reprend l'id du\n"
+"bloc `tool_use` auquel il répond ; `content`, la sortie de la fonction\n"
+"sérialisée en chaîne ; et `is_error`, un booléen. Il repart dans un message\n"
+"`user`, aux côtés de l'historique complet — et les schémas d'outils d'origine\n"
+"doivent toujours être déclarés sur cette requête, même si plus aucun appel n'est\n"
+"attendu.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:144
+#, no-wrap
+msgid ""
+"The tools themselves are declared as JSON schemas, one per tool, with three\n"
+"parts: `name`, the identifier; `description`, what the tool does, when to use it\n"
+"and what it returns; and `input_schema`, a JSON schema for the arguments. That\n"
+"is the anatomy. **Which wording in a description makes the model pick the right\n"
+"tool among several similar ones is tool design, developed in D2.1** — a\n"
+"one-line description is what makes two neighbouring tools indistinguishable.\n"
+msgstr ""
+"Les outils eux-mêmes sont déclarés en JSON Schema, un par outil, en trois\n"
+"parties : `name`, l'identifiant ; `description`, ce que fait l'outil, quand\n"
+"l'utiliser et ce qu'il retourne ; et `input_schema`, un JSON Schema pour les\n"
+"arguments. Voilà l'anatomie. **Quelle formulation de description fait choisir au\n"
+"modèle le bon outil parmi plusieurs outils voisins relève du tool design,\n"
+"développé en D2.1** — une description d'une ligne, c'est ce qui rend deux outils\n"
+"voisins indiscernables.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:148
+#, no-wrap
+msgid ""
+"One field is worth naming here because it appears in request bodies you will\n"
+"read: `tool_choice` tells the model whether it may answer in prose or must call\n"
+"a tool. **Its modes and what each one forbids are developed in D4.3.**\n"
+msgstr ""
+"Un champ mérite d'être nommé ici parce qu'il apparaît dans les corps de requête\n"
+"que vous serez amené à lire : `tool_choice` indique au modèle s'il peut répondre\n"
+"en prose ou s'il doit appeler un outil. **Ses modes et ce que chacun interdit\n"
+"sont développés en D4.3.**\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:150
+#, no-wrap
+msgid "**To test** — bank questions tagged `data-task=\"2.1\"`.\n"
+msgstr "**À tester** — les questions de la banque marquées `data-task=\"2.1\"`.\n"
+
+# invariant: identifiant d'API
+#. type: Title ##
+#: courses/en/00-api-foundations.md:151
+#, no-wrap
+msgid "`stop_reason`"
+msgstr "`stop_reason`"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:154
+#, no-wrap
+msgid ""
+"<!-- src:05claudeapi L3, L13, L38 (tool_use) ; building_claude_api modules 1 and 3 ; Anthropic docs, Handling stop reasons (values, stop_details, pause_turn default iteration limit of 10) ; exam guide TS 1.1 -->\n"
+"<!-- owns:stop-reason -->\n"
+msgstr ""
+"<!-- src:05claudeapi L3, L13, L38 (tool_use) ; building_claude_api modules 1 and 3 ; Anthropic docs, Handling stop reasons (values, stop_details, pause_turn default iteration limit of 10) ; exam guide TS 1.1 -->\n"
+"<!-- owns:stop-reason -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:158
+#, no-wrap
+msgid ""
+"After each token, the model checks whether it should keep going. When it stops,\n"
+"the response says why in `stop_reason` — and that field, not the presence of a\n"
+"text block, is what tells you whether a reply is finished.\n"
+msgstr ""
+"Après chaque token, le modèle vérifie s'il doit continuer. Quand il s'arrête, la\n"
+"réponse dit pourquoi dans `stop_reason` — et c'est ce champ, pas la présence\n"
+"d'un bloc `text`, qui vous dit si une réponse est terminée.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:168
+#, no-wrap
+msgid ""
+"| Value | What ended generation |\n"
+"|---|---|\n"
+"| `end_turn` | The model reached a natural end and had nothing more to say |\n"
+"| `max_tokens` | The output budget you set ran out mid-generation |\n"
+"| `stop_sequence` | One of your `stop_sequences` strings appeared |\n"
+"| `tool_use` | The model is calling a tool and is waiting for you to run it |\n"
+"| `pause_turn` | A server tool loop hit its iteration limit (10 by default) |\n"
+"| `refusal` | The model declined for safety-policy reasons |\n"
+"| `model_context_window_exceeded` | The response filled the context window |\n"
+msgstr ""
+"| Valeur | Ce qui a mis fin à la génération |\n"
+"|---|---|\n"
+"| `end_turn` | Le modèle est arrivé à une fin naturelle et n'avait plus rien à dire |\n"
+"| `max_tokens` | Le budget de sortie que vous aviez fixé s'est épuisé en cours de génération |\n"
+"| `stop_sequence` | Une de vos chaînes `stop_sequences` est apparue |\n"
+"| `tool_use` | Le modèle appelle un outil et attend que vous l'exécutiez |\n"
+"| `pause_turn` | Une boucle d'outil serveur a atteint sa limite d'itérations (10 par défaut) |\n"
+"| `refusal` | Le modèle a refusé pour des raisons de politique de sécurité |\n"
+"| `model_context_window_exceeded` | La réponse a rempli la context window |\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:174
+#, no-wrap
+msgid ""
+"`stop_details` is `null` for every value but `refusal`, where it carries the\n"
+"policy category. `model_context_window_exceeded` is the recent one: it exists on\n"
+"Claude 4.5 and later, where earlier models returned a validation error instead,\n"
+"and the behaviour is opt-in through the `model-context-window-exceeded-2025-08-26`\n"
+"beta.\n"
+msgstr ""
+"`stop_details` vaut `null` pour toutes les valeurs sauf `refusal`, où il porte\n"
+"la catégorie de politique. `model_context_window_exceeded` est la valeur\n"
+"récente : elle existe à partir de Claude 4.5, là où les modèles antérieurs\n"
+"renvoyaient une erreur de validation, et le comportement s'active explicitement\n"
+"via la beta `model-context-window-exceeded-2025-08-26`.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:180
+#, no-wrap
+msgid ""
+"The distinction that matters in production: `end_turn` is the only value that\n"
+"means *complete*. A response with `stop_reason: \"max_tokens\"` holds a text block\n"
+"like any other, but it was cut off mid-sentence — display code that checks for\n"
+"text instead of checking `stop_reason` will present a truncated draft as a\n"
+"finished one.\n"
+msgstr ""
+"La distinction qui compte en production : `end_turn` est la seule valeur qui\n"
+"signifie *terminé*. Une réponse avec `stop_reason: \"max_tokens\"` porte un bloc\n"
+"`text` comme n'importe quelle autre, mais elle a été coupée en pleine phrase —\n"
+"un code d'affichage qui teste la présence de texte au lieu de lire `stop_reason`\n"
+"présentera un brouillon tronqué comme un texte fini.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:186
+#, no-wrap
+msgid ""
+"`tool_use` is the value a client acts on rather than displays: the model has\n"
+"asked for something, and the turn is not over until you run the tool and send\n"
+"the result back. **Turning that check into a loop — call, inspect `stop_reason`,\n"
+"execute, append, call again until the value is no longer `tool_use` — is the\n"
+"agentic loop, developed in D1.1.** D0 stops at naming the signal.\n"
+msgstr ""
+"`tool_use` est la valeur sur laquelle un client agit plutôt qu'il ne l'affiche :\n"
+"le modèle a demandé quelque chose, et le tour n'est pas fini tant que vous\n"
+"n'avez pas exécuté l'outil et renvoyé le résultat. **Transformer cette\n"
+"vérification en boucle — appeler, inspecter `stop_reason`, exécuter, ajouter à\n"
+"l'historique, rappeler jusqu'à ce que la valeur ne soit plus `tool_use` — c'est\n"
+"l'agentic loop, développée en D1.1.** D0 s'arrête à nommer le signal.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:192
+#, no-wrap
+msgid ""
+"Where to put your effort: the guide only ever asks you to tell `\"tool_use\"`\n"
+"from `\"end_turn\"` — that pair is what drives the loop, and it is all TS 1.1\n"
+"tests. The other five are context worth having rather than exam surface, with\n"
+"one exception: `max_tokens` is a classic distractor, because a truncated reply\n"
+"looks exactly like a finished one until you read the field.\n"
+msgstr ""
+"Où porter l'effort : le guide ne demande jamais que de distinguer `\"tool_use\"`\n"
+"de `\"end_turn\"` — c'est cette paire qui pilote la boucle, et c'est tout ce que\n"
+"teste le TS 1.1. Les cinq autres valeurs sont du contexte utile plutôt que de la\n"
+"matière d'examen, à une exception près : `max_tokens` est un distracteur\n"
+"classique, parce qu'une réponse tronquée ressemble exactement à une réponse\n"
+"finie tant qu'on ne lit pas le champ.\n"
+
+#. type: Title ##
+#: courses/en/00-api-foundations.md:195
+#, no-wrap
+msgid "System prompts"
+msgstr "Les system prompts"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:197
+#, no-wrap
+msgid "<!-- src:05claudeapi L8 ; building_claude_api module 1 -->\n"
+msgstr "<!-- src:05claudeapi L8 ; building_claude_api module 1 -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:202
+#, no-wrap
+msgid ""
+"The `system` parameter is a plain string passed alongside `messages`, and it\n"
+"sits **outside** the conversation: it is not a turn, it has no role, and it is\n"
+"not something the model answers. It shapes *how* Claude responds, not *what*\n"
+"it responds.\n"
+msgstr ""
+"Le paramètre `system` est une simple chaîne passée à côté de `messages`, et il\n"
+"se tient **en dehors** de la conversation : ce n'est pas un tour, il n'a pas de\n"
+"rôle, et ce n'est pas quelque chose à quoi le modèle répond. Il façonne\n"
+"*comment* Claude répond, pas *ce qu'il répond*.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:206
+#, no-wrap
+msgid ""
+"Take a maths tutor. Without a system prompt, \"How do I solve 5x + 2 = 3 for x?\"\n"
+"gets a complete step-by-step solution immediately — correct, and useless for\n"
+"teaching. With:\n"
+msgstr ""
+"Prenez l'exemple d'un tuteur de maths. Sans system prompt, « Comment résoudre\n"
+"5x + 2 = 3 pour x ? » donne aussitôt une solution complète pas à pas — correcte,\n"
+"et inutile pour enseigner. Avec :\n"
+
+#. type: Fenced code block
+#: courses/en/00-api-foundations.md:207
+#, no-wrap
+msgid ""
+"You are a patient math tutor.\n"
+"Do not directly answer a student's questions.\n"
+"Guide them to a solution step by step.\n"
+msgstr ""
+"Tu es un tuteur de maths patient.\n"
+"Ne réponds pas directement aux questions de l'élève.\n"
+"Guide-le vers la solution, étape par étape.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:216
+#, no-wrap
+msgid ""
+"the same question comes back as \"What do you think would be a good first step\n"
+"to isolate x?\". Same model, same user turn; the standing instruction changed the\n"
+"behaviour.\n"
+msgstr ""
+"la même question revient sous la forme « Quelle serait, selon toi, une bonne\n"
+"première étape pour isoler x ? ». Même modèle, même tour user ; c'est\n"
+"l'instruction permanente qui a changé le comportement.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:221
+#, no-wrap
+msgid ""
+"That is what a system prompt is for: assign a role, and the model answers the\n"
+"way someone in that role would; state durable constraints, and they hold across\n"
+"every turn without being restated in each user turn. It is also what keeps a\n"
+"long conversation on task.\n"
+msgstr ""
+"Voilà à quoi sert un system prompt : assignez un rôle, et le modèle répond comme\n"
+"le ferait quelqu'un dans ce rôle ; énoncez des contraintes durables, et elles\n"
+"tiennent sur tous les tours sans être répétées dans chaque tour user. C'est\n"
+"aussi ce qui maintient le cap sur une longue conversation.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:224
+#, no-wrap
+msgid ""
+"One practical note: the API does not accept `system=None`, so a reusable chat\n"
+"helper has to add the key only when a prompt was actually given.\n"
+msgstr ""
+"Une note pratique : l'API n'accepte pas `system=None`, donc un helper de chat\n"
+"réutilisable ne doit ajouter la clé que lorsqu'un prompt a réellement été\n"
+"fourni.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:229
+#, no-wrap
+msgid ""
+"A system instruction also carries further than any per-turn wording — far\n"
+"enough that a single keyword can steer the model against more specific\n"
+"instructions it was given elsewhere. **How system prompt wording ends up\n"
+"overriding well-written tool descriptions is developed in D2.1.**\n"
+msgstr ""
+"Une instruction system porte aussi plus loin que n'importe quelle formulation\n"
+"d'un tour — assez loin pour qu'un seul mot-clé oriente le modèle contre des\n"
+"instructions plus spécifiques reçues ailleurs. **Comment la formulation d'un\n"
+"system prompt finit par l'emporter sur des descriptions d'outils bien écrites\n"
+"est développé en D2.1.**\n"
+
+#. type: Title ##
+#: courses/en/00-api-foundations.md:232
+#, no-wrap
+msgid "The context window"
+msgstr "La context window"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:235
+#, no-wrap
+msgid ""
+"<!-- src:05claudeapi L6 ; building_claude_api modules 3 and 4 -->\n"
+"<!-- owns:context-window -->\n"
+msgstr ""
+"<!-- src:05claudeapi L6 ; building_claude_api modules 3 and 4 -->\n"
+"<!-- owns:context-window -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:240
+#, no-wrap
+msgid ""
+"Put the two previous facts together. The API keeps no state, so every request\n"
+"ships the entire history; and every request has a finite token budget. The\n"
+"history is therefore not free — it is a recurring cost that grows with the\n"
+"conversation, monotonically, unless you do something about it.\n"
+msgstr ""
+"Mettez bout à bout les deux faits précédents. L'API ne garde aucun état, donc\n"
+"chaque requête embarque tout l'historique ; et chaque requête a un budget de\n"
+"tokens fini. L'historique n'est donc pas gratuit — c'est un coût récurrent qui\n"
+"croît avec la conversation, de façon monotone, tant que vous n'y faites rien.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:242
+#, no-wrap
+msgid "What accumulates, per request:\n"
+msgstr "Ce qui s'accumule, à chaque requête :\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:249
+#, no-wrap
+msgid ""
+"| What you resend | Why it is there |\n"
+"|---|---|\n"
+"| The `system` prompt | It holds across turns because you resend it, not because it is stored |\n"
+"| Every past `user` and `assistant` turn | Nothing is stored server-side |\n"
+"| Every `tool_use` and `tool_result` block | Dropping them breaks the pairing |\n"
+"| The full tool schemas | Required on every request, even when no call follows |\n"
+msgstr ""
+"| Ce que vous renvoyez | Pourquoi c'est là |\n"
+"|---|---|\n"
+"| Le prompt `system` | Il tient d'un tour à l'autre parce que vous le renvoyez, pas parce qu'il est stocké |\n"
+"| Chaque tour `user` et `assistant` passé | Rien n'est stocké côté serveur |\n"
+"| Chaque bloc `tool_use` et `tool_result` | Les retirer casse l'appariement |\n"
+"| Les schémas d'outils complets | Requis à chaque requête, même quand aucun appel ne suit |\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:253
+#, no-wrap
+msgid ""
+"Tool results are the part people underestimate. A tool that returns a large\n"
+"document puts that document into the history for the rest of the run, and you\n"
+"pay for it on every subsequent turn — not once.\n"
+msgstr ""
+"Les tool results sont la part que l'on sous-estime. Un outil qui retourne un\n"
+"gros document met ce document dans l'historique pour tout le reste de\n"
+"l'exécution, et vous le payez à chaque tour suivant — et pas une fois pour\n"
+"toutes.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:258
+#, no-wrap
+msgid ""
+"Sending a large document directly is the simplest approach and it is sometimes\n"
+"the right one: no preprocessing, nothing to build. Its costs are a hard token\n"
+"limit, a high price per call and slow processing. Beyond a certain size, you\n"
+"stop sending the document and start sending only the parts that matter.\n"
+msgstr ""
+"Envoyer directement un gros document est l'approche la plus simple, et c'est\n"
+"parfois la bonne : aucun prétraitement, rien à construire. Ses coûts sont un\n"
+"plafond de tokens strict, un prix élevé par appel et un traitement lent. Au-delà\n"
+"d'une certaine taille, on cesse d'envoyer le document pour n'envoyer que les\n"
+"parties qui comptent.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:267
+#, no-wrap
+msgid ""
+"A full window brings its own failure modes — material buried mid-context tends\n"
+"to be missed, history accumulates until it crowds out the task, and summarizing\n"
+"it trades detail for room. **Naming those failure modes is as far as D0 goes:\n"
+"handling them, and keeping a long run inside its budget, is developed in D5.1.**\n"
+"Retrieval and chunking are not the answer the guide asks for — it puts them out\n"
+"of scope, and so does this corpus. The point here is only that the window is\n"
+"finite, that the history is what fills it, and that both are consequences of\n"
+"statelessness.\n"
+msgstr ""
+"Une context window pleine amène ses propres modes de défaillance — ce qui est\n"
+"enfoui au milieu du contexte a tendance à être manqué, l'historique s'accumule\n"
+"jusqu'à étouffer la tâche, et le résumer échange du détail contre de la place.\n"
+"**Les nommer est tout ce que fait D0 : les traiter, et maintenir une longue\n"
+"exécution dans son budget, est développé en D5.1.** Le retrieval et le chunking\n"
+"ne sont pas la réponse que le guide attend — il les met hors périmètre, et ce\n"
+"corpus aussi. L'essentiel ici, c'est seulement que la fenêtre est finie, que\n"
+"c'est l'historique qui la remplit, et que les deux découlent de l'absence\n"
+"d'état.\n"
+
+#. type: Title ##
+#: courses/en/00-api-foundations.md:270
+#, no-wrap
+msgid "Choosing a model"
+msgstr "Choisir un modèle"
+
+# invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
+#. type: Plain text
+#: courses/en/00-api-foundations.md:272
+#, no-wrap
+msgid "<!-- src:building_claude_api module 1 -->\n"
+msgstr "<!-- src:building_claude_api module 1 -->\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:274
+#, no-wrap
+msgid "Three families, three trade-offs:\n"
+msgstr "Trois familles, trois compromis :\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:280
+#, no-wrap
+msgid ""
+"| Family | Strengths | Costs |\n"
+"|---|---|---|\n"
+"| Opus | The most intelligent: deep reasoning, multi-step planning | High price, high latency |\n"
+"| Sonnet | Balanced: good intelligence, decent speed, solid at coding | Reasonable on all three |\n"
+"| Haiku | Fastest and cheapest: real-time interaction, high-volume processing | No advanced reasoning |\n"
+msgstr ""
+"| Famille | Points forts | Coûts |\n"
+"|---|---|---|\n"
+"| Opus | Le plus intelligent : raisonnement profond, planification multi-étapes | Prix élevé, latence élevée |\n"
+"| Sonnet | Équilibré : bonne intelligence, vitesse correcte, solide en code | Raisonnable sur les trois plans |\n"
+"| Haiku | Le plus rapide et le moins cher : interaction temps réel, traitement à gros volume | Pas de raisonnement avancé |\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:282
+#, no-wrap
+msgid "The selection rule is stated as a priority, not as a ranking:\n"
+msgstr "La règle de sélection s'énonce comme une priorité, pas comme un classement :\n"
+
+#. type: Bullet: '- '
+#: courses/en/00-api-foundations.md:286
+#, no-wrap
+msgid "intelligence is the priority → **Opus**\n"
+msgstr "l'intelligence est la priorité → **Opus**\n"
+
+#. type: Bullet: '- '
+#: courses/en/00-api-foundations.md:286
+#, no-wrap
+msgid "speed is the priority → **Haiku**\n"
+msgstr "la vitesse est la priorité → **Haiku**\n"
+
+#. type: Bullet: '- '
+#: courses/en/00-api-foundations.md:286
+#, no-wrap
+msgid "balanced requirements → **Sonnet**\n"
+msgstr "des exigences équilibrées → **Sonnet**\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:290
+#, no-wrap
+msgid ""
+"Sonnet is the best choice for most practical cases. And the choice is per task,\n"
+"not per application: real applications routinely use several models, routing\n"
+"each job to the family its priority calls for.\n"
+msgstr ""
+"Sonnet est le meilleur choix dans la plupart des cas pratiques. Et le choix se\n"
+"fait par tâche, pas par application : les applications réelles utilisent\n"
+"couramment plusieurs modèles, en routant chaque travail vers la famille que sa\n"
+"priorité désigne.\n"
+
+#. type: Plain text
+#: courses/en/00-api-foundations.md:291
+#, no-wrap
+msgid "**To test** — nothing yet: no question in the corpus covers model selection.\n"
+msgstr ""
+"**À tester** — rien pour l'instant : aucune question du corpus ne porte sur le\n"
+"choix du modèle.\n"
