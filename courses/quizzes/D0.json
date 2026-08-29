@@ -1,0 +1,134 @@
+[
+  {
+    "id": "d0-q1",
+    "domain": "D0",
+    "task": "1.1",
+    "summary": "Q1 (D0) — A stop_reason your display code ignores",
+    "scenario": "A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>\"max_tokens\"</code>.",
+    "question": "What does that value mean, and what should the display code check before treating a response as final?",
+    "options": {
+      "a": "The response is complete; <code>\"max_tokens\"</code> caps the size of the request being sent, not the length of the output.",
+      "b": "The token budget ran out mid-generation; only <code>\"end_turn\"</code> means the response is complete.",
+      "c": "The model refused to continue for safety reasons, so nothing should be shown and the attempt should be escalated for human review instead.",
+      "d": "A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off."
+    },
+    "answer": "b",
+    "answerLabel": "\"max_tokens\" means truncated output, not completion",
+    "why": "<code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>\"end_turn\"</code> marks a natural, complete stopping point. <code>\"max_tokens\"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer. Scope note: among stop reasons, the exam guide names only the pair that drives the agentic loop, and that loop is what the task this sheet prepares tests. <code>\"max_tokens\"</code>, <code>\"refusal\"</code> and <code>\"pause_turn\"</code> come from the API reference — D0 prerequisite material, not extra exam surface.",
+    "distractors": {
+      "a": "Reverses cause and effect: the output token budget is exactly why this value was returned.",
+      "c": "Describes <code>\"refusal\"</code>, a distinct value with a distinct cause. Nothing was refused here, so withholding the draft and escalating would stall a run that only needs continuing.",
+      "d": "Describes <code>\"pause_turn\"</code>, which concerns an interrupted server tool, not an exhausted token budget. Nothing is paused waiting to resume, so an identical resend would simply regenerate the same truncated draft."
+    }
+  },
+  {
+    "id": "d0-q2",
+    "domain": "D0",
+    "task": "2.1",
+    "summary": "Q2 (D0) — Which part of a tool definition decides the routing",
+    "scenario": "An HR assistant exposes <code>search_policy_doc</code> (\"Retrieves policy content\") and <code>search_payroll_record</code> (\"Retrieves payroll data\"). Both accept employee identifiers of a similar shape, and the model routinely picks the wrong one.",
+    "question": "Which part of a tool definition drives that choice?",
+    "options": {
+      "a": "The position of each tool in the request's <code>tools</code> array.",
+      "b": "The tool name, which outranks the rest of the definition.",
+      "c": "The <code>description</code>, which is the primary selection mechanism.",
+      "d": "The size of the <code>input_schema</code>: the model prefers the simplest one."
+    },
+    "answer": "c",
+    "answerLabel": "the description",
+    "why": "the model selects a tool by reading the definitions, and the description is where the meaning lives. Two one-line descriptions give it nothing to tell the tools apart, so misrouting becomes structural. The fix is to state input formats, example requests, edge cases and the boundary with neighboring tools.",
+    "distractors": {
+      "a": "Declaration order is not a selection criterion.",
+      "b": "The name helps, but it cannot carry input formats, edge cases or usage boundaries.",
+      "d": "The schema describes the arguments once a tool has been chosen; it does not decide which tool to choose."
+    }
+  },
+  {
+    "id": "d0-q3",
+    "domain": "D0",
+    "task": "1.3",
+    "summary": "Q3 (D0) — A stateless API and a vanished tool_result",
+    "scenario": "A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.",
+    "question": "What is the most likely cause?",
+    "options": {
+      "a": "The API keeps no state, and the caller did not resend the earlier <code>tool_result</code> blocks.",
+      "b": "A <code>tool_result</code> block expires server-side soon after it is submitted, so later requests miss it.",
+      "c": "The <code>max_tokens</code> value is too low to hold the <code>tool_result</code>, so the oldest blocks drop first.",
+      "d": "A <code>session_id</code> parameter is missing, so the server cannot attach this request to the earlier turn."
+    },
+    "answer": "a",
+    "answerLabel": "the API is stateless and the history was not resent",
+    "why": "nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.",
+    "distractors": {
+      "b": "Nothing expires server-side, because nothing is stored there.",
+      "c": "That budget bounds the <em>output</em> length, not the size of the history you send; and no block is dropped for you, because none is kept for you.",
+      "d": "The Messages API has no such parameter."
+    }
+  },
+  {
+    "id": "d0-q4",
+    "domain": "D0",
+    "task": "2.1",
+    "summary": "Q4 (D0) — A standing rule that drags a tool onto every turn",
+    "scenario": "A greenhouse operations assistant opens its system prompt with \"Every answer must reflect the current sensor readings.\" Logs show <code>read_sensors</code> firing on each turn, including when a grower asks how a cultivar name should be spelled in the planting log. Each tool definition spells out its inputs and where its job ends.",
+    "question": "What stops the needless calls?",
+    "options": {
+      "a": "Add few-shot examples of clerical turns answered without any sensor call, so the assistant can copy the pattern on the next spelling question.",
+      "b": "Have the client drop <code>read_sensors</code> from the <code>tools</code> array whenever it judges the incoming question clerical.",
+      "c": "Name the conditions that call for a reading, and retire the absolute sentence.",
+      "d": "Cache the last reading for ten minutes so repeat turns reuse it instead of calling out again."
+    },
+    "answer": "c",
+    "answerLabel": "state when a reading is required, and drop the blanket rule",
+    "why": "\"every answer\" reads as a permanent trigger, and the model binds it to whichever tool the wording resembles most. A rule phrased with no exceptions outranks the tool definitions, however careful they are — which is why the scenario tells you those definitions are sound. Spelling out the situations that genuinely need a reading removes the trigger while keeping the check where it earns its cost.",
+    "distractors": {
+      "a": "Examples cannot outvote a rule that still admits no exception; the model treats them as odd cases rather than as the boundary.",
+      "b": "Moves the decision to the caller, which must now classify a question before the model has read it, and leaves the misleading rule in place.",
+      "d": "Cheaper calls, identical behavior: a spelling question still travels through the sensor path, and a stale value is the wrong answer where readings matter."
+    }
+  },
+  {
+    "id": "d0-q5",
+    "domain": "D0",
+    "task": "2.3",
+    "summary": "Q5 (D0) — A triage loop that never writes its answer",
+    "scenario": "A ticket-triage client runs its own loop: send the request, run whatever tool comes back, append the result, send again. To stop the assistant from chatting while work remains, the client sets <code>tool_choice</code> to the value that guarantees a call — and it sets it on every request of the loop. Runs now end only when the client's iteration cap trips, and no written answer ever arrives.",
+    "question": "Why does the run never reach one?",
+    "options": {
+      "a": "That value binds the first request alone; the later ones revert to the automatic setting, so the assistant keeps reaching for <code>lookup_account</code> long after the answer is available.",
+      "b": "Each tool result is appended as a user turn, and a request whose last turn came from the user can only be answered by another call.",
+      "c": "Repeating that value on every request removes the assistant's only way of finishing, which is a turn that ends in text; the client should guarantee the opening call and leave the remaining requests on the automatic setting.",
+      "d": "The iteration cap sits below the number of declared tools, so the client cuts the run short before <code>classify_ticket</code> and its neighbours have all been tried."
+    },
+    "answer": "c",
+    "answerLabel": "the setting also forbids the text-only turn a run has to end on",
+    "why": "<code>tool_choice: \"any\"</code> promises exactly one thing, on every request that carries it: a tool will be called. Sent once, that pins the opening step. Sent on every request, it also outlaws the closing one, since a turn answering in prose is no longer permitted. Handing the later requests back to <code>tool_choice: \"auto\"</code> restores the choice between calling again and answering.",
+    "distractors": {
+      "a": "The field is read afresh on each request; it neither expires nor decays, and the loop here restates it every time.",
+      "b": "A user turn carrying a tool result can be answered in prose just as readily as with another call — that is precisely what the automatic setting permits.",
+      "d": "The cap is what halts a run that would otherwise not halt at all; raising it buys further calls, never a written answer."
+    }
+  },
+  {
+    "id": "d0-q6",
+    "domain": "D0",
+    "task": "4.3",
+    "summary": "Q6 (D0) — A mandatory field the source cannot fill",
+    "scenario": "An invoice extraction tool lists <code>discount_pct</code> among its <code>required</code> properties, yet plenty of invoices grant no discount. Reviewers keep finding discount figures that appear nowhere on the invoice.",
+    "question": "What is happening, and what removes the cause?",
+    "options": {
+      "a": "The API validates the payload against the schema and rejects the call as invalid, so nothing reaches the pipeline.",
+      "b": "The model invents a figure to satisfy the constraint; make the property nullable and no longer mandatory.",
+      "c": "The model leaves the property empty, and the pipeline should read an empty value as absent.",
+      "d": "The model skips the tool call whenever a mandatory property has no source value."
+    },
+    "answer": "b",
+    "answerLabel": "the model invents a figure, so make the property nullable and optional",
+    "why": "a mandatory property leaves the model choosing between breaking the schema and making something up, and it makes something up. Declaring it <code>\"type\": [\"number\", \"null\"]</code> and taking it out of <code>required</code> gives the model an honest way to report absence.",
+    "distractors": {
+      "a": "Validation covers schema conformance, never truthfulness: an invented number conforms perfectly.",
+      "c": "Nothing empties the property while the schema still demands a value.",
+      "d": "The tool does get called; it is the payload that is wrong."
+    }
+  }
+]

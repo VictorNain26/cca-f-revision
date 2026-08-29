@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>D0 — API foundations</title>
+<link rel="stylesheet" href="../styles.css">
+<script src="../nav.js" defer></script>
+<script src="../quiz.js" defer></script>
+<script>(function(){try{var t=localStorage.getItem('cca-theme');if(!t)t=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<script src="../theme.js" defer></script>
+<script src="../toc.js" defer></script>
+<script src="../site.js" defer></script>
+</head>
+<body id="top">
+
+
+<nav class="navbar">
+  <a class="home" href="../index.html">CCA-F</a>
+  <a href="../index.html">Accueil</a>
+  <a class="current" href="../D0_API_Fundamentals.html" title="D0 — Fondamentaux de l'API">D0</a>
+  <a href="../D1_Architecture_Orchestration_27pct.html" title="D1 — Architecture et orchestration (27 %)">D1</a>
+  <a href="../D2_Tool_Design_MCP_18pct.html" title="D2 — Tool design et MCP (18 %)">D2</a>
+  <a href="../D3_Claude_Code_Config_20pct.html" title="D3 — Configuration Claude Code (20 %)">D3</a>
+  <a href="../D4_Prompt_Engineering_20pct.html" title="D4 — Prompt engineering (20 %)">D4</a>
+  <a href="../D5_Context_Fiabilite_15pct.html" title="D5 — Context et reliability (15 %)">D5</a>
+  <a href="../Practice_Questions.html" title="Practice Questions — 112 QCM corrigés, en anglais">QCM</a>
+  <a href="../Scenarios_Exam.html" title="Les 6 scénarios d'examen">Scénarios</a>
+  <a href="../Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
+  <a href="../anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf" title="Le guide d'examen officiel (PDF) — la seule source qui fait foi" target="_blank" rel="noopener">Guide</a>
+</nav>
+<div class="lang-switch">
+  <a href="../D0_API_Fundamentals.html">FR</a>
+</div>
+
+<div class="header-bar">
+<h1>D0 — API foundations</h1>
+<p>These are the prerequisites the exam guide assumes you already have. Nothing
+here is a task statement of its own: the guide tests what you <em>build</em> on top of
+this. Read it once, then move to D1.</p>
+<p>Each section stops where a task statement starts. Where a notion belongs to
+another domain, you get one sentence of definition and a pointer, never a bare
+link.</p>
+<p>The guide also decides what is <em>not</em> here. Its out-of-scope list rules out
+Claude's internal architecture, tokenization specifics, embedding models,
+streaming, and API authentication — so the request lifecycle stops at the shape
+of the call, and never goes inside the model. What the guide leaves out, the
+corpus records with its motive in <code>courses/out-of-scope.md</code>.</p>
+</div>
+
+<div class="toc">
+<strong>Table of contents</strong>
+<ol>
+<li><a href="#s1">Anatomy of a Messages API request</a></li>
+<li><a href="#s2">Roles, turns, and a stateless API</a></li>
+<li><a href="#s3">Content blocks</a></li>
+<li><a href="#s4"><code>stop_reason</code></a></li>
+<li><a href="#s5">System prompts</a></li>
+<li><a href="#s6">The context window</a></li>
+<li><a href="#s7">Self-assessment questions</a></li>
+</ol>
+</div>
+
+<div class="section-header"><h2 id="s1">1. Anatomy of a Messages API request</h2></div>
+
+<p>One call carries everything: <code>client.messages.create()</code>. There is no session to
+open and nothing to close.</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>model</code></td>
+<td>yes</td>
+<td>Which Claude model answers the request</td>
+</tr>
+<tr>
+<td><code>messages</code></td>
+<td>yes</td>
+<td>The conversation history you are sending, oldest first</td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td>yes</td>
+<td>Ceiling on how many tokens the response may contain</td>
+</tr>
+<tr>
+<td><code>system</code></td>
+<td>no</td>
+<td>Standing instructions, outside the conversation</td>
+</tr>
+<tr>
+<td><code>tools</code></td>
+<td>no</td>
+<td>The tool schemas the model may call — designed in D2.1</td>
+</tr>
+<tr>
+<td><code>tool_choice</code></td>
+<td>no</td>
+<td>Whether the model may answer in prose or must call a tool — developed in D4.3</td>
+</tr>
+<tr>
+<td><code>temperature</code></td>
+<td>no</td>
+<td>How much randomness enters token selection, from 0 to 1</td>
+</tr>
+</tbody>
+</table>
+<p>Two of these are read wrong often enough to be worth stating plainly.</p>
+<p><code>max_tokens</code> is a safety limit, not a target. Set it to 1000 and Claude stops
+after 1000 tokens even if it had more to say; it never tries to reach the
+number. It bounds the output, not the request you send.</p>
+<p><code>system</code> is a sibling of <code>messages</code>, not one of them. Every other field on this
+list is a sibling too: <code>tools</code> and <code>tool_choice</code> sit at the top level of the
+body, never inside a message.</p>
+<pre><code class="language-json">{
+  &quot;model&quot;: &quot;claude-sonnet-5&quot;,
+  &quot;max_tokens&quot;: 1024,
+  &quot;system&quot;: &quot;You are a financial analysis assistant. Answer concisely.&quot;,
+  &quot;messages&quot;: [
+    { &quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What was company X's revenue in Q3?&quot; }
+  ]
+}
+</code></pre>
+<div class="key-concept">
+<p><code>system</code> sits beside <code>messages</code>, never inside it. Sliding the standing
+instructions in as a first <code>user</code> message is the most common shape error on
+this endpoint, and it changes how the model weighs them.</p>
+</div>
+<p>Exact model identifiers are not exam material. <code>temperature</code> is not either —
+the guide never names it, and no task statement turns on it; the row is here so
+you recognize the field in a request body you are handed, not to be memorized.</p>
+<p><strong>To test</strong> — the self-assessment questions of this page.</p>
+
+<div class="section-header"><h2 id="s2">2. Roles, turns, and a stateless API</h2></div>
+
+<p><code>messages</code> is a list of dictionaries, each with a <code>role</code> and a <code>content</code>. There
+are two roles:</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Who writes it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>user</code></td>
+<td>You — what you send to Claude</td>
+</tr>
+<tr>
+<td><code>assistant</code></td>
+<td>Claude — what it generated</td>
+</tr>
+</tbody>
+</table>
+<p>A conversation alternates between the two: user turn, assistant turn, user turn.</p>
+<p><strong>The API stores nothing.</strong> Every request is independent and carries no memory
+of the ones before it. Ask &quot;What is quantum computing?&quot;, get an answer, then
+send &quot;Write another sentence&quot; on its own, and the model has no idea what it is
+being asked to extend — it will write a sentence about something else entirely.</p>
+<p>Multi-turn conversation is therefore work you do, not a service the API renders:
+send the first user message, append Claude's reply to your list as an
+<code>assistant</code> message, append the follow-up as a <code>user</code> message, and send the
+whole list again.</p>
+<pre><code class="language-json">&quot;messages&quot;: [
+  { &quot;role&quot;: &quot;user&quot;,      &quot;content&quot;: &quot;Define quantum computing in one sentence&quot; },
+  { &quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: &quot;Quantum computing uses quantum states to process information.&quot; },
+  { &quot;role&quot;: &quot;user&quot;,      &quot;content&quot;: &quot;Write another sentence&quot; }
+]
+</code></pre>
+<p>Only because the first two turns are still in the array does &quot;Write another
+sentence&quot; mean anything on the third.</p>
+<div class="exam-tip">
+<p>Everything that must still be visible on turn five has to be in the array you
+send on turn five. This is the rule behind most &quot;the model forgot&quot; bugs, and it
+applies to tool results exactly as it applies to text. The same rule is why a
+spawned subagent has to be handed its context explicitly — it inherits nothing.</p>
+</div>
+<div class="anti-pattern">
+<p>Sending only the latest message and expecting the earlier turns to still be
+there. Nothing expires server-side, because nothing is stored server-side;
+rebuilding the history is the caller's job, on every single request.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;1.3&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s3">3. Content blocks</h2></div>
+
+<p>A reply's <code>content</code> is never a bare string — it is a <strong>list of blocks</strong>, each
+with its own type. Reading a reply as text works only because you indexed into
+that list: <code>message.content[0].text</code> is the first block's text, not the message.
+The two directions are not symmetrical: a request accepts either form, a plain
+string or a list of blocks.</p>
+<table>
+<thead>
+<tr>
+<th>Block type</th>
+<th>Direction</th>
+<th>Carries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>text</code></td>
+<td>both ways</td>
+<td>Prose, for the user to read</td>
+</tr>
+<tr>
+<td><code>tool_use</code></td>
+<td>from the assistant</td>
+<td>The tool name and the arguments the model chose</td>
+</tr>
+<tr>
+<td><code>tool_result</code></td>
+<td>from you, in a <code>user</code> message</td>
+<td>The output of the tool you ran</td>
+</tr>
+</tbody>
+</table>
+<p>A single assistant reply routinely holds several blocks at once — a text block
+explaining what it is about to do, plus a <code>tool_use</code> block requesting it. A
+<code>tool_result</code> block carries three fields: <code>tool_use_id</code>, matching the id of the
+<code>tool_use</code> block it answers; <code>content</code>, the function output serialized as a
+string; and <code>is_error</code>, a boolean. It travels back inside a <code>user</code> message,
+alongside the complete history.</p>
+<pre><code class="language-json">{ &quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: [
+    { &quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;Let me look that order up.&quot; },
+    { &quot;type&quot;: &quot;tool_use&quot;, &quot;id&quot;: &quot;toolu_01X&quot;, &quot;name&quot;: &quot;lookup_order&quot;,
+      &quot;input&quot;: { &quot;order_id&quot;: &quot;ORD-67890&quot; } }
+]},
+{ &quot;role&quot;: &quot;user&quot;, &quot;content&quot;: [
+    { &quot;type&quot;: &quot;tool_result&quot;, &quot;tool_use_id&quot;: &quot;toolu_01X&quot;,
+      &quot;content&quot;: &quot;{ \&quot;status\&quot;: \&quot;shipped\&quot;, \&quot;total\&quot;: 42.90 }&quot;,
+      &quot;is_error&quot;: false }
+]}
+</code></pre>
+<p>Between those two messages, <strong>your code</strong> ran <code>lookup_order</code>. The model never
+executes anything; it emits a structured request and waits.</p>
+<div class="anti-pattern">
+<p>Appending only the text you displayed and dropping the <code>tool_use</code> block. The
+pairing with <code>tool_result</code> is what the next request depends on, so the history
+becomes unanswerable. Append <strong>all</strong> of <code>response.content</code>, and keep the
+original tool schemas on the follow-up request even when no further call is
+expected.</p>
+</div>
+<p>A tool is declared as a JSON schema with three parts: <code>name</code>, <code>description</code> —
+what the tool does, when to use it, what it returns — and <code>input_schema</code> for the
+arguments. That is the anatomy, and it stops there. <strong>Which wording makes the
+model pick the right tool among several similar ones is tool design, developed
+in D2.1</strong>; <strong>using a schema to force a conforming payload is structured output,
+developed in D4.3.</strong></p>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;2.1&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s4">4. <code>stop_reason</code></h2></div>
+
+<p>When the model stops, the response says why in <code>stop_reason</code> — and that field,
+not the presence of a text block, is what tells you whether a reply is finished.</p>
+<table>
+<thead>
+<tr>
+<th>Value</th>
+<th>What ended generation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>end_turn</code></td>
+<td>The model reached a natural end and had nothing more to say</td>
+</tr>
+<tr>
+<td><code>max_tokens</code></td>
+<td>The output budget you set ran out mid-generation</td>
+</tr>
+<tr>
+<td><code>stop_sequence</code></td>
+<td>One of your <code>stop_sequences</code> strings appeared</td>
+</tr>
+<tr>
+<td><code>tool_use</code></td>
+<td>The model is calling one of your tools and is waiting for you to run it</td>
+</tr>
+<tr>
+<td><code>pause_turn</code></td>
+<td>A server-tool loop hit its iteration limit, 10 per request by default</td>
+</tr>
+<tr>
+<td><code>refusal</code></td>
+<td>The model declined for safety-policy reasons</td>
+</tr>
+<tr>
+<td><code>model_context_window_exceeded</code></td>
+<td>The response filled the model's context window</td>
+</tr>
+</tbody>
+</table>
+<p><code>stop_details</code> is <code>null</code> for every value but <code>refusal</code>, where it carries the
+policy category. <code>model_context_window_exceeded</code> is the recent one: Sonnet 4.5
+and newer models return it without a beta header, and earlier models need the
+<code>model-context-window-exceeded-2025-08-26</code> header to enable it.</p>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;msg_01ABC&quot;,
+  &quot;role&quot;: &quot;assistant&quot;,
+  &quot;content&quot;: [
+    { &quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;Let me look that order up.&quot; },
+    { &quot;type&quot;: &quot;tool_use&quot;, &quot;id&quot;: &quot;toolu_01X&quot;, &quot;name&quot;: &quot;lookup_order&quot;,
+      &quot;input&quot;: { &quot;order_id&quot;: &quot;ORD-67890&quot; } }
+  ],
+  &quot;stop_reason&quot;: &quot;tool_use&quot;,
+  &quot;stop_details&quot;: null
+}
+</code></pre>
+<p>That response carries text <em>and</em> a tool request — which is exactly why the
+presence of text cannot serve as a completion signal.</p>
+<div class="exam-tip">
+<p><code>end_turn</code> is the only value that means <em>complete</em>. A response with
+<code>stop_reason: &quot;max_tokens&quot;</code> holds a text block like any other, but it was cut
+off mid-sentence — display code that checks for text instead of checking
+<code>stop_reason</code> will present a truncated draft as a finished one. That is the
+classic distractor on this field.</p>
+</div>
+<p>Two values are worth telling apart even though only one pair is tested. A reply
+waiting on <strong>your</strong> tool always says <code>tool_use</code>, and you continue it by sending
+<code>tool_result</code> blocks. <code>pause_turn</code> concerns a <strong>server</strong> tool that ran out of
+iterations, and you continue it by sending the assistant content back unchanged.</p>
+<p>The guide only ever asks you to tell <code>tool_use</code> from <code>end_turn</code> — that pair
+drives the loop, and it is all TS 1.1 tests. <strong>Turning the check into a loop —
+call, inspect <code>stop_reason</code>, execute, append, call again — is the agentic loop,
+developed in D1.1.</strong> D0 stops at naming the signal.</p>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;1.1&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s5">5. System prompts</h2></div>
+
+<p>The <code>system</code> parameter is a plain string passed alongside <code>messages</code>, and it
+sits <strong>outside</strong> the conversation: it is not a turn, it has no role, and it is
+not something the model answers. It shapes <em>how</em> Claude responds, not <em>what</em> it
+responds.</p>
+<p>Take a maths tutor. Without a system prompt, &quot;How do I solve 5x + 2 = 3 for x?&quot;
+gets a complete step-by-step solution immediately — correct, and useless for
+teaching. With:</p>
+<pre><code>You are a patient math tutor.
+Do not directly answer a student's questions.
+Guide them to a solution step by step.
+</code></pre>
+<p>the same question comes back as &quot;What do you think would be a good first step to
+isolate x?&quot;. Same model, same user turn; the standing instruction changed the
+behaviour.</p>
+<p>That is what a system prompt is for: assign a role, and the model answers the
+way someone in that role would; state durable constraints, and they hold across
+every turn without being restated. They hold because you resend them every
+request, not because the API remembers them — and you pay for them every time.</p>
+<div class="anti-pattern">
+<p>Putting the system prompt in as the first <code>user</code> message. It then reads as
+conversational context rather than a standing instruction, and it competes with
+the turns around it instead of sitting above them.</p>
+</div>
+<div class="exam-tip">
+<p>A system instruction carries further than any per-turn wording — far enough that
+a single absolute keyword can override tool descriptions that are otherwise
+well written. &quot;Always verify the customer's identity&quot; will drag the
+nearest-matching tool onto every turn. <strong>How that overriding works, and how to
+word around it, is developed in D2.1.</strong></p>
+</div>
+<p>One practical note: the API does not accept <code>system=None</code>, so a reusable chat
+helper has to add the key only when a prompt was actually given.</p>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;2.1&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s6">6. The context window</h2></div>
+
+<p>Put the two previous facts together. The API keeps no state, so every request
+ships the entire history; and every request has a finite token budget. The
+history is therefore not free — it is a recurring cost that grows with the
+conversation, monotonically, unless you do something about it.</p>
+<p>What accumulates, per request:</p>
+<table>
+<thead>
+<tr>
+<th>What you resend</th>
+<th>Why it is there</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The <code>system</code> prompt</td>
+<td>It holds across turns because you resend it, not because it is stored</td>
+</tr>
+<tr>
+<td>Every past <code>user</code> and <code>assistant</code> turn</td>
+<td>Nothing is stored server-side</td>
+</tr>
+<tr>
+<td>Every <code>tool_use</code> and <code>tool_result</code> block</td>
+<td>Dropping them breaks the pairing</td>
+</tr>
+<tr>
+<td>The full tool schemas</td>
+<td>Required on every request, even when no call follows</td>
+</tr>
+</tbody>
+</table>
+<p>Tool results are the part people underestimate. A tool that returns a large
+record puts that record into the history for the rest of the run, and you pay
+for it on every subsequent turn — not once.</p>
+<pre><code>lookup_order → 42 fields returned, 5 useful for return eligibility
+  order_id, status, total, items, return_eligible          ← useful
+  warehouse_route, carrier_scac, pick_wave, audit_flags,
+  promo_ledger, tax_jurisdiction, … (37 more)              ← dead weight here
+
+3 orders looked up = 126 fields resent on every later turn, 15 of them earning it.
+</code></pre>
+<p>The guide names three failure modes of a full window, and D0 goes exactly as far
+as naming them: <strong>lost-in-the-middle</strong>, where material buried in the middle of a
+long context is missed while the start and the end are read reliably;
+<strong>accumulation</strong>, the growth shown above; and <strong>progressive summarization</strong>,
+where compressing the history to make room trades away the numbers, dates and
+specifics first.</p>
+<div class="exam-tip">
+<p>Recognize the three failure modes here; the fixes are not D0's. <strong>Trimming
+verbose tool outputs, extracting structured facts, and ordering input by
+position are developed in D5.1.</strong> Retrieval and chunking are not the answer the
+guide asks for — it puts them out of scope, and so does this corpus.</p>
+</div>
+<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;5.1&quot;</code>.</p>
+
+<div class="section-header"><h2 id="s7" class="page-break">7. Self-assessment questions</h2></div>
+
+<details id="d0-q1" data-domain="D0" data-task="1.1">
+<summary>Q1 (D0) — A stop_reason your display code ignores</summary>
+<div>
+<p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
+<p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
+<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> caps the size of the request being sent, not the length of the output.</p>
+<p data-opt="b">B) The token budget ran out mid-generation; only <code>"end_turn"</code> means the response is complete.</p>
+<p data-opt="c">C) The model refused to continue for safety reasons, so nothing should be shown and the attempt should be escalated for human review instead.</p>
+<p data-opt="d">D) A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
+<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer. Scope note: among stop reasons, the exam guide names only the pair that drives the agentic loop, and that loop is what the task this sheet prepares tests. <code>"max_tokens"</code>, <code>"refusal"</code> and <code>"pause_turn"</code> come from the API reference — D0 prerequisite material, not extra exam surface.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
+<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause. Nothing was refused here, so withholding the draft and escalating would stall a run that only needs continuing.</li>
+<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget. Nothing is paused waiting to resume, so an identical resend would simply regenerate the same truncated draft.</li>
+</ul>
+</div>
+</details>
+
+<details id="d0-q2" data-domain="D0" data-task="2.1">
+<summary>Q2 (D0) — Which part of a tool definition decides the routing</summary>
+<div>
+<p><strong>Scenario:</strong> An HR assistant exposes <code>search_policy_doc</code> ("Retrieves policy content") and <code>search_payroll_record</code> ("Retrieves payroll data"). Both accept employee identifiers of a similar shape, and the model routinely picks the wrong one.</p>
+<p><strong>Question:</strong> Which part of a tool definition drives that choice?</p>
+<p data-opt="a">A) The position of each tool in the request's <code>tools</code> array.</p>
+<p data-opt="b">B) The tool name, which outranks the rest of the definition.</p>
+<p data-opt="c">C) The <code>description</code>, which is the primary selection mechanism.</p>
+<p data-opt="d">D) The size of the <code>input_schema</code>: the model prefers the simplest one.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: the description</p>
+<p><strong>Why:</strong> the model selects a tool by reading the definitions, and the description is where the meaning lives. Two one-line descriptions give it nothing to tell the tools apart, so misrouting becomes structural. The fix is to state input formats, example requests, edge cases and the boundary with neighboring tools.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Declaration order is not a selection criterion.</li>
+<li data-opt="b">The name helps, but it cannot carry input formats, edge cases or usage boundaries.</li>
+<li data-opt="d">The schema describes the arguments once a tool has been chosen; it does not decide which tool to choose.</li>
+</ul>
+</div>
+</details>
+
+<details id="d0-q3" data-domain="D0" data-task="1.3">
+<summary>Q3 (D0) — A stateless API and a vanished tool_result</summary>
+<div>
+<p><strong>Scenario:</strong> A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.</p>
+<p><strong>Question:</strong> What is the most likely cause?</p>
+<p data-opt="a">A) The API keeps no state, and the caller did not resend the earlier <code>tool_result</code> blocks.</p>
+<p data-opt="b">B) A <code>tool_result</code> block expires server-side soon after it is submitted, so later requests miss it.</p>
+<p data-opt="c">C) The <code>max_tokens</code> value is too low to hold the <code>tool_result</code>, so the oldest blocks drop first.</p>
+<p data-opt="d">D) A <code>session_id</code> parameter is missing, so the server cannot attach this request to the earlier turn.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: the API is stateless and the history was not resent</p>
+<p><strong>Why:</strong> nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">Nothing expires server-side, because nothing is stored there.</li>
+<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send; and no block is dropped for you, because none is kept for you.</li>
+<li data-opt="d">The Messages API has no such parameter.</li>
+</ul>
+</div>
+</details>
+
+<details id="d0-q4" data-domain="D0" data-task="2.1">
+<summary>Q4 (D0) — A standing rule that drags a tool onto every turn</summary>
+<div>
+<p><strong>Scenario:</strong> A greenhouse operations assistant opens its system prompt with "Every answer must reflect the current sensor readings." Logs show <code>read_sensors</code> firing on each turn, including when a grower asks how a cultivar name should be spelled in the planting log. Each tool definition spells out its inputs and where its job ends.</p>
+<p><strong>Question:</strong> What stops the needless calls?</p>
+<p data-opt="a">A) Add few-shot examples of clerical turns answered without any sensor call, so the assistant can copy the pattern on the next spelling question.</p>
+<p data-opt="b">B) Have the client drop <code>read_sensors</code> from the <code>tools</code> array whenever it judges the incoming question clerical.</p>
+<p data-opt="c">C) Name the conditions that call for a reading, and retire the absolute sentence.</p>
+<p data-opt="d">D) Cache the last reading for ten minutes so repeat turns reuse it instead of calling out again.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: state when a reading is required, and drop the blanket rule</p>
+<p><strong>Why:</strong> "every answer" reads as a permanent trigger, and the model binds it to whichever tool the wording resembles most. A rule phrased with no exceptions outranks the tool definitions, however careful they are — which is why the scenario tells you those definitions are sound. Spelling out the situations that genuinely need a reading removes the trigger while keeping the check where it earns its cost.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Examples cannot outvote a rule that still admits no exception; the model treats them as odd cases rather than as the boundary.</li>
+<li data-opt="b">Moves the decision to the caller, which must now classify a question before the model has read it, and leaves the misleading rule in place.</li>
+<li data-opt="d">Cheaper calls, identical behavior: a spelling question still travels through the sensor path, and a stale value is the wrong answer where readings matter.</li>
+</ul>
+</div>
+</details>
+
+<details id="d0-q5" data-domain="D0" data-task="2.3">
+<summary>Q5 (D0) — A triage loop that never writes its answer</summary>
+<div>
+<p><strong>Scenario:</strong> A ticket-triage client runs its own loop: send the request, run whatever tool comes back, append the result, send again. To stop the assistant from chatting while work remains, the client sets <code>tool_choice</code> to the value that guarantees a call — and it sets it on every request of the loop. Runs now end only when the client's iteration cap trips, and no written answer ever arrives.</p>
+<p><strong>Question:</strong> Why does the run never reach one?</p>
+<p data-opt="a">A) That value binds the first request alone; the later ones revert to the automatic setting, so the assistant keeps reaching for <code>lookup_account</code> long after the answer is available.</p>
+<p data-opt="b">B) Each tool result is appended as a user turn, and a request whose last turn came from the user can only be answered by another call.</p>
+<p data-opt="c">C) Repeating that value on every request removes the assistant's only way of finishing, which is a turn that ends in text; the client should guarantee the opening call and leave the remaining requests on the automatic setting.</p>
+<p data-opt="d">D) The iteration cap sits below the number of declared tools, so the client cuts the run short before <code>classify_ticket</code> and its neighbours have all been tried.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: the setting also forbids the text-only turn a run has to end on</p>
+<p><strong>Why:</strong> <code>tool_choice: "any"</code> promises exactly one thing, on every request that carries it: a tool will be called. Sent once, that pins the opening step. Sent on every request, it also outlaws the closing one, since a turn answering in prose is no longer permitted. Handing the later requests back to <code>tool_choice: "auto"</code> restores the choice between calling again and answering.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">The field is read afresh on each request; it neither expires nor decays, and the loop here restates it every time.</li>
+<li data-opt="b">A user turn carrying a tool result can be answered in prose just as readily as with another call — that is precisely what the automatic setting permits.</li>
+<li data-opt="d">The cap is what halts a run that would otherwise not halt at all; raising it buys further calls, never a written answer.</li>
+</ul>
+</div>
+</details>
+
+<details id="d0-q6" data-domain="D0" data-task="4.3">
+<summary>Q6 (D0) — A mandatory field the source cannot fill</summary>
+<div>
+<p><strong>Scenario:</strong> An invoice extraction tool lists <code>discount_pct</code> among its <code>required</code> properties, yet plenty of invoices grant no discount. Reviewers keep finding discount figures that appear nowhere on the invoice.</p>
+<p><strong>Question:</strong> What is happening, and what removes the cause?</p>
+<p data-opt="a">A) The API validates the payload against the schema and rejects the call as invalid, so nothing reaches the pipeline.</p>
+<p data-opt="b">B) The model invents a figure to satisfy the constraint; make the property nullable and no longer mandatory.</p>
+<p data-opt="c">C) The model leaves the property empty, and the pipeline should read an empty value as absent.</p>
+<p data-opt="d">D) The model skips the tool call whenever a mandatory property has no source value.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: the model invents a figure, so make the property nullable and optional</p>
+<p><strong>Why:</strong> a mandatory property leaves the model choosing between breaking the schema and making something up, and it makes something up. Declaring it <code>"type": ["number", "null"]</code> and taking it out of <code>required</code> gives the model an honest way to report absence.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Validation covers schema conformance, never truthfulness: an invented number conforms perfectly.</li>
+<li data-opt="c">Nothing empties the property while the schema still demands a value.</li>
+<li data-opt="d">The tool does get called; it is the payload that is wrong.</li>
+</ul>
+</div>
+</details>
+
+<nav class="doc-nav">
+  <a class="prev" href="../index.html"><span class="label">Previous</span><span class="title">Accueil</span></a>
+  <a class="next" href="../D1_Architecture_Orchestration_27pct.html"><span class="label">Next</span><span class="title">D1 — Architecture et orchestration</span></a>
+</nav>
+
+<hr>
+<p style="text-align:center;color:#888;font-size:9pt;">
+CCA Revision — D0 — API foundations · 2026
+</p>
+
+
+<a href="#top" class="back-to-top" aria-label="Back to top" id="back-to-top">↑</a>
+
+</body>
+</html>

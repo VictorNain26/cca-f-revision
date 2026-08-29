@@ -184,6 +184,42 @@ body {
   body { padding: 0; }
 }
 
+/* Sélecteur de langue : hors du bloc <nav class="navbar"> (voir la note de
+   tools/lib/page.mjs), donc sans style avant cette règle — il tombait en
+   flux normal, un lien nu sous la navbar collante. */
+.lang-switch {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+}
+
+.lang-switch a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--bg-soft);
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 9pt;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: background 0.15s, color 0.15s;
+}
+
+.lang-switch a:hover,
+.lang-switch a:focus-visible {
+  background: var(--primary);
+  color: white;
+}
+
+@media print {
+  .lang-switch { display: none; }
+}
+
 /* ============================================================
    HEADER — bandeau de titre du document
    ============================================================ */

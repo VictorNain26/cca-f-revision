@@ -1,6 +1,6 @@
 # D0 — Fondamentaux de l'API
 
-<!-- src:05claudeapi L2-14 and L30-42, building_claude_api module 1 -->
+<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->
 
 Voici les prérequis que le guide d'examen suppose acquis. Rien ici n'est un task
 statement à part entière : le guide teste ce que vous *construisez* par-dessus.
@@ -10,122 +10,127 @@ Chaque section s'arrête là où commence un task statement. Quand une notion
 appartient à un autre domaine, vous en avez la définition en une phrase et un
 renvoi, jamais un lien nu.
 
+Le guide décide aussi de ce qui n'est *pas* ici. Son hors-périmètre écarte
+l'architecture interne de Claude, les spécificités de la tokenisation, les
+modèles d'embedding, le streaming et l'authentification à l'API — le cycle de vie
+d'une requête s'arrête donc à la forme de l'appel et n'entre jamais dans le
+modèle. Ce que le guide laisse de côté, le corpus le consigne avec son motif
+dans `courses/out-of-scope.md`.
+
 ## Anatomie d'une requête Messages API
-<!-- src:05claudeapi L3, L5, L8, L10 ; building_claude_api module 1 -->
+<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->
 <!-- owns:messages-api -->
 
-Une requête part de votre propre serveur, jamais du navigateur ni de
-l'application mobile. La clé d'API authentifie la requête ; une clé livrée dans
-du code client peut être extraite par n'importe qui et utilisée sur votre
-compte. Le client parle donc à votre serveur, et votre serveur parle à l'API
-Anthropic avec la clé gardée côté serveur.
+Un seul appel porte tout : `client.messages.create()`. Il n'y a pas de session à
+ouvrir ni quoi que ce soit à fermer.
 
-L'aller-retour complet compte cinq étapes : le client vers votre serveur, votre
-serveur vers l'API Anthropic, le traitement par le modèle, la réponse vers votre
-serveur, la réponse vers le client. Votre serveur peut appeler l'API via un SDK
-officiel — Python, TypeScript, JavaScript, Go, Ruby — ou en HTTP direct.
-
-L'appel lui-même est `client.messages.create()`, et il porte ces champs :
-
-| Champ | Requis | Rôle |
+| Champ | Obligatoire | Rôle |
 |---|---|---|
 | `model` | oui | Le modèle Claude qui répond à la requête |
 | `messages` | oui | L'historique de conversation que vous envoyez, du plus ancien au plus récent |
 | `max_tokens` | oui | Plafond du nombre de tokens que la réponse peut contenir |
-| `system` | non | Des instructions qui se tiennent en dehors de la conversation |
-| `temperature` | non | La part d'aléatoire dans la sélection des tokens, de 0 à 1 |
+| `system` | non | Instructions permanentes, hors de la conversation |
+| `tools` | non | Les schémas des outils que le modèle peut appeler — conçus en D2.1 |
+| `tool_choice` | non | Décide si le modèle peut répondre en prose ou doit appeler un outil — développé en D4.3 |
+| `temperature` | non | Le degré d'aléatoire dans la sélection des tokens, de 0 à 1 |
 
-Deux d'entre eux sont assez souvent mal lus pour mériter d'être énoncés
-clairement.
+Deux d'entre eux sont assez souvent mal compris pour mériter d'être énoncés clairement.
 
-`max_tokens` est une limite de sécurité, pas une cible. Fixez-le à 1000 et
-Claude s'arrête après 1000 tokens même s'il avait encore à dire ; il ne cherche
-jamais à l'atteindre. Il borne la sortie, pas la requête que vous envoyez.
+`max_tokens` est une limite de sécurité, pas une cible. Réglez-le à 1000 et
+Claude s'arrête après 1000 tokens même s'il avait encore quelque chose à dire ;
+il ne cherche jamais à atteindre ce nombre. Il borne la sortie, pas la requête
+que vous envoyez.
 
-`temperature` déplace la masse de probabilité entre les tokens candidats. Près
-de 0, le modèle est quasi déterministe et prend presque toujours le token le
-plus probable ; près de 1, les probabilités s'étalent et la sortie varie
-davantage. Le cours regroupe les plages utiles ainsi : 0.0–0.3 pour les réponses
-factuelles, l'aide au code, l'extraction de données et la modération ; 0.4–0.7
-pour le résumé, le matériel pédagogique et la résolution de problèmes ; 0.8–1.0
-pour le brainstorming, l'écriture créative et le texte marketing. La temperature
-modifie les probabilités — elle ne garantit pas que deux appels diffèrent.
+`system` est un voisin de `messages`, pas l'un d'eux. Tous les autres champs de
+cette liste sont des voisins aussi : `tools` et `tool_choice` se placent au
+premier niveau du corps de la requête, jamais à l'intérieur d'un message.
 
-Entre la requête et la réponse, le modèle enchaîne quatre étapes internes : la
-**tokenization** (l'entrée est découpée en tokens — mots, fragments de mots,
-symboles), l'**embedding** (chaque token devient une liste de nombres couvrant
-les sens qu'il peut prendre), la **contextualization** (chaque embedding est
-ajusté par ses voisins pour que le bon sens l'emporte) et la **generation** (une
-couche de sortie note chaque token suivant possible, l'un est tiré à partir des
-probabilités et d'un aléa contrôlé, et tout le processus recommence pour le
-token d'après).
+```json
+{
+  "model": "claude-sonnet-5",
+  "max_tokens": 1024,
+  "system": "Tu es un assistant spécialisé en analyse financière. Réponds de manière concise.",
+  "messages": [
+    { "role": "user", "content": "Quel est le chiffre d'affaires de l'entreprise X au T3 ?" }
+  ]
+}
+```
 
-L'objet de réponse porte le message généré, un décompte `usage` des tokens
-d'entrée et de sortie, et un `stop_reason`.
+::: key-concept
+`system` se place à côté de `messages`, jamais dedans. Glisser les instructions
+permanentes en premier message `user` est l'erreur de forme la plus courante sur
+ce point d'entrée, et elle change le poids que le modèle leur accorde.
+:::
 
-**À tester** — les questions d'auto-évaluation de `D0_API_Fundamentals.html`.
+Les identifiants exacts de modèles ne sont pas matière d'examen. `temperature`
+non plus — le guide ne la nomme jamais et aucun task statement n'en dépend ; la
+ligne est là pour que vous reconnaissiez le champ dans un corps de requête qu'on
+vous présente, pas pour l'apprendre par cœur.
 
-## Les rôles et la forme d'un tour
-<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 -->
+**À tester** — les questions d'auto-évaluation de cette page.
+
+## Rôles, tours de parole et API sans état
+<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->
 <!-- owns:message-roles -->
 
-`messages` est une liste de dictionnaires, chacun avec un `role` et un
-`content`. Il y a deux rôles :
+`messages` est une liste de dictionnaires, chacun avec un `role` et un `content`.
+Il y a deux rôles :
 
 | Rôle | Qui l'écrit |
 |---|---|
 | `user` | Vous — ce que vous envoyez à Claude |
-| `assistant` | Claude — ce qu'il a généré, ou ce que vous préremplissez en son nom |
+| `assistant` | Claude — ce qu'il a généré |
 
 Une conversation alterne entre les deux : tour user, tour assistant, tour user.
 
 **L'API ne stocke rien.** Chaque requête est indépendante et ne garde aucune
 mémoire des précédentes. Demandez « Qu'est-ce que l'informatique quantique ? »,
-obtenez une réponse, puis envoyez « Écris une phrase de plus » toute seule : le
-modèle n'a aucune idée de ce qu'on lui demande de prolonger — il écrira une
+obtenez une réponse, puis envoyez « Écris une autre phrase » sans rien d'autre :
+le modèle n'a aucune idée de ce qu'on lui demande de prolonger — il écrira une
 phrase sur tout autre chose.
 
 La conversation multi-tours est donc un travail que vous faites, pas un service
-que l'API rend :
+que l'API rend : envoyer le premier message user, ajouter la réponse de Claude à
+votre liste comme message `assistant`, ajouter la relance comme message `user`,
+et renvoyer la liste entière.
 
-1. Envoyer le premier message user.
+```json
+"messages": [
+  { "role": "user",      "content": "Définis l'informatique quantique en une phrase" },
+  { "role": "assistant", "content": "L'informatique quantique exploite des états quantiques pour traiter l'information." },
+  { "role": "user",      "content": "Écris une autre phrase" }
+]
+```
 
-2. Ajouter la réponse de Claude à votre liste comme message `assistant`.
+C'est uniquement parce que les deux premiers tours sont encore dans le tableau
+que « Écris une autre phrase » veut dire quelque chose au troisième.
 
-3. Ajouter la relance comme message `user`.
-
-4. Renvoyer la liste entière.
-
-
+::: exam-tip
 Tout ce qui doit encore être visible au cinquième tour doit se trouver dans le
 tableau que vous envoyez au cinquième tour. C'est la règle derrière la plupart
-des bugs « le modèle a oublié », et elle vaut pour les tool results exactement
-comme pour le texte.
+des bugs « le modèle a oublié », et elle vaut pour les résultats d'outils
+exactement comme pour le texte. C'est la même règle qui impose de passer
+explicitement son contexte à un subagent lancé — il n'hérite de rien.
+:::
 
-Les messages assistant ne sont pas seulement la sortie de Claude. Vous pouvez en
-ajouter un vous-même pour préremplir le début de la réponse : le modèle traite
-ce texte comme quelque chose qu'il a déjà écrit et continue à partir du dernier
-caractère. Le préfixe est le vôtre, pas celui du modèle : l'API ne renvoie que
-ce qui vient après, si bien qu'un tour prérempli doit être reconcaténé au texte
-généré pour être complet. Combiné aux `stop_sequences` — des chaînes qui mettent
-fin à la génération dès qu'elles apparaissent, et qui ne figurent pas dans la
-sortie — le prefill donne une sortie structurée propre. Demandez du JSON,
-préremplissez le tour assistant avec le délimiteur ouvrant d'un bloc de code
-JSON et fixez le délimiteur fermant comme stop sequence : ce qui revient est le
-JSON seul, sans préambule et sans délimiteurs à retirer.
+::: anti-pattern
+N'envoyer que le dernier message en s'attendant à ce que les tours précédents
+soient encore là. Rien n'expire côté serveur, parce que rien n'y est stocké ;
+reconstruire l'historique est le travail de l'appelant, à chaque requête.
+:::
 
-**À tester** — les questions de la banque marquées `data-task="1.3"`.
+**À tester** — les questions de la banque étiquetées `data-task="1.3"`.
 
 ## Les blocs de contenu
-<!-- src:05claudeapi L5, L12, L34, L35, L36, L37 ; building_claude_api module 3 -->
+<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->
 <!-- owns:content-blocks -->
 
 Le `content` d'une réponse n'est jamais une simple chaîne — c'est une **liste de
 blocs**, chacun avec son type. Lire une réponse comme du texte ne marche que
-parce que vous avez lu cette liste par son index : `message.content[0].text` est
-le texte du premier bloc, pas le message. Les deux sens ne sont pas
-symétriques : une requête accepte l'une ou l'autre forme, une chaîne simple ou
-une liste de blocs, et tous les exemples du cours source envoient une chaîne.
+parce que vous avez indexé cette liste : `message.content[0].text` est le texte
+du premier bloc, pas celui du message. Les deux sens ne sont pas symétriques :
+une requête accepte l'une ou l'autre forme, une chaîne simple ou une liste de
+blocs.
 
 | Type de bloc | Sens | Contenu |
 |---|---|---|
@@ -133,88 +138,116 @@ une liste de blocs, et tous les exemples du cours source envoient une chaîne.
 | `tool_use` | de l'assistant | Le nom de l'outil et les arguments choisis par le modèle |
 | `tool_result` | de vous, dans un message `user` | La sortie de l'outil que vous avez exécuté |
 
-Une seule réponse assistant porte couramment plusieurs blocs à la fois — un bloc
-`text` qui explique ce que le modèle s'apprête à faire, plus un bloc `tool_use`
-qui le demande. D'où la règle, dans les conversations avec outils : ajouter
-**tout** `response.content` à l'historique, pas seulement le texte que vous avez
-affiché — laisser tomber le bloc `tool_use` casse l'appariement dont dépend la
-requête suivante.
+Une seule réponse d'assistant porte couramment plusieurs blocs à la fois — un
+bloc texte qui explique ce que le modèle s'apprête à faire, plus un bloc
+`tool_use` qui le demande. Un bloc `tool_result` porte trois champs :
+`tool_use_id`, qui correspond à l'id du bloc `tool_use` auquel il répond ;
+`content`, la sortie de la fonction sérialisée en chaîne ; et `is_error`, un
+booléen. Il repart dans un message `user`, accompagné de l'historique complet.
 
-Un bloc `tool_result` porte trois champs : `tool_use_id`, qui reprend l'id du
-bloc `tool_use` auquel il répond ; `content`, la sortie de la fonction
-sérialisée en chaîne ; et `is_error`, un booléen. Il repart dans un message
-`user`, aux côtés de l'historique complet — et les schémas d'outils d'origine
-doivent toujours être déclarés sur cette requête, même si plus aucun appel n'est
-attendu.
+```json
+{ "role": "assistant", "content": [
+    { "type": "text", "text": "Je consulte la commande." },
+    { "type": "tool_use", "id": "toolu_01X", "name": "lookup_order",
+      "input": { "order_id": "ORD-67890" } }
+]},
+{ "role": "user", "content": [
+    { "type": "tool_result", "tool_use_id": "toolu_01X",
+      "content": "{ \"status\": \"shipped\", \"total\": 42.90 }",
+      "is_error": false }
+]}
+```
 
-Les outils eux-mêmes sont déclarés en JSON Schema, un par outil, en trois
-parties : `name`, l'identifiant ; `description`, ce que fait l'outil, quand
-l'utiliser et ce qu'il retourne ; et `input_schema`, un JSON Schema pour les
-arguments. Voilà l'anatomie. **Quelle formulation de description fait choisir au
-modèle le bon outil parmi plusieurs outils voisins relève du tool design,
-développé en D2.1** — une description d'une ligne, c'est ce qui rend deux outils
-voisins indiscernables.
+Entre ces deux messages, c'est **votre code** qui a exécuté `lookup_order`. Le
+modèle n'exécute jamais rien ; il émet une demande structurée et attend.
 
-Un champ mérite d'être nommé ici parce qu'il apparaît dans les corps de requête
-que vous serez amené à lire : `tool_choice` indique au modèle s'il peut répondre
-en prose ou s'il doit appeler un outil. **Ses modes et ce que chacun interdit
-sont développés en D4.3.**
+::: anti-pattern
+N'ajouter que le texte affiché et laisser tomber le bloc `tool_use`. C'est
+l'appariement avec `tool_result` dont dépend la requête suivante : l'historique
+devient impossible à traiter. Ajoutez **tout** `response.content`, et gardez les
+schémas d'outils d'origine sur la requête de suivi même si aucun autre appel
+n'est attendu.
+:::
 
-**À tester** — les questions de la banque marquées `data-task="2.1"`.
+Un outil se déclare en JSON Schema, en trois parties : `name`, `description` — ce
+que fait l'outil, quand l'utiliser, ce qu'il retourne — et `input_schema` pour
+les arguments. Voilà l'anatomie, et elle s'arrête là. **Savoir quelle formulation
+fait choisir au modèle le bon outil parmi plusieurs voisins relève de la conception
+d'outils, développée en D2.1** ; **se servir d'un schéma pour forcer une charge
+utile conforme est la sortie structurée, développée en D4.3.**
 
-## `stop_reason`
-<!-- src:05claudeapi L3, L13, L38 (tool_use) ; building_claude_api modules 1 and 3 ; Anthropic docs, Handling stop reasons (values, stop_details, pause_turn default iteration limit of 10) ; exam guide TS 1.1 -->
+**À tester** — les questions de la banque étiquetées `data-task="2.1"`.
+
+## Le champ `stop_reason`
+<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
 <!-- owns:stop-reason -->
 
-Après chaque token, le modèle vérifie s'il doit continuer. Quand il s'arrête, la
-réponse dit pourquoi dans `stop_reason` — et c'est ce champ, pas la présence
-d'un bloc `text`, qui vous dit si une réponse est terminée.
+Quand le modèle s'arrête, la réponse dit pourquoi dans `stop_reason` — et c'est
+ce champ, pas la présence d'un bloc texte, qui vous dit si une réponse est
+terminée.
 
 | Valeur | Ce qui a mis fin à la génération |
 |---|---|
-| `end_turn` | Le modèle est arrivé à une fin naturelle et n'avait plus rien à dire |
-| `max_tokens` | Le budget de sortie que vous aviez fixé s'est épuisé en cours de génération |
-| `stop_sequence` | Une de vos chaînes `stop_sequences` est apparue |
-| `tool_use` | Le modèle appelle un outil et attend que vous l'exécutiez |
-| `pause_turn` | Une boucle d'outil serveur a atteint sa limite d'itérations (10 par défaut) |
+| `end_turn` | Le modèle est arrivé à une fin naturelle et n'avait rien à ajouter |
+| `max_tokens` | Le budget de sortie que vous avez fixé s'est épuisé en cours de génération |
+| `stop_sequence` | L'une de vos chaînes `stop_sequences` est apparue |
+| `tool_use` | Le modèle appelle l'un de vos outils et attend que vous l'exécutiez |
+| `pause_turn` | Une boucle d'outil serveur a atteint sa limite d'itérations, 10 par requête par défaut |
 | `refusal` | Le modèle a refusé pour des raisons de politique de sécurité |
-| `model_context_window_exceeded` | La réponse a rempli la context window |
+| `model_context_window_exceeded` | La réponse a rempli la fenêtre de contexte du modèle |
 
-`stop_details` vaut `null` pour toutes les valeurs sauf `refusal`, où il porte
-la catégorie de politique. `model_context_window_exceeded` est la valeur
-récente : elle existe à partir de Claude 4.5, là où les modèles antérieurs
-renvoyaient une erreur de validation, et le comportement s'active explicitement
-via la beta `model-context-window-exceeded-2025-08-26`.
+`stop_details` vaut `null` pour toutes les valeurs sauf `refusal`, où il porte la
+catégorie de politique concernée. `model_context_window_exceeded` est la plus
+récente : Sonnet 4.5 et les modèles plus récents la renvoient sans en-tête beta,
+et les modèles antérieurs ont besoin de l'en-tête
+`model-context-window-exceeded-2025-08-26` pour l'activer.
 
-La distinction qui compte en production : `end_turn` est la seule valeur qui
-signifie *terminé*. Une réponse avec `stop_reason: "max_tokens"` porte un bloc
-`text` comme n'importe quelle autre, mais elle a été coupée en pleine phrase —
-un code d'affichage qui teste la présence de texte au lieu de lire `stop_reason`
-présentera un brouillon tronqué comme un texte fini.
+```json
+{
+  "id": "msg_01ABC",
+  "role": "assistant",
+  "content": [
+    { "type": "text", "text": "Je consulte la commande." },
+    { "type": "tool_use", "id": "toolu_01X", "name": "lookup_order",
+      "input": { "order_id": "ORD-67890" } }
+  ],
+  "stop_reason": "tool_use",
+  "stop_details": null
+}
+```
 
-`tool_use` est la valeur sur laquelle un client agit plutôt qu'il ne l'affiche :
-le modèle a demandé quelque chose, et le tour n'est pas fini tant que vous
-n'avez pas exécuté l'outil et renvoyé le résultat. **Transformer cette
-vérification en boucle — appeler, inspecter `stop_reason`, exécuter, ajouter à
-l'historique, rappeler jusqu'à ce que la valeur ne soit plus `tool_use` — c'est
-l'agentic loop, développée en D1.1.** D0 s'arrête à nommer le signal.
+Cette réponse porte du texte *et* une demande d'outil — c'est précisément
+pourquoi la présence de texte ne peut pas servir de signal de fin.
 
-Où porter l'effort : le guide ne demande jamais que de distinguer `"tool_use"`
-de `"end_turn"` — c'est cette paire qui pilote la boucle, et c'est tout ce que
-teste le TS 1.1. Les cinq autres valeurs sont du contexte utile plutôt que de la
-matière d'examen, à une exception près : `max_tokens` est un distracteur
-classique, parce qu'une réponse tronquée ressemble exactement à une réponse
-finie tant qu'on ne lit pas le champ.
+::: exam-tip
+`end_turn` est la seule valeur qui signifie *terminé*. Une réponse avec
+`stop_reason: "max_tokens"` porte un bloc texte comme n'importe quelle autre,
+mais elle a été coupée en pleine phrase — un code d'affichage qui teste la
+présence de texte au lieu de lire `stop_reason` présentera un brouillon tronqué
+comme un texte fini. C'est le distracteur classique sur ce champ.
+:::
 
-**À tester** — les questions d'auto-évaluation de `D0_API_Fundamentals.html`.
+Deux valeurs méritent d'être distinguées même si une seule paire est testée. Une
+réponse qui attend **votre** outil dit toujours `tool_use`, et vous la poursuivez
+en envoyant des blocs `tool_result`. `pause_turn` concerne un outil **serveur** à
+court d'itérations, et vous la poursuivez en renvoyant le contenu de l'assistant
+tel quel.
+
+Le guide ne vous demande jamais que de distinguer `tool_use` de `end_turn` —
+c'est cette paire qui pilote la boucle, et c'est tout ce que teste TS 1.1.
+**Transformer cette vérification en boucle — appeler, inspecter `stop_reason`,
+exécuter, ajouter, rappeler — est la boucle agentique, développée en D1.1.** D0
+s'arrête à nommer le signal.
+
+**À tester** — les questions de la banque étiquetées `data-task="1.1"`.
 
 ## Les system prompts
-<!-- src:05claudeapi L8 ; building_claude_api module 1 -->
+<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->
 
-Le paramètre `system` est une simple chaîne passée à côté de `messages`, et il
-se tient **en dehors** de la conversation : ce n'est pas un tour, il n'a pas de
-rôle, et ce n'est pas quelque chose à quoi le modèle répond. Il façonne
-*comment* Claude répond, pas *ce qu'il répond*.
+Le paramètre `system` est une simple chaîne passée à côté de `messages`, et il se
+place **hors** de la conversation : ce n'est pas un tour, il n'a pas de rôle, et
+ce n'est pas quelque chose à quoi le modèle répond. Il façonne *comment* Claude
+répond, pas *ce qu'*il répond.
 
 Prenez l'exemple d'un tuteur de maths. Sans system prompt, « Comment résoudre
 5x + 2 = 3 pour x ? » donne aussitôt une solution complète pas à pas — correcte,
@@ -226,35 +259,45 @@ Ne réponds pas directement aux questions de l'élève.
 Guide-le vers la solution, étape par étape.
 ```
 
-la même question revient sous la forme « Quelle serait, selon toi, une bonne
-première étape pour isoler x ? ». Même modèle, même tour user ; c'est
-l'instruction permanente qui a changé le comportement.
+la même question revient en « Quelle serait selon toi une bonne première étape
+pour isoler x ? ». Même modèle, même tour user ; c'est l'instruction permanente
+qui a changé le comportement.
 
-Voilà à quoi sert un system prompt : assignez un rôle, et le modèle répond comme
-le ferait quelqu'un dans ce rôle ; énoncez des contraintes durables, et elles
-tiennent sur tous les tours sans être répétées dans chaque tour user. C'est
-aussi ce qui maintient le cap sur une longue conversation.
+Voilà à quoi sert un system prompt : assigner un rôle, et le modèle répond comme
+quelqu'un dans ce rôle le ferait ; énoncer des contraintes durables, et elles
+tiennent à tous les tours sans être répétées. Elles tiennent parce que vous les
+renvoyez à chaque requête, pas parce que l'API s'en souvient — et vous les payez
+à chaque fois.
 
-Une note pratique : l'API n'accepte pas `system=None`, donc un helper de chat
-réutilisable ne doit ajouter la clé que lorsqu'un prompt a réellement été
-fourni.
+::: anti-pattern
+Mettre le system prompt en premier message `user`. Il se lit alors comme du
+contexte conversationnel plutôt que comme une instruction permanente, et il
+entre en concurrence avec les tours qui l'entourent au lieu de les surplomber.
+:::
 
-Une instruction system porte aussi plus loin que n'importe quelle formulation
-d'un tour — assez loin pour qu'un seul mot-clé oriente le modèle contre des
-instructions plus spécifiques reçues ailleurs. **Comment la formulation d'un
-system prompt finit par l'emporter sur des descriptions d'outils bien écrites
+::: exam-tip
+Une instruction system porte plus loin que n'importe quelle formulation à
+l'échelle d'un tour — assez loin pour qu'un seul mot-clé absolu prenne le pas sur
+des descriptions d'outils par ailleurs bien écrites. « Vérifie toujours
+l'identité du client » fera appeler l'outil le plus proche sémantiquement à chaque
+tour. **Comment cette instruction prend le pas, et comment la formuler autrement,
 est développé en D2.1.**
+:::
 
-**À tester** — les questions d'auto-évaluation de `D0_API_Fundamentals.html`.
+Une note pratique : l'API n'accepte pas `system=None`, donc une fonction de chat
+réutilisable ne doit ajouter la clé que si un prompt a réellement été fourni.
 
-## La context window
-<!-- src:05claudeapi L6 ; building_claude_api modules 3 and 4 -->
+**À tester** — les questions de la banque étiquetées `data-task="2.1"`.
+
+## La fenêtre de contexte
+<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->
 <!-- owns:context-window -->
 
 Mettez bout à bout les deux faits précédents. L'API ne garde aucun état, donc
-chaque requête embarque tout l'historique ; et chaque requête a un budget de
+chaque requête embarque l'historique entier ; et chaque requête a un budget de
 tokens fini. L'historique n'est donc pas gratuit — c'est un coût récurrent qui
-croît avec la conversation, de façon monotone, tant que vous n'y faites rien.
+croît avec la conversation, de façon monotone, sauf si vous y faites quelque
+chose.
 
 Ce qui s'accumule, à chaque requête :
 
@@ -262,56 +305,35 @@ Ce qui s'accumule, à chaque requête :
 |---|---|
 | Le prompt `system` | Il tient d'un tour à l'autre parce que vous le renvoyez, pas parce qu'il est stocké |
 | Chaque tour `user` et `assistant` passé | Rien n'est stocké côté serveur |
-| Chaque bloc `tool_use` et `tool_result` | Les retirer casse l'appariement |
-| Les schémas d'outils complets | Requis à chaque requête, même quand aucun appel ne suit |
+| Chaque bloc `tool_use` et `tool_result` | Les enlever casse l'appariement |
+| Les schémas d'outils complets | Obligatoires à chaque requête, même quand aucun appel ne suit |
 
-Les tool results sont la part que l'on sous-estime. Un outil qui retourne un
-gros document met ce document dans l'historique pour tout le reste de
-l'exécution, et vous le payez à chaque tour suivant — et pas une fois pour
-toutes.
+Les résultats d'outils sont la part qu'on sous-estime. Un outil qui retourne un
+gros enregistrement met cet enregistrement dans l'historique pour tout le reste
+de l'exécution, et vous le payez à chaque tour suivant — pas une seule fois.
 
-Envoyer directement un gros document est l'approche la plus simple, et c'est
-parfois la bonne : aucun prétraitement, rien à construire. Ses coûts sont un
-plafond de tokens strict, un prix élevé par appel et un traitement lent. Au-delà
-d'une certaine taille, on cesse d'envoyer le document pour n'envoyer que les
-parties qui comptent.
+```
+lookup_order → 42 champs retournés, 5 utiles pour l'éligibilité au retour
+  order_id, status, total, items, return_eligible          ← utiles
+  warehouse_route, carrier_scac, pick_wave, audit_flags,
+  promo_ledger, tax_jurisdiction, … (37 autres)            ← poids mort ici
 
-Une context window pleine amène ses propres modes de défaillance — ce qui est
-enfoui au milieu du contexte a tendance à être manqué, l'historique s'accumule
-jusqu'à étouffer la tâche, et le résumer échange du détail contre de la place.
-**Les nommer est tout ce que fait D0 : les traiter, et maintenir une longue
-exécution dans son budget, est développé en D5.1.** Le retrieval et le chunking
-ne sont pas la réponse que le guide attend — il les met hors périmètre, et ce
-corpus aussi. L'essentiel ici, c'est seulement que la fenêtre est finie, que
-c'est l'historique qui la remplit, et que les deux découlent de l'absence
-d'état.
+3 commandes consultées = 126 champs renvoyés à chaque tour suivant, 15 le méritent.
+```
 
-**À tester** — les questions d'auto-évaluation de `D0_API_Fundamentals.html`.
+Le guide nomme trois modes de défaillance d'une fenêtre pleine, et D0 va
+exactement aussi loin que les nommer : **lost-in-the-middle**, où un élément
+enfoui au milieu d'un long contexte passe inaperçu alors que le début et la fin
+sont lus de façon fiable ; **l'accumulation**, la croissance montrée ci-dessus ;
+et la **progressive summarization**, où comprimer l'historique pour faire de la
+place sacrifie d'abord les nombres, les dates et les détails précis.
 
-## Choisir un modèle
-<!-- src:building_claude_api module 1 -->
+::: exam-tip
+Reconnaissez ici les trois modes de défaillance ; les remèdes ne sont pas ceux de
+D0. **Élaguer les sorties d'outils verbeuses, extraire des faits structurés et
+ordonner l'entrée selon la position sont développés en D5.1.** Le retrieval et le
+chunking ne sont pas la réponse attendue par le guide — il les met hors
+périmètre, et ce corpus aussi.
+:::
 
-Trois familles, trois compromis :
-
-| Famille | Points forts | Coûts |
-|---|---|---|
-| Opus | Le plus intelligent : raisonnement profond, planification multi-étapes | Prix élevé, latence élevée |
-| Sonnet | Équilibré : bonne intelligence, vitesse correcte, solide en code | Raisonnable sur les trois plans |
-| Haiku | Le plus rapide et le moins cher : interaction temps réel, traitement à gros volume | Pas de raisonnement avancé |
-
-La règle de sélection s'énonce comme une priorité, pas comme un classement :
-
-- l'intelligence est la priorité → **Opus**
-
-- la vitesse est la priorité → **Haiku**
-
-- des exigences équilibrées → **Sonnet**
-
-
-Sonnet est le meilleur choix dans la plupart des cas pratiques. Et le choix se
-fait par tâche, pas par application : les applications réelles utilisent
-couramment plusieurs modèles, en routant chaque travail vers la famille que sa
-priorité désigne.
-
-**À tester** — rien pour l'instant : aucune question du corpus ne porte sur le
-choix du modèle.
+**À tester** — les questions de la banque étiquetées `data-task="5.1"`.

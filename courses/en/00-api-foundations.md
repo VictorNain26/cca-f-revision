@@ -1,6 +1,6 @@
 # D0 — API foundations
 
-<!-- src:05claudeapi L2-14 and L30-42, building_claude_api module 1 -->
+<!-- src:05claudeapi L3, L5, L6, L8, L34-L38 ; building_claude_api modules 1 and 3 ; exam guide appendix (Claude API, Context window management) -->
 
 These are the prerequisites the exam guide assumes you already have. Nothing
 here is a task statement of its own: the guide tests what you *build* on top of
@@ -10,29 +10,27 @@ Each section stops where a task statement starts. Where a notion belongs to
 another domain, you get one sentence of definition and a pointer, never a bare
 link.
 
+The guide also decides what is *not* here. Its out-of-scope list rules out
+Claude's internal architecture, tokenization specifics, embedding models,
+streaming, and API authentication — so the request lifecycle stops at the shape
+of the call, and never goes inside the model. What the guide leaves out, the
+corpus records with its motive in `courses/out-of-scope.md`.
+
 ## Anatomy of a Messages API request
-<!-- src:05claudeapi L3, L5, L8, L10 ; building_claude_api module 1 -->
+<!-- src:05claudeapi L3, L5 ; building_claude_api module 1 ; exam guide appendix (Claude API — max_tokens, system prompts) -->
 <!-- owns:messages-api -->
 
-A request goes out from your own server, never from the browser or the mobile
-app. The API key authenticates the request; a key shipped in client code can be
-extracted by anyone and used to make requests on your account. So the client
-talks to your server, and your server talks to the Anthropic API with the key
-kept on the server side.
-
-The full round trip has five steps: client to your server, your server to the
-Anthropic API, model processing, response back to your server, response back to
-the client. Your server can call the API through an official SDK — Python,
-TypeScript, JavaScript, Go, Ruby — or over plain HTTP.
-
-The call itself is `client.messages.create()`, and it carries these fields:
+One call carries everything: `client.messages.create()`. There is no session to
+open and nothing to close.
 
 | Field | Required | What it does |
 |---|---|---|
 | `model` | yes | Which Claude model answers the request |
 | `messages` | yes | The conversation history you are sending, oldest first |
 | `max_tokens` | yes | Ceiling on how many tokens the response may contain |
-| `system` | no | Instructions that sit outside the conversation |
+| `system` | no | Standing instructions, outside the conversation |
+| `tools` | no | The tool schemas the model may call — designed in D2.1 |
+| `tool_choice` | no | Whether the model may answer in prose or must call a tool — developed in D4.3 |
 | `temperature` | no | How much randomness enters token selection, from 0 to 1 |
 
 Two of these are read wrong often enough to be worth stating plainly.
@@ -41,30 +39,35 @@ Two of these are read wrong often enough to be worth stating plainly.
 after 1000 tokens even if it had more to say; it never tries to reach the
 number. It bounds the output, not the request you send.
 
-`temperature` moves probability mass between candidate tokens. Near 0 the model
-is close to deterministic and almost always takes the highest-probability
-token; near 1 the probabilities spread out and the output varies more. The
-course groups the useful ranges as: 0.0–0.3 for factual answers, coding help,
-data extraction and moderation; 0.4–0.7 for summarization, teaching material
-and problem-solving; 0.8–1.0 for brainstorming, creative writing and marketing
-copy. Temperature changes probabilities — it does not guarantee that two calls
-differ.
+`system` is a sibling of `messages`, not one of them. Every other field on this
+list is a sibling too: `tools` and `tool_choice` sit at the top level of the
+body, never inside a message.
 
-Between the request and the response, the model runs four internal stages:
-**tokenization** (the input is cut into tokens — words, word pieces, symbols),
-**embedding** (each token becomes a list of numbers covering that token's
-possible meanings), **contextualization** (each embedding is adjusted by its
-neighbours so the right meaning wins) and **generation** (an output layer scores
-each possible next token, one is sampled from probability plus controlled
-randomness, and the whole process repeats for the token after it).
+```json
+{
+  "model": "claude-sonnet-5",
+  "max_tokens": 1024,
+  "system": "You are a financial analysis assistant. Answer concisely.",
+  "messages": [
+    { "role": "user", "content": "What was company X's revenue in Q3?" }
+  ]
+}
+```
 
-The response object carries the generated message, a `usage` count of input and
-output tokens, and a `stop_reason`.
+::: key-concept
+`system` sits beside `messages`, never inside it. Sliding the standing
+instructions in as a first `user` message is the most common shape error on
+this endpoint, and it changes how the model weighs them.
+:::
 
-**To test** — the self-assessment questions of `D0_API_Fundamentals.html`.
+Exact model identifiers are not exam material. `temperature` is not either —
+the guide never names it, and no task statement turns on it; the row is here so
+you recognize the field in a request body you are handed, not to be memorized.
 
-## Roles and the shape of a turn
-<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 -->
+**To test** — the self-assessment questions of this page.
+
+## Roles, turns, and a stateless API
+<!-- src:05claudeapi L5, L6 ; building_claude_api module 1 ; exam guide TS 1.1, TS 1.3 -->
 <!-- owns:message-roles -->
 
 `messages` is a list of dictionaries, each with a `role` and a `content`. There
@@ -73,7 +76,7 @@ are two roles:
 | Role | Who writes it |
 |---|---|
 | `user` | You — what you send to Claude |
-| `assistant` | Claude — what it generated, or what you prefill on its behalf |
+| `assistant` | Claude — what it generated |
 
 A conversation alternates between the two: user turn, assistant turn, user turn.
 
@@ -83,39 +86,45 @@ send "Write another sentence" on its own, and the model has no idea what it is
 being asked to extend — it will write a sentence about something else entirely.
 
 Multi-turn conversation is therefore work you do, not a service the API renders:
+send the first user message, append Claude's reply to your list as an
+`assistant` message, append the follow-up as a `user` message, and send the
+whole list again.
 
-1. Send the first user message.
-2. Append Claude's reply to your list as an `assistant` message.
-3. Append the follow-up as a `user` message.
-4. Send the whole list again.
+```json
+"messages": [
+  { "role": "user",      "content": "Define quantum computing in one sentence" },
+  { "role": "assistant", "content": "Quantum computing uses quantum states to process information." },
+  { "role": "user",      "content": "Write another sentence" }
+]
+```
 
+Only because the first two turns are still in the array does "Write another
+sentence" mean anything on the third.
+
+::: exam-tip
 Everything that must still be visible on turn five has to be in the array you
 send on turn five. This is the rule behind most "the model forgot" bugs, and it
-applies to tool results exactly as it applies to text.
+applies to tool results exactly as it applies to text. The same rule is why a
+spawned subagent has to be handed its context explicitly — it inherits nothing.
+:::
 
-Assistant messages are not only Claude's output. You can append one yourself to
-prefill the start of the reply: the model treats that text as something it
-already wrote and continues from the last character. The prefix is yours, not
-the model's: the API returns only what came after it, so a prefilled turn has to
-be concatenated back onto the generated text to be complete. Combined with
-`stop_sequences` — strings that end generation as soon as they appear, and that
-are not included in the output — prefilling gives clean structured output. Ask
-for JSON, prefill the assistant turn with an opening JSON code fence and set the
-closing fence as the stop sequence: what comes back is the JSON alone, with no
-preamble and no fences to strip.
+::: anti-pattern
+Sending only the latest message and expecting the earlier turns to still be
+there. Nothing expires server-side, because nothing is stored server-side;
+rebuilding the history is the caller's job, on every single request.
+:::
 
 **To test** — bank questions tagged `data-task="1.3"`.
 
 ## Content blocks
-<!-- src:05claudeapi L5, L12, L34, L35, L36, L37 ; building_claude_api module 3 -->
+<!-- src:05claudeapi L35, L36, L38 ; building_claude_api module 3 ; exam guide TS 1.1 (tool results appended to history) -->
 <!-- owns:content-blocks -->
 
 A reply's `content` is never a bare string — it is a **list of blocks**, each
 with its own type. Reading a reply as text works only because you indexed into
 that list: `message.content[0].text` is the first block's text, not the message.
 The two directions are not symmetrical: a request accepts either form, a plain
-string or a list of blocks, and every example in the source course sends a
-string.
+string or a list of blocks.
 
 | Block type | Direction | Carries |
 |---|---|---|
@@ -124,81 +133,111 @@ string.
 | `tool_result` | from you, in a `user` message | The output of the tool you ran |
 
 A single assistant reply routinely holds several blocks at once — a text block
-explaining what it is about to do, plus a `tool_use` block requesting it. This
-is why the rule for tool-using conversations is to append **all** of
-`response.content` to the history, not just the text you displayed: dropping
-the `tool_use` block breaks the pairing that the next request depends on.
-
-A `tool_result` block carries three fields: `tool_use_id`, matching the id of
-the `tool_use` block it answers; `content`, the function output serialized as a
+explaining what it is about to do, plus a `tool_use` block requesting it. A
+`tool_result` block carries three fields: `tool_use_id`, matching the id of the
+`tool_use` block it answers; `content`, the function output serialized as a
 string; and `is_error`, a boolean. It travels back inside a `user` message,
-alongside the complete history — and the original tool schemas must still be
-declared on that request, even if no further tool call is expected.
+alongside the complete history.
 
-The tools themselves are declared as JSON schemas, one per tool, with three
-parts: `name`, the identifier; `description`, what the tool does, when to use it
-and what it returns; and `input_schema`, a JSON schema for the arguments. That
-is the anatomy. **Which wording in a description makes the model pick the right
-tool among several similar ones is tool design, developed in D2.1** — a
-one-line description is what makes two neighbouring tools indistinguishable.
+```json
+{ "role": "assistant", "content": [
+    { "type": "text", "text": "Let me look that order up." },
+    { "type": "tool_use", "id": "toolu_01X", "name": "lookup_order",
+      "input": { "order_id": "ORD-67890" } }
+]},
+{ "role": "user", "content": [
+    { "type": "tool_result", "tool_use_id": "toolu_01X",
+      "content": "{ \"status\": \"shipped\", \"total\": 42.90 }",
+      "is_error": false }
+]}
+```
 
-One field is worth naming here because it appears in request bodies you will
-read: `tool_choice` tells the model whether it may answer in prose or must call
-a tool. **Its modes and what each one forbids are developed in D4.3.**
+Between those two messages, **your code** ran `lookup_order`. The model never
+executes anything; it emits a structured request and waits.
+
+::: anti-pattern
+Appending only the text you displayed and dropping the `tool_use` block. The
+pairing with `tool_result` is what the next request depends on, so the history
+becomes unanswerable. Append **all** of `response.content`, and keep the
+original tool schemas on the follow-up request even when no further call is
+expected.
+:::
+
+A tool is declared as a JSON schema with three parts: `name`, `description` —
+what the tool does, when to use it, what it returns — and `input_schema` for the
+arguments. That is the anatomy, and it stops there. **Which wording makes the
+model pick the right tool among several similar ones is tool design, developed
+in D2.1**; **using a schema to force a conforming payload is structured output,
+developed in D4.3.**
 
 **To test** — bank questions tagged `data-task="2.1"`.
 
 ## `stop_reason`
-<!-- src:05claudeapi L3, L13, L38 (tool_use) ; building_claude_api modules 1 and 3 ; Anthropic docs, Handling stop reasons (values, stop_details, pause_turn default iteration limit of 10) ; exam guide TS 1.1 -->
+<!-- src:05claudeapi L3, L38 ; building_claude_api module 3 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
 <!-- owns:stop-reason -->
 
-After each token, the model checks whether it should keep going. When it stops,
-the response says why in `stop_reason` — and that field, not the presence of a
-text block, is what tells you whether a reply is finished.
+When the model stops, the response says why in `stop_reason` — and that field,
+not the presence of a text block, is what tells you whether a reply is finished.
 
 | Value | What ended generation |
 |---|---|
 | `end_turn` | The model reached a natural end and had nothing more to say |
 | `max_tokens` | The output budget you set ran out mid-generation |
 | `stop_sequence` | One of your `stop_sequences` strings appeared |
-| `tool_use` | The model is calling a tool and is waiting for you to run it |
-| `pause_turn` | A server tool loop hit its iteration limit (10 by default) |
+| `tool_use` | The model is calling one of your tools and is waiting for you to run it |
+| `pause_turn` | A server-tool loop hit its iteration limit, 10 per request by default |
 | `refusal` | The model declined for safety-policy reasons |
-| `model_context_window_exceeded` | The response filled the context window |
+| `model_context_window_exceeded` | The response filled the model's context window |
 
 `stop_details` is `null` for every value but `refusal`, where it carries the
-policy category. `model_context_window_exceeded` is the recent one: it exists on
-Claude 4.5 and later, where earlier models returned a validation error instead,
-and the behaviour is opt-in through the `model-context-window-exceeded-2025-08-26`
-beta.
+policy category. `model_context_window_exceeded` is the recent one: Sonnet 4.5
+and newer models return it without a beta header, and earlier models need the
+`model-context-window-exceeded-2025-08-26` header to enable it.
 
-The distinction that matters in production: `end_turn` is the only value that
-means *complete*. A response with `stop_reason: "max_tokens"` holds a text block
-like any other, but it was cut off mid-sentence — display code that checks for
-text instead of checking `stop_reason` will present a truncated draft as a
-finished one.
+```json
+{
+  "id": "msg_01ABC",
+  "role": "assistant",
+  "content": [
+    { "type": "text", "text": "Let me look that order up." },
+    { "type": "tool_use", "id": "toolu_01X", "name": "lookup_order",
+      "input": { "order_id": "ORD-67890" } }
+  ],
+  "stop_reason": "tool_use",
+  "stop_details": null
+}
+```
 
-`tool_use` is the value a client acts on rather than displays: the model has
-asked for something, and the turn is not over until you run the tool and send
-the result back. **Turning that check into a loop — call, inspect `stop_reason`,
-execute, append, call again until the value is no longer `tool_use` — is the
-agentic loop, developed in D1.1.** D0 stops at naming the signal.
+That response carries text *and* a tool request — which is exactly why the
+presence of text cannot serve as a completion signal.
 
-Where to put your effort: the guide only ever asks you to tell `"tool_use"`
-from `"end_turn"` — that pair is what drives the loop, and it is all TS 1.1
-tests. The other five are context worth having rather than exam surface, with
-one exception: `max_tokens` is a classic distractor, because a truncated reply
-looks exactly like a finished one until you read the field.
+::: exam-tip
+`end_turn` is the only value that means *complete*. A response with
+`stop_reason: "max_tokens"` holds a text block like any other, but it was cut
+off mid-sentence — display code that checks for text instead of checking
+`stop_reason` will present a truncated draft as a finished one. That is the
+classic distractor on this field.
+:::
 
-**To test** — the self-assessment questions of `D0_API_Fundamentals.html`.
+Two values are worth telling apart even though only one pair is tested. A reply
+waiting on **your** tool always says `tool_use`, and you continue it by sending
+`tool_result` blocks. `pause_turn` concerns a **server** tool that ran out of
+iterations, and you continue it by sending the assistant content back unchanged.
+
+The guide only ever asks you to tell `tool_use` from `end_turn` — that pair
+drives the loop, and it is all TS 1.1 tests. **Turning the check into a loop —
+call, inspect `stop_reason`, execute, append, call again — is the agentic loop,
+developed in D1.1.** D0 stops at naming the signal.
+
+**To test** — bank questions tagged `data-task="1.1"`.
 
 ## System prompts
-<!-- src:05claudeapi L8 ; building_claude_api module 1 -->
+<!-- src:05claudeapi L8 ; building_claude_api module 1 ; exam guide appendix (Claude API — system prompts), TS 2.1 -->
 
 The `system` parameter is a plain string passed alongside `messages`, and it
 sits **outside** the conversation: it is not a turn, it has no role, and it is
-not something the model answers. It shapes *how* Claude responds, not *what*
-it responds.
+not something the model answers. It shapes *how* Claude responds, not *what* it
+responds.
 
 Take a maths tutor. Without a system prompt, "How do I solve 5x + 2 = 3 for x?"
 gets a complete step-by-step solution immediately — correct, and useless for
@@ -210,27 +249,36 @@ Do not directly answer a student's questions.
 Guide them to a solution step by step.
 ```
 
-the same question comes back as "What do you think would be a good first step
-to isolate x?". Same model, same user turn; the standing instruction changed the
+the same question comes back as "What do you think would be a good first step to
+isolate x?". Same model, same user turn; the standing instruction changed the
 behaviour.
 
 That is what a system prompt is for: assign a role, and the model answers the
 way someone in that role would; state durable constraints, and they hold across
-every turn without being restated in each user turn. It is also what keeps a
-long conversation on task.
+every turn without being restated. They hold because you resend them every
+request, not because the API remembers them — and you pay for them every time.
+
+::: anti-pattern
+Putting the system prompt in as the first `user` message. It then reads as
+conversational context rather than a standing instruction, and it competes with
+the turns around it instead of sitting above them.
+:::
+
+::: exam-tip
+A system instruction carries further than any per-turn wording — far enough that
+a single absolute keyword can override tool descriptions that are otherwise
+well written. "Always verify the customer's identity" will drag the
+nearest-matching tool onto every turn. **How that overriding works, and how to
+word around it, is developed in D2.1.**
+:::
 
 One practical note: the API does not accept `system=None`, so a reusable chat
 helper has to add the key only when a prompt was actually given.
 
-A system instruction also carries further than any per-turn wording — far
-enough that a single keyword can steer the model against more specific
-instructions it was given elsewhere. **How system prompt wording ends up
-overriding well-written tool descriptions is developed in D2.1.**
-
-**To test** — the self-assessment questions of `D0_API_Fundamentals.html`.
+**To test** — bank questions tagged `data-task="2.1"`.
 
 ## The context window
-<!-- src:05claudeapi L6 ; building_claude_api modules 3 and 4 -->
+<!-- src:05claudeapi L6, L36 ; building_claude_api modules 3 and 4 ; exam guide appendix (Context window management), TS 5.1 -->
 <!-- owns:context-window -->
 
 Put the two previous facts together. The API keeps no state, so every request
@@ -248,44 +296,30 @@ What accumulates, per request:
 | The full tool schemas | Required on every request, even when no call follows |
 
 Tool results are the part people underestimate. A tool that returns a large
-document puts that document into the history for the rest of the run, and you
-pay for it on every subsequent turn — not once.
+record puts that record into the history for the rest of the run, and you pay
+for it on every subsequent turn — not once.
 
-Sending a large document directly is the simplest approach and it is sometimes
-the right one: no preprocessing, nothing to build. Its costs are a hard token
-limit, a high price per call and slow processing. Beyond a certain size, you
-stop sending the document and start sending only the parts that matter.
+```
+lookup_order → 42 fields returned, 5 useful for return eligibility
+  order_id, status, total, items, return_eligible          ← useful
+  warehouse_route, carrier_scac, pick_wave, audit_flags,
+  promo_ledger, tax_jurisdiction, … (37 more)              ← dead weight here
 
-A full window brings its own failure modes — material buried mid-context tends
-to be missed, history accumulates until it crowds out the task, and summarizing
-it trades detail for room. **Naming those failure modes is as far as D0 goes:
-handling them, and keeping a long run inside its budget, is developed in D5.1.**
-Retrieval and chunking are not the answer the guide asks for — it puts them out
-of scope, and so does this corpus. The point here is only that the window is
-finite, that the history is what fills it, and that both are consequences of
-statelessness.
+3 orders looked up = 126 fields resent on every later turn, 15 of them earning it.
+```
 
-**To test** — the self-assessment questions of `D0_API_Fundamentals.html`.
+The guide names three failure modes of a full window, and D0 goes exactly as far
+as naming them: **lost-in-the-middle**, where material buried in the middle of a
+long context is missed while the start and the end are read reliably;
+**accumulation**, the growth shown above; and **progressive summarization**,
+where compressing the history to make room trades away the numbers, dates and
+specifics first.
 
-## Choosing a model
-<!-- src:building_claude_api module 1 -->
+::: exam-tip
+Recognize the three failure modes here; the fixes are not D0's. **Trimming
+verbose tool outputs, extracting structured facts, and ordering input by
+position are developed in D5.1.** Retrieval and chunking are not the answer the
+guide asks for — it puts them out of scope, and so does this corpus.
+:::
 
-Three families, three trade-offs:
-
-| Family | Strengths | Costs |
-|---|---|---|
-| Opus | The most intelligent: deep reasoning, multi-step planning | High price, high latency |
-| Sonnet | Balanced: good intelligence, decent speed, solid at coding | Reasonable on all three |
-| Haiku | Fastest and cheapest: real-time interaction, high-volume processing | No advanced reasoning |
-
-The selection rule is stated as a priority, not as a ranking:
-
-- intelligence is the priority → **Opus**
-- speed is the priority → **Haiku**
-- balanced requirements → **Sonnet**
-
-Sonnet is the best choice for most practical cases. And the choice is per task,
-not per application: real applications routinely use several models, routing
-each job to the family its priority calls for.
-
-**To test** — nothing yet: no question in the corpus covers model selection.
+**To test** — bank questions tagged `data-task="5.1"`.

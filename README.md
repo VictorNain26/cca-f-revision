@@ -73,11 +73,12 @@ Le guide fige l'état de l'outillage en juillet 2026 et la doc a bougé depuis. 
 Le site publié reste du HTML statique ; `package.json` ne sert qu'à outiller les contrôles.
 
 ```bash
-npm install                # une fois — installe jsdom (seule dépendance, pour les quiz)
+npm install                # une fois — installe jsdom, markdown-it et markdown-it-container (trois dépendances, pour les quiz et le rendu des cours)
 sudo apt install -y po4a   # une fois — dépendance système, pour le corpus de cours
 npm run check              # enchaîne les dix contrôles, sort en échec au premier problème
 npm run fix:nav            # réécrit la navbar des pages depuis nav.js (source unique)
 npm run build:courses      # régénère courses/fr/ depuis courses/en/ + courses/po/fr.po
+npm run render:courses     # régénère les pages HTML publiées depuis le corpus de cours
 ```
 
 | Script | Ce qu'il garantit |
@@ -91,7 +92,7 @@ npm run build:courses      # régénère courses/fr/ depuis courses/en/ + course
 | `check:diacritics` | Aucun mot français écrit sans ses accents. Le périmètre se découpe par **bloc quiz**, et non plus par fichier : les `<details>` de quiz sont rédigés en anglais et sont exclus, la prose qui les entoure est contrôlée — y compris celle de `Practice_Questions.html`, dont les titres de section et la note de fidélité sont en français. |
 | `check:quizzes` | `quiz.js` exécuté sur chaque page : l'énoncé et les choix sont visibles, la réponse ne fuite pas avant la révélation. |
 | `check:runtime` | Le chrome exécuté : chaque page est chargée dans un DOM, tous ses `<script src>` doivent exister et s'exécuter sans erreur, et le bouton de retour en haut doit réagir au défilement. **Le défaut qu'il attrape** : un script déplacé, renommé, ou un comportement extrait vers un fichier jamais chargé — tout cela passe silencieusement les autres contrôles. **Angle mort** : jsdom n'implémente ni `IntersectionObserver` ni `ResizeObserver`, remplacés par des stubs inertes ; ce qui repose sur leurs callbacks n'est pas couvert. Il ne dit rien du contenu de la navbar — le HTML statique étant le rendu exact de `nav.js`, on ne peut pas y distinguer un `nav.js` exécuté d'un `nav.js` inerte. C'est `check:nav` qui garde la navbar. |
-| `check:courses` | Le corpus de cours : `courses/fr/` est le rendu exact de `courses/en/` + `po/fr.po`, aucune entrée de traduction périmée, chaque notion transverse enseignée dans un seul cours, chaque renvoi `data-task` existant en banque. **Angle mort** : rien ici ne juge la justesse du contenu — un cours faux mais bien formé passe. |
+| `check:courses` | Le corpus de cours : `courses/fr/` est le rendu exact de `courses/en/` + `po/fr.po`, aucune entrée de traduction périmée, chaque notion transverse enseignée dans un seul cours, chaque renvoi `data-task` existant en banque, et chaque page HTML publiée (`D0_API_Fundamentals.html`, `en/D0_API_Fundamentals.html`…) est le rendu exact de ce corpus par `npm run render:courses` — une page corrigée à la main plutôt que dans `courses/en/` est signalée, nommée. **Angle mort** : rien ici ne juge la justesse du contenu — un cours faux mais bien formé passe. |
 
 Une CI GitHub Actions (`.github/workflows/check.yml`) rejoue `npm test` puis `npm run check` sur chaque push vers `main` et chaque pull request.
 

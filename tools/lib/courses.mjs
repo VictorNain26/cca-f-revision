@@ -270,6 +270,30 @@ export function diffRenderedFiles(before, after) {
   return { problems };
 }
 
+/* Même mécanique que diffRenderedFiles ci-dessus, appliquée aux pages HTML
+ * publiées (D0_API_Fundamentals.html, en/D0_API_Fundamentals.html…) plutôt
+ * qu'aux fichiers courses/fr/*.md. Le défaut attrapé : une coquille corrigée
+ * à la main dans la page plutôt que dans courses/en/ — perdue sans avis au
+ * prochain `npm run render:courses`, exactement le défaut que la navbar
+ * dupliquée en onze exemplaires a déjà coûté à ce dépôt. */
+export function diffRenderedPages(before, after) {
+  const problems = [];
+  const files = new Set([...Object.keys(before), ...Object.keys(after)]);
+
+  for (const file of files) {
+    if (!(file in before)) {
+      problems.push(`${file} — produit par le rendu mais absent du dépôt : lancer npm run render:courses et committer la page`);
+    } else if (!(file in after)) {
+      problems.push(`${file} — présent dans le dépôt mais non produit par le rendu (cours retiré ou non livré) : vérifier courses/README.md`);
+    } else if (before[file] !== after[file]) {
+      const source = file.startsWith('en/') ? 'courses/en/' : 'courses/en/ ou courses/po/fr.po';
+      problems.push(`${file} — diverge du rendu de son cours Markdown : éditer ${source}, pas la page`);
+    }
+  }
+
+  return { problems };
+}
+
 const FILENAME_ID = /^\d?(\d)-/;
 
 /* Le domaine d'un cours vient du préfixe numérique de son nom de fichier,
@@ -483,6 +507,50 @@ export function checkPo4aOptions({ confText, buildScript }) {
   const problems = [];
   if (!/--force\b/.test(buildScript ?? '')) problems.push('package.json — le script build:courses doit porter --force, sans quoi po4a ne régénère pas un rendu plus récent que sa source sur un clone frais (npm run build:courses).');
   if (!/--keep\s+0\b/.test(line)) problems.push('courses/po4a.conf — la ligne [options] doit porter --keep 0, sans quoi po4a supprime la traduction sous 80 % de complétude (npm run build:courses).');
+  return { problems };
+}
+
+/* PUBLISHED_COURSES (tools/lib/page.mjs) et le tableau de courses/README.md
+ * déclarent chacun quel domaine est publié, dans deux sens opposés pour la
+ * même information : le premier fixe ce que tools/render-courses.mjs écrit,
+ * le second annonce à l'auteur ce qui est complet. Le défaut attrapé : un
+ * domaine coché ✅ au lot 3 sans qu'une entrée soit ajoutée à
+ * PUBLISHED_COURSES rend le lot invisible au rendu et à la comparaison — page
+ * jamais régénérée, jamais comparée, contrôle vert, fiche manuscrite
+ * divergente. Exigé dans les deux sens : une entrée PUBLISHED_COURSES dont le
+ * domaine n'est plus coché est un vestige, pas neutre non plus. */
+export function checkPublishedCoursesReconciliation({ delivered, publishedCourses }) {
+  const problems = [];
+  const publishedDomains = new Set(publishedCourses.map((c) => c.domain.replace(/^D/, '')));
+
+  for (const d of delivered) {
+    if (!publishedDomains.has(d)) {
+      problems.push(`courses/README.md — D${d} coché livré mais absent de PUBLISHED_COURSES (tools/lib/page.mjs) : aucune page ne sera rendue ni comparée, ajouter une entrée`);
+    }
+  }
+  for (const c of publishedCourses) {
+    const d = c.domain.replace(/^D/, '');
+    if (!delivered.includes(d)) {
+      problems.push(`tools/lib/page.mjs — ${c.domain} présent dans PUBLISHED_COURSES mais non coché livré dans courses/README.md : cocher la ligne ou retirer l'entrée`);
+    }
+  }
+
+  return { problems };
+}
+
+/* Un commentaire de traçabilité (<!-- src:… --> ou <!-- owns:… -->) qui fuit
+ * dans une page publiée est un artefact interne visible du lecteur — le
+ * stripping de tools/lib/render.mjs a échoué. Vérifié sur les pages telles
+ * que rendues en mémoire par tools/check-courses.mjs, pas seulement sur un
+ * fragment synthétique de test unitaire : une regex peut être correcte sur
+ * un cas construit et échouer sur un vrai retour à la ligne du corpus. */
+export function checkNoLeakedMetadata(pages) {
+  const problems = [];
+  for (const [file, html] of Object.entries(pages)) {
+    if (/\bsrc:|\bowns:/.test(html)) {
+      problems.push(`${file} — un commentaire de traçabilité (src:/owns:) a fui dans le HTML publié : vérifier le stripping de tools/lib/render.mjs`);
+    }
+  }
   return { problems };
 }
 

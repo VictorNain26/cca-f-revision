@@ -18,19 +18,45 @@
     ['anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf', 'Guide', "Le guide d'examen officiel (PDF) — la seule source qui fait foi"],
   ];
 
+  // Sélecteur de langue : page française (racine) → jumeau anglais (en/).
+  // Lu par tools/lib/nav.mjs (readTranslations) pour rester la source unique.
+  const TRANSLATIONS = {
+    'D0_API_Fundamentals.html': 'en/D0_API_Fundamentals.html',
+  };
+
   const nav = document.querySelector('nav.navbar');
   if (!nav) return;
 
+  const inEn = location.pathname.includes('/en/');
   let cur = (location.pathname.split('/').pop() || '').trim();
   if (cur === '') cur = 'index.html';
 
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  const homeHref = inEn ? '../index.html' : 'index.html';
 
-  let html = '<a class="home" href="index.html">CCA-F</a>';
+  let html = `<a class="home" href="${homeHref}">CCA-F</a>`;
   for (const [href, label, title] of LINKS) {
+    const linkHref = inEn ? `../${href}` : href;
     const t = title ? ` title="${esc(title)}"` : '';
     const ext = href.endsWith('.pdf') ? ' target="_blank" rel="noopener"' : '';
-    html += `<a${href === cur ? ' class="current"' : ''} href="${href}"${t}${ext}>${label}</a>`;
+    html += `<a${href === cur ? ' class="current"' : ''} href="${linkHref}"${t}${ext}>${label}</a>`;
   }
   nav.innerHTML = html;
+
+  let switchHtml = null;
+  if (inEn) {
+    const entry = Object.entries(TRANSLATIONS).find(([, en]) => en === `en/${cur}`);
+    if (entry) switchHtml = `<a href="../${entry[0]}">FR</a>`;
+  } else if (TRANSLATIONS[cur]) {
+    switchHtml = `<a href="${TRANSLATIONS[cur]}">EN</a>`;
+  }
+  if (switchHtml) {
+    let box = document.querySelector('.lang-switch');
+    if (!box) {
+      box = document.createElement('div');
+      box.className = 'lang-switch';
+      nav.after(box);
+    }
+    box.innerHTML = switchHtml;
+  }
 })();

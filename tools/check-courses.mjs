@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /* Contrôle du corpus de cours : la version française doit être le rendu exact
  * de la source anglaise et de po/fr.po — comme la navbar est le rendu exact
- * de nav.js.
+ * de nav.js. Les pages HTML publiées (D0_API_Fundamentals.html,
+ * en/D0_API_Fundamentals.html…) doivent elles-mêmes être le rendu exact de ce
+ * corpus par tools/render-courses.mjs — même garantie, un niveau plus loin.
  * Le défaut que ce contrôle attrape : une traduction corrigée directement dans
  * courses/fr/ (perdue au prochain build), une entrée de fr.po devenue périmée
  * après modification de l'anglais, un segment anglais absent du catalogue
  * (l'anglais modifié sans rejouer build:courses, --no-update ne laissant ni
  * entrée fuzzy ni entrée vide à signaler), une notion enseignée dans deux
- * cours, un fichier oublié dans courses/po4a.conf ou orphelin sur le disque.
- * Le rendu de comparaison se fait dans une copie temporaire isolée : ce
- * contrôle ne modifie jamais l'arborescence qu'il surveille.
+ * cours, un fichier oublié dans courses/po4a.conf ou orphelin sur le disque,
+ * une page HTML éditée à la main plutôt que dans sa source — perdue sans avis
+ * au prochain `npm run render:courses`.
+ * Le rendu de comparaison se fait dans une copie temporaire isolée (courses/)
+ * ou entièrement en mémoire (pages HTML, dont le rendu n'écrit jamais sur
+ * disque) : ce contrôle ne modifie jamais l'arborescence qu'il surveille.
  * Sans dépendance hors jsdom déjà présent. Node >= 20.11.
  */
 import fs from 'node:fs';
@@ -26,25 +31,41 @@ import {
   auditCorpus,
   checkCatalogueCoverage,
   checkPo4aOptions,
+  diffRenderedPages,
+  checkPublishedCoursesReconciliation,
+  checkNoLeakedMetadata,
 } from './lib/courses.mjs';
+import { PUBLISHED_COURSES, renderCoursePages } from './lib/page.mjs';
+import { readLinks, readTranslations } from './lib/nav.mjs';
+import { loadJsonQuizzes } from './lib/quizzes.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const COURSES = path.join(ROOT, 'courses');
 const TESTED_PO4A = '0.69';
 
-/* Empreinte de courses/ (chemin, taille, mtime), prise avant tout travail et
- * revérifiée juste avant la sortie. Aucune assertion de test ne peut garder
- * cette propriété sans faire dépendre npm test de po4a : c'est donc au
- * contrôle lui-même d'attester qu'il n'a pas touché à l'arborescence qu'il
- * surveille — exactement la garantie que le défaut d'origine violait. Un
- * écart est signalé comme n'importe quel autre problème, pas juste loggé. */
+/* Empreinte de courses/ et des pages publiées à la racine et dans en/ (chemin,
+ * taille, mtime), prise avant tout travail et revérifiée juste avant la
+ * sortie. Aucune assertion de test ne peut garder cette propriété sans faire
+ * dépendre npm test de po4a : c'est donc au contrôle lui-même d'attester
+ * qu'il n'a pas touché à l'arborescence qu'il surveille — exactement la
+ * garantie que le défaut d'origine violait. Étendue aux pages générées : ce
+ * contrôle a désormais autorité sur elles aussi (diffRenderedPages,
+ * checkNoLeakedMetadata), le garde « le contrôle n'écrit rien » doit couvrir
+ * ce qu'il surveille, pas seulement son point de départ historique. Un écart
+ * est signalé comme n'importe quel autre problème, pas juste loggé. */
 function fingerprintCourses() {
-  return fs.readdirSync(COURSES, { recursive: true })
-    .filter((f) => fs.statSync(path.join(COURSES, f)).isFile())
+  const publishedPages = PUBLISHED_COURSES.flatMap((c) => [
+    path.join(ROOT, c.slug),
+    path.join(ROOT, 'en', c.slug),
+  ]);
+  const coursesFiles = fs.readdirSync(COURSES, { recursive: true }).map((f) => path.join(COURSES, f));
+
+  return [...coursesFiles, ...publishedPages]
+    .filter((f) => fs.existsSync(f) && fs.statSync(f).isFile())
     .sort()
     .map((f) => {
-      const st = fs.statSync(path.join(COURSES, f));
-      return `${f}:${st.size}:${st.mtimeMs}`;
+      const st = fs.statSync(f);
+      return `${path.relative(ROOT, f)}:${st.size}:${st.mtimeMs}`;
     })
     .join('\n');
 }
@@ -215,6 +236,46 @@ const buildScript = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 
 
 problems.push(...checkCatalogueCoverage({ potEntries, poEntries }).problems);
 problems.push(...checkPo4aOptions({ confText, buildScript }).problems);
+
+/* Rendu des pages publiées, en mémoire, à partir de la source anglaise
+ * (courses) et du français déjà régénéré ci-dessus dans la copie isolée
+ * (`after`) : pas de nouvelle écriture disque, donc pas de risque pour
+ * l'empreinte vérifiée en fin de script. Un cours non livré (pas dans
+ * `delivered`) ou dont la source est absente n'a pas de page à comparer — les
+ * contrôles ci-dessus l'ont déjà signalé si c'était une anomalie. */
+problems.push(...checkPublishedCoursesReconciliation({ delivered, publishedCourses: PUBLISHED_COURSES }).problems);
+
+const nav = { links: readLinks(path.join(ROOT, 'nav.js')), translations: readTranslations(path.join(ROOT, 'nav.js')) };
+const enMarkdownByFile = Object.fromEntries(courses.map((c) => [path.basename(c.file), c.markdown]));
+const pagesCommitted = {};
+const pagesRendered = {};
+for (const course of PUBLISHED_COURSES) {
+  const domainDigit = course.domain.replace(/^D/, '');
+
+  const enMarkdown = enMarkdownByFile[course.file];
+  const frMarkdown = after[`courses/fr/${course.file}`];
+  if (enMarkdown === undefined || frMarkdown === undefined) continue;
+
+  const frPagePath = path.join(ROOT, course.slug);
+  const enPagePath = path.join(ROOT, 'en', course.slug);
+  /* Un domaine non coché n'a en principe pas de page à comparer — mais une
+   * page déjà présente à la racine sous ce slug doit l'être quand même :
+   * check-courses.mjs a autorité sur toute page publiée qu'il trouve, pas
+   * seulement sur celles que courses/README.md annonce. */
+  const pageExists = fs.existsSync(frPagePath) || fs.existsSync(enPagePath);
+  if (!delivered.includes(domainDigit) && !pageExists) continue;
+
+  const quizPath = path.join(COURSES, 'quizzes', `${course.domain}.json`);
+  const quizzes = fs.existsSync(quizPath) ? loadJsonQuizzes(course.domain) : [];
+  const { frHtml, enHtml } = renderCoursePages({ enMarkdown, frMarkdown, quizzes, slug: course.slug, nav });
+  pagesRendered[course.slug] = frHtml;
+  pagesRendered[`en/${course.slug}`] = enHtml;
+
+  if (fs.existsSync(frPagePath)) pagesCommitted[course.slug] = fs.readFileSync(frPagePath, 'utf8');
+  if (fs.existsSync(enPagePath)) pagesCommitted[`en/${course.slug}`] = fs.readFileSync(enPagePath, 'utf8');
+}
+problems.push(...diffRenderedPages(pagesCommitted, pagesRendered).problems);
+problems.push(...checkNoLeakedMetadata(pagesRendered).problems);
 
 const audit = auditCorpus({
   courses,

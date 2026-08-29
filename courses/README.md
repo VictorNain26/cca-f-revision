@@ -42,3 +42,14 @@ ailleurs, un renvoi qui porte la définition en une phrase avant le lien.
 
 La table d'attribution fait foi dans `tools/lib/courses.mjs` (`OWNED_CONCEPTS`)
 et n'est pas recopiée ici : deux copies divergent toujours.
+
+## Notions déplacées
+
+`out-of-scope.md` liste ce que le corpus écarte volontairement. Rien ne
+listait, jusqu'ici, ce qui est écarté d'un cours *avec renvoi* vers un lot
+ultérieur — une notion qui n'apparaît dans aucune fiche de domaine tant que
+son cours cible n'est pas écrit, invisible pour qui rédigera ce cours-là.
+
+| Notion | Domaine cible | D'où elle vient |
+|---|---|---|
+| Les agents préfèrent les outils intégrés à ceux exposés par MCP ; il faut renforcer les descriptions des outils MCP pour rivaliser | D2 (TS 2.5) | Écartée de D0 lors de la rédaction du socle API : hors périmètre des prérequis, mais couverte par le guide en TS 2.5. |

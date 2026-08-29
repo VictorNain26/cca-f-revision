@@ -12,6 +12,7 @@ import {
   readPo4aMasters,
   reconcileCourseFiles,
   diffRenderedFiles,
+  diffRenderedPages,
   courseIdFromFilename,
   readDelivered,
   parsePoEntries,
@@ -20,6 +21,8 @@ import {
   checkCatalogueCoverage,
   checkPo4aOptions,
   checkTranslationCompleteness,
+  checkPublishedCoursesReconciliation,
+  checkNoLeakedMetadata,
 } from './courses.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..', '..');
@@ -307,6 +310,41 @@ test('diffRenderedFiles accepte un rendu identique', () => {
   assert.deepEqual(problems, []);
 });
 
+test('diffRenderedPages signale une page produite par le rendu mais absente du dépôt', () => {
+  const { problems } = diffRenderedPages({}, { 'D0_API_Fundamentals.html': '<html></html>' });
+  assert.ok(problems.some((p) => p.includes('absent du dépôt')), problems.join('\n'));
+});
+
+test('diffRenderedPages signale une page du dépôt que le rendu ne produit plus', () => {
+  const { problems } = diffRenderedPages({ 'D0_API_Fundamentals.html': '<html></html>' }, {});
+  assert.ok(problems.some((p) => p.includes('non produit par le rendu')), problems.join('\n'));
+});
+
+test('diffRenderedPages signale une page française éditée à la main, en pointant les deux sources possibles', () => {
+  const { problems } = diffRenderedPages(
+    { 'D0_API_Fundamentals.html': '<p>a</p>' },
+    { 'D0_API_Fundamentals.html': '<p>b</p>' },
+  );
+  assert.ok(problems.some((p) => p.includes('D0_API_Fundamentals.html') && p.includes('éditer courses/en/ ou courses/po/fr.po, pas la page')), problems.join('\n'));
+});
+
+test('diffRenderedPages signale une page anglaise éditée à la main, en pointant courses/en/ seul', () => {
+  const { problems } = diffRenderedPages(
+    { 'en/D0_API_Fundamentals.html': '<p>a</p>' },
+    { 'en/D0_API_Fundamentals.html': '<p>b</p>' },
+  );
+  assert.ok(problems.some((p) => p.includes('en/D0_API_Fundamentals.html') && p.includes('éditer courses/en/, pas la page')), problems.join('\n'));
+  assert.ok(problems.every((p) => !p.includes('courses/po/fr.po')), problems.join('\n'));
+});
+
+test('diffRenderedPages accepte une page identique à son rendu', () => {
+  const { problems } = diffRenderedPages(
+    { 'en/D0_API_Fundamentals.html': '<p>a</p>' },
+    { 'en/D0_API_Fundamentals.html': '<p>a</p>' },
+  );
+  assert.deepEqual(problems, []);
+});
+
 test('courseIdFromFilename extrait le domaine du préfixe numérique', () => {
   assert.equal(courseIdFromFilename('00-api-foundations.md'), '0');
   assert.equal(courseIdFromFilename('01-orchestration.md'), '1');
@@ -484,10 +522,16 @@ test('parsePoEntries lit le vrai catalogue courses/po/fr.po au complet', () => {
   // indépendant de checkInvariantMarkers), pas un nombre en dur qu'il
   // faudrait éditer à chaque cours ajouté.
   assert.equal(entries.length, (realPo.match(/^#\. /gm) ?? []).length);
-  // Rattache la position du finding 2 (marqueurs en tête de bloc) au
-  // parseur : les 9 recopies déclarées du corpus doivent toutes être lues.
+  // Rattache la position du finding 2 (marqueurs en tête de bloc) au parseur :
+  // toutes les recopies déclarées du corpus doivent être lues. Le compte
+  // attendu se dérive du fichier — comme l'assertion ci-dessus — plutôt que de
+  // vivre en dur : un nombre figé se réécrit à chaque cours livré, et cette
+  // réécriture est exactement l'occasion de le mettre au niveau de ce qu'on
+  // observe au lieu de ce qu'on attend.
+  const declared = (realPo.match(/^# invariant:/gm) ?? []).length;
+  assert.ok(declared > 0, 'le catalogue doit déclarer au moins une recopie');
   const invariantEntries = entries.filter((e) => e.translatorComments.some((c) => /^invariant\s*:/i.test(c)));
-  assert.equal(invariantEntries.length, 9);
+  assert.equal(invariantEntries.length, declared);
 });
 
 test('auditCorpus rassemble les problèmes des quatre vérifications', () => {
@@ -639,4 +683,42 @@ test('checkTranslationCompleteness accepte l absence d entrée fuzzy ou vide', (
   });
   assert.deepEqual(problems, []);
   assert.deepEqual(notices, []);
+});
+
+test('checkPublishedCoursesReconciliation accepte un domaine coché avec son entrée', () => {
+  const { problems } = checkPublishedCoursesReconciliation({
+    delivered: ['0'],
+    publishedCourses: [{ domain: 'D0', file: '00-api-foundations.md', slug: 'D0_API_Fundamentals.html' }],
+  });
+  assert.deepEqual(problems, []);
+});
+
+test('checkPublishedCoursesReconciliation signale un domaine coché sans entrée PUBLISHED_COURSES', () => {
+  const { problems } = checkPublishedCoursesReconciliation({ delivered: ['0', '1'], publishedCourses: [] });
+  assert.equal(problems.length, 2);
+  assert.match(problems.join(' '), /D0 coché livré mais absent/);
+  assert.match(problems.join(' '), /D1 coché livré mais absent/);
+});
+
+test('checkPublishedCoursesReconciliation signale une entrée PUBLISHED_COURSES dont le domaine n est plus coché', () => {
+  const { problems } = checkPublishedCoursesReconciliation({
+    delivered: [],
+    publishedCourses: [{ domain: 'D0', file: '00-api-foundations.md', slug: 'D0_API_Fundamentals.html' }],
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /D0 présent dans PUBLISHED_COURSES/);
+});
+
+test('checkNoLeakedMetadata accepte une page sans commentaire de traçabilité', () => {
+  const { problems } = checkNoLeakedMetadata({ 'D0_API_Fundamentals.html': '<p>Prose.</p>' });
+  assert.deepEqual(problems, []);
+});
+
+test('checkNoLeakedMetadata signale un commentaire src: ou owns: fuité dans la page', () => {
+  const { problems } = checkNoLeakedMetadata({
+    'D0_API_Fundamentals.html': '<p>Prose.</p>',
+    'en/D0_API_Fundamentals.html': '<!-- src:x --><p>Prose.</p>',
+  });
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /en\/D0_API_Fundamentals\.html/);
 });

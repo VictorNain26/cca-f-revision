@@ -21,9 +21,12 @@
     "check:dupes": "node tools/check-duplicates.mjs --enforce",
     "build:courses": "po4a --force courses/po4a.conf",
     "check:courses": "node tools/check-courses.mjs",
+    "render:courses": "node tools/render-courses.mjs",
     "test:mutation": "node tools/lib/mutation-check.mjs"
   },
   "devDependencies": {
-    "jsdom": "^29.1.1"
+    "jsdom": "^29.1.1",
+    "markdown-it": "^15.0.1",
+    "markdown-it-container": "^4.0.0"
   }
 }
