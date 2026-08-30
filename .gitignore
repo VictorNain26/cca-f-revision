@@ -33,3 +33,8 @@ docs/
 
 # Outillage des contrôles qualité (le site publié reste statique)
 node_modules/
+
+# Export vers l'academy : produit dérivé de courses/, régénéré par
+# npm run export:academy. Seuls le README et l'exporteur sont suivis.
+migration/lessons/
+migration/*.json

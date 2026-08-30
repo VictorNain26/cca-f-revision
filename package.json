@@ -17,6 +17,7 @@
     "fix:nav": "node tools/check-nav.mjs --fix",
     "build:courses": "po4a --force courses/po4a.conf",
     "render:courses": "node tools/render-courses.mjs",
+    "export:academy": "node tools/export-academy.mjs",
     "report": "npm run report:length && npm run report:dupes && npm run report:diacritics",
     "report:length": "node tools/report-length-tell.mjs",
     "report:dupes": "node tools/report-duplicates.mjs",
