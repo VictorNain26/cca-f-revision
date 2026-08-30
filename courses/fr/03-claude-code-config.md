@@ -739,15 +739,7 @@ regex, qui déplace la fragilité dans votre propre code au lieu de la supprimer
 :::
 
 ::: anti-pattern
-**Relancer la revue de zéro à chaque push.** Claude n'a pas de mémoire entre les
-exécutions, donc il resignale tout ce qu'il avait trouvé la fois précédente. La
-pull request accumule les doublons jusqu'à ce que plus personne ne lise le bot. Le
-correctif n'est pas de relire moins souvent — c'est d'inclure les constats
-antérieurs et de demander le delta.
-
-**Utiliser la session génératrice pour relire son propre diff afin d'économiser un
-appel.** L'économie est réelle et la revue vaut moins que l'appel qu'elle a
-économisé.
+**Laisser le job qui a produit le code le relire aussi, pour économiser une exécution.** Un job coûte moins que deux, et il achète la revue que le guide désigne comme la moins efficace : le raisonnement qui a écrit le code est encore dans la fenêtre. **Pourquoi une instance indépendante attrape ce qu'une auto-revue manque, et comment découper une grande revue en passes par fichier puis inter-fichiers, est développé en D4.6.**
 :::
 
 **À tester** — les questions de la banque étiquetées `data-task="3.6"`.

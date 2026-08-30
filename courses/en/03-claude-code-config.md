@@ -707,8 +707,12 @@ between runs, so it re-reports everything it found last time. The pull request
 accumulates duplicates until nobody reads the bot. The fix is not to review less
 often — it is to include the prior findings and ask for the delta.
 
-**Using the generating session to review its own diff to save a call.** The
-saving is real and the review is worth less than the call it saved.
+**Letting the job that generated the code also review it, to save a run.** One
+job costs less than two, and it buys the review the guide names as the least
+effective one — the reasoning that wrote the code is still in the window.
+**Why an independent instance catches what a self-review misses, and how to
+split a large review into per-file and cross-file passes, is developed in
+D4.6.**
 :::
 
 **To test** — bank questions tagged `data-task="3.6"`.

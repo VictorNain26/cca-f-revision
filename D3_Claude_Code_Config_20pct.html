@@ -814,14 +814,7 @@ en un blocage court et ne produit toujours rien ; et parser la prose à coups de
 regex, qui déplace la fragilité dans votre propre code au lieu de la supprimer.</p>
 </div>
 <div class="anti-pattern">
-<p><strong>Relancer la revue de zéro à chaque push.</strong> Claude n'a pas de mémoire entre les
-exécutions, donc il resignale tout ce qu'il avait trouvé la fois précédente. La
-pull request accumule les doublons jusqu'à ce que plus personne ne lise le bot. Le
-correctif n'est pas de relire moins souvent — c'est d'inclure les constats
-antérieurs et de demander le delta.</p>
-<p><strong>Utiliser la session génératrice pour relire son propre diff afin d'économiser un
-appel.</strong> L'économie est réelle et la revue vaut moins que l'appel qu'elle a
-économisé.</p>
+<p><strong>Laisser le job qui a produit le code le relire aussi, pour économiser une exécution.</strong> Un job coûte moins que deux, et il achète la revue que le guide désigne comme la moins efficace : le raisonnement qui a écrit le code est encore dans la fenêtre. <strong>Pourquoi une instance indépendante attrape ce qu'une auto-revue manque, et comment découper une grande revue en passes par fichier puis inter-fichiers, est développé en D4.6.</strong></p>
 </div>
 <p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;3.6&quot;</code>.</p>
 
