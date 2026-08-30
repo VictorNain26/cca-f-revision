@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Contrôle des doublons fiche ↔ banque sur le corpus.
+/* Rapport des doublons fiche ↔ banque sur le corpus.
  *
  * Deux modes, comme les autres contrôles du dépôt :
  *   - rapport (défaut) : mesure, affiche, sort 0. Les doublons sont là, la

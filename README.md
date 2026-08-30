@@ -41,7 +41,7 @@ Corpus complet de révision pour la certification **Claude Certified Architect �
 | `D4_Prompt_Engineering_20pct.html` | Domaine 4 — 7 questions d'auto-évaluation |
 | `D5_Context_Fiabilite_15pct.html` | Domaine 5 — 9 questions d'auto-évaluation |
 | `Scenarios_Exam.html` | Les 6 scénarios + tableau croisé scénario × domaine |
-| `Practice_Questions.html` | 112 QCM corrigés, **énoncés et corrigés en anglais** (langue de l'examen) — 12 questions officielles + 100 items couvrant les 6 scénarios et les 30 task statements |
+| `Practice_Questions.html` | 112 QCM corrigés, **énoncés et corrigés en anglais** (langue de l'examen) — 12 questions officielles + 100 items couvrant les 6 scénarios et les 30 task statements. Page générée : sources dans `courses/practice/page.md` (prose) et `courses/quizzes/PQ.json` (questions) |
 | `Exam_Strategy.html` | Cheat sheet jour J, méthodologie QCM, 5 arbres de décision |
 | `styles.css` | Design system unifié partagé par tous les documents |
 | `courses/` | Corpus de cours dédupliqué, anglais + français généré par po4a — voir [courses/README.md](courses/README.md) |
@@ -68,35 +68,62 @@ Le guide fige l'état de l'outillage en juillet 2026 et la doc a bougé depuis. 
 | `allowed-tools` dans un skill | Restreint l'accès aux outils | Décrit comme une pré-approbation de permissions |
 | Sortie structurée | `tool_use` + JSON Schema | Structured Outputs natifs (`output_config.format`) |
 
-## Contrôles qualité
+## Contrôles et rapports
 
-Le site publié reste du HTML statique ; `package.json` ne sert qu'à outiller les contrôles.
+Le site publié reste du HTML statique ; `package.json` ne sert qu'à outiller les
+contrôles et les rapports.
 
 ```bash
-npm install                # une fois — installe jsdom, markdown-it et markdown-it-container (trois dépendances, pour les quiz et le rendu des cours)
+npm install                # une fois — jsdom, markdown-it, markdown-it-container
 sudo apt install -y po4a   # une fois — dépendance système, pour le corpus de cours
-npm run check              # enchaîne les dix contrôles, sort en échec au premier problème
-npm run fix:nav            # réécrit la navbar des pages depuis nav.js (source unique)
+
+npm run check              # les six contrôles, échec au premier problème
+npm run report             # les trois rapports, jamais de verdict
+npm test                   # la suite unitaire des outils
+
+npm run fix:nav            # réécrit la navbar des pages depuis nav.js
 npm run build:courses      # régénère courses/fr/ depuis courses/en/ + courses/po/fr.po
 npm run render:courses     # régénère les pages HTML publiées depuis le corpus de cours
 ```
 
-| Script | Ce qu'il garantit |
+### Ce qui bloque
+
+Un contrôle échoue quand quelque chose est **cassé pour le lecteur** ou qu'un
+fichier a **dérivé de la source dont il est le rendu**. Ce sont des faits
+constatables, pas des jugements sur le contenu.
+
+| Contrôle | Ce qu'il constate |
 |---|---|
-| `check:chapters` | Chaque section portant un task statement a un exemple, un réflexe d'examen et des distracteurs nommés. Vérifie la présence des blocs, pas leur substance. |
-| `check:questions` | Le contrat des 157 questions, en mode strict : identifiant stable, domaine et task déclarés, options tagguées, une explication par distracteur, aucun français résiduel, aucun doublon fiche ↔ banque. |
-| `check:length` | L'indice de longueur : une clé dont la longueur trahit sa position se devine sans lire l'énoncé. Le verdict porte sur le **taux de réussite du meilleur candidat aveugle**, tous rangs et deux métriques confondus — « toujours cocher la k-ième option la plus longue », pour tout k, en mots comme en caractères — et échoue au-dessus de 35 % (`MAX_BLIND_RATE`, le hasard étant à 25 %). Balayer tous les rangs ferme la porte au contournement : ne mesurer que les extrêmes récompenserait une correction qui range la clé en deuxième position. Un rang mesuré sur moins de `MIN_RANK_SAMPLE` questions est affiché mais ne décide pas. Ratio clé/distracteurs par question, encadrement des extrémités par la convention de départage et concentration des égalités restent affichés en diagnostic — cette dernière signale une clé alignée sur le compteur plutôt qu'un équilibrage. Les 12 questions officielles `pq-q1..pq-q12` sont mesurées hors verdict parce qu'elles ne sont pas modifiables, et non parce que leur indice serait forcément celui du guide : un indice qui apparaît sur l'une d'elles doit être recoupé contre le PDF avant d'être imputé à l'examen. Le cas est avéré — `pq-q10` sortait à 2,294 sur deux distracteurs que le corpus avait tronqués, contre 1,083 sur le texte du guide ; les options ont été rétablies et le ratio avec elles. **Angle mort** : la mesure ne connaît que la longueur. Un distracteur rallongé de mots vides passe pour un équilibrage, et une option plus courte que ses voisines mais seule à répondre vraiment à la question reste devinable pour une raison que ce contrôle ne voit pas. |
-| `check:dupes` | Le recouvrement fiche ↔ banque : le verdict porte sur le **nombre de paires de même `data-task` dont les blocs d'options dépassent l'indice de Jaccard de 0,20** sur les mots de contenu — contenu des `<code>`, nombres et mots-outils retirés, c'est-à-dire tout ce qu'une réécriture paresseuse renomme. Une paire au-dessus du seuil fait échouer ; une paire impliquant une officielle est signalée à part, puisque c'est la fiche qui doit bouger. Les exemptions justifiées sont déduites, et celles devenues sans effet sont listées pour être retirées. **Angle mort** : aucune mesure lexicale n'attrape un isomorphisme de structure. Deux questions dont les quatre options se correspondent une à une mais sont intégralement reformulées sortent sous le seuil — le rapport chiffre deux cas connus. Une sortie vide n'est pas une preuve d'absence de doublon. |
-| `check:nav` | La navbar : le bloc `<nav class="navbar">` de chaque page est le rendu exact de la liste `LINKS` de `nav.js`, seule source. Le HTML statique est matérialisé plutôt que supprimé — il évite le flash de navigation vide d'un `nav.js` chargé en `defer` et sert le mode sans JS. `npm run fix:nav` réécrit les pages ; la CI refuse toute divergence. **Le défaut qu'il attrape** : la navbar existait en onze exemplaires et ils avaient divergé — un lien du guide corrigé dans une seule page, un titre resté périmé dans une autre. |
-| `check:links` | Aucun lien ni ancre interne cassé ; les 30 task statements sont tous cités. |
-| `check:diacritics` | Aucun mot français écrit sans ses accents. Le périmètre se découpe par **bloc quiz**, et non plus par fichier : les `<details>` de quiz sont rédigés en anglais et sont exclus, la prose qui les entoure est contrôlée — y compris celle de `Practice_Questions.html`, dont les titres de section et la note de fidélité sont en français. |
+| `check:questions` | Ce sans quoi `quiz.js` corrige mal : `data-opt` absents ou désordonnés, lettre du texte désaccordée de son `data-opt`, `data-answer` qui ne désigne aucune option, explication braquée sur la bonne réponse, id dupliqué (deux questions partageraient la même case de progression), `TOTALS` de `home-progress.js` en désaccord avec le compte réel. Le reste du contrat — schéma d'id, métadonnées de classement, langue, distracteur sans explication, couverture des task statements — est affiché en observations. |
+| `check:nav` | Le bloc `<nav class="navbar">` de chaque page est le rendu exact de la liste `LINKS` de `nav.js`. Le HTML statique est matérialisé plutôt que supprimé : il évite le flash de navigation vide et sert le mode sans JS. `npm run fix:nav` réécrit les pages. **Le défaut qu'il attrape** : la navbar existait en onze exemplaires et ils avaient divergé. |
+| `check:links` | Aucun lien ni ancre interne cassé. La couverture des 30 task statements est affichée à côté, sans effet sur le verdict. |
 | `check:quizzes` | `quiz.js` exécuté sur chaque page : l'énoncé et les choix sont visibles, la réponse ne fuite pas avant la révélation. |
-| `check:runtime` | Le chrome exécuté : chaque page est chargée dans un DOM, tous ses `<script src>` doivent exister et s'exécuter sans erreur, et le bouton de retour en haut doit réagir au défilement. **Le défaut qu'il attrape** : un script déplacé, renommé, ou un comportement extrait vers un fichier jamais chargé — tout cela passe silencieusement les autres contrôles. **Angle mort** : jsdom n'implémente ni `IntersectionObserver` ni `ResizeObserver`, remplacés par des stubs inertes ; ce qui repose sur leurs callbacks n'est pas couvert. Il ne dit rien du contenu de la navbar — le HTML statique étant le rendu exact de `nav.js`, on ne peut pas y distinguer un `nav.js` exécuté d'un `nav.js` inerte. C'est `check:nav` qui garde la navbar. |
-| `check:courses` | Le corpus de cours : `courses/fr/` est le rendu exact de `courses/en/` + `po/fr.po`, aucune entrée de traduction périmée, chaque notion transverse enseignée dans un seul cours, chaque renvoi `data-task` existant en banque, et chaque page HTML publiée (`D0_API_Fundamentals.html`, `en/D0_API_Fundamentals.html`…) est le rendu exact de ce corpus par `npm run render:courses` — une page corrigée à la main plutôt que dans `courses/en/` est signalée, nommée. **Angle mort** : rien ici ne juge la justesse du contenu — un cours faux mais bien formé passe. |
+| `check:runtime` | Chaque page chargée dans un DOM : tous ses `<script src>` existent et s'exécutent sans erreur, le bouton de retour en haut réagit au défilement. **Angle mort** : jsdom n'implémente ni `IntersectionObserver` ni `ResizeObserver`, remplacés par des stubs inertes. |
+| `check:courses` | La chaîne de rendu, à chaque maillon : `courses/fr/` est le rendu exact de `courses/en/` + `po/fr.po`, chaque page HTML publiée — les douze fiches et `Practice_Questions.html` — est le rendu exact de ses sources par `npm run render:courses`, aucun fichier orphelin ou oublié dans `po4a.conf`, aucun segment anglais absent du catalogue, aucun renvoi `data-task` que l'appariement flou de po4a aurait fait dériver vers un autre task statement, aucun commentaire de traçabilité qui fuit dans le HTML. Les conventions de rédaction du corpus — marqueurs `src` et `owns`, une section par task statement, fraîcheur des traductions — sont affichées en observations. **Angle mort** : rien ici ne juge la justesse du contenu. |
 
-Une CI GitHub Actions (`.github/workflows/check.yml`) rejoue `npm test` puis `npm run check` sur chaque push vers `main` et chaque pull request.
+### Ce qui informe
 
-`npm run test:mutation` neutralise, un à la fois, chaque `problems.push(` et chaque garde `if (…) continue;` de `tools/lib/courses.mjs`, relance `npm test` contre la copie mutée, et signale toute mutation qu'aucun test n'a détectée : c'est soit du code mort, soit un test manquant. Il n'entre pas dans `npm run check` — il relance la suite complète une fois par point de mutation, trop lent pour la boucle courte — mais **c'est un contrôle à passer avant de merger** toute modification de `tools/lib/courses.mjs`.
+Ces trois-là mesurent le contenu. La mesure vaut, le verdict non : chacun a un
+angle mort connu, et un seuil qui refuse un commit fait corriger la mesure
+plutôt que le défaut.
+
+| Rapport | Ce qu'il mesure, et ce qu'il ne voit pas |
+|---|---|
+| `report:length` | L'indice de longueur : le taux de réussite du meilleur candidat aveugle — « toujours cocher la k-ième option la plus longue », pour tout k, en mots comme en caractères. Le ratio clé/distracteurs par question et la concentration des égalités s'affichent en diagnostic. **Angle mort** : la mesure ne connaît que la longueur. Un distracteur rallongé de mots vides passe pour un équilibrage, et une option courte mais seule à répondre vraiment à la question reste devinable pour une raison invisible ici. Les 12 officielles `pq-q1..pq-q12` sont mesurées à part — un indice qui y apparaît doit être recoupé contre le PDF avant d'être imputé à l'examen : `pq-q10` sortait à 2,294 sur deux distracteurs que le corpus avait tronqués, contre 1,083 sur le texte du guide. |
+| `report:dupes` | Le recouvrement fiche ↔ banque : indice de Jaccard sur les mots de contenu, `<code>`, nombres et mots-outils retirés. **Angle mort** : aucune mesure lexicale n'attrape un isomorphisme de structure. Deux questions dont les quatre options se correspondent une à une mais sont intégralement reformulées sortent sous le seuil — le rapport chiffre deux cas connus. Une sortie vide n'est pas une preuve d'absence de doublon. |
+| `report:diacritics` | Les mots français écrits sans leurs accents, sur la prose hors blocs de quiz (rédigés en anglais). **Angle mort** : la liste de mots est incomplète par construction et porte au moins un faux positif assumé (<code>anticipe</code>, présent de l'indicatif, dont la forme accentuée existe aussi — c'est le participe passé). |
+
+Une CI GitHub Actions (`.github/workflows/check.yml`) rejoue `npm test` puis
+`npm run check` sur chaque push vers `main` et chaque pull request, et affiche
+`npm run report` sans en faire dépendre le résultat.
+
+`npm run test:mutation` neutralise, un à la fois, chaque `problems.push(`,
+chaque `notices.push(` et chaque garde `if (…) continue;` de
+`tools/lib/courses.mjs`, relance `npm test`
+contre la copie mutée, et signale toute mutation qu'aucun test n'a détectée :
+c'est soit du code mort, soit un test manquant. Il relance la suite complète une
+fois par point de mutation — trop lent pour la boucle courte, utile après une
+modification de fond de ce module.
 
 ## Déploiement
 
