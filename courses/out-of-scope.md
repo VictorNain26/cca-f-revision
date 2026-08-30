@@ -1,8 +1,9 @@
 # Ce que le corpus n'enseigne pas
 
 Les prep courses de l'Anthropic Partner Academy débordent largement du guide
-CCAR-F v1.0. Ce qui suit est écarté volontairement, avec le motif : un sujet
-absent de cette liste et absent des cours est un oubli, pas une décision.
+CCAR-F v1.0. Ce qui suit est écarté volontairement, avec le motif. La liste
+sert à distinguer une décision d'un oubli : un sujet absent des cours et absent
+d'ici n'a probablement pas été tranché.
 
 ## Ce qu'on ne révise pas
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-/* Contrôle des liens internes, des ancres, et de la couverture des 30 task
- * statements du guide CCAR-F v1.0.
+/* Contrôle des liens internes et des ancres. Bloque sur un lien mort — un clic
+ * qui échoue pour le lecteur. La couverture des 30 task statements du guide
+ * CCAR-F v1.0 est affichée à côté, sans effet sur le verdict : elle décrit
+ * l'avancement du corpus, pas un défaut du site.
  * Couvre les .html et .md de la racine, et les .md de courses/ (récursif) :
  * un lien Markdown relatif doit résoudre vers un fichier du dépôt, une ancre
  * doit correspondre à un id="" si la cible est HTML, ou à un titre si la
@@ -105,8 +107,12 @@ const missing = Object.entries(TASKS_PER_DOMAIN).flatMap(([domain, count]) =>
   Array.from({ length: count }, (_, i) => `${domain}.${i + 1}`).filter((t) => !covered.has(t))
 );
 const total = Object.values(TASKS_PER_DOMAIN).reduce((a, b) => a + b, 0);
+/* La couverture des task statements est une observation : elle décrit
+ * l'avancement du corpus, pas une casse du site. Un lien mort, lui, bloque —
+ * c'est un clic qui échoue pour le lecteur. */
 console.log(
-  `Task statements : ${total - missing.length}/${total}` + (missing.length ? ` — manquants : ${missing.join(', ')}` : '')
+  `Task statements : ${total - missing.length}/${total}` +
+  (missing.length ? ` — sans mention, pour information : ${missing.join(', ')}` : '')
 );
 
-process.exit(broken || missing.length ? 1 : 0);
+process.exit(broken ? 1 : 0);

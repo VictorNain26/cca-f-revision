@@ -1,14 +1,28 @@
 /* Les règles du contrat de question, en fonctions pures.
- * Le contrôle porte sur la structure, jamais sur la justesse d'une réponse :
- * celle-ci se recoupe à la main contre le guide et la doc, et se consigne au
- * journal. Ce qui est automatisable ici, c'est l'oubli.
+ *
+ * Deux niveaux, parce qu'ils ne coûtent pas la même chose au lecteur du site :
+ *
+ *   - problems : ce sans quoi le quiz se corrige mal. quiz.js lit data-opt
+ *     pour construire les choix, data-answer pour désigner la clé, et les
+ *     li[data-opt] pour rattacher chaque explication à son option (voir
+ *     quiz.js). Un data-answer qui ne désigne aucune option, une lettre du
+ *     texte désaccordée de son data-opt, une explication braquée sur la bonne
+ *     réponse : le lecteur voit une correction fausse. C'est un bug, pas un
+ *     désaccord de style.
+ *
+ *   - notices : tout ce qui relève de la tenue éditoriale — schéma d'id,
+ *     métadonnées de classement, nombre d'options, langue, explication
+ *     manquante sur un distracteur. Affiché, jamais bloquant : ces règles
+ *     décrivent la façon de rédiger d'aujourd'hui, et une exploration a le
+ *     droit de s'en écarter le temps de voir ce que ça donne.
+ *
+ * Le contrôle n'a jamais jugé la justesse d'une réponse : elle se recoupe à la
+ * main contre le guide et la doc.
+ *
  * Détection du français : liste de mots-outils dont la forme n'existe pas en
- * anglais, plus les caractères accentués. Même parti pris que
- * check-diacritics.mjs — peu de faux positifs, liste incomplète par
- * construction, qui se complète quand une coquille passe.
- * La liste est validée contre les 112 questions déjà anglaises du corpus :
- * tout ajout doit l'être aussi, sous peine de faux positif (cas de « plus »,
- * mot anglais ordinaire, retiré après mesure contre ce même corpus).
+ * anglais, plus les caractères accentués. Liste incomplète par construction,
+ * validée contre les questions anglaises du corpus — « plus », mot anglais
+ * ordinaire, en a été retiré après un faux positif.
  */
 import { overlap } from './questions.mjs';
 
@@ -22,85 +36,88 @@ const ACCENTS = /[àâäçéèêëîïôöùûüÿœæ]/i;
 const proseOf = (q) => q.prose;
 
 export const checkQuestion = (q) => {
-  const out = [];
-  const say = (msg) => out.push(`${q.file} :: ${q.label.slice(0, 52)} — ${msg}`);
+  const problems = [];
+  const notices = [];
+  const at = (msg) => `${q.file} :: ${q.label.slice(0, 52)} — ${msg}`;
+  const broken = (msg) => problems.push(at(msg));
+  const note = (msg) => notices.push(at(msg));
 
   // id
   if (!q.id || !new RegExp(`^${q.prefix}-q\\d+$`).test(q.id)) {
-    say(`id « ${q.id ?? '(absent)'} » hors schéma, attendu ${q.prefix}-q<n>`);
+    note(`id « ${q.id ?? '(absent)'} » hors schéma, attendu ${q.prefix}-q<n>`);
   }
 
   // domaine
   if (!q.domain || !/^D[0-5]$/.test(q.domain)) {
-    say(`domaine « ${q.domain ?? '(absent)'} » invalide`);
+    note(`domaine « ${q.domain ?? '(absent)'} » invalide`);
   } else if (q.prefix !== 'pq' && q.domain.toLowerCase() !== q.prefix) {
-    say(`domaine ${q.domain} incohérent avec la fiche ${q.prefix.toUpperCase()}`);
+    note(`domaine ${q.domain} incohérent avec la fiche ${q.prefix.toUpperCase()}`);
   }
 
   // task
   if (!q.task || !/^\d\.\d+$/.test(q.task)) {
-    say(`task « ${q.task ?? '(absente)'} » invalide`);
+    note(`task « ${q.task ?? '(absente)'} » invalide`);
   } else if (q.citedTask && q.citedTask !== q.task) {
-    say(`data-task ${q.task} contredit la task ${q.citedTask} citée en prose`);
+    note(`data-task ${q.task} contredit la task ${q.citedTask} citée en prose`);
   }
 
-  // options
+  // options : quiz.js ne sait construire les choix que depuis les data-opt.
   if (q.options.length < 4 || q.options.length > 5) {
-    say(`${q.options.length} options, attendu 4 ou 5`);
+    note(`${q.options.length} options, attendu 4 ou 5`);
   }
   const expected = LETTERS.slice(0, q.options.length);
   const actual = q.options.map((o) => o.opt);
   if (actual.join(',') !== expected.join(',')) {
-    say(`data-opt ${JSON.stringify(actual)}, attendu ${JSON.stringify(expected)}`);
+    broken(`data-opt ${JSON.stringify(actual)}, attendu ${JSON.stringify(expected)}`);
   }
   for (const o of q.options) {
     if (o.opt && o.letterInText && o.letterInText.toLowerCase() !== o.opt) {
-      say(`lettre « ${o.letterInText}) » désaccordée du data-opt « ${o.opt} »`);
+      broken(`lettre « ${o.letterInText}) » désaccordée du data-opt « ${o.opt} »`);
     }
   }
 
   // réponse
   const known = new Set(actual.filter(Boolean));
   if (q.answer.length === 0) {
-    say('data-answer absent');
+    broken('data-answer absent');
   }
   for (const a of q.answer) {
-    if (!known.has(a)) say(`data-answer « ${a} » ne désigne aucune option`);
+    if (!known.has(a)) broken(`data-answer « ${a} » ne désigne aucune option`);
   }
   if (/\b[A-E]\)/.test(q.answerText)) {
-    say(`lettre en dur dans le corrigé : « ${q.answerText.slice(0, 40)} »`);
+    note(`lettre en dur dans le corrigé : « ${q.answerText.slice(0, 40)} »`);
   }
 
   // explications
   const wrong = [...known].filter((o) => !q.answer.includes(o)).sort();
   const explained = [...new Set(q.explanations)].sort();
   for (const e of explained) {
-    if (!known.has(e)) say(`explication « ${e} » ne désigne aucune option`);
-    else if (q.answer.includes(e)) say(`explication visant la bonne réponse « ${e} »`);
+    if (!known.has(e)) broken(`explication « ${e} » ne désigne aucune option`);
+    else if (q.answer.includes(e)) broken(`explication visant la bonne réponse « ${e} »`);
   }
   const missing = wrong.filter((o) => !explained.includes(o));
-  if (missing.length) say(`distracteur(s) sans explication : ${missing.join(', ')}`);
+  if (missing.length) note(`distracteur(s) sans explication : ${missing.join(', ')}`);
 
   // langue
   const prose = proseOf(q);
   if (FRENCH_MARKERS.test(prose) || ACCENTS.test(prose)) {
-    say(`français dans le bloc quiz : « ${prose.slice(0, 50)} »`);
+    note(`français dans le bloc quiz : « ${prose.slice(0, 50)} »`);
   }
 
-  return out;
+  return { problems, notices };
 };
 
 /* Seuil retenu sur l'empreinte fp (code + valeurs chiffrées, cf. questions.mjs).
- * Mesuré sur les 157 questions migrées : le recouvrement maximum entre une
- * question de fiche et une question de banque est 0,2222 (3 paires, ex.
- * d2-q6/pq-q64 sur ".mcp.json" + "~/.claude.json" — du vocabulaire de config
- * partagé, pas un doublon). 0,20 ferait donc échouer le contrôle sur du faux
- * positif ; 0,25 reste sous l'ancien 0,30 tout en laissant une marge
- * (~0,03) au-dessus du maximum mesuré pour absorber une future coïncidence de
- * ce type sans se redéclencher à vide. */
+ * Mesuré sur le corpus : le recouvrement maximum entre une question de fiche et
+ * une question de banque est 0,2222 (3 paires, ex. d2-q6/pq-q64 sur
+ * ".mcp.json" + "~/.claude.json" — du vocabulaire de config partagé, pas un
+ * doublon). 0,20 échouerait donc sur du faux positif ; 0,25 laisse ~0,03 de
+ * marge au-dessus du maximum mesuré. */
 export const OVERLAP_MAX = 0.25;
 
-// Identité : deux questions ne peuvent pas partager un id.
+/* Identité : deux questions ne peuvent pas partager un id. Bloquant, parce que
+ * quiz.js range la progression du lecteur sous cet id (localStorage) — deux
+ * questions homonymes se répondent l'une pour l'autre. */
 export const checkIds = (questions) => {
   const out = [];
   const seen = new Map();
@@ -112,8 +129,9 @@ export const checkIds = (questions) => {
   return out;
 };
 
-// Recouvrement fiche <-> banque. Une fiche migrée a été réécrite : elle ne
-// doit plus rejouer une question de la banque, migrée ou non.
+// Recouvrement fiche <-> banque : une fiche réécrite ne devrait plus rejouer
+// une question de la banque. Observation — le jugement de « c'est le même
+// exercice » ne se délègue pas à un seuil.
 export const checkOverlap = (questions) => {
   const out = [];
   const bank = questions.filter((x) => x.prefix === 'pq');
@@ -131,7 +149,8 @@ export const checkOverlap = (questions) => {
 
 export const expectedTasks = { 1: 7, 2: 5, 3: 6, 4: 6, 5: 6 };
 
-// Couverture des 30 task statements, sur la task déclarée ou citée.
+// Couverture des 30 task statements. Observation : un trou de couverture est
+// une information utile, pas une raison de refuser un commit.
 export const checkTaskCoverage = (questions) => {
   const out = [];
   const covered = new Set(questions.map((x) => x.task ?? x.citedTask).filter(Boolean));
@@ -143,7 +162,9 @@ export const checkTaskCoverage = (questions) => {
   return out;
 };
 
-// TOTALS de home-progress.js, contre le compte réel par page.
+/* TOTALS de home-progress.js, contre le compte réel par page. Bloquant : le
+ * profil par domaine de la page d'accueil divise par ces totaux — faux, il
+ * affiche au lecteur un pourcentage de progression faux. */
 export const checkTotals = (questions, declaredTotals) => {
   const out = [];
   const realTotals = {};
@@ -159,15 +180,18 @@ export const checkTotals = (questions, declaredTotals) => {
   return out;
 };
 
-export const checkCorpus = (questions, { strict = false, declaredTotals = {} } = {}) => [
-  ...checkIds(questions),
-  ...questions.flatMap((q) =>
-    q.migrated
-      ? checkQuestion(q)
-      : strict
-        ? [`${q.file} :: ${q.label.slice(0, 52)} — non migrée (mode strict)`]
-        : []),
-  ...checkOverlap(questions),
-  ...checkTaskCoverage(questions),
-  ...checkTotals(questions, declaredTotals),
-];
+export const checkCorpus = (questions, { declaredTotals = {} } = {}) => {
+  const perQuestion = questions.filter((q) => q.migrated).map(checkQuestion);
+  return {
+    problems: [
+      ...checkIds(questions),
+      ...perQuestion.flatMap((r) => r.problems),
+      ...checkTotals(questions, declaredTotals),
+    ],
+    notices: [
+      ...perQuestion.flatMap((r) => r.notices),
+      ...checkOverlap(questions),
+      ...checkTaskCoverage(questions),
+    ],
+  };
+};

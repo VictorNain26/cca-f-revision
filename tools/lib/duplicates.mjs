@@ -28,9 +28,10 @@
  * Aucune I/O ici : tout se teste sur fixtures. Le module consomme le type
  * Question de questions.mjs, options comprises (`text` et `html`).
  *
- * État courant, et sa limite. La passe de réécriture est faite, `OVERLAP_MAX`
- * est descendu à 0,25 (question-contract.mjs) et ce contrôle-ci est branché en
- * `--enforce` dans `npm run check`. Mais les deux seuils restent AU-DESSUS du
+ * État courant, et sa limite. La passe de réécriture est faite et `OVERLAP_MAX`
+ * est descendu à 0,25 (question-contract.mjs). Ce module s'exécute en rapport
+ * (`npm run report:dupes`) ; `--enforce` reste disponible pour un verdict
+ * ponctuel, sans être câblé dans un gate. Les deux seuils restent AU-DESSUS du
  * maximum que le corpus produit aujourd'hui : 0,25 contre 0,2222 mesuré pour
  * l'empreinte, 0,20 contre 0,1702 pour l'écho d'options. Aucun des deux ne peut
  * donc se déclencher en l'état. Ils attestent la situation présente ; ils ne

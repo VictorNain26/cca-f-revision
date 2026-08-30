@@ -23,81 +23,90 @@ const build = (over = {}) => {
 </div></details>`;
 };
 
-const violations = (html, file = 'Practice_Questions.html') => checkQuestion(parseQuestions(html, file)[0]);
+/* Deux vues : `signalled` réunit tout ce que le contrat remarque, `blocking`
+ * ne garde que ce qui casserait la correction du quiz. Un test qui affirme
+ * « signalé » ne dit rien de la sévérité — c'est `blocking` qui atteste la
+ * frontière entre le bug et la convention de rédaction. */
+const report = (html, file = 'Practice_Questions.html') => checkQuestion(parseQuestions(html, file)[0]);
+const signalled = (html, file = 'Practice_Questions.html') => {
+  const r = report(html, file);
+  return [...r.problems, ...r.notices];
+};
+const blocking = (html, file = 'Practice_Questions.html') => report(html, file).problems;
 
-test('une question conforme ne produit aucune violation', () => {
-  assert.deepEqual(violations(build()), []);
+test('une question conforme ne produit aucune remarque', () => {
+  assert.deepEqual(signalled(build()), []);
 });
 
-test('un id hors schéma est refusé', () => {
-  assert.match(violations(build({ id: 'question-1' })).join(' '), /id/);
+test('un id hors schéma est signalé', () => {
+  assert.match(signalled(build({ id: 'question-1' })).join(' '), /id/);
 });
 
-test("un id de fiche sur la page de la banque est refusé", () => {
-  assert.match(violations(build({ id: 'd1-q1' })).join(' '), /id/);
+test("un id de fiche sur la page de la banque est signalé", () => {
+  assert.match(signalled(build({ id: 'd1-q1' })).join(' '), /id/);
 });
 
-test('un domaine incohérent avec la fiche est refusé', () => {
+test('un domaine incohérent avec la fiche est signalé', () => {
   const html = build({ id: 'd1-q1', domain: 'D2' });
-  assert.match(violations(html, 'D1_Architecture_Orchestration_27pct.html').join(' '), /domaine/i);
+  assert.match(signalled(html, 'D1_Architecture_Orchestration_27pct.html').join(' '), /domaine/i);
 });
 
-test('une task absente est refusée', () => {
+test('une task absente est signalée', () => {
   const html = build().replace(' data-task="1.4"', '');
-  assert.match(violations(html).join(' '), /task/i);
+  assert.match(signalled(html).join(' '), /task/i);
 });
 
-test('une task contredisant la prose est refusée', () => {
+test('une task contredisant la prose est signalée', () => {
   const html = build({ scenario: 'A gate. This is Task 2.1.' });
-  assert.match(violations(html).join(' '), /2\.1/);
+  assert.match(signalled(html).join(' '), /2\.1/);
 });
 
-test('trois options sont refusées', () => {
-  assert.match(violations(build({ options: ['a', 'b', 'c'], explanations: ['b', 'c'] })).join(' '), /options/i);
+test('trois options sont signalées', () => {
+  assert.match(signalled(build({ options: ['a', 'b', 'c'], explanations: ['b', 'c'] })).join(' '), /options/i);
 });
 
 test('un data-opt hors séquence est refusé', () => {
   const html = build().replace('data-opt="c"', 'data-opt="x"');
-  assert.match(violations(html).join(' '), /data-opt/);
+  assert.match(signalled(html).join(' '), /data-opt/);
 });
 
 test('une lettre de texte désaccordée du data-opt est refusée', () => {
   const html = build().replace('<p data-opt="b">B)', '<p data-opt="b">D)');
-  assert.match(violations(html).join(' '), /lettre/i);
+  assert.match(signalled(html).join(' '), /lettre/i);
 });
 
 test('un data-answer pointant une option inexistante est refusé', () => {
-  assert.match(violations(build({ answer: 'e' })).join(' '), /data-answer/);
+  assert.match(signalled(build({ answer: 'e' })).join(' '), /data-answer/);
 });
 
-test('une lettre en dur dans le corrigé est refusée', () => {
-  assert.match(violations(build({ answerText: 'Answer: A) add a prerequisite' })).join(' '), /lettre en dur/i);
+test('une lettre en dur dans le corrigé est signalée', () => {
+  assert.match(signalled(build({ answerText: 'Answer: A) add a prerequisite' })).join(' '), /lettre en dur/i);
 });
 
-test('une explication qui manque un distracteur est refusée', () => {
-  assert.match(violations(build({ explanations: ['b', 'c'] })).join(' '), /distracteur/i);
+test('une explication qui manque un distracteur est signalée', () => {
+  assert.match(signalled(build({ explanations: ['b', 'c'] })).join(' '), /distracteur/i);
 });
 
 test('une explication visant la bonne réponse est refusée', () => {
-  assert.match(violations(build({ explanations: ['a', 'b', 'c', 'd'] })).join(' '), /bonne r/i);
+  assert.match(signalled(build({ explanations: ['a', 'b', 'c', 'd'] })).join(' '), /bonne r/i);
 });
 
-test('du français dans un bloc quiz est refusé', () => {
-  assert.match(violations(build({ scenario: "L'agent saute une étape de vérification." })).join(' '), /fran/i);
+test('du français dans un bloc quiz est signalé', () => {
+  assert.match(signalled(build({ scenario: "L'agent saute une étape de vérification." })).join(' '), /fran/i);
 });
 
 test('un accent isolé suffit à signaler du français', () => {
-  assert.match(violations(build({ title: 'Séquencement des outils' })).join(' '), /fran/i);
+  assert.match(signalled(build({ title: 'Séquencement des outils' })).join(' '), /fran/i);
 });
 
 test('du français dans un <code> ne compte pas', () => {
   const html = build({ scenario: 'The tool named <code>où</code> returns a total.' });
-  assert.deepEqual(violations(html), []);
+  assert.deepEqual(signalled(html), []);
 });
 
 test('une question à réponses multiples est acceptée', () => {
   const html = build({ answer: 'b d', explanations: ['a', 'c'], answerText: 'Answers: two guarantees' });
-  assert.deepEqual(violations(html), []);
+  assert.deepEqual(signalled(html), []);
 });
 
 test('la liste française ne contient aucun mot anglais courant', () => {
@@ -122,7 +131,7 @@ test('deux id distincts ne produisent aucune violation', () => {
   assert.deepEqual(checkIds([q({}), q({ id: 'pq-q2', label: 'Q2 — U' })]), []);
 });
 
-test('un recouvrement fiche/banque au-dessus du seuil est refusé', () => {
+test('un recouvrement fiche/banque au-dessus du seuil est signalé', () => {
   const bank = q({ fp: new Set(['get_customer', '12%', 'lookup_order']) });
   const sheet = q({
     file: 'D1_Architecture_Orchestration_27pct.html', prefix: 'd1', id: 'd1-q1',
@@ -155,23 +164,32 @@ test('un TOTALS désaccordé du compte réel est refusé', () => {
   assert.match(found.join(' '), /TOTALS/);
 });
 
-test('une question non migrée est ignorée en mode progressif', () => {
+test('une question sans id est ignorée par le contrat de forme', () => {
   const bad = q({ id: null, migrated: false, domain: null, task: null });
   const found = checkCorpus([bad], { declaredTotals: {} });
-  assert.ok(!found.some((m) => /non migr/i.test(m)));
+  assert.deepEqual(found.problems, []);
 });
 
-test('une question non migrée est refusée en mode strict', () => {
-  const bad = q({ id: null, migrated: false, domain: null, task: null });
-  const found = checkCorpus([bad], { strict: true, declaredTotals: {} });
-  assert.ok(found.some((m) => /non migr/i.test(m)));
+/* La frontière que cette refonte pose, attestée dans les deux sens : un
+ * data-answer qui ne désigne rien fait corriger faux et doit bloquer ; un id
+ * hors schéma est une convention de rédaction et ne doit pas. Sans ces deux
+ * tests, un glissement d'une catégorie à l'autre passerait inaperçu. */
+test('ce qui casse la correction du quiz bloque', () => {
+  const html = build().replace('data-answer="a"', 'data-answer="z"');
+  assert.match(blocking(html).join(' '), /data-answer/);
 });
 
-test('le corpus réel passe le contrat en mode progressif', () => {
+test("ce qui relève de la tenue éditoriale ne bloque pas", () => {
+  const html = build({ id: 'question-1' });
+  assert.deepEqual(blocking(html), []);
+  assert.match(report(html).notices.join(' '), /id/);
+});
+
+test('le corpus réel ne porte aucune question que le quiz corrigerait mal', () => {
   const src = fs.readFileSync(path.join(ROOT, 'home-progress.js'), 'utf8');
   const block = src.match(/const TOTALS = \{([\s\S]*?)\};/);
   const declaredTotals = Object.fromEntries(
     [...block[1].matchAll(/(\w+):\s*(\d+)/g)].map((m) => [m[1], Number(m[2])])
   );
-  assert.deepEqual(checkCorpus(loadCorpus(), { declaredTotals }), []);
+  assert.deepEqual(checkCorpus(loadCorpus(), { declaredTotals }).problems, []);
 });

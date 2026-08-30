@@ -17,3 +17,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y po4a
       - run: npm test
       - run: npm run check
+      # Les rapports informent, ils ne décident pas : leur sortie est lisible
+      # dans le log du job sans jamais faire échouer la CI.
+      - run: npm run report
+        continue-on-error: true

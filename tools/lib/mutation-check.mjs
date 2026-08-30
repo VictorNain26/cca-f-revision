@@ -3,9 +3,11 @@
  * Le défaut attrapé : un test qui ne peut pas échouer. Deux d'entre eux ont
  * passé la revue de la Task 2 avant d'être trouvés à la main — celui-ci les
  * aurait nommés.
- * Neutralise un problems.push() à la fois, relance la suite, et signale toute
- * mutation que les tests laissent passer : c'est soit du code mort, soit un
- * test manquant. */
+ * Neutralise un problems.push() ou un notices.push() à la fois, relance la
+ * suite, et signale toute mutation que les tests laissent passer : c'est soit
+ * du code mort, soit un test manquant. Les observations sont mutées comme les
+ * problèmes — une observation que personne ne teste ne vaut pas mieux qu'un
+ * verdict que personne ne teste. */
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
@@ -21,7 +23,7 @@ const lines = original.split('\n');
  * une garde « if (…) continue; » qu'aucune fixture n'exerçait. */
 const survivors = [];
 const sites = lines.flatMap((l, i) => {
-  if (l.includes('problems.push(')) return [{ i, kind: 'garde' }];
+  if (l.includes('problems.push(') || l.includes('notices.push(')) return [{ i, kind: 'garde' }];
   if (/^\s*if \(.+\)\s*continue;\s*$/.test(l)) return [{ i, kind: 'filtre' }];
   return [];
 });
@@ -29,7 +31,7 @@ const sites = lines.flatMap((l, i) => {
 for (const { i, kind } of sites) {
   const mutated = [...lines];
   mutated[i] = kind === 'garde'
-    ? mutated[i].replace('problems.push(', 'void (')
+    ? mutated[i].replace('problems.push(', 'void (').replace('notices.push(', 'void (')
     : '';
   fs.writeFileSync(TARGET, mutated.join('\n'));
   try {
