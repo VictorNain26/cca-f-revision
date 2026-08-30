@@ -119,6 +119,7 @@ nothing else. And the second <code>append</code> is what makes the next iteratio
 history, so the model's next choice of tool is made in the light of what the
 last one returned. A loop that runs the tools but never appends their results
 asks the same question forever.</p>
+<h3>Several calls in one reply</h3>
 <p>One reply can also carry <strong>several</strong> <code>tool_use</code> blocks at once — two lookups the
 model wants done together, for instance. Run them all, then send every
 <code>tool_result</code> back in a <em>single</em> <code>user</code> message, one block per call. That is the
@@ -147,6 +148,7 @@ statement about whether the work is finished — it cuts legitimate runs short.<
 travel in the same reply; the presence of one says nothing about the other.</li>
 </ul>
 </div>
+<h3>Caps are guardrails, not stop conditions</h3>
 <p>Caps do have a place, as long as they stay caps. The Agent SDK exposes
 <code>max_turns</code> / <code>maxTurns</code> (agentic round-trips) and <code>max_budget_usd</code> /
 <code>maxBudgetUsd</code> (spend); both default to no limit, and a budget is a sound
@@ -169,6 +171,7 @@ searches and tool calls are discarded with it. That trade has one question:
 <strong>does the intermediate work matter to the caller?</strong> If you only need the
 answer, delegate. If you need to see and react to each step, keep it in the
 main thread.</p>
+<h3>The hub-and-spoke shape</h3>
 <p>When a task is genuinely too broad for one agent — a research brief needing web
 search, document analysis and synthesis — you get a <strong>hub-and-spoke</strong>
 architecture: one coordinator (the hub) drives several specialized subagents
@@ -185,6 +188,7 @@ architecture: one coordinator (the hub) drives several specialized subagents
 names its three motives: <strong>observability</strong> (one place sees the whole run),
 <strong>consistent error handling</strong> (one policy, not one per agent), and <strong>controlled
 information flow</strong> (the hub decides what each spoke is told).</p>
+<h3>What the coordinator owns</h3>
 <p>The coordinator's job, as the guide states it:</p>
 <table>
 <thead>
@@ -212,6 +216,7 @@ information flow</strong> (the hub decides what each spoke is told).</p>
 </tr>
 </tbody>
 </table>
+<h3>Two skills the questions turn on</h3>
 <p>Two skills are worth stating on their own because they are what the scenario
 questions turn on.</p>
 <p><strong>Partition the scope before delegating.</strong> Give each search subagent a distinct
@@ -228,6 +233,7 @@ coordinator's conversation history, and they share no memory between
 invocations. Everything a spoke needs travels in the prompt the hub writes for
 it — the mechanics are TS 1.3, below.</p>
 </div>
+<h3>Decomposition that is too narrow</h3>
 <p>The risk the guide names by name is <strong>overly narrow decomposition by the
 coordinator</strong>. Asked for a brief on &quot;AI impact on creative industries&quot;, a
 coordinator splits it into &quot;AI in digital art&quot;, &quot;AI in graphic design&quot; and &quot;AI
@@ -252,6 +258,7 @@ second agent was actually told.</p>
 coordinator is supposed to <em>analyze the query</em> and invoke only the subagents it
 needs.</p>
 </div>
+<h3>Errors travel through the hub too</h3>
 <p>Errors travel the same way. The expected pattern is <strong>local recovery first</strong>:
 the subagent handles transient failures itself and propagates to the
 coordinator only what it cannot resolve, together with its partial results and
@@ -275,6 +282,7 @@ names including <code>&quot;Task&quot;</code> in <code>allowedTools</code> as th
 <code>Task</code> is the expected answer. In real code, write <code>Agent</code> and test for both
 names when you detect an invocation.</p>
 </div>
+<h3>What crosses, and what does not</h3>
 <p>What a subagent gets, and what it does not, is the single most tested fact of
 this domain:</p>
 <table>
@@ -319,6 +327,7 @@ format that separates content from metadata</strong> — source URL, document na
 number, retrieval date live in their own fields, not woven into prose. That is
 what preserves attribution all the way to the final report, and the guide names
 it as a skill of this task statement.</p>
+<h3>Parallelism: one reply, several calls</h3>
 <p>Parallelism comes from <strong>one response, several calls</strong>. A coordinator that
 emits three <code>Task</code> calls in a single reply gets three subagents running at the
 same time; the same three calls spread over three consecutive turns run one
@@ -337,6 +346,7 @@ after another. This is the same mechanism as parallel tool use in 1.1 — severa
     ),
 }
 </code></pre>
+<h3>The four fields of an agent definition</h3>
 <p>Four fields, four decisions:</p>
 <table>
 <thead>
@@ -389,6 +399,7 @@ have to be rediscovered by the main thread.</li>
 &quot;The brief must cover at least five sectors with dated sources&quot; leaves the
 subagent free to adapt; a step-by-step script does not.</li>
 </ul>
+<h3>Restricting a subagent's tools</h3>
 <p>Tool restrictions belong here too — the guide lists them among this task
 statement's knowledge. A read-only research subagent gets <code>Read</code>, <code>Grep</code>,
 <code>Glob</code>; a reviewer adds <code>Bash</code> to run <code>git diff</code>; only an agent whose job is to
@@ -423,6 +434,7 @@ usually honours. The guide's formulation is blunt: <strong>when deterministic
 compliance is required, prompt instructions alone have a non-zero failure
 rate.</strong> Over thousands of interactions, that remainder is refunds paid to the
 wrong customer.</p>
+<h3>The prerequisite gate</h3>
 <p><strong>Programmatic enforcement</strong> closes it by making the violation impossible in
 code rather than improbable in prose. The concrete shape is a <strong>prerequisite
 gate</strong>: a downstream tool call is blocked until an upstream step has returned.</p>
@@ -443,12 +455,14 @@ gate</strong>: a downstream tool call is blocked until an upstream step has retu
 Not &quot;is unlikely to&quot; — cannot. The reason string matters as much as the block:
 the model reads it, so it retries the right thing instead of retrying blindly.
 <strong>The hook API itself — events, matchers, decision fields — is TS 1.5, below.</strong></p>
+<h3>The multi-concern request</h3>
 <p>A second pattern of this task statement is the <strong>multi-concern request</strong>. A
 customer writes: &quot;I want a refund on order #1234 <em>and</em> the delivery address
 changed on order #5678.&quot; Handling that sequentially and answering in two
 disconnected blocks is the failure. The expected move is to decompose it into
 distinct items, investigate each in parallel against the <em>shared</em> customer
 context, then synthesize one unified resolution.</p>
+<h3>The structured handoff</h3>
 <p>The third is the <strong>structured handoff</strong>. When the agent escalates mid-process,
 the human who takes over has no access to the conversation transcript. The
 summary therefore has to stand alone:</p>
@@ -522,6 +536,7 @@ it costs no tokens, and it is ordinary code with ordinary guarantees.</p>
 </tr>
 </tbody>
 </table>
+<h3><code>PreToolUse</code> — making something impossible</h3>
 <p><code>PreToolUse</code> is the enforcement primitive. Its callback returns a
 <code>hookSpecificOutput</code> carrying <code>permissionDecision</code> (<code>&quot;allow&quot;</code>, <code>&quot;deny&quot;</code>,
 <code>&quot;ask&quot;</code>, <code>&quot;defer&quot;</code>), a <code>permissionDecisionReason</code> the model reads, and
@@ -543,6 +558,7 @@ optionally <code>updatedInput</code> to rewrite the call rather than refuse it.<
 workflow instead of leaving it to guess. When several hooks and permission
 rules disagree, the SDK resolves them by precedence — <code>deny</code> beats <code>defer</code>
 beats <code>ask</code> beats <code>allow</code> — so a single <code>deny</code> is enough.</p>
+<h3><code>PostToolUse</code> — changing what the model reads</h3>
 <p><code>PostToolUse</code> is the normalization primitive. Its <code>updatedToolOutput</code> field
 replaces the tool's output before Claude sees it; <code>additionalContext</code> adds to
 it instead.</p>
@@ -627,6 +643,7 @@ start.</p>
 known, enumerable set of targets and takes a fixed pipeline. A one-file bug of
 unknown origin does not.</p>
 </div>
+<h3>The guide's two examples</h3>
 <p>The guide's own example of prompt chaining is the multi-aspect code review. A
 single pass over a large diff produces uneven output: detailed comments on some
 files, superficial on others, and contradictions between them. Split it:</p>
@@ -712,10 +729,12 @@ async for message in query(
     if isinstance(message, ResultMessage):
         forked_id = message.session_id     # distinct from session_id
 </code></pre>
+<h3>Two facts about forking</h3>
 <p>Two facts about forking that questions turn on. It always combines with
 resumption — you fork <em>an existing session</em>, never out of nothing. And it
 branches the <strong>conversation history, not the filesystem</strong>: two forked agents
 editing files in the same directory are editing the same files.</p>
+<h3>Choosing between the three</h3>
 <p>Choosing between the three is the skill the guide tests:</p>
 <table>
 <thead>

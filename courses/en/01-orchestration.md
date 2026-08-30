@@ -67,6 +67,8 @@ history, so the model's next choice of tool is made in the light of what the
 last one returned. A loop that runs the tools but never appends their results
 asks the same question forever.
 
+### Several calls in one reply
+
 One reply can also carry **several** `tool_use` blocks at once — two lookups the
 model wants done together, for instance. Run them all, then send every
 `tool_result` back in a *single* `user` message, one block per call. That is the
@@ -97,6 +99,8 @@ distractors on this task statement:
   travel in the same reply; the presence of one says nothing about the other.
 :::
 
+### Caps are guardrails, not stop conditions
+
 Caps do have a place, as long as they stay caps. The Agent SDK exposes
 `max_turns` / `maxTurns` (agentic round-trips) and `max_budget_usd` /
 `maxBudgetUsd` (spend); both default to no limit, and a budget is a sound
@@ -123,6 +127,8 @@ searches and tool calls are discarded with it. That trade has one question:
 answer, delegate. If you need to see and react to each step, keep it in the
 main thread.
 
+### The hub-and-spoke shape
+
 When a task is genuinely too broad for one agent — a research brief needing web
 search, document analysis and synthesis — you get a **hub-and-spoke**
 architecture: one coordinator (the hub) drives several specialized subagents
@@ -143,6 +149,8 @@ names its three motives: **observability** (one place sees the whole run),
 **consistent error handling** (one policy, not one per agent), and **controlled
 information flow** (the hub decides what each spoke is told).
 
+### What the coordinator owns
+
 The coordinator's job, as the guide states it:
 
 | Responsibility | What it means in practice |
@@ -151,6 +159,8 @@ The coordinator's job, as the guide states it:
 | Dynamic delegation | Select which subagents a given query actually needs, rather than routing every query through the full pipeline |
 | Result aggregation | Collect the spokes' outputs and assemble the answer |
 | Error handling | Decide to retry, adapt the request, or continue with partial results |
+
+### Two skills the questions turn on
 
 Two skills are worth stating on their own because they are what the scenario
 questions turn on.
@@ -171,6 +181,8 @@ coordinator's conversation history, and they share no memory between
 invocations. Everything a spoke needs travels in the prompt the hub writes for
 it — the mechanics are TS 1.3, below.
 :::
+
+### Decomposition that is too narrow
 
 The risk the guide names by name is **overly narrow decomposition by the
 coordinator**. Asked for a brief on "AI impact on creative industries", a
@@ -200,6 +212,8 @@ coordinator is supposed to *analyze the query* and invoke only the subagents it
 needs.
 :::
 
+### Errors travel through the hub too
+
 Errors travel the same way. The expected pattern is **local recovery first**:
 the subagent handles transient failures itself and propagates to the
 coordinator only what it cannot resolve, together with its partial results and
@@ -227,6 +241,8 @@ names including `"Task"` in `allowedTools` as the requirement. On the exam,
 `Task` is the expected answer. In real code, write `Agent` and test for both
 names when you detect an invocation.
 :::
+
+### What crosses, and what does not
 
 What a subagent gets, and what it does not, is the single most tested fact of
 this domain:
@@ -261,6 +277,8 @@ number, retrieval date live in their own fields, not woven into prose. That is
 what preserves attribution all the way to the final report, and the guide names
 it as a skill of this task statement.
 
+### Parallelism: one reply, several calls
+
 Parallelism comes from **one response, several calls**. A coordinator that
 emits three `Task` calls in a single reply gets three subagents running at the
 same time; the same three calls spread over three consecutive turns run one
@@ -281,6 +299,8 @@ agents = {
     ),
 }
 ```
+
+### The four fields of an agent definition
 
 Four fields, four decisions:
 
@@ -311,6 +331,8 @@ is the fourth skill the guide lists under this task statement:
 - **Write coordinator prompts as goals and quality criteria, not procedures.**
   "The brief must cover at least five sectors with dated sources" leaves the
   subagent free to adapt; a step-by-step script does not.
+
+### Restricting a subagent's tools
 
 Tool restrictions belong here too — the guide lists them among this task
 statement's knowledge. A read-only research subagent gets `Read`, `Grep`,
@@ -350,6 +372,8 @@ compliance is required, prompt instructions alone have a non-zero failure
 rate.** Over thousands of interactions, that remainder is refunds paid to the
 wrong customer.
 
+### The prerequisite gate
+
 **Programmatic enforcement** closes it by making the violation impossible in
 code rather than improbable in prose. The concrete shape is a **prerequisite
 gate**: a downstream tool call is blocked until an upstream step has returned.
@@ -374,12 +398,16 @@ Not "is unlikely to" — cannot. The reason string matters as much as the block:
 the model reads it, so it retries the right thing instead of retrying blindly.
 **The hook API itself — events, matchers, decision fields — is TS 1.5, below.**
 
+### The multi-concern request
+
 A second pattern of this task statement is the **multi-concern request**. A
 customer writes: "I want a refund on order #1234 *and* the delivery address
 changed on order #5678." Handling that sequentially and answering in two
 disconnected blocks is the failure. The expected move is to decompose it into
 distinct items, investigate each in parallel against the *shared* customer
 context, then synthesize one unified resolution.
+
+### The structured handoff
 
 The third is the **structured handoff**. When the agent escalates mid-process,
 the human who takes over has no access to the conversation transcript. The
@@ -449,6 +477,8 @@ Two events carry this task statement:
 | `PreToolUse` | A tool call has been requested, before it runs | Yes — allow, deny, or rewrite the input |
 | `PostToolUse` | The tool has returned, before the model reads the result | The call already happened; you can replace what the model reads |
 
+### `PreToolUse` — making something impossible
+
 `PreToolUse` is the enforcement primitive. Its callback returns a
 `hookSpecificOutput` carrying `permissionDecision` (`"allow"`, `"deny"`,
 `"ask"`, `"defer"`), a `permissionDecisionReason` the model reads, and
@@ -473,6 +503,8 @@ The block is half the work; the reason redirects the agent to the alternative
 workflow instead of leaving it to guess. When several hooks and permission
 rules disagree, the SDK resolves them by precedence — `deny` beats `defer`
 beats `ask` beats `allow` — so a single `deny` is enough.
+
+### `PostToolUse` — changing what the model reads
 
 `PostToolUse` is the normalization primitive. Its `updatedToolOutput` field
 replaces the tool's output before Claude sees it; `additionalContext` adds to
@@ -552,6 +584,8 @@ The criterion is **predictability, not size**. A twelve-file pull request has a
 known, enumerable set of targets and takes a fixed pipeline. A one-file bug of
 unknown origin does not.
 :::
+
+### The guide's two examples
 
 The guide's own example of prompt chaining is the multi-aspect code review. A
 single pass over a large diff produces uneven output: detailed comments on some
@@ -636,10 +670,14 @@ async for message in query(
         forked_id = message.session_id     # distinct from session_id
 ```
 
+### Two facts about forking
+
 Two facts about forking that questions turn on. It always combines with
 resumption — you fork *an existing session*, never out of nothing. And it
 branches the **conversation history, not the filesystem**: two forked agents
 editing files in the same directory are editing the same files.
+
+### Choosing between the three
 
 Choosing between the three is the skill the guide tests:
 

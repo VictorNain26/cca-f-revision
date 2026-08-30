@@ -73,6 +73,8 @@ choix d'outil se fait à la lumière de ce que le dernier a retourné. Une boucl
 qui exécute les outils sans jamais ajouter leurs résultats repose éternellement
 la même question.
 
+### Plusieurs appels dans une même réponse
+
 Une même réponse peut aussi porter **plusieurs** blocs `tool_use` — deux
 recherches que le modèle veut mener ensemble, par exemple. Exécutez-les toutes,
 puis renvoyez chaque `tool_result` dans un *seul* message `user`, un bloc par
@@ -105,6 +107,8 @@ distracteurs de ce task statement :
   l'autre.
 :::
 
+### Les plafonds sont des garde-fous, pas des conditions d'arrêt
+
 Les plafonds ont leur place, tant qu'ils restent des plafonds. L'Agent SDK expose
 `max_turns` / `maxTurns` (allers-retours agentiques) et `max_budget_usd` /
 `maxBudgetUsd` (dépense) ; les deux sont sans limite par défaut, et poser un
@@ -132,6 +136,8 @@ question : **le travail intermédiaire intéresse-t-il l'appelant ?** Si seule l
 réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main
 dans le thread principal.
 
+### La forme hub-and-spoke
+
 Quand une tâche est vraiment trop large pour un seul agent — un rapport de
 recherche qui demande recherche web, analyse documentaire et synthèse — on
 obtient une architecture **hub-and-spoke** : un coordinateur (le hub) pilote
@@ -153,6 +159,8 @@ l'exécution), la **cohérence du traitement d'erreur** (une politique, pas une 
 agent) et le **contrôle du flux d'information** (le hub décide de ce que chaque
 spoke apprend).
 
+### Ce dont le coordinateur a la charge
+
 Le travail du coordinateur, tel que le guide l'énonce :
 
 | Responsabilité | Ce que cela veut dire en pratique |
@@ -161,6 +169,8 @@ Le travail du coordinateur, tel que le guide l'énonce :
 | Délégation dynamique | Choisir les subagents dont une requête donnée a réellement besoin, plutôt que de router chaque requête à travers tout le pipeline |
 | Agrégation des résultats | Collecter les sorties des spokes et assembler la réponse |
 | Gestion d'erreur | Décider de réessayer, d'adapter la requête, ou de continuer avec des résultats partiels |
+
+### Deux savoir-faire sur lesquels portent les questions
 
 Deux compétences méritent d'être énoncées à part, parce que ce sont elles que les
 questions de scénario mettent en jeu.
@@ -181,6 +191,8 @@ l'historique de conversation du coordinateur et ne partagent aucune mémoire d'u
 invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le
 hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.
 :::
+
+### Une décomposition trop étroite
 
 Le risque que le guide nomme explicitement est une **décomposition trop étroite
 par le coordinateur**. Chargé d'un rapport sur « AI impact on creative
@@ -212,6 +224,8 @@ coordinateur est censé *analyser la requête* et n'invoquer que les subagents
 nécessaires.
 :::
 
+### Les erreurs passent aussi par le hub
+
 Les erreurs voyagent de la même façon. Le pattern attendu est la **récupération
 locale d'abord** : le subagent traite lui-même les échecs transitoires et ne
 propage au coordinateur que ce qu'il ne peut pas résoudre, accompagné de ses
@@ -240,6 +254,8 @@ encore `Task`, et pose l'inclusion de `"Task"` dans `allowedTools` comme
 l'exigence. À l'examen, `Task` est la réponse attendue. En vrai code, écrivez
 `Agent` et testez les deux noms quand vous détectez une invocation.
 :::
+
+### Ce qui franchit la frontière, et ce qui ne la franchit pas
 
 Ce qu'un subagent reçoit, et ce qu'il ne reçoit pas, est le fait le plus testé de
 ce domaine :
@@ -274,6 +290,8 @@ document, numéro de page, date de collecte vivent dans leurs propres champs, pa
 fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,
 et le guide le nomme parmi les skills de ce task statement.
 
+### Parallélisme : une réponse, plusieurs appels
+
 Le parallélisme vient d'**une réponse, plusieurs appels**. Un coordinateur qui
 émet trois appels `Task` dans une seule réponse obtient trois subagents qui
 tournent en même temps ; les mêmes trois appels répartis sur trois tours
@@ -295,6 +313,8 @@ agents = {
     ),
 }
 ```
+
+### Les quatre champs d'une définition de subagent
 
 Quatre champs, quatre décisions :
 
@@ -328,6 +348,8 @@ second est le quatrième skill que le guide liste sous ce task statement :
   procédures.** « Le rapport doit couvrir au moins cinq secteurs avec des sources
   datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.
 
+
+### Restreindre les outils d'un subagent
 
 Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les
 connaissances de ce task statement. Un subagent de recherche en lecture seule
@@ -371,6 +393,8 @@ requise, les instructions de prompt seules ont un taux d'échec non nul.** Sur d
 milliers d'interactions, ce reliquat, ce sont des remboursements versés au
 mauvais client.
 
+### Le gate de prérequis
+
 Le **programmatic enforcement** referme cet écart en rendant la violation
 impossible par le code plutôt qu'improbable par la prose. Sa forme concrète est
 un **prerequisite gate** : un appel d'outil en aval est bloqué tant qu'une étape
@@ -397,12 +421,16 @@ raison compte autant que le blocage : le modèle la lit, donc il réessaie la bo
 chose au lieu de réessayer à l'aveugle. **L'API des hooks elle-même — événements,
 matchers, champs de décision — est en TS 1.5, ci-dessous.**
 
+### La demande à plusieurs objets
+
 Un second pattern de ce task statement est la **demande multi-sujets**. Un client
 écrit : « Je veux un remboursement sur la commande #1234 *et* l'adresse de
 livraison a changé sur la commande #5678. » Traiter cela séquentiellement et
 répondre en deux blocs déconnectés est l'échec. Le geste attendu : décomposer en
 items distincts, investiguer chacun en parallèle sur le contexte client
 *partagé*, puis synthétiser une résolution unifiée.
+
+### Le handoff structuré
 
 Le troisième est le **structured handoff**. Quand l'agent escalade en cours de
 traitement, l'humain qui reprend n'a pas accès au transcript de la conversation.
@@ -473,6 +501,8 @@ Deux événements portent ce task statement :
 | `PreToolUse` | Un appel d'outil est demandé, avant qu'il ne s'exécute | Oui — autoriser, refuser, ou réécrire l'entrée |
 | `PostToolUse` | L'outil a retourné, avant que le modèle ne lise le résultat | L'appel a déjà eu lieu ; vous pouvez remplacer ce que le modèle lit |
 
+### `PreToolUse` — rendre une action impossible
+
 `PreToolUse` est le primitif d'application de règles. Son callback retourne un
 `hookSpecificOutput` portant `permissionDecision` (`"allow"`, `"deny"`, `"ask"`,
 `"defer"`), un `permissionDecisionReason` que le modèle lit, et éventuellement
@@ -497,6 +527,8 @@ Le blocage est la moitié du travail ; la raison redirige l'agent vers le workfl
 alternatif au lieu de le laisser deviner. Quand plusieurs hooks et règles de
 permission divergent, le SDK tranche par priorité — `deny` l'emporte sur `defer`,
 qui l'emporte sur `ask`, qui l'emporte sur `allow` — donc un seul `deny` suffit.
+
+### `PostToolUse` — changer ce que le modèle lit
 
 `PostToolUse` est le primitif de normalisation. Son champ `updatedToolOutput`
 remplace la sortie de l'outil avant que Claude ne la voie ; `additionalContext`
@@ -578,6 +610,8 @@ Le critère est la **prévisibilité, pas la taille**. Une pull request de douze
 fichiers a un ensemble de cibles connu et énumérable : pipeline fixe. Un bug d'un
 seul fichier dont on ignore l'origine, non.
 :::
+
+### Les deux exemples du guide
 
 L'exemple de prompt chaining du guide lui-même est la revue de code
 multi-aspects. Une passe unique sur un gros diff produit une sortie inégale :
@@ -665,11 +699,15 @@ async for message in query(
         forked_id = message.session_id     # distinct de session_id
 ```
 
+### Deux faits sur le fork
+
 Deux faits sur le fork sur lesquels les questions se jouent. Il se combine
 toujours à la reprise — on forke *une session existante*, jamais à partir de
 rien. Et il branche l'**historique de conversation, pas le système de fichiers** :
 deux agents forkés qui modifient des fichiers dans le même répertoire modifient
 les mêmes fichiers.
+
+### Choisir entre les trois
 
 Choisir entre les trois est la compétence que le guide teste :
 

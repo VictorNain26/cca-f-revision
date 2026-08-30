@@ -120,6 +120,7 @@ résultats d'outils entrent dans l'historique de conversation, donc le prochain
 choix d'outil se fait à la lumière de ce que le dernier a retourné. Une boucle
 qui exécute les outils sans jamais ajouter leurs résultats repose éternellement
 la même question.</p>
+<h3>Plusieurs appels dans une même réponse</h3>
 <p>Une même réponse peut aussi porter <strong>plusieurs</strong> blocs <code>tool_use</code> — deux
 recherches que le modèle veut mener ensemble, par exemple. Exécutez-les toutes,
 puis renvoyez chaque <code>tool_result</code> dans un <em>seul</em> message <code>user</code>, un bloc par
@@ -150,6 +151,7 @@ exécutions légitimes.</li>
 l'autre.</li>
 </ul>
 </div>
+<h3>Les plafonds sont des garde-fous, pas des conditions d'arrêt</h3>
 <p>Les plafonds ont leur place, tant qu'ils restent des plafonds. L'Agent SDK expose
 <code>max_turns</code> / <code>maxTurns</code> (allers-retours agentiques) et <code>max_budget_usd</code> /
 <code>maxBudgetUsd</code> (dépense) ; les deux sont sans limite par défaut, et poser un
@@ -173,6 +175,7 @@ et appels d'outils intermédiaires sont jetés avec lui. Ce compromis tient en u
 question : <strong>le travail intermédiaire intéresse-t-il l'appelant ?</strong> Si seule la
 réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main
 dans le thread principal.</p>
+<h3>La forme hub-and-spoke</h3>
 <p>Quand une tâche est vraiment trop large pour un seul agent — un rapport de
 recherche qui demande recherche web, analyse documentaire et synthèse — on
 obtient une architecture <strong>hub-and-spoke</strong> : un coordinateur (le hub) pilote
@@ -190,6 +193,7 @@ en nomme les trois motifs : l'<strong>observabilité</strong> (un seul endroit v
 l'exécution), la <strong>cohérence du traitement d'erreur</strong> (une politique, pas une par
 agent) et le <strong>contrôle du flux d'information</strong> (le hub décide de ce que chaque
 spoke apprend).</p>
+<h3>Ce dont le coordinateur a la charge</h3>
 <p>Le travail du coordinateur, tel que le guide l'énonce :</p>
 <table>
 <thead>
@@ -217,6 +221,7 @@ spoke apprend).</p>
 </tr>
 </tbody>
 </table>
+<h3>Deux savoir-faire sur lesquels portent les questions</h3>
 <p>Deux compétences méritent d'être énoncées à part, parce que ce sont elles que les
 questions de scénario mettent en jeu.</p>
 <p><strong>Partitionner le périmètre avant de déléguer.</strong> Donnez à chaque subagent de
@@ -233,6 +238,7 @@ l'historique de conversation du coordinateur et ne partagent aucune mémoire d'u
 invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le
 hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.</p>
 </div>
+<h3>Une décomposition trop étroite</h3>
 <p>Le risque que le guide nomme explicitement est une <strong>décomposition trop étroite
 par le coordinateur</strong>. Chargé d'un rapport sur « AI impact on creative
 industries », un coordinateur le découpe en « AI in digital art », « AI in
@@ -259,6 +265,7 @@ uniforme, et personne ne contrôle ce que le second agent a réellement reçu.</
 coordinateur est censé <em>analyser la requête</em> et n'invoquer que les subagents
 nécessaires.</p>
 </div>
+<h3>Les erreurs passent aussi par le hub</h3>
 <p>Les erreurs voyagent de la même façon. Le pattern attendu est la <strong>récupération
 locale d'abord</strong> : le subagent traite lui-même les échecs transitoires et ne
 propage au coordinateur que ce qu'il ne peut pas résoudre, accompagné de ses
@@ -283,6 +290,7 @@ encore <code>Task</code>, et pose l'inclusion de <code>&quot;Task&quot;</code> d
 l'exigence. À l'examen, <code>Task</code> est la réponse attendue. En vrai code, écrivez
 <code>Agent</code> et testez les deux noms quand vous détectez une invocation.</p>
 </div>
+<h3>Ce qui franchit la frontière, et ce qui ne la franchit pas</h3>
 <p>Ce qu'un subagent reçoit, et ce qu'il ne reçoit pas, est le fait le plus testé de
 ce domaine :</p>
 <table>
@@ -327,6 +335,7 @@ Bon      Task: « Analyse le document ci-dessous et renvoie le tableau des claus
 document, numéro de page, date de collecte vivent dans leurs propres champs, pas
 fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,
 et le guide le nomme parmi les skills de ce task statement.</p>
+<h3>Parallélisme : une réponse, plusieurs appels</h3>
 <p>Le parallélisme vient d'<strong>une réponse, plusieurs appels</strong>. Un coordinateur qui
 émet trois appels <code>Task</code> dans une seule réponse obtient trois subagents qui
 tournent en même temps ; les mêmes trois appels répartis sur trois tours
@@ -346,6 +355,7 @@ message assistant — appliqué à l'outil <code>Task</code>.</p>
     ),
 }
 </code></pre>
+<h3>Les quatre champs d'une définition de subagent</h3>
 <p>Quatre champs, quatre décisions :</p>
 <table>
 <thead>
@@ -399,6 +409,7 @@ meurent sinon avec son contexte, et le thread principal doit les redécouvrir.</
 procédures.</strong> « Le rapport doit couvrir au moins cinq secteurs avec des sources
 datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.</li>
 </ul>
+<h3>Restreindre les outils d'un subagent</h3>
 <p>Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les
 connaissances de ce task statement. Un subagent de recherche en lecture seule
 reçoit <code>Read</code>, <code>Grep</code>, <code>Glob</code> ; un relecteur y ajoute <code>Bash</code> pour lancer
@@ -437,6 +448,7 @@ La formulation du guide est nette : <strong>quand une conformité déterministe 
 requise, les instructions de prompt seules ont un taux d'échec non nul.</strong> Sur des
 milliers d'interactions, ce reliquat, ce sont des remboursements versés au
 mauvais client.</p>
+<h3>Le gate de prérequis</h3>
 <p>Le <strong>programmatic enforcement</strong> referme cet écart en rendant la violation
 impossible par le code plutôt qu'improbable par la prose. Sa forme concrète est
 un <strong>prerequisite gate</strong> : un appel d'outil en aval est bloqué tant qu'une étape
@@ -459,12 +471,14 @@ un identifiant vérifié. Pas « a peu de chances de » — ne peut pas. La cha�
 raison compte autant que le blocage : le modèle la lit, donc il réessaie la bonne
 chose au lieu de réessayer à l'aveugle. <strong>L'API des hooks elle-même — événements,
 matchers, champs de décision — est en TS 1.5, ci-dessous.</strong></p>
+<h3>La demande à plusieurs objets</h3>
 <p>Un second pattern de ce task statement est la <strong>demande multi-sujets</strong>. Un client
 écrit : « Je veux un remboursement sur la commande #1234 <em>et</em> l'adresse de
 livraison a changé sur la commande #5678. » Traiter cela séquentiellement et
 répondre en deux blocs déconnectés est l'échec. Le geste attendu : décomposer en
 items distincts, investiguer chacun en parallèle sur le contexte client
 <em>partagé</em>, puis synthétiser une résolution unifiée.</p>
+<h3>Le handoff structuré</h3>
 <p>Le troisième est le <strong>structured handoff</strong>. Quand l'agent escalade en cours de
 traitement, l'humain qui reprend n'a pas accès au transcript de la conversation.
 Le résumé doit donc se tenir seul :</p>
@@ -539,6 +553,7 @@ aucun token, et c'est du code ordinaire avec des garanties ordinaires.</p>
 </tr>
 </tbody>
 </table>
+<h3><code>PreToolUse</code> — rendre une action impossible</h3>
 <p><code>PreToolUse</code> est le primitif d'application de règles. Son callback retourne un
 <code>hookSpecificOutput</code> portant <code>permissionDecision</code> (<code>&quot;allow&quot;</code>, <code>&quot;deny&quot;</code>, <code>&quot;ask&quot;</code>,
 <code>&quot;defer&quot;</code>), un <code>permissionDecisionReason</code> que le modèle lit, et éventuellement
@@ -560,6 +575,7 @@ aucun token, et c'est du code ordinaire avec des garanties ordinaires.</p>
 alternatif au lieu de le laisser deviner. Quand plusieurs hooks et règles de
 permission divergent, le SDK tranche par priorité — <code>deny</code> l'emporte sur <code>defer</code>,
 qui l'emporte sur <code>ask</code>, qui l'emporte sur <code>allow</code> — donc un seul <code>deny</code> suffit.</p>
+<h3><code>PostToolUse</code> — changer ce que le modèle lit</h3>
 <p><code>PostToolUse</code> est le primitif de normalisation. Son champ <code>updatedToolOutput</code>
 remplace la sortie de l'outil avant que Claude ne la voie ; <code>additionalContext</code>
 la complète sans la remplacer.</p>
@@ -646,6 +662,7 @@ périmètre est inconnu au départ.</p>
 fichiers a un ensemble de cibles connu et énumérable : pipeline fixe. Un bug d'un
 seul fichier dont on ignore l'origine, non.</p>
 </div>
+<h3>Les deux exemples du guide</h3>
 <p>L'exemple de prompt chaining du guide lui-même est la revue de code
 multi-aspects. Une passe unique sur un gros diff produit une sortie inégale :
 commentaires détaillés sur certains fichiers, superficiels sur d'autres, et
@@ -734,11 +751,13 @@ async for message in query(
     if isinstance(message, ResultMessage):
         forked_id = message.session_id     # distinct de session_id
 </code></pre>
+<h3>Deux faits sur le fork</h3>
 <p>Deux faits sur le fork sur lesquels les questions se jouent. Il se combine
 toujours à la reprise — on forke <em>une session existante</em>, jamais à partir de
 rien. Et il branche l'<strong>historique de conversation, pas le système de fichiers</strong> :
 deux agents forkés qui modifient des fichiers dans le même répertoire modifient
 les mêmes fichiers.</p>
+<h3>Choisir entre les trois</h3>
 <p>Choisir entre les trois est la compétence que le guide teste :</p>
 <table>
 <thead>

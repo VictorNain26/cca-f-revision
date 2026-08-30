@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cca-f-revision\n"
-"POT-Creation-Date: 2026-08-30 00:57+0200\n"
+"POT-Creation-Date: 2026-08-30 16:00+0200\n"
 "PO-Revision-Date: 2026-08-29 20:27+0200\n"
 "Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
 "Language-Team: French\n"
@@ -332,7 +332,7 @@ msgstr ""
 "reconstruire l'historique est le travail de l'appelant, à chaque requête.\n"
 
 #. type: Plain text
-#: courses/en/00-api-foundations.md:118 courses/en/01-orchestration.md:341
+#: courses/en/00-api-foundations.md:118 courses/en/01-orchestration.md:363
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.3\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.3\"`.\n"
@@ -634,7 +634,7 @@ msgstr ""
 "s'arrête à nommer le signal.\n"
 
 #. type: Plain text
-#: courses/en/00-api-foundations.md:233 courses/en/01-orchestration.md:115
+#: courses/en/00-api-foundations.md:233 courses/en/01-orchestration.md:119
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.1\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.1\"`.\n"
@@ -1084,8 +1084,14 @@ msgstr ""
 "qui exécute les outils sans jamais ajouter leurs résultats repose éternellement\n"
 "la même question.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:70
+#, no-wrap
+msgid "Several calls in one reply"
+msgstr "Plusieurs appels dans une même réponse"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:75
+#: courses/en/01-orchestration.md:77
 #, no-wrap
 msgid ""
 "One reply can also carry **several** `tool_use` blocks at once — two lookups the\n"
@@ -1101,7 +1107,7 @@ msgstr ""
 "la fois, développé en 1.3.\n"
 
 #. type: Fenced div block (key-concept)
-#: courses/en/01-orchestration.md:76
+#: courses/en/01-orchestration.md:78
 #, no-wrap
 msgid ""
 "The loop is **model-driven**: Claude reads the accumulated context and decides\n"
@@ -1121,7 +1127,7 @@ msgstr ""
 "tâche.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:86
+#: courses/en/01-orchestration.md:88
 #, no-wrap
 msgid ""
 "The guide names three wrong ways to drive the loop, and they are the\n"
@@ -1150,8 +1156,14 @@ msgstr ""
 "  `tool_use` voyagent dans la même réponse ; la présence de l'un ne dit rien de\n"
 "  l'autre.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:102
+#, no-wrap
+msgid "Caps are guardrails, not stop conditions"
+msgstr "Les plafonds sont des garde-fous, pas des conditions d'arrêt"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:105
+#: courses/en/01-orchestration.md:109
 #, no-wrap
 msgid ""
 "Caps do have a place, as long as they stay caps. The Agent SDK exposes\n"
@@ -1168,7 +1180,7 @@ msgstr ""
 "atteint un comme un subtype d'erreur, pas comme un succès.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:106
+#: courses/en/01-orchestration.md:110
 #, no-wrap
 msgid ""
 "Whenever a question asks how to decide that the loop should continue or stop,\n"
@@ -1185,20 +1197,20 @@ msgstr ""
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/01-orchestration.md:116
+#: courses/en/01-orchestration.md:120
 #, no-wrap
 msgid "1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns"
 msgstr "1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/01-orchestration.md:118
+#: courses/en/01-orchestration.md:122
 #, no-wrap
 msgid "<!-- ts:1.2 | src:08agentsdk L4 (hub-and-spoke as a design choice, the coordinator's role, the narrow-decomposition risk), L14 (iterative refinement, scope partitioning, local recovery before propagation) ; 03subagents L1 (context isolation, the summary that comes back), L4 (the decision rule: does the intermediate work matter to the caller) ; exam guide TS 1.2 -->\n"
 msgstr "<!-- ts:1.2 | src:08agentsdk L4 (hub-and-spoke as a design choice, the coordinator's role, the narrow-decomposition risk), L14 (iterative refinement, scope partitioning, local recovery before propagation) ; 03subagents L1 (context isolation, the summary that comes back), L4 (the decision rule: does the intermediate work matter to the caller) ; exam guide TS 1.2 -->\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:125
+#: courses/en/01-orchestration.md:129
 #, no-wrap
 msgid ""
 "Before the architecture, the decision. A subagent runs in its own context\n"
@@ -1215,8 +1227,14 @@ msgstr ""
 "réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main\n"
 "dans le thread principal.\n"
 
-#. type: Plain text
+#. type: Title ###
 #: courses/en/01-orchestration.md:130
+#, no-wrap
+msgid "The hub-and-spoke shape"
+msgstr "La forme hub-and-spoke"
+
+#. type: Plain text
+#: courses/en/01-orchestration.md:136
 #, no-wrap
 msgid ""
 "When a task is genuinely too broad for one agent — a research brief needing web\n"
@@ -1230,7 +1248,7 @@ msgstr ""
 "plusieurs subagents spécialisés (les spokes), et *tout* le trafic passe par le hub.\n"
 
 #. type: Fenced code block (text)
-#: courses/en/01-orchestration.md:131
+#: courses/en/01-orchestration.md:137
 #, no-wrap
 msgid ""
 "                Coordinator (hub)\n"
@@ -1250,7 +1268,7 @@ msgstr ""
 "   passe hub ↔ spoke — jamais spoke ↔ spoke\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:145
+#: courses/en/01-orchestration.md:151
 #, no-wrap
 msgid ""
 "Nothing in the SDK forces that shape. It is a design choice, and the guide\n"
@@ -1264,14 +1282,20 @@ msgstr ""
 "agent) et le **contrôle du flux d'information** (le hub décide de ce que chaque\n"
 "spoke apprend).\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:152
+#, no-wrap
+msgid "What the coordinator owns"
+msgstr "Ce dont le coordinateur a la charge"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:147
+#: courses/en/01-orchestration.md:155
 #, no-wrap
 msgid "The coordinator's job, as the guide states it:\n"
 msgstr "Le travail du coordinateur, tel que le guide l'énonce :\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:154
+#: courses/en/01-orchestration.md:162
 #, no-wrap
 msgid ""
 "| Responsibility | What it means in practice |\n"
@@ -1288,8 +1312,14 @@ msgstr ""
 "| Agrégation des résultats | Collecter les sorties des spokes et assembler la réponse |\n"
 "| Gestion d'erreur | Décider de réessayer, d'adapter la requête, ou de continuer avec des résultats partiels |\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:163
+#, no-wrap
+msgid "Two skills the questions turn on"
+msgstr "Deux savoir-faire sur lesquels portent les questions"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:157
+#: courses/en/01-orchestration.md:167
 #, no-wrap
 msgid ""
 "Two skills are worth stating on their own because they are what the scenario\n"
@@ -1299,7 +1329,7 @@ msgstr ""
 "questions de scénario mettent en jeu.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:161
+#: courses/en/01-orchestration.md:171
 #, no-wrap
 msgid ""
 "**Partition the scope before delegating.** Give each search subagent a distinct\n"
@@ -1311,7 +1341,7 @@ msgstr ""
 "recouvrent produisent du travail dupliqué et, pire, des angles morts corrélés.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:167
+#: courses/en/01-orchestration.md:177
 #, no-wrap
 msgid ""
 "**Refine iteratively.** The coordinator reads the synthesis output, looks for\n"
@@ -1327,7 +1357,7 @@ msgstr ""
 "que le guide nomme contre une couverture incomplète.\n"
 
 #. type: Fenced div block (key-concept)
-#: courses/en/01-orchestration.md:168
+#: courses/en/01-orchestration.md:178
 #, no-wrap
 msgid ""
 "Subagents start from an **isolated context**: they do not inherit the\n"
@@ -1340,8 +1370,14 @@ msgstr ""
 "invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le\n"
 "hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:185
+#, no-wrap
+msgid "Decomposition that is too narrow"
+msgstr "Une décomposition trop étroite"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:181
+#: courses/en/01-orchestration.md:193
 #, no-wrap
 msgid ""
 "The risk the guide names by name is **overly narrow decomposition by the\n"
@@ -1360,7 +1396,7 @@ msgstr ""
 "déjà incomplète.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:182
+#: courses/en/01-orchestration.md:194
 #, no-wrap
 msgid ""
 "When every subagent did what it was asked and the final report still misses\n"
@@ -1381,7 +1417,7 @@ msgstr ""
 "c'est l'assignation.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:192
+#: courses/en/01-orchestration.md:204
 #, no-wrap
 msgid ""
 "Letting one subagent hand its output straight to another to save a hop. It\n"
@@ -1402,8 +1438,14 @@ msgstr ""
 "coordinateur est censé *analyser la requête* et n'invoquer que les subagents\n"
 "nécessaires.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:215
+#, no-wrap
+msgid "Errors travel through the hub too"
+msgstr "Les erreurs passent aussi par le hub"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:210
+#: courses/en/01-orchestration.md:224
 #, no-wrap
 msgid ""
 "Errors travel the same way. The expected pattern is **local recovery first**:\n"
@@ -1424,21 +1466,21 @@ msgstr ""
 "structurées, développée en D2.2.**\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:212
+#: courses/en/01-orchestration.md:226
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.2\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.2\"`.\n"
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/01-orchestration.md:213
+#: courses/en/01-orchestration.md:227
 #, no-wrap
 msgid "1.3 — Configure subagent invocation, context passing, and spawning"
 msgstr "1.3 — Configure subagent invocation, context passing, and spawning"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/01-orchestration.md:216
+#: courses/en/01-orchestration.md:230
 #, no-wrap
 msgid ""
 "<!-- ts:1.3 | src:08agentsdk L2 (parallel spawning: several calls emitted in one response, not one per turn), L4 (the receives/does-not-receive table, what it implies for context passing and attribution metadata), L5 (AgentDefinition fields, the tool-restriction table, Agent in allowedTools for auto-approval), L13 (default permission mode: without a canUseTool callback an unapproved call is refused), L15 §1 (the Task → Agent rename, and what the exam expects) ; 03subagents L2 (the config fields), L3 (the description's double role, output format as a stopping point, limiting tool access) ; exam guide TS 1.3 -->\n"
@@ -1448,7 +1490,7 @@ msgstr ""
 "<!-- owns:subagent-isolation -->\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:222
+#: courses/en/01-orchestration.md:236
 #, no-wrap
 msgid ""
 "The mechanism is a tool. A coordinator spawns a subagent by calling the\n"
@@ -1464,7 +1506,7 @@ msgstr ""
 "est refusé. Le coordinateur ne délègue pas, quoi que dise son prompt.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:223
+#: courses/en/01-orchestration.md:237
 #, no-wrap
 msgid ""
 "Recent SDK versions renamed this tool from `Task` to `Agent`, and current code\n"
@@ -1479,8 +1521,14 @@ msgstr ""
 "l'exigence. À l'examen, `Task` est la réponse attendue. En vrai code, écrivez\n"
 "`Agent` et testez les deux noms quand vous détectez une invocation.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:245
+#, no-wrap
+msgid "What crosses, and what does not"
+msgstr "Ce qui franchit la frontière, et ce qui ne la franchit pas"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:233
+#: courses/en/01-orchestration.md:249
 #, no-wrap
 msgid ""
 "What a subagent gets, and what it does not, is the single most tested fact of\n"
@@ -1490,7 +1538,7 @@ msgstr ""
 "ce domaine :\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:239
+#: courses/en/01-orchestration.md:255
 #, no-wrap
 msgid ""
 "| The subagent receives | The subagent does not receive |\n"
@@ -1506,7 +1554,7 @@ msgstr ""
 "| Ses définitions d'outils — héritées, ou le sous-ensemble qu'on lui a donné | Le moindre souvenir d'une invocation précédente de lui-même |\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:244
+#: courses/en/01-orchestration.md:260
 #, no-wrap
 msgid ""
 "The consequence is decisive: **the only content that crosses from parent to\n"
@@ -1520,7 +1568,7 @@ msgstr ""
 "sont pas dans cette chaîne, le subagent ne les a pas.\n"
 
 #. type: Fenced code block (text)
-#: courses/en/01-orchestration.md:245
+#: courses/en/01-orchestration.md:261
 #, no-wrap
 msgid ""
 "Bad   Task: \"Analyse the document.\"\n"
@@ -1546,7 +1594,7 @@ msgstr ""
 "              FORMAT DE SORTIE : une ligne par clause — clause_type, text, page. »\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:263
+#: courses/en/01-orchestration.md:279
 #, no-wrap
 msgid ""
 "Note what the good version does beyond being long. It uses a **structured\n"
@@ -1561,8 +1609,14 @@ msgstr ""
 "fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,\n"
 "et le guide le nomme parmi les skills de ce task statement.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:280
+#, no-wrap
+msgid "Parallelism: one reply, several calls"
+msgstr "Parallélisme : une réponse, plusieurs appels"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:269
+#: courses/en/01-orchestration.md:287
 #, no-wrap
 msgid ""
 "Parallelism comes from **one response, several calls**. A coordinator that\n"
@@ -1579,7 +1633,7 @@ msgstr ""
 "message assistant — appliqué à l'outil `Task`.\n"
 
 #. type: Fenced code block (python)
-#: courses/en/01-orchestration.md:270
+#: courses/en/01-orchestration.md:288
 #, no-wrap
 msgid ""
 "agents = {\n"
@@ -1608,14 +1662,20 @@ msgstr ""
 "    ),\n"
 "}\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:303
+#, no-wrap
+msgid "The four fields of an agent definition"
+msgstr "Les quatre champs d'une définition de subagent"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:286
+#: courses/en/01-orchestration.md:306
 #, no-wrap
 msgid "Four fields, four decisions:\n"
 msgstr "Quatre champs, quatre décisions :\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:293
+#: courses/en/01-orchestration.md:313
 #, no-wrap
 msgid ""
 "| Field | Required | What it decides |\n"
@@ -1633,7 +1693,7 @@ msgstr ""
 "| `model` | non | `opus`, `sonnet`, `haiku`, `inherit`, ou un identifiant de modèle complet |\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:301
+#: courses/en/01-orchestration.md:321
 #, no-wrap
 msgid ""
 "The `description` has that double role and it is easy to miss. The name and\n"
@@ -1654,7 +1714,7 @@ msgstr ""
 "description vague produit des délégations vagues.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:304
+#: courses/en/01-orchestration.md:324
 #, no-wrap
 msgid ""
 "Two more design levers. The first comes from the Subagents course; the second\n"
@@ -1664,7 +1724,7 @@ msgstr ""
 "second est le quatrième skill que le guide liste sous ce task statement :\n"
 
 #. type: Bullet: '- '
-#: courses/en/01-orchestration.md:314
+#: courses/en/01-orchestration.md:334
 #, no-wrap
 msgid ""
 "**Define an output format in the system prompt.** It gives the subagent a\n"
@@ -1682,7 +1742,7 @@ msgstr ""
 "meurent sinon avec son contexte, et le thread principal doit les redécouvrir.\n"
 
 #. type: Bullet: '- '
-#: courses/en/01-orchestration.md:314
+#: courses/en/01-orchestration.md:334
 #, no-wrap
 msgid ""
 "**Write coordinator prompts as goals and quality criteria, not procedures.**\n"
@@ -1693,8 +1753,14 @@ msgstr ""
 "procédures.** « Le rapport doit couvrir au moins cinq secteurs avec des sources\n"
 "datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:335
+#, no-wrap
+msgid "Restricting a subagent's tools"
+msgstr "Restreindre les outils d'un subagent"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:322
+#: courses/en/01-orchestration.md:344
 #, no-wrap
 msgid ""
 "Tool restrictions belong here too — the guide lists them among this task\n"
@@ -1716,7 +1782,7 @@ msgstr ""
 "outils, développée en D2.3.**\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:323
+#: courses/en/01-orchestration.md:345
 #, no-wrap
 msgid ""
 "Three moves that look like fixes and are not:\n"
@@ -1740,7 +1806,7 @@ msgstr ""
 "  limitation à contourner.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:339
+#: courses/en/01-orchestration.md:361
 #, no-wrap
 msgid ""
 "**Forking a session to give two subagents a shared analysis baseline is session\n"
@@ -1756,20 +1822,20 @@ msgstr ""
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/01-orchestration.md:342
+#: courses/en/01-orchestration.md:364
 #, no-wrap
 msgid "1.4 — Implement multi-step workflows with enforcement and handoff patterns"
 msgstr "1.4 — Implement multi-step workflows with enforcement and handoff patterns"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/01-orchestration.md:344
+#: courses/en/01-orchestration.md:366
 #, no-wrap
 msgid "<!-- ts:1.4 | src:08agentsdk L10 (why a hook rather than an instruction, the get_customer / process_refund gate), L14 (structured human handoff, decomposing a multi-concern request) ; exam guide TS 1.4 -->\n"
 msgstr "<!-- ts:1.4 | src:08agentsdk L10 (why a hook rather than an instruction, the get_customer / process_refund gate), L14 (structured human handoff, decomposing a multi-concern request) ; exam guide TS 1.4 -->\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:352
+#: courses/en/01-orchestration.md:374
 #, no-wrap
 msgid ""
 "Some orderings must hold every time. Verify the customer's identity before\n"
@@ -1789,8 +1855,14 @@ msgstr ""
 "milliers d'interactions, ce reliquat, ce sont des remboursements versés au\n"
 "mauvais client.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:375
+#, no-wrap
+msgid "The prerequisite gate"
+msgstr "Le gate de prérequis"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:356
+#: courses/en/01-orchestration.md:380
 #, no-wrap
 msgid ""
 "**Programmatic enforcement** closes it by making the violation impossible in\n"
@@ -1803,7 +1875,7 @@ msgstr ""
 "amont n'a pas retourné.\n"
 
 #. type: Fenced code block (python)
-#: courses/en/01-orchestration.md:357
+#: courses/en/01-orchestration.md:381
 #, no-wrap
 msgid ""
 "async def require_verified_customer(input_data, tool_use_id, context):\n"
@@ -1833,7 +1905,7 @@ msgstr ""
 "    return {}\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:376
+#: courses/en/01-orchestration.md:400
 #, no-wrap
 msgid ""
 "`process_refund` cannot run until `get_customer` has returned a verified id.\n"
@@ -1847,8 +1919,14 @@ msgstr ""
 "chose au lieu de réessayer à l'aveugle. **L'API des hooks elle-même — événements,\n"
 "matchers, champs de décision — est en TS 1.5, ci-dessous.**\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:401
+#, no-wrap
+msgid "The multi-concern request"
+msgstr "La demande à plusieurs objets"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:383
+#: courses/en/01-orchestration.md:409
 #, no-wrap
 msgid ""
 "A second pattern of this task statement is the **multi-concern request**. A\n"
@@ -1865,8 +1943,14 @@ msgstr ""
 "items distincts, investiguer chacun en parallèle sur le contexte client\n"
 "*partagé*, puis synthétiser une résolution unifiée.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:410
+#, no-wrap
+msgid "The structured handoff"
+msgstr "Le handoff structuré"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:387
+#: courses/en/01-orchestration.md:415
 #, no-wrap
 msgid ""
 "The third is the **structured handoff**. When the agent escalates mid-process,\n"
@@ -1878,7 +1962,7 @@ msgstr ""
 "Le résumé doit donc se tenir seul :\n"
 
 #. type: Fenced code block (json)
-#: courses/en/01-orchestration.md:388
+#: courses/en/01-orchestration.md:416
 #, no-wrap
 msgid ""
 "{\n"
@@ -1912,7 +1996,7 @@ msgstr ""
 "}\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:408
+#: courses/en/01-orchestration.md:436
 #, no-wrap
 msgid ""
 "Customer identity, root cause, amount, recommended action: the four the guide\n"
@@ -1924,7 +2008,7 @@ msgstr ""
 "handoff raté.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:409
+#: courses/en/01-orchestration.md:437
 #, no-wrap
 msgid ""
 "The distractors on enforcement questions are the measures that genuinely lower\n"
@@ -1954,7 +2038,7 @@ msgstr ""
 "outils *disponibles*, pas l'ordre dans lequel ils sont appelés — un autre problème.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:424
+#: courses/en/01-orchestration.md:452
 #, no-wrap
 msgid ""
 "The rule to carry in: **financial, legal or safety consequences → programmatic\n"
@@ -1968,7 +2052,7 @@ msgstr ""
 "irréversible, aucune dose de prompt engineering n'est la réponse.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:434
+#: courses/en/01-orchestration.md:462
 #, no-wrap
 msgid ""
 "**When to escalate at all — the criteria, honouring a customer's stated\n"
@@ -1980,21 +2064,21 @@ msgstr ""
 "d'escalade, développée en D5.2.**\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:436
+#: courses/en/01-orchestration.md:464
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.4\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.4\"`.\n"
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/01-orchestration.md:437
+#: courses/en/01-orchestration.md:465
 #, no-wrap
 msgid "1.5 — Apply Agent SDK hooks for tool call interception and data normalization"
 msgstr "1.5 — Apply Agent SDK hooks for tool call interception and data normalization"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/01-orchestration.md:440
+#: courses/en/01-orchestration.md:468
 #, no-wrap
 msgid ""
 "<!-- ts:1.5 | src:08agentsdk L9 (what a hook is, the event table, matchers, callback outputs, deny > defer > ask > allow), L10 (PreToolUse: permissionDecision, permissionDecisionReason, updatedInput), L11 (PostToolUse: updatedToolOutput and additionalContext, the heterogeneous-format case) ; exam guide TS 1.5 -->\n"
@@ -2004,7 +2088,7 @@ msgstr ""
 "<!-- owns:hooks -->\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:444
+#: courses/en/01-orchestration.md:472
 #, no-wrap
 msgid ""
 "A **hook** is a callback of yours that the SDK runs when an agent event fires.\n"
@@ -2017,13 +2101,13 @@ msgstr ""
 "aucun token, et c'est du code ordinaire avec des garanties ordinaires.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:446
+#: courses/en/01-orchestration.md:474
 #, no-wrap
 msgid "Two events carry this task statement:\n"
 msgstr "Deux événements portent ce task statement :\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:451
+#: courses/en/01-orchestration.md:479
 #, no-wrap
 msgid ""
 "| Event | Fires | Can it still change the outcome? |\n"
@@ -2036,8 +2120,14 @@ msgstr ""
 "| `PreToolUse` | Un appel d'outil est demandé, avant qu'il ne s'exécute | Oui — autoriser, refuser, ou réécrire l'entrée |\n"
 "| `PostToolUse` | L'outil a retourné, avant que le modèle ne lise le résultat | L'appel a déjà eu lieu ; vous pouvez remplacer ce que le modèle lit |\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:480
+#, no-wrap
+msgid "`PreToolUse` — making something impossible"
+msgstr "`PreToolUse` — rendre une action impossible"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:456
+#: courses/en/01-orchestration.md:486
 #, no-wrap
 msgid ""
 "`PreToolUse` is the enforcement primitive. Its callback returns a\n"
@@ -2051,7 +2141,7 @@ msgstr ""
 "`updatedInput` pour réécrire l'appel plutôt que le refuser.\n"
 
 #. type: Fenced code block (python)
-#: courses/en/01-orchestration.md:457
+#: courses/en/01-orchestration.md:487
 #, no-wrap
 msgid ""
 "async def cap_refunds(input_data, tool_use_id, context):\n"
@@ -2081,7 +2171,7 @@ msgstr ""
 "    return {}\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:476
+#: courses/en/01-orchestration.md:506
 #, no-wrap
 msgid ""
 "The block is half the work; the reason redirects the agent to the alternative\n"
@@ -2094,8 +2184,14 @@ msgstr ""
 "permission divergent, le SDK tranche par priorité — `deny` l'emporte sur `defer`,\n"
 "qui l'emporte sur `ask`, qui l'emporte sur `allow` — donc un seul `deny` suffit.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:507
+#, no-wrap
+msgid "`PostToolUse` — changing what the model reads"
+msgstr "`PostToolUse` — changer ce que le modèle lit"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:480
+#: courses/en/01-orchestration.md:512
 #, no-wrap
 msgid ""
 "`PostToolUse` is the normalization primitive. Its `updatedToolOutput` field\n"
@@ -2108,7 +2204,7 @@ msgstr ""
 
 # invariant: bloc de code sans texte en langue naturelle : identifiants, champs de hook et valeurs renvoyées par l’API
 #. type: Fenced code block (python)
-#: courses/en/01-orchestration.md:481
+#: courses/en/01-orchestration.md:513
 #, no-wrap
 msgid ""
 "async def normalize_dates(input_data, tool_use_id, context):\n"
@@ -2138,7 +2234,7 @@ msgstr ""
 "    }}\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:500
+#: courses/en/01-orchestration.md:532
 #, no-wrap
 msgid ""
 "That is the guide's case, literally: several MCP tools return dates as Unix\n"
@@ -2153,7 +2249,7 @@ msgstr ""
 "composer avec trois formats.\n"
 
 #. type: Fenced div block (key-concept)
-#: courses/en/01-orchestration.md:501
+#: courses/en/01-orchestration.md:533
 #, no-wrap
 msgid ""
 "The choice between a hook and a prompt instruction is the same choice as in\n"
@@ -2175,7 +2271,7 @@ msgstr ""
 "| Exemple | Bloquer les remboursements au-dessus de 500 $ | « Essaie de résoudre le problème avant d'escalader » |\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:512
+#: courses/en/01-orchestration.md:544
 #, no-wrap
 msgid ""
 "Reaching for `PostToolUse` to stop something. It fires after the tool has run —\n"
@@ -2196,7 +2292,7 @@ msgstr ""
 "réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le modèle.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:522
+#: courses/en/01-orchestration.md:554
 #, no-wrap
 msgid ""
 "Two questions separate the two hooks cleanly. *Must something not happen?* →\n"
@@ -2210,7 +2306,7 @@ msgstr ""
 "mécanisme au mauvais endroit de la boucle.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:531
+#: courses/en/01-orchestration.md:563
 #, no-wrap
 msgid ""
 "**Claude Code's own configuration-level hooks, declared in settings rather than\n"
@@ -2220,21 +2316,21 @@ msgstr ""
 "plutôt que dans du code SDK, sont développés au domaine 3.**\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:533
+#: courses/en/01-orchestration.md:565
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.5\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.5\"`.\n"
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/01-orchestration.md:534
+#: courses/en/01-orchestration.md:566
 #, no-wrap
 msgid "1.6 — Design task decomposition strategies for complex workflows"
 msgstr "1.6 — Design task decomposition strategies for complex workflows"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/01-orchestration.md:537
+#: courses/en/01-orchestration.md:569
 #, no-wrap
 msgid ""
 "<!-- ts:1.6 | src:08agentsdk L14 (fixed pipeline versus dynamic decomposition, predictability as the criterion, the per-file plus cross-file review, the legacy-test-coverage example) ; exam guide TS 1.6 -->\n"
@@ -2244,7 +2340,7 @@ msgstr ""
 "<!-- owns:task-decomposition -->\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:540
+#: courses/en/01-orchestration.md:572
 #, no-wrap
 msgid ""
 "Not every task splits the same way, and picking the wrong regime costs you\n"
@@ -2254,7 +2350,7 @@ msgstr ""
 "coûte soit de la rigidité, soit du chaos. Il y en a deux.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:545
+#: courses/en/01-orchestration.md:577
 #, no-wrap
 msgid ""
 "**Fixed sequential pipeline — prompt chaining.** Every step is decided in\n"
@@ -2268,7 +2364,7 @@ msgstr ""
 "stables et comparables d'une exécution à l'autre.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:549
+#: courses/en/01-orchestration.md:581
 #, no-wrap
 msgid ""
 "**Dynamic adaptive decomposition.** Subtasks emerge from what the previous step\n"
@@ -2280,7 +2376,7 @@ msgstr ""
 "périmètre est inconnu au départ.\n"
 
 #. type: Fenced div block (key-concept)
-#: courses/en/01-orchestration.md:550
+#: courses/en/01-orchestration.md:582
 #, no-wrap
 msgid ""
 "The criterion is **predictability, not size**. A twelve-file pull request has a\n"
@@ -2291,8 +2387,14 @@ msgstr ""
 "fichiers a un ensemble de cibles connu et énumérable : pipeline fixe. Un bug d'un\n"
 "seul fichier dont on ignore l'origine, non.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:588
+#, no-wrap
+msgid "The guide's two examples"
+msgstr "Les deux exemples du guide"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:559
+#: courses/en/01-orchestration.md:593
 #, no-wrap
 msgid ""
 "The guide's own example of prompt chaining is the multi-aspect code review. A\n"
@@ -2305,7 +2407,7 @@ msgstr ""
 "contradictions entre eux. Découpez :\n"
 
 #. type: Fenced code block (text)
-#: courses/en/01-orchestration.md:560
+#: courses/en/01-orchestration.md:594
 #, no-wrap
 msgid ""
 "Pass 1 — per file, one focused analysis each\n"
@@ -2323,7 +2425,7 @@ msgstr ""
 "Découper ainsi est ce qui évite la dilution de l'attention sur une grosse revue.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:572
+#: courses/en/01-orchestration.md:606
 #, no-wrap
 msgid ""
 "The guide's example of adaptive decomposition is \"add comprehensive tests to a\n"
@@ -2335,7 +2437,7 @@ msgstr ""
 "d'avance, parce qu'elles sont précisément ce que vous allez découvrir :\n"
 
 #. type: Fenced code block (text)
-#: courses/en/01-orchestration.md:573
+#: courses/en/01-orchestration.md:607
 #, no-wrap
 msgid ""
 "1. Map the structure                (Glob, Grep)\n"
@@ -2351,7 +2453,7 @@ msgstr ""
 "5. Adapter le plan                    → construire le mock, puis écrire les tests\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:584
+#: courses/en/01-orchestration.md:618
 #, no-wrap
 msgid ""
 "Map structure, identify high-impact areas, produce a prioritized plan that\n"
@@ -2364,7 +2466,7 @@ msgstr ""
 "ce que l'étape 1 a trouvé.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:585
+#: courses/en/01-orchestration.md:619
 #, no-wrap
 msgid ""
 "Three mismatches, and they are exactly the distractors:\n"
@@ -2394,7 +2496,7 @@ msgstr ""
 "rend les exécutions successives plus difficiles à comparer.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:600
+#: courses/en/01-orchestration.md:634
 #, no-wrap
 msgid ""
 "Read the scenario for one thing: **is the list of targets knowable before the\n"
@@ -2408,27 +2510,27 @@ msgstr ""
 "côté ; « personne ne sait combien d'étages il comporte » pointe de l'autre.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:608
+#: courses/en/01-orchestration.md:642
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.6\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.6\"`.\n"
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/01-orchestration.md:609
+#: courses/en/01-orchestration.md:643
 #, no-wrap
 msgid "1.7 — Manage session state, resumption, and forking"
 msgstr "1.7 — Manage session state, resumption, and forking"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/01-orchestration.md:611
+#: courses/en/01-orchestration.md:645
 #, no-wrap
 msgid "<!-- ts:1.7 | src:08agentsdk L8 (what a session is, continue vs resume vs fork, capturing the session id, when to resume and when to start fresh), L15 §2 (fork combines with resume and branches history, not the filesystem), §3 (named resumption in the guide versus session ids in the SDK) ; exam guide TS 1.7 -->\n"
 msgstr "<!-- ts:1.7 | src:08agentsdk L8 (what a session is, continue vs resume vs fork, capturing the session id, when to resume and when to start fresh), L15 §2 (fork combines with resume and branches history, not the filesystem), §3 (named resumption in the guide versus session ids in the SDK) ; exam guide TS 1.7 -->\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:616
+#: courses/en/01-orchestration.md:650
 #, no-wrap
 msgid ""
 "A **session** is the conversation history the SDK accumulates while the agent\n"
@@ -2443,13 +2545,13 @@ msgstr ""
 "résultats d'outils enregistrés se périment.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:618
+#: courses/en/01-orchestration.md:652
 #, no-wrap
 msgid "Three operations, three different jobs:\n"
 msgstr "Trois opérations, trois métiers différents :\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:624
+#: courses/en/01-orchestration.md:658
 #, no-wrap
 msgid ""
 "| Operation | What it does |\n"
@@ -2465,7 +2567,7 @@ msgstr ""
 "| Session neuve + résumé injecté | Démarre à vide et reçoit, dans le prompt, un résumé structuré de ce qui tient encore |\n"
 
 #. type: Fenced code block (python)
-#: courses/en/01-orchestration.md:625
+#: courses/en/01-orchestration.md:659
 #, no-wrap
 msgid ""
 "# Fork the analysis baseline to explore a second approach.\n"
@@ -2492,8 +2594,14 @@ msgstr ""
 "    if isinstance(message, ResultMessage):\n"
 "        forked_id = message.session_id     # distinct de session_id\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:673
+#, no-wrap
+msgid "Two facts about forking"
+msgstr "Deux faits sur le fork"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:643
+#: courses/en/01-orchestration.md:679
 #, no-wrap
 msgid ""
 "Two facts about forking that questions turn on. It always combines with\n"
@@ -2507,14 +2615,20 @@ msgstr ""
 "deux agents forkés qui modifient des fichiers dans le même répertoire modifient\n"
 "les mêmes fichiers.\n"
 
+#. type: Title ###
+#: courses/en/01-orchestration.md:680
+#, no-wrap
+msgid "Choosing between the three"
+msgstr "Choisir entre les trois"
+
 #. type: Plain text
-#: courses/en/01-orchestration.md:645
+#: courses/en/01-orchestration.md:683
 #, no-wrap
 msgid "Choosing between the three is the skill the guide tests:\n"
 msgstr "Choisir entre les trois est la compétence que le guide teste :\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:652
+#: courses/en/01-orchestration.md:690
 #, no-wrap
 msgid ""
 "| Situation | Choice |\n"
@@ -2532,7 +2646,7 @@ msgstr ""
 "| Comparer deux approches depuis une base d'analyse commune | `fork_session` |\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:659
+#: courses/en/01-orchestration.md:697
 #, no-wrap
 msgid ""
 "The third row is the guide's own judgement call, and it is counter-intuitive\n"
@@ -2551,7 +2665,7 @@ msgstr ""
 "payloads morts.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:660
+#: courses/en/01-orchestration.md:698
 #, no-wrap
 msgid ""
 "Three moves the distractors put in place of the three answers above:\n"
@@ -2577,7 +2691,7 @@ msgstr ""
 "  réconcilie pas un état disque.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:673
+#: courses/en/01-orchestration.md:711
 #, no-wrap
 msgid ""
 "Three situations, three answers, and the distractors trade them around. Context\n"
@@ -2597,7 +2711,7 @@ msgstr ""
 "travail — qui est testé, pas la syntaxe.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:683
+#: courses/en/01-orchestration.md:721
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.7\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.7\"`.\n"
