@@ -398,9 +398,9 @@ string.</p>
 <code>tool_choice</code>. If an option names <code>output_config.format</code> or
 <code>client.messages.parse()</code>, it is not the expected answer on this exam. The same
 verdict falls on message prefilling paired with a stop sequence: the API course
-teaches it as a route to structured output, and <code>courses/out-of-scope.md</code> sets
-it aside on the strength of this task statement — this section is the promise
-that entry makes. It is also incompatible with the newer mechanism below, so
+teaches it as a route to structured output, and this corpus's out-of-scope list
+sets it aside on the strength of this task statement — this section is the
+promise that entry makes. It is also incompatible with the newer mechanism below, so
 the two are never combined in practice either.</p>
 <p>Field nuance, so you are not surprised in production: the platform now carries a
 dedicated JSON-outputs mechanism (<code>output_config.format</code>, and <code>messages.parse()</code>

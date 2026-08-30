@@ -94,6 +94,22 @@ if (fs.existsSync(path.join(OUT, 'modules.json'))) {
   }
 }
 
+/* Autonomie : migration/ se transmet seul, sans le dépôt qui l'a produit. Une
+ * leçon qui cite un fichier de ce dépôt — `courses/out-of-scope.md`,
+ * Practice_Questions.html — enverrait le lecteur de l'academy vers un chemin
+ * qui n'existe pas chez lui. Le cas s'est produit sur une leçon de M4.
+ * L'exception est le contenu enseigné : D3 montre des chemins d'@import dans
+ * un exemple de CLAUDE.md, ils sont le sujet et non une référence. */
+const REPO_PATHS = /`?(?:courses\/(?:en|fr|po|quizzes)\/|courses\/(?:README|out-of-scope)\.md|tools\/|(?:Practice_Questions|Exam_Strategy|Scenarios_Exam|index)\.html)/;
+for (const f of walk(path.join(OUT, 'lessons'))) {
+  const text = fs.readFileSync(f, 'utf8');
+  for (const [i, line] of text.split('\n').entries()) {
+    if (line.trimStart().startsWith('@')) continue;   // exemple d'@import enseigné en M3
+    const m = line.match(REPO_PATHS);
+    if (m) problems.push(`${path.relative(ROOT, f)}:${i + 1} — cite « ${m[0].replace(/`/g, '')} », un chemin de ce dépôt : reformuler dans courses/ pour que la leçon se tienne seule`);
+  }
+}
+
 for (const p of problems) console.log('  -', p);
 console.log(`Export academy : ${problems.length} problème(s).`);
 process.exit(problems.length ? 1 : 0);

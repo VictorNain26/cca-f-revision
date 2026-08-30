@@ -345,9 +345,9 @@ Normalise before you fill the schema:
 `tool_choice`. If an option names `output_config.format` or
 `client.messages.parse()`, it is not the expected answer on this exam. The same
 verdict falls on message prefilling paired with a stop sequence: the API course
-teaches it as a route to structured output, and `courses/out-of-scope.md` sets
-it aside on the strength of this task statement — this section is the promise
-that entry makes. It is also incompatible with the newer mechanism below, so
+teaches it as a route to structured output, and this corpus's out-of-scope list
+sets it aside on the strength of this task statement — this section is the
+promise that entry makes. It is also incompatible with the newer mechanism below, so
 the two are never combined in practice either.
 
 Field nuance, so you are not surprised in production: the platform now carries a

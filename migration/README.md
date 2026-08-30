@@ -1,7 +1,14 @@
 # Migration du corpus CCA-F vers l'Academy Growth Wave
 
-Ce dossier est un **produit dérivé**, régénéré par `npm run export:academy`. Rien
-ici ne s'édite à la main : la source reste `courses/`, comme pour le site.
+**Ce dossier se suffit à lui-même** : les quatre fichiers et les 72 leçons qu'il
+contient ne dépendent d'aucun autre. Il peut être transmis seul, par archive ou
+par partage de dossier.
+
+Il est produit automatiquement à partir du corpus CCA-F (dépôt
+`cca-f-revision`) et n'est jamais édité à la main : toute correction se fait
+dans le corpus, qui régénère ce dossier. Un contrôle du dépôt d'origine refuse
+qu'il vieillisse par rapport à sa source, et vérifie qu'aucune leçon ne cite un
+chemin qui n'existerait pas ici.
 
 ## Ce que l'academy fait déjà
 
