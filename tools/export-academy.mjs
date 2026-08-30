@@ -178,11 +178,71 @@ for (const f of ['PQ', 'D0', 'D1', 'D2', 'D3', 'D4', 'D5']) {
 }
 fs.writeFileSync(path.join(OUT, 'questions.json'), JSON.stringify(bank, null, 2) + '\n');
 
+/* --- manifest.json : le point d'entrée d'un intégrateur automatique ---------
+ * Un lecteur humain ouvre le README et se débrouille. Un agent qui reçoit un
+ * dossier a besoin d'un fichier qui dise, sans prose : quoi lire, dans quel
+ * ordre, quelle forme ont les données, et quels compteurs il doit retrouver
+ * après import pour savoir qu'il n'a rien perdu. Les invariants sont calculés
+ * ici, jamais recopiés — un chiffre écrit à la main serait faux au premier
+ * ajout de question. */
+const multipleAnswer = bank.filter((q) => q.multipleAnswers).map((q) => q.sourceId);
+const lessonFiles = manifest.reduce((s, m) => s + m.lessonCount, 0) * 2;
+
+fs.writeFileSync(path.join(OUT, 'manifest.json'), JSON.stringify({
+  purpose: "Migrer le corpus de révision CCA-F (certification CCAR-F) vers l'Academy Growth Wave.",
+  selfContained: true,
+  readingOrder: ['README.md', 'blueprint.json', 'modules.json', 'questions.json', 'lessons/<module>/<lang>/<lesson>.md'],
+  files: {
+    'README.md': "Ce que fait déjà l'academy, la correspondance avec ce corpus, et les points qu'un intégrateur doit trancher.",
+    'blueprint.json': 'La certification, le format de son examen, et les domaines avec leurs poids. Pilote le tirage pondéré.',
+    'modules.json': 'Les modules, leurs leçons, durées estimées, titres bilingues et chemins de fichiers.',
+    'questions.json': 'La banque de questions. Chaque option porte son propre commentaire.',
+    'lessons/': 'Le Markdown de chaque leçon, en FR et EN, avec frontmatter.',
+  },
+  shape: {
+    question: {
+      sourceId: 'identifiant stable dans le corpus source',
+      domain: 'code de domaine du blueprint (D0 pour les prérequis, hors pondération)',
+      subCompetency: "task statement du guide, 1.1 à 5.6 — la granularité que l'academy nomme sous-compétence",
+      alsoCovers: 'optionnel : autres task statements couverts par la question',
+      multipleAnswers: 'true quand plusieurs options portent expected: true',
+      stem: "le scénario, posé avant la question. Peut être long : c'est la moitié de l'exercice.",
+      question: "l'intitulé auquel les options répondent",
+      options: 'tableau ordonné ; chaque entrée a key, text, expected (booléen), comment',
+    },
+    lessonFrontmatter: ['module', 'lesson', 'order', 'lang', 'title', 'domain', 'taskStatement', 'estimatedMinutes'],
+    teachingContainers: {
+      syntax: "::: <nom>\n…\n:::",
+      names: ['exam-tip', 'key-concept', 'anti-pattern'],
+      note: "Trois intentions pédagogiques distinctes, pas de la décoration. À rendre différemment l'une de l'autre.",
+    },
+  },
+  invariants: {
+    questions: bank.length,
+    questionsByDomain: Object.fromEntries(Object.entries(bank.reduce((a, q) => ({ ...a, [q.domain]: (a[q.domain] || 0) + 1 }), {})).sort()),
+    multipleAnswerQuestions: { count: multipleAnswer.length, ids: multipleAnswer },
+    modules: manifest.length,
+    lessons: manifest.reduce((s, m) => s + m.lessonCount, 0),
+    lessonFiles,
+    languages: ['fr', 'en'],
+    domainWeightTotal: BLUEPRINT.reduce((s, d) => s + d.weight, 0),
+  },
+  rules: [
+    "Ne jamais supprimer `stem`. Si la cible n'a pas de champ pour un préambule, le concaténer devant `question` — sans lui, la question n'a plus d'énoncé.",
+    "Ne jamais convertir une question `multipleAnswers` en question à réponse unique : elle deviendrait fausse. L'examen réel en pose et annonce le nombre de réponses attendues.",
+    'Ne jamais fusionner ni réécrire les `comment` : chaque option a le sien, et expliquer pourquoi un distracteur est faux est la moitié de la valeur pédagogique.',
+    "Reporter `domain` et `subCompetency` sur chaque question : sans eux, le tirage pondéré ne peut pas respecter le blueprint.",
+    'Conserver les deux langues. Les titres de leçon identiques en FR et EN sont les libellés du guide, invariants à dessein.',
+    "Après import, revérifier les compteurs de `invariants`. Un écart signale une perte, pas une simplification.",
+  ],
+}, null, 2) + '\n');
+
 const byDomain = {};
 for (const q of bank) byDomain[q.domain] = (byDomain[q.domain] || 0) + 1;
 
 if (!quiet) console.log(`migration/blueprint.json  — ${BLUEPRINT.length} domaines`);
 if (!quiet) console.log(`migration/modules.json    — ${manifest.length} modules, ${manifest.reduce((s, m) => s + m.lessonCount, 0)} leçons`);
 if (!quiet) console.log(`migration/lessons/        — ${manifest.reduce((s, m) => s + m.lessonCount, 0) * 2} fichiers (fr + en)`);
+if (!quiet) if (!quiet) console.log(`migration/manifest.json   — point d'entrée, schémas et invariants`);
 if (!quiet) console.log(`migration/questions.json  — ${bank.length} questions :`);
 if (!quiet) for (const [d, n] of Object.entries(byDomain).sort()) console.log(`    ${d} : ${n}`);

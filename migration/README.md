@@ -10,6 +10,14 @@ dans le corpus, qui régénère ce dossier. Un contrôle du dépôt d'origine re
 qu'il vieillisse par rapport à sa source, et vérifie qu'aucune leçon ne cite un
 chemin qui n'existerait pas ici.
 
+> **Intégration automatique.** Si c'est un agent qui lit ce dossier, le point
+> d'entrée est **`manifest.json`** : il donne l'ordre de lecture, la forme de
+> chaque objet, six règles à ne pas enfreindre, et des **invariants** —
+> 157 questions dont 10 à réponses multiples, 6 modules, 36 leçons, 72 fichiers,
+> des poids qui totalisent 100. Ces compteurs sont calculés à l'export et
+> revérifiés par le dépôt d'origine ; après import, les retrouver est la façon
+> de constater qu'aucun contenu n'a été perdu en route.
+
 ## Ce que l'academy fait déjà
 
 Observé en naviguant le parcours **CCDF** (Claude Certified Developer

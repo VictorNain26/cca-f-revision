@@ -94,6 +94,41 @@ if (fs.existsSync(path.join(OUT, 'modules.json'))) {
   }
 }
 
+/* Le manifeste est le point d'entrée d'un intégrateur automatique : ses
+ * compteurs sont ce contre quoi il revérifiera son import. Faux, ils
+ * valideraient une perte. Ils sont donc recalculés ici depuis les fichiers
+ * livrés, sans faire confiance à ce que l'export a écrit. */
+if (fs.existsSync(path.join(OUT, 'manifest.json'))) {
+  const man = readJson('manifest.json');
+  const qs = readJson('questions.json');
+  const mods = readJson('modules.json');
+  const real = {
+    questions: qs.length,
+    multipleAnswerQuestions: qs.filter((q) => q.multipleAnswers).length,
+    modules: mods.length,
+    lessons: mods.reduce((s, m) => s + m.lessonCount, 0),
+    lessonFiles: walk(path.join(OUT, 'lessons')).length,
+    domainWeightTotal: readJson('blueprint.json').domains.reduce((s, d) => s + d.weight, 0),
+  };
+  const claimed = {
+    questions: man.invariants.questions,
+    multipleAnswerQuestions: man.invariants.multipleAnswerQuestions.count,
+    modules: man.invariants.modules,
+    lessons: man.invariants.lessons,
+    lessonFiles: man.invariants.lessonFiles,
+    domainWeightTotal: man.invariants.domainWeightTotal,
+  };
+  for (const [k, v] of Object.entries(claimed)) {
+    if (v !== real[k]) problems.push(`manifest.json — invariant « ${k} » annonce ${v}, le dossier en porte ${real[k]} : un intégrateur validerait une perte`);
+  }
+  for (const f of Object.keys(man.files)) {
+    const target = f.endsWith('/') ? path.join(OUT, f) : path.join(OUT, f);
+    if (!fs.existsSync(target)) problems.push(`manifest.json — annonce « ${f} », absent du dossier`);
+  }
+} else {
+  problems.push('migration/manifest.json — absent : un intégrateur automatique n’a pas de point d’entrée');
+}
+
 /* Autonomie : migration/ se transmet seul, sans le dépôt qui l'a produit. Une
  * leçon qui cite un fichier de ce dépôt — `courses/out-of-scope.md`,
  * Practice_Questions.html — enverrait le lecteur de l'academy vers un chemin

@@ -1,0 +1,91 @@
+{
+  "purpose": "Migrer le corpus de révision CCA-F (certification CCAR-F) vers l'Academy Growth Wave.",
+  "selfContained": true,
+  "readingOrder": [
+    "README.md",
+    "blueprint.json",
+    "modules.json",
+    "questions.json",
+    "lessons/<module>/<lang>/<lesson>.md"
+  ],
+  "files": {
+    "README.md": "Ce que fait déjà l'academy, la correspondance avec ce corpus, et les points qu'un intégrateur doit trancher.",
+    "blueprint.json": "La certification, le format de son examen, et les domaines avec leurs poids. Pilote le tirage pondéré.",
+    "modules.json": "Les modules, leurs leçons, durées estimées, titres bilingues et chemins de fichiers.",
+    "questions.json": "La banque de questions. Chaque option porte son propre commentaire.",
+    "lessons/": "Le Markdown de chaque leçon, en FR et EN, avec frontmatter."
+  },
+  "shape": {
+    "question": {
+      "sourceId": "identifiant stable dans le corpus source",
+      "domain": "code de domaine du blueprint (D0 pour les prérequis, hors pondération)",
+      "subCompetency": "task statement du guide, 1.1 à 5.6 — la granularité que l'academy nomme sous-compétence",
+      "alsoCovers": "optionnel : autres task statements couverts par la question",
+      "multipleAnswers": "true quand plusieurs options portent expected: true",
+      "stem": "le scénario, posé avant la question. Peut être long : c'est la moitié de l'exercice.",
+      "question": "l'intitulé auquel les options répondent",
+      "options": "tableau ordonné ; chaque entrée a key, text, expected (booléen), comment"
+    },
+    "lessonFrontmatter": [
+      "module",
+      "lesson",
+      "order",
+      "lang",
+      "title",
+      "domain",
+      "taskStatement",
+      "estimatedMinutes"
+    ],
+    "teachingContainers": {
+      "syntax": "::: <nom>\n…\n:::",
+      "names": [
+        "exam-tip",
+        "key-concept",
+        "anti-pattern"
+      ],
+      "note": "Trois intentions pédagogiques distinctes, pas de la décoration. À rendre différemment l'une de l'autre."
+    }
+  },
+  "invariants": {
+    "questions": 157,
+    "questionsByDomain": {
+      "D0": 6,
+      "D1": 33,
+      "D2": 29,
+      "D3": 31,
+      "D4": 28,
+      "D5": 30
+    },
+    "multipleAnswerQuestions": {
+      "count": 10,
+      "ids": [
+        "pq-q109",
+        "pq-q110",
+        "pq-q111",
+        "pq-q112",
+        "d1-q7",
+        "d2-q5",
+        "d3-q6",
+        "d4-q5",
+        "d4-q6",
+        "d5-q7"
+      ]
+    },
+    "modules": 6,
+    "lessons": 36,
+    "lessonFiles": 72,
+    "languages": [
+      "fr",
+      "en"
+    ],
+    "domainWeightTotal": 100
+  },
+  "rules": [
+    "Ne jamais supprimer `stem`. Si la cible n'a pas de champ pour un préambule, le concaténer devant `question` — sans lui, la question n'a plus d'énoncé.",
+    "Ne jamais convertir une question `multipleAnswers` en question à réponse unique : elle deviendrait fausse. L'examen réel en pose et annonce le nombre de réponses attendues.",
+    "Ne jamais fusionner ni réécrire les `comment` : chaque option a le sien, et expliquer pourquoi un distracteur est faux est la moitié de la valeur pédagogique.",
+    "Reporter `domain` et `subCompetency` sur chaque question : sans eux, le tirage pondéré ne peut pas respecter le blueprint.",
+    "Conserver les deux langues. Les titres de leçon identiques en FR et EN sont les libellés du guide, invariants à dessein.",
+    "Après import, revérifier les compteurs de `invariants`. Un écart signale une perte, pas une simplification."
+  ]
+}
