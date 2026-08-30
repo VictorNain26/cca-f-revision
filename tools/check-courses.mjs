@@ -5,13 +5,19 @@
  * en/D0_API_Fundamentals.html…) doivent elles-mêmes être le rendu exact de ce
  * corpus par tools/render-courses.mjs — même garantie, un niveau plus loin.
  * Le défaut que ce contrôle attrape : une traduction corrigée directement dans
- * courses/fr/ (perdue au prochain build), une entrée de fr.po devenue périmée
- * après modification de l'anglais, un segment anglais absent du catalogue
- * (l'anglais modifié sans rejouer build:courses, --no-update ne laissant ni
- * entrée fuzzy ni entrée vide à signaler), une notion enseignée dans deux
- * cours, un fichier oublié dans courses/po4a.conf ou orphelin sur le disque,
- * une page HTML éditée à la main plutôt que dans sa source — perdue sans avis
- * au prochain `npm run render:courses`.
+ * courses/fr/ (perdue au prochain build), un segment anglais absent du
+ * catalogue (l'anglais modifié sans rejouer build:courses, --no-update ne
+ * laissant ni entrée fuzzy ni entrée vide à signaler), un renvoi data-task que
+ * l'appariement flou de po4a a fait dériver vers un autre task statement, un
+ * fichier oublié dans courses/po4a.conf ou orphelin sur le disque, une page
+ * HTML éditée à la main plutôt que dans sa source — perdue sans avis au
+ * prochain `npm run render:courses`.
+ *
+ * Ce qui relève des conventions de rédaction du corpus — marqueurs src et
+ * owns, une section par task statement, fraîcheur des traductions — est
+ * affiché en observations et ne décide de rien : ces conventions ont vocation
+ * à bouger, et un verdict rouge sur elles empêcherait d'essayer un autre
+ * découpage avant de l'avoir vu à l'œuvre.
  * Le rendu de comparaison se fait dans une copie temporaire isolée (courses/)
  * ou entièrement en mémoire (pages HTML, dont le rendu n'écrit jamais sur
  * disque) : ce contrôle ne modifie jamais l'arborescence qu'il surveille.
@@ -26,16 +32,15 @@ import {
   sourceFilesInPo,
   readPo4aMasters,
   courseIdFromFilename,
-  readDelivered,
   parsePoEntries,
   auditCorpus,
   checkCatalogueCoverage,
   checkPo4aOptions,
   diffRenderedPages,
-  checkPublishedCoursesReconciliation,
   checkNoLeakedMetadata,
 } from './lib/courses.mjs';
 import { PUBLISHED_COURSES, renderCoursePages } from './lib/page.mjs';
+import { renderPracticePage } from './lib/practice.mjs';
 import { readLinks, readTranslations } from './lib/nav.mjs';
 import { loadJsonQuizzes } from './lib/quizzes.mjs';
 
@@ -54,10 +59,10 @@ const TESTED_PO4A = '0.69';
  * ce qu'il surveille, pas seulement son point de départ historique. Un écart
  * est signalé comme n'importe quel autre problème, pas juste loggé. */
 function fingerprintCourses() {
-  const publishedPages = PUBLISHED_COURSES.flatMap((c) => [
-    path.join(ROOT, c.slug),
-    path.join(ROOT, 'en', c.slug),
-  ]);
+  const publishedPages = [
+    ...PUBLISHED_COURSES.flatMap((c) => [path.join(ROOT, c.slug), path.join(ROOT, 'en', c.slug)]),
+    path.join(ROOT, 'Practice_Questions.html'),
+  ];
   const coursesFiles = fs.readdirSync(COURSES, { recursive: true }).map((f) => path.join(COURSES, f));
 
   return [...coursesFiles, ...publishedPages]
@@ -94,20 +99,6 @@ if (version !== TESTED_PO4A) {
   console.log('Une différence de rendu ci-dessous peut venir de la version, pas du contenu.');
 }
 
-/* Les cours annoncés livrés dans courses/README.md. Absent : [] légitime, le
- * dépôt n'a encore rien à livrer. Présent mais aucune ligne reconnue : le
- * format a dérivé, ce n'est pas un corpus vide — signalé, pas retourné en
- * silence. */
-const readmePath = path.join(COURSES, 'README.md');
-let delivered = [];
-if (fs.existsSync(readmePath)) {
-  const result = readDelivered(fs.readFileSync(readmePath, 'utf8'));
-  if (!result.recognized) {
-    problems.push('courses/README.md — aucune ligne de tableau de livraison reconnue (format attendu : | ✅ | D<n> | …) : le format a peut-être changé');
-  }
-  delivered = result.delivered;
-}
-
 /* Structure et attribution, sur la source anglaise. */
 const enFilenames = fs.readdirSync(path.join(COURSES, 'en')).filter((f) => f.endsWith('.md')).sort();
 const courses = [];
@@ -139,8 +130,8 @@ const before = Object.fromEntries(
   frFilenamesBefore.map((f) => [`courses/fr/${f}`, fs.readFileSync(path.join(COURSES, 'fr', f), 'utf8')]),
 );
 
-/* Entrées périmées : toujours bloquantes. Entrées vides : bloquantes seulement
- * pour un cours annoncé livré, sinon affichées.
+/* Entrées périmées et entrées vides : affichées en observations. Ce qui bloque
+ * du côté des traductions, c'est le renvoi devenu faux (checkTaskReferenceDrift).
  *
  * Le filtrage passe par msgattrib plutôt que par une expression régulière sur
  * le .po : un msgstr vide et un msgstr long replié sur plusieurs lignes se
@@ -240,11 +231,8 @@ problems.push(...checkPo4aOptions({ confText, buildScript }).problems);
 /* Rendu des pages publiées, en mémoire, à partir de la source anglaise
  * (courses) et du français déjà régénéré ci-dessus dans la copie isolée
  * (`after`) : pas de nouvelle écriture disque, donc pas de risque pour
- * l'empreinte vérifiée en fin de script. Un cours non livré (pas dans
- * `delivered`) ou dont la source est absente n'a pas de page à comparer — les
- * contrôles ci-dessus l'ont déjà signalé si c'était une anomalie. */
-problems.push(...checkPublishedCoursesReconciliation({ delivered, publishedCourses: PUBLISHED_COURSES }).problems);
-
+ * l'empreinte vérifiée en fin de script. Un cours dont la source est absente
+ * n'a pas de page à comparer — reconcileCourseFiles l'a déjà signalé. */
 const nav = { links: readLinks(path.join(ROOT, 'nav.js')), translations: readTranslations(path.join(ROOT, 'nav.js')) };
 
 /* Les pages anglaises réellement sur le disque, pas celles que PUBLISHED_COURSES
@@ -256,20 +244,12 @@ const enMarkdownByFile = Object.fromEntries(courses.map((c) => [path.basename(c.
 const pagesCommitted = {};
 const pagesRendered = {};
 for (const course of PUBLISHED_COURSES) {
-  const domainDigit = course.domain.replace(/^D/, '');
-
   const enMarkdown = enMarkdownByFile[course.file];
   const frMarkdown = after[`courses/fr/${course.file}`];
   if (enMarkdown === undefined || frMarkdown === undefined) continue;
 
   const frPagePath = path.join(ROOT, course.slug);
   const enPagePath = path.join(ROOT, 'en', course.slug);
-  /* Un domaine non coché n'a en principe pas de page à comparer — mais une
-   * page déjà présente à la racine sous ce slug doit l'être quand même :
-   * check-courses.mjs a autorité sur toute page publiée qu'il trouve, pas
-   * seulement sur celles que courses/README.md annonce. */
-  const pageExists = fs.existsSync(frPagePath) || fs.existsSync(enPagePath);
-  if (!delivered.includes(domainDigit) && !pageExists) continue;
 
   const quizPath = path.join(COURSES, 'quizzes', `${course.domain}.json`);
   const quizzes = fs.existsSync(quizPath) ? loadJsonQuizzes(course.domain) : [];
@@ -280,13 +260,30 @@ for (const course of PUBLISHED_COURSES) {
   if (fs.existsSync(frPagePath)) pagesCommitted[course.slug] = fs.readFileSync(frPagePath, 'utf8');
   if (fs.existsSync(enPagePath)) pagesCommitted[`en/${course.slug}`] = fs.readFileSync(enPagePath, 'utf8');
 }
+/* Practice_Questions.html entre dans la même comparaison que les fiches : sans
+ * elle, la page redeviendrait éditable à la main sans que rien le signale —
+ * le défaut exact que sa migration vers courses/practice/ a corrigé. */
+const practiceMd = path.join(COURSES, 'practice', 'page.md');
+const practiceJson = path.join(COURSES, 'quizzes', 'PQ.json');
+if (fs.existsSync(practiceMd) && fs.existsSync(practiceJson)) {
+  const practice = renderPracticePage({
+    markdown: fs.readFileSync(practiceMd, 'utf8'),
+    quizzes: JSON.parse(fs.readFileSync(practiceJson, 'utf8')),
+    nav,
+  });
+  problems.push(...practice.problems);
+  pagesRendered['Practice_Questions.html'] = practice.html;
+  pagesCommitted['Practice_Questions.html'] = fs.readFileSync(path.join(ROOT, 'Practice_Questions.html'), 'utf8');
+} else {
+  problems.push('courses/practice/page.md ou courses/quizzes/PQ.json manquant : Practice_Questions.html ne peut pas être comparée à son rendu');
+}
+
 problems.push(...diffRenderedPages(pagesCommitted, pagesRendered).problems);
 problems.push(...checkNoLeakedMetadata(pagesRendered).problems);
 
 const audit = auditCorpus({
   courses,
   bankTasks,
-  delivered,
   poEntries,
   expectedPoEntryCount,
   masters,
@@ -300,12 +297,17 @@ const audit = auditCorpus({
   translations: nav.translations,
 });
 problems.push(...audit.problems);
-for (const n of audit.notices) console.log(n);
 
 if (fingerprintCourses() !== fingerprintBefore) {
   problems.push("courses/ — le contrôle a modifié l'arborescence qu'il surveille (empreinte fichier/taille/mtime différente de celle prise au démarrage) : c'est exactement le défaut que cette refonte corrige, investiguer avant de committer quoi que ce soit.");
 }
 
-for (const p of problems) console.log(p);
+if (audit.notices.length) {
+  console.log(`${audit.notices.length} observation(s), sans effet sur le verdict :`);
+  for (const n of audit.notices) console.log('  -', n);
+  console.log('');
+}
+
+for (const p of problems) console.log('  -', p);
 console.log(`Corpus de cours : ${problems.length} problème(s) sur ${courses.length} cours.`);
 process.exit(problems.length ? 1 : 0);

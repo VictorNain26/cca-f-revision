@@ -79,7 +79,10 @@ function assetPath(name, lang) {
  * suivant. */
 const stripWeight = (title) => (title || '').replace(/\s*\(\d+\s*%\)\s*$/, '').trim();
 
-function renderQuiz(q) {
+/* Exporté pour tools/lib/practice.mjs : la page des QCM rend les mêmes blocs
+ * <details> que les fiches de domaine, et un second rendu qui divergerait de
+ * celui-ci rejouerait le défaut de la navbar en onze exemplaires. */
+export function renderQuiz(q) {
   const letters = lettersOf(q);
   const answers = new Set(answerLetters(q.answer));
   const options = letters

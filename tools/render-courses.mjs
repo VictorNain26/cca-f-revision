@@ -6,16 +6,17 @@
  * même contenu. Après ce runner, le HTML publié est un produit dérivé du
  * Markdown ; toute correction passe par courses/, jamais par le HTML.
  *
- * Seuls les cours cochés dans courses/README.md sont régénérés : un cours non
- * livré n'a pas de fiche à publier. Seul D0 y est coché à ce jour.
+ * La liste des cours à rendre est PUBLISHED_COURSES (tools/lib/page.mjs), lue
+ * aussi par tools/check-courses.mjs : une seule liste, donc pas de second
+ * endroit à tenir d'accord avec elle.
  * Requiert Node >= 20.11.
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { PUBLISHED_COURSES, renderCoursePages } from './lib/page.mjs';
+import { renderPracticePage } from './lib/practice.mjs';
 import { readLinks, readTranslations } from './lib/nav.mjs';
 import { loadJsonQuizzes } from './lib/quizzes.mjs';
-import { readDelivered } from './lib/courses.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 
@@ -23,18 +24,8 @@ const links = readLinks(path.join(ROOT, 'nav.js'));
 const translations = readTranslations(path.join(ROOT, 'nav.js'));
 const nav = { links, translations };
 
-const readmeText = fs.readFileSync(path.join(ROOT, 'courses', 'README.md'), 'utf8');
-const { delivered, recognized } = readDelivered(readmeText);
-if (!recognized) {
-  console.error('courses/README.md — tableau de livraison introuvable, rien à régénérer.');
-  process.exit(1);
-}
-
 let written = 0;
 for (const course of PUBLISHED_COURSES) {
-  const domainDigit = course.domain.replace(/^D/, '');
-  if (!delivered.includes(domainDigit)) continue;
-
   const enPath = path.join(ROOT, 'courses', 'en', course.file);
   const frPath = path.join(ROOT, 'courses', 'fr', course.file);
   const quizPath = path.join(ROOT, 'courses', 'quizzes', `${course.domain}.json`);
@@ -55,5 +46,23 @@ for (const course of PUBLISHED_COURSES) {
 
   console.log(`${course.domain} — ${course.slug} et en/${course.slug} régénérées (${quizzes.length} quiz)`);
 }
+
+/* Practice_Questions.html suit la même règle que les fiches : le HTML publié
+ * est un produit dérivé, la correction passe par la source. Ses deux sources
+ * sont la prose (courses/practice/page.md) et les questions
+ * (courses/quizzes/PQ.json). */
+const practice = renderPracticePage({
+  markdown: fs.readFileSync(path.join(ROOT, 'courses', 'practice', 'page.md'), 'utf8'),
+  quizzes: JSON.parse(fs.readFileSync(path.join(ROOT, 'courses', 'quizzes', 'PQ.json'), 'utf8')),
+  nav,
+});
+if (practice.problems.length) {
+  for (const p of practice.problems) console.error(`  - ${p}`);
+  console.error('Practice_Questions.html non régénérée : corriger les problèmes ci-dessus.');
+  process.exit(1);
+}
+fs.writeFileSync(path.join(ROOT, 'Practice_Questions.html'), practice.html);
+written++;
+console.log(`QCM — Practice_Questions.html régénérée (${JSON.parse(fs.readFileSync(path.join(ROOT, 'courses', 'quizzes', 'PQ.json'), 'utf8')).length} questions)`);
 
 console.log(`\n${written} page(s) écrite(s).`);

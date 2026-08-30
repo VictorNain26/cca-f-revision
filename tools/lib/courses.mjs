@@ -117,12 +117,18 @@ const REFERENCED_TASK = /data-task="([^"]+)"/g;
  * couverture des task statements pour les cours annoncés livrés, unicité et
  * bonne attribution des notions, validité des renvois vers la banque.
  *
+ * Tout ce que cette fonction produit est une observation, jamais un verdict :
+ * ce sont les conventions de rédaction du corpus, celles qui ont le plus de
+ * raisons de bouger. Les voir listées suffit à les tenir ; les rendre
+ * bloquantes obligerait à refondre le dispositif avant d'avoir le droit
+ * d'essayer un autre découpage.
+ *
  * Angle mort assumé : rien ici ne juge la justesse du contenu. Un cours faux
  * mais bien formé passe. Et un cours qui redéveloppe une notion sans poser le
  * marqueur owns passe aussi — le marqueur rend la convention falsifiable, il
  * ne la fait pas respecter. */
-export function checkCorpus({ courses, bankTasks, delivered }) {
-  const problems = [];
+export function checkCorpus({ courses, bankTasks }) {
+  const notices = [];
   const claimed = new Map();
   /* Un domaine peut être scindé sur plusieurs fichiers (01a, 01b) : la
    * couverture des task statements se compare par domaine, pas par fichier,
@@ -137,54 +143,52 @@ export function checkCorpus({ courses, bankTasks, delivered }) {
 
     for (const s of sections) {
       if (!s.src) {
-        problems.push(`${course.file}:${s.line} — section « ${s.title} » sans src : ajouter <!-- src:référence -->, affirmation non traçable`);
+        notices.push(`${course.file}:${s.line} — section « ${s.title} » sans src : un <!-- src:référence --> rend l'affirmation traçable`);
       }
 
       if (s.ts) {
         if (seenTs.has(s.ts)) {
-          problems.push(`${course.file}:${s.line} — task statement ${s.ts} déjà couvert par la section à la ligne ${seenTs.get(s.ts)} : une section par task statement`);
+          notices.push(`${course.file}:${s.line} — task statement ${s.ts} déjà couvert par la section à la ligne ${seenTs.get(s.ts)}`);
         } else {
           seenTs.set(s.ts, s.line);
         }
       }
 
       for (const bad of s.ownsMalformed) {
-        problems.push(`${course.file}:${s.line} — marqueur owns malformé « ${bad} », attendu <!-- owns:slug-en-minuscules -->`);
+        notices.push(`${course.file}:${s.line} — marqueur owns malformé « ${bad} », attendu <!-- owns:slug-en-minuscules -->`);
       }
 
       for (const concept of s.owns) {
         const owner = OWNED_CONCEPTS[concept];
         if (owner === undefined) {
-          problems.push(`${course.file}:${s.line} — notion inconnue « ${concept} », absente de OWNED_CONCEPTS : l'y ajouter ou corriger le marqueur owns`);
+          notices.push(`${course.file}:${s.line} — notion inconnue « ${concept} », absente de OWNED_CONCEPTS`);
           continue;
         }
         if (owner !== course.id) {
-          problems.push(`${course.file}:${s.line} — « ${concept} » appartient au domaine ${owner}, revendiqué par le domaine ${course.id} : retirer le marqueur owns ou déplacer la section dans le domaine ${owner}`);
+          notices.push(`${course.file}:${s.line} — « ${concept} » appartient au domaine ${owner}, revendiqué par le domaine ${course.id}`);
         }
         const claim = `${course.file}:${s.line}`;
         if (claimed.has(concept)) {
-          problems.push(`${claim} — « ${concept} » déjà revendiqué par ${claimed.get(concept)} : ne garder le marqueur owns qu'à un seul endroit`);
+          notices.push(`${claim} — « ${concept} » déjà revendiqué par ${claimed.get(concept)}`);
         } else {
           claimed.set(concept, claim);
         }
       }
     }
 
-    if (delivered.includes(course.id)) {
-      const covered = coveredByDomain.get(course.id) ?? new Set();
-      for (const s of sections) if (s.ts) covered.add(s.ts);
-      coveredByDomain.set(course.id, covered);
+    const covered = coveredByDomain.get(course.id) ?? new Set();
+    for (const s of sections) if (s.ts) covered.add(s.ts);
+    coveredByDomain.set(course.id, covered);
 
-      const files = filesByDomain.get(course.id) ?? [];
-      files.push(course.file);
-      filesByDomain.set(course.id, files);
-    }
+    const files = filesByDomain.get(course.id) ?? [];
+    files.push(course.file);
+    filesByDomain.set(course.id, files);
 
     for (const m of course.markdown.matchAll(REFERENCED_TASK)) {
       const ts = m[1];
       if (!bankTasks.has(ts)) {
         const line = course.markdown.slice(0, m.index).split('\n').length;
-        problems.push(`${course.file}:${line} — renvoi vers data-task="${ts}", absent de la banque : corriger la référence ou l'ajouter à Practice_Questions.html`);
+        notices.push(`${course.file}:${line} — renvoi vers data-task="${ts}", absent de la banque`);
       }
     }
   }
@@ -194,11 +198,11 @@ export function checkCorpus({ courses, bankTasks, delivered }) {
     const missing = expected.filter((ts) => !covered.has(ts));
     if (missing.length) {
       const files = filesByDomain.get(id).join(', ');
-      problems.push(`${files} — task statements sans section : ${missing.join(', ')} : ajouter une section <!-- ts:... --> pour chacun`);
+      notices.push(`${files} — task statements sans section : ${missing.join(', ')}`);
     }
   }
 
-  return { problems };
+  return { notices };
 }
 
 /* Les masters déclarés dans courses/po4a.conf : une ligne par fichier source,
@@ -279,6 +283,15 @@ export function diffRenderedFiles(before, after) {
  * à la main dans la page plutôt que dans courses/en/ — perdue sans avis au
  * prochain `npm run render:courses`, exactement le défaut que la navbar
  * dupliquée en onze exemplaires a déjà coûté à ce dépôt. */
+/* Chaque page publiée a ses propres sources, et le message doit nommer les
+ * bonnes : envoyer vers courses/en/ quelqu'un qui vient de corriger une option
+ * de QCM lui fait chercher dans le mauvais fichier. */
+const SOURCES_OF = (file) => {
+  if (file === 'Practice_Questions.html') return 'courses/practice/page.md ou courses/quizzes/PQ.json';
+  if (file.startsWith('en/')) return 'courses/en/';
+  return 'courses/en/ ou courses/po/fr.po';
+};
+
 export function diffRenderedPages(before, after) {
   const problems = [];
   const files = new Set([...Object.keys(before), ...Object.keys(after)]);
@@ -287,10 +300,9 @@ export function diffRenderedPages(before, after) {
     if (!(file in before)) {
       problems.push(`${file} — produit par le rendu mais absent du dépôt : lancer npm run render:courses et committer la page`);
     } else if (!(file in after)) {
-      problems.push(`${file} — présent dans le dépôt mais non produit par le rendu (cours retiré ou non livré) : vérifier courses/README.md`);
+      problems.push(`${file} — présent dans le dépôt mais non produit par le rendu : entrée retirée de PUBLISHED_COURSES (tools/lib/page.mjs) ?`);
     } else if (before[file] !== after[file]) {
-      const source = file.startsWith('en/') ? 'courses/en/' : 'courses/en/ ou courses/po/fr.po';
-      problems.push(`${file} — diverge du rendu de son cours Markdown : éditer ${source}, pas la page`);
+      problems.push(`${file} — diverge de son rendu : éditer ${SOURCES_OF(file)}, pas la page`);
     }
   }
 
@@ -303,32 +315,14 @@ const FILENAME_ID = /^\d?(\d)-/;
  * zero-paddé sur deux chiffres (00-…, 01-…, 05-…) pour trier correctement à
  * plat dans un répertoire. f.slice(0, 1) accepterait n'importe quel premier
  * caractère — annexe.md donnerait un id 'a' qui ne correspond à aucun
- * domaine et passerait en silence dans toute comparaison avec delivered ou
- * course.id — et capturerait, pour 01-…, le zéro de padding plutôt que le
+ * domaine et passerait en silence dans toute comparaison avec course.id —
+ * et capturerait, pour 01-…, le zéro de padding plutôt que le
  * chiffre du domaine. Le premier chiffre est donc optionnel et non capturé
  * (\d?), seul le dernier avant le tiret l'est : ça reste correct aussi bien
  * pour un futur nom sans padding que pour le padding à deux chiffres réel.
  * null distingue explicitement « pas de domaine reconnaissable ». */
 export function courseIdFromFilename(filename) {
   return filename.match(FILENAME_ID)?.[1] ?? null;
-}
-
-const DELIVERY_ROW = /^\|\s*(✅|)\s*\|\s*D(\d)\s*\|/gm;
-
-/* Les cours annoncés livrés dans courses/README.md, repérés par une case
- * cochée en début de ligne de tableau : | ✅ | D1 | … Une ligne sans coche
- * compte comme non livrée mais valide le format de tableau reconnu ;
- * `recognized` distingue un texte qui ne contient aucune ligne de tableau
- * (le format a dérivé, la Task 6 a changé l'ordre des colonnes) d'un corpus
- * où rien n'est encore livré. Sans cette distinction les deux retournent []
- * en silence, alors que le premier cas doit lever un problème : c'est le
- * garde-fou qui protège le reste du dispositif contre lui-même. */
-export function readDelivered(readmeText) {
-  const rows = [...readmeText.matchAll(DELIVERY_ROW)];
-  return {
-    delivered: rows.filter((m) => m[1] === '✅').map((m) => m[2]),
-    recognized: rows.length > 0,
-  };
 }
 
 /* Un catalogue PO, entrée par entrée, avec ses commentaires de traducteur.
@@ -427,15 +421,21 @@ const norm = (s) => s.normalize('NFC').replace(/\s+/g, ' ').trim();
  * point de renvoyer [], la boucle ne produirait aucun problème et le
  * contrôle serait vert par accident — retirer le câblage dans l'appelant
  * ferait alors échouer chaque appel avec un TypeError, pas disparaître en
- * silence. Même intention que readDelivered/recognized, portée différemment
- * : là un drapeau dans le retour que l'appelant ne peut pas ignorer, ici un
- * paramètre que l'appelant ne peut pas omettre. */
+ * silence : un paramètre que l'appelant ne peut pas omettre.
+ *
+ * Le garde-fou de compte est le seul problème bloquant que cette fonction
+ * produit — il dit que le contrôle lui-même n'est plus fiable. Les quatre cas
+ * de marqueur sont des observations : « déclarer pourquoi une traduction
+ * recopie sa source » est une convention de rédaction, et l'anglais qui
+ * fuirait réellement dans une page française est attrapé, lui, par
+ * checkCatalogueCoverage. */
 export function checkInvariantMarkers(entries, { poPath = 'courses/po/fr.po', expectedCount } = {}) {
   if (!Number.isInteger(expectedCount)) {
     throw new TypeError("checkInvariantMarkers requiert expectedCount : un compte indépendant du nombre d'entrées attendu, pour qu'un débranchement du garde-fou anti-extinction lève une erreur plutôt que de désactiver le contrôle en silence.");
   }
 
   const problems = [];
+  const notices = [];
 
   if (entries.length !== expectedCount) {
     problems.push(`${poPath} — ${entries.length} entrée(s) lue(s) par parsePoEntries contre ${expectedCount} attendue(s) (compte indépendant) : le parseur a peut-être régressé, ce contrôle n'est plus fiable tant que l'écart n'est pas expliqué.`);
@@ -451,21 +451,21 @@ export function checkInvariantMarkers(entries, { poPath = 'courses/po/fr.po', ex
     const identical = norm(e.msgid) === norm(e.msgstr);
 
     if (noReason) {
-      problems.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : marqueur « invariant: » sans raison, compléter « # invariant: <raison> ».`);
+      notices.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : marqueur « invariant: » sans raison, compléter « # invariant: <raison> ».`);
       continue;
     }
     if (malformedPunctuation) {
-      problems.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : marqueur « invariant » mal formé, orthographe attendue « # invariant: <raison> » (deux-points collé au mot, une espace puis la raison).`);
+      notices.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : marqueur « invariant » mal formé, orthographe attendue « # invariant: <raison> » (deux-points collé au mot, une espace puis la raison).`);
       continue;
     }
     if (identical && !strict) {
-      problems.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : la traduction répète la source. Si c'est voulu, ajouter un commentaire « # invariant: <raison> » en tête du bloc, avant « #. type: » ; sinon, traduire.`);
+      notices.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : la traduction répète la source. Si c'est voulu, ajouter un commentaire « # invariant: <raison> » en tête du bloc, avant « #. type: » ; sinon, traduire.`);
     }
     if (!identical && strict) {
-      problems.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : marqueur « invariant: » sur une entrée qui n'est plus une recopie, le retirer.`);
+      notices.push(`${poPath}:${e.line} — « ${truncate(e.msgid)} » : marqueur « invariant: » sur une entrée qui n'est plus une recopie, le retirer.`);
     }
   }
-  return { problems };
+  return { problems, notices };
 }
 
 /* Le catalogue est-il en phase avec la source anglaise ?
@@ -513,43 +513,14 @@ export function checkPo4aOptions({ confText, buildScript }) {
   return { problems };
 }
 
-/* PUBLISHED_COURSES (tools/lib/page.mjs) et le tableau de courses/README.md
- * déclarent chacun quel domaine est publié, dans deux sens opposés pour la
- * même information : le premier fixe ce que tools/render-courses.mjs écrit,
- * le second annonce à l'auteur ce qui est complet. Le défaut attrapé : un
- * domaine coché ✅ au lot 3 sans qu'une entrée soit ajoutée à
- * PUBLISHED_COURSES rend le lot invisible au rendu et à la comparaison — page
- * jamais régénérée, jamais comparée, contrôle vert, fiche manuscrite
- * divergente. Exigé dans les deux sens : une entrée PUBLISHED_COURSES dont le
- * domaine n'est plus coché est un vestige, pas neutre non plus. */
-export function checkPublishedCoursesReconciliation({ delivered, publishedCourses }) {
-  const problems = [];
-  const publishedDomains = new Set(publishedCourses.map((c) => c.domain.replace(/^D/, '')));
-
-  for (const d of delivered) {
-    if (!publishedDomains.has(d)) {
-      problems.push(`courses/README.md — D${d} coché livré mais absent de PUBLISHED_COURSES (tools/lib/page.mjs) : aucune page ne sera rendue ni comparée, ajouter une entrée`);
-    }
-  }
-  for (const c of publishedCourses) {
-    const d = c.domain.replace(/^D/, '');
-    if (!delivered.includes(d)) {
-      problems.push(`tools/lib/page.mjs — ${c.domain} présent dans PUBLISHED_COURSES mais non coché livré dans courses/README.md : cocher la ligne ou retirer l'entrée`);
-    }
-  }
-
-  return { problems };
-}
-
 /* Les pages anglaises publiées sous en/ ne sont atteignables que par le
  * sélecteur de langue, dont la source unique est le littéral TRANSLATIONS de
  * nav.js (lu par readTranslations). Le défaut que ce contrôle attrape s'est
  * produit : D3 puis D4 ont été rendues dans en/ sans y être déclarées, donc
  * publiées et inaccessibles — aucun lien du site n'y menait, et aucun
  * contrôle ne pouvait le voir puisque check-links ne suit que les liens qui
- * existent. C'est la troisième occurrence de la même classe de défaut après
- * la navbar recopiée dans chaque page et PUBLISHED_COURSES face aux cours
- * cochés : une liste tenue à la main qui diverge de la réalité du disque.
+ * existent. C'est la même classe de défaut que la navbar recopiée dans chaque
+ * page : une liste tenue à la main qui diverge de la réalité du disque.
  *
  * Les deux sens comptent, et ils échouent différemment : une page sans entrée
  * est du contenu injoignable, une entrée sans page est un lien mort dans le
@@ -588,31 +559,25 @@ export function checkNoLeakedMetadata(pages) {
   return { problems };
 }
 
-/* Le cœur de la promesse de courses/README.md (« un cours coché est annoncé
- * complet ») : une entrée fuzzy (traduction périmée par une modification de
- * l'anglais) bloque toujours, quel que soit le statut de livraison — une
- * traduction périmée est fausse, pas seulement incomplète. Une entrée vide
- * ne bloque que pour un cours annoncé livré dans courses/README.md ; sur un
- * cours non livré, po4a retombe sur l'anglais et c'est attendu, donc un
- * avis (notices), pas un problème. */
-export function checkTranslationCompleteness({ fuzzyFiles, untranslatedFiles, delivered, fuzzyCount, untranslatedCount }) {
-  const problems = [];
+/* Fraîcheur des traductions. Une entrée fuzzy (traduction périmée par une
+ * modification de l'anglais) et une entrée vide sont toutes deux des
+ * observations : réécrire un cours anglais sans retraduire dans le même
+ * souffle est un mouvement légitime, et po4a retombe sur l'anglais en
+ * attendant. Ce qui reste bloquant, c'est le renvoi devenu faux
+ * (checkTaskReferenceDrift) — là le lecteur français est envoyé vers le
+ * mauvais task statement, ce n'est plus un retard mais une erreur. */
+export function checkTranslationCompleteness({ fuzzyFiles, untranslatedFiles, fuzzyCount, untranslatedCount }) {
   const notices = [];
 
   for (const file of fuzzyFiles) {
-    problems.push(`${file} — traduction périmée dans fr.po après modification de l'anglais (entrée fuzzy) : ${fuzzyCount} entrée(s) fuzzy au total, relire et retraduire dans courses/po/fr.po`);
+    notices.push(`${file} — traduction périmée dans fr.po après modification de l'anglais (${fuzzyCount} entrée(s) fuzzy au total) : relire et retraduire dans courses/po/fr.po.`);
   }
 
   for (const file of untranslatedFiles) {
-    const id = courseIdFromFilename(file.split('/').pop());
-    if (id !== null && delivered.includes(id)) {
-      problems.push(`${file} — annoncé livré dans courses/README.md mais sa traduction est incomplète (${untranslatedCount} entrée(s) non traduite(s) au total) : compléter courses/po/fr.po avant de livrer`);
-    } else {
-      notices.push(`${file} — traduction incomplète (${untranslatedCount} entrée(s) non traduite(s) au total), retombe sur l'anglais (cours non annoncé livré).`);
-    }
+    notices.push(`${file} — traduction incomplète (${untranslatedCount} entrée(s) non traduite(s) au total), retombe sur l'anglais.`);
   }
 
-  return { problems, notices };
+  return { notices };
 }
 
 /* po4a pré-remplit une entrée neuve avec la traduction de l'entrée existante
@@ -621,7 +586,7 @@ export function checkTranslationCompleteness({ fuzzyFiles, untranslatedFiles, de
  * `data-task="X.Y"`. », la plus proche est celle d'un AUTRE task statement :
  * la traduction proposée renvoie alors le lecteur vers les questions d'un
  * autre domaine. Quinze cas sur les deux premiers cours, tous rattrapés à la
- * relecture — c'est-à-dire par la vigilance, sur un dépôt qui a dix contrôles.
+ * relecture — c'est-à-dire par la vigilance, sur un dépôt outillé.
  *
  * Retirer l'appariement flou (--no-fuzzy-matching) fermerait le défaut et
  * coûterait plus qu'il ne rapporte : c'est lui qui retrouve une traduction
@@ -679,7 +644,7 @@ export function checkTaskReferenceDrift(entries, { poPath = 'courses/po/fr.po' }
  * obligatoire pour fermer. Omettre l'un d'eux doit lever une erreur, pas
  * rendre le contrôle vert par accident. */
 export function auditCorpus({
-  courses, bankTasks, delivered, poEntries, expectedPoEntryCount, masters, frBefore, frAfter,
+  courses, bankTasks, poEntries, expectedPoEntryCount, masters, frBefore, frAfter,
   fuzzyFiles, untranslatedFiles, fuzzyCount, untranslatedCount, enPages, translations,
 }) {
   for (const [name, value] of [
@@ -695,21 +660,26 @@ export function auditCorpus({
     }
   }
 
-  const completeness = checkTranslationCompleteness({ fuzzyFiles, untranslatedFiles, delivered, fuzzyCount, untranslatedCount });
+  const completeness = checkTranslationCompleteness({ fuzzyFiles, untranslatedFiles, fuzzyCount, untranslatedCount });
+  const invariants = checkInvariantMarkers(poEntries, { expectedCount: expectedPoEntryCount });
+  const structure = checkCorpus({ courses, bankTasks });
+
   return {
     problems: [
-      ...checkCorpus({ courses, bankTasks, delivered }).problems,
       ...reconcileCourseFiles({
         masters,
         enFiles: courses.map((c) => c.file),
         frFiles: Object.keys(frBefore),
       }).problems,
       ...diffRenderedFiles(frBefore, frAfter).problems,
-      ...checkInvariantMarkers(poEntries, { expectedCount: expectedPoEntryCount }).problems,
+      ...invariants.problems,
       ...checkTaskReferenceDrift(poEntries).problems,
       ...checkEnglishPagesReconciliation({ enPages, translations }).problems,
-      ...completeness.problems,
     ],
-    notices: completeness.notices,
+    notices: [
+      ...structure.notices,
+      ...invariants.notices,
+      ...completeness.notices,
+    ],
   };
 }

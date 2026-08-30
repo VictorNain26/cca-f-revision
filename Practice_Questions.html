@@ -36,7 +36,7 @@
 </div>
 
 <div class="key-concept">
-<strong>Pourquoi cette page est en anglais.</strong> L'examen CCAR-F est administré en anglais. Traduire l'entraînement, c'est s'entraîner à un exercice que vous ne passerez pas : le jour J, le coût de lecture porte sur des formulations anglaises précises — <em>most effective first step</em>, <em>root cause</em>, <em>deterministic</em>, <em>proportionate</em> — qui portent à elles seules la moitié de la discrimination entre options. Les commentaires de méthode restent en français.
+<p><strong>Pourquoi cette page est en anglais.</strong> L'examen CCAR-F est administré en anglais. Traduire l'entraînement, c'est s'entraîner à un exercice que vous ne passerez pas : le jour J, le coût de lecture porte sur des formulations anglaises précises — <em>most effective first step</em>, <em>root cause</em>, <em>deterministic</em>, <em>proportionate</em> — qui portent à elles seules la moitié de la discrimination entre options. Les commentaires de méthode restent en français.</p>
 </div>
 
 <div class="toc">
@@ -55,9 +55,7 @@
 </ol>
 </div>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="methode">1. Méthode et distracteurs récurrents</h2></div>
-<!-- ============================================================ -->
 
 <div class="key-concept">
 <h3>Comment lire un item</h3>
@@ -67,26 +65,52 @@
 <li><strong>Compter les réponses attendues.</strong> Chaque item indique combien en sélectionner.</li>
 <li><strong>Ne jamais laisser blanc</strong> — il n'y a pas de pénalité.</li>
 </ol>
-
 <h3>Les sept distracteurs qui reviennent</h3>
 <table>
-<tr><th>Formulation type</th><th>Pourquoi c'est faux</th></tr>
-<tr><td>« Strengthen the system prompt to state that X is mandatory »</td><td>Une consigne en langage naturel a un taux d'échec non nul. Dès qu'il y a une conséquence financière ou réglementaire, la réponse est un <em>programmatic enforcement</em> (hook, gate de prérequis).</td></tr>
-<tr><td>« Deploy a classifier trained on historical data »</td><td>Sur-ingénierie : on ajoute de l'infrastructure et un besoin de données annotées avant d'avoir essayé la correction proportionnée.</td></tr>
-<tr><td>« Have the model self-report a confidence score, then route below a threshold »</td><td>Proxy non calibré : le modèle est confiant précisément là où il se trompe. Attention — <em>field-level</em> confidence calibrée sur un jeu étiqueté est, elle, la bonne réponse pour router une relecture.</td></tr>
-<tr><td>« Detect customer frustration and escalate on negative sentiment »</td><td>Le sentiment ne corrèle pas avec la complexité du cas.</td></tr>
-<tr><td>« Terminate the workflow when a subagent fails »</td><td>On perd les résultats partiels. La réponse est la dégradation gracieuse avec annotation des lacunes.</td></tr>
-<tr><td>« Switch to a model with a larger context window »</td><td>Une fenêtre plus grande ne corrige ni la dilution d'attention, ni la dégradation de contexte, ni le <em>lost-in-the-middle</em>.</td></tr>
-<tr><td>« Move the blocking check to the Message Batches API »</td><td>Jusqu'à 24 h de traitement, aucune garantie de latence : incompatible avec un workflow bloquant.</td></tr>
+<thead>
+<tr>
+<th>Formulation type</th>
+<th>Pourquoi c'est faux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>« Strengthen the system prompt to state that X is mandatory »</td>
+<td>Une consigne en langage naturel a un taux d'échec non nul. Dès qu'il y a une conséquence financière ou réglementaire, la réponse est un <em>programmatic enforcement</em> (hook, gate de prérequis).</td>
+</tr>
+<tr>
+<td>« Deploy a classifier trained on historical data »</td>
+<td>Sur-ingénierie : on ajoute de l'infrastructure et un besoin de données annotées avant d'avoir essayé la correction proportionnée.</td>
+</tr>
+<tr>
+<td>« Have the model self-report a confidence score, then route below a threshold »</td>
+<td>Proxy non calibré : le modèle est confiant précisément là où il se trompe. Attention — <em>field-level</em> confidence calibrée sur un jeu étiqueté est, elle, la bonne réponse pour router une relecture.</td>
+</tr>
+<tr>
+<td>« Detect customer frustration and escalate on negative sentiment »</td>
+<td>Le sentiment ne corrèle pas avec la complexité du cas.</td>
+</tr>
+<tr>
+<td>« Terminate the workflow when a subagent fails »</td>
+<td>On perd les résultats partiels. La réponse est la dégradation gracieuse avec annotation des lacunes.</td>
+</tr>
+<tr>
+<td>« Switch to a model with a larger context window »</td>
+<td>Une fenêtre plus grande ne corrige ni la dilution d'attention, ni la dégradation de contexte, ni le <em>lost-in-the-middle</em>.</td>
+</tr>
+<tr>
+<td>« Move the blocking check to the Message Batches API »</td>
+<td>Jusqu'à 24 h de traitement, aucune garantie de latence : incompatible avec un workflow bloquant.</td>
+</tr>
+</tbody>
 </table>
 </div>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="officielles">2. Questions officielles du guide (Q1–Q12)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Note de fidélité :</strong> ces douze items reproduisent les questions d'exemple du guide officiel — énoncés, options et bonnes réponses. Leurs bonnes réponses sont majoritairement « A » : c'est un artefact du guide, pas un biais de conception. Ne devinez jamais à la lettre, travaillez le raisonnement.</p>
-
+<div class="exam-tip">
+<p><strong>Note de fidélité :</strong> ces douze items reproduisent les questions d'exemple du guide officiel — énoncés, options et bonnes réponses. Leurs bonnes réponses sont majoritairement « A » : c'est un artefact du guide, pas un biais de conception. Ne devinez jamais à la lettre, travaillez le raisonnement.</p>
+</div>
 <h3>Scenario: Customer Support Resolution Agent</h3>
 
 <details id="pq-q1" data-domain="D1" data-task="1.4">
@@ -114,7 +138,7 @@
 <summary>Q2 (Customer Support) — Minimal tool descriptions</summary>
 <div>
 <p><strong>Scenario:</strong> Production logs show the agent frequently calls <code>get_customer</code> when users ask about orders (e.g. "check my order #12345"), instead of calling <code>lookup_order</code>. Both tools have minimal descriptions ("Retrieves customer information" / "Retrieves order details") and accept similar identifier formats.</p>
-<p><strong>Question:</strong> What&rsquo;s the most effective first step to improve tool selection reliability?</p>
+<p><strong>Question:</strong> What’s the most effective first step to improve tool selection reliability?</p>
 <p data-opt="a">A) Add few-shot examples to the system prompt demonstrating correct tool selection patterns, with 5–8 examples showing order-related queries routing to <code>lookup_order</code>.</p>
 <p data-opt="b">B) Expand each tool's description to include input formats it handles, example queries, edge cases, and boundaries explaining when to use it versus similar tools.</p>
 <p data-opt="c">C) Implement a routing layer that parses user input before each turn and pre-selects the appropriate tool based on detected keywords and identifier patterns.</p>
@@ -135,7 +159,7 @@
 <summary>Q3 (Customer Support) — Escalation calibration</summary>
 <div>
 <p><strong>Scenario:</strong> Your agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions.</p>
-<p><strong>Question:</strong> What&rsquo;s the most effective way to improve escalation calibration?</p>
+<p><strong>Question:</strong> What’s the most effective way to improve escalation calibration?</p>
 <p data-opt="a">A) Add explicit escalation criteria to your system prompt with few-shot examples demonstrating when to escalate versus resolve autonomously.</p>
 <p data-opt="b">B) Have the agent self-report a confidence score (1–10) before each response and automatically route requests to humans when confidence falls below a threshold.</p>
 <p data-opt="c">C) Deploy a separate classifier model trained on historical tickets to predict which requests need escalation before the main agent begins processing.</p>
@@ -178,7 +202,7 @@
 <details id="pq-q5" data-domain="D3" data-task="3.4">
 <summary>Q5 (Code Generation) — Plan mode versus direct execution</summary>
 <div>
-<p><strong>Scenario:</strong> You&rsquo;ve been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies.</p>
+<p><strong>Scenario:</strong> You’ve been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies.</p>
 <p><strong>Question:</strong> Which approach should you take?</p>
 <p data-opt="a">A) Enter plan mode to explore the codebase, understand dependencies, and design an implementation approach before making changes.</p>
 <p data-opt="b">B) Start with direct execution and make changes incrementally, letting the implementation reveal the natural service boundaries.</p>
@@ -200,7 +224,7 @@
 <summary>Q6 (Code Generation) — Conventions for files spread across directories</summary>
 <div>
 <p><strong>Scenario:</strong> Your codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g. <code>Button.test.tsx</code> next to <code>Button.tsx</code>), and you want all tests to follow the same conventions regardless of location.</p>
-<p><strong>Question:</strong> What&rsquo;s the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?</p>
+<p><strong>Question:</strong> What’s the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?</p>
 <p data-opt="a">A) Create rule files in <code>.claude/rules/</code> with YAML frontmatter specifying glob patterns to conditionally apply conventions based on file paths</p>
 <p data-opt="b">B) Consolidate all conventions in the root <code>CLAUDE.md</code> file under headers for each area, relying on Claude to infer which section applies</p>
 <p data-opt="c">C) Create skills in <code>.claude/skills/</code> for each code type that include the relevant conventions in their <code>SKILL.md</code> files</p>
@@ -288,7 +312,7 @@
 <summary>Q10 (CI/CD) — The pipeline job hangs</summary>
 <div>
 <p><strong>Scenario:</strong> Your pipeline script runs <code>claude "Analyze this pull request for security issues"</code> but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input.</p>
-<p><strong>Question:</strong> What&rsquo;s the correct approach to run Claude Code in an automated pipeline?</p>
+<p><strong>Question:</strong> What’s the correct approach to run Claude Code in an automated pipeline?</p>
 <p data-opt="a">A) Add the <code>-p</code> flag: <code>claude -p "Analyze this pull request for security issues"</code></p>
 <p data-opt="b">B) Set the environment variable <code>CLAUDE_HEADLESS=true</code> before running the command</p>
 <p data-opt="c">C) Redirect stdin from <code>/dev/null</code>: <code>claude "Analyze this pull request for security issues" &lt; /dev/null</code></p>
@@ -299,8 +323,8 @@
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="b">References a feature that does not exist: there is no <code>CLAUDE_HEADLESS</code> variable, so the command runs unchanged and the job still waits for input.</li>
-<li data-opt="d">References a feature that does not exist either: there is no <code>--batch</code> flag on the CLI, and an unrecognised option does not switch the command out of interactive mode.</li>
 <li data-opt="c">Is a Unix workaround that does not address the command's own mode of operation.</li>
+<li data-opt="d">References a feature that does not exist either: there is no <code>--batch</code> flag on the CLI, and an unrecognised option does not switch the command out of interactive mode.</li>
 </ul>
 </div>
 </details>
@@ -347,11 +371,11 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="support">3. Scénario 1 — Customer Support Resolution Agent (Q13–Q28)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Contexte du scénario.</strong> Agent de résolution support bâti sur le Claude Agent SDK. Il traite des demandes à forte ambiguïté — retours, litiges de facturation, problèmes de compte — via des outils MCP (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Objectif : 80 % de résolution au premier contact, tout en sachant quand escalader. Domaines dominants : D1, D2, D5.</p>
+<div class="exam-tip">
+<p><strong>Contexte du scénario.</strong> Agent de résolution support bâti sur le Claude Agent SDK. Il traite des demandes à forte ambiguïté — retours, litiges de facturation, problèmes de compte — via des outils MCP (<code>get_customer</code>, <code>lookup_order</code>, <code>process_refund</code>, <code>escalate_to_human</code>). Objectif : 80 % de résolution au premier contact, tout en sachant quand escalader. Domaines dominants : D1, D2, D5.</p>
+</div>
 
 <details id="pq-q13" data-domain="D1" data-task="1.1">
 <summary>Q13 (Customer Support) — Terminating the agentic loop</summary>
@@ -689,11 +713,11 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="codegen">4. Scénario 2 — Code Generation with Claude Code (Q29–Q42)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Contexte du scénario.</strong> Votre équipe utilise Claude Code pour la génération, le refactoring, le débogage et la documentation. Il faut l'intégrer au workflow de développement : slash commands personnalisées, configurations <code>CLAUDE.md</code>, et savoir quand utiliser le plan mode plutôt que l'exécution directe. Domaines dominants : D3, D5.</p>
+<div class="exam-tip">
+<p><strong>Contexte du scénario.</strong> Votre équipe utilise Claude Code pour la génération, le refactoring, le débogage et la documentation. Il faut l'intégrer au workflow de développement : slash commands personnalisées, configurations <code>CLAUDE.md</code>, et savoir quand utiliser le plan mode plutôt que l'exécution directe. Domaines dominants : D3, D5.</p>
+</div>
 
 <details id="pq-q29" data-domain="D3" data-task="3.1">
 <summary>Q29 (Code Generation) — The new hire gets different behaviour</summary>
@@ -772,9 +796,9 @@
 <p><strong>Why:</strong> <code>.claude/rules/</code> exists as the alternative to a monolithic <code>CLAUDE.md</code>. One file per topic — testing, API conventions, deployment, migrations, review — is separately maintainable, and a topic that maps to a file pattern can be path-scoped so it loads only when relevant (Tasks 3.1 and 3.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
+<li data-opt="a">What survives would indeed be read reliably, but the method is to delete real conventions to fit a budget — a loss, when scoping keeps all of them and still loads only what is relevant.</li>
 <li data-opt="b">Reordering manages the symptom — position effects — while leaving 900 lines loaded every time.</li>
 <li data-opt="c">The saving is real and so is the price: a skill only runs when someone invokes it, and universal standards must apply without anyone remembering to ask.</li>
-<li data-opt="a">What survives would indeed be read reliably, but the method is to delete real conventions to fit a budget — a loss, when scoping keeps all of them and still loads only what is relevant.</li>
 </ul>
 </div>
 </details>
@@ -989,11 +1013,11 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="research">5. Scénario 3 — Multi-Agent Research System (Q43–Q58)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Contexte du scénario.</strong> Système de recherche multi-agents sur le Claude Agent SDK. Un coordinateur délègue à des subagents spécialisés : recherche web, analyse de documents, synthèse, génération de rapport. Le système produit des rapports complets et sourcés. Domaines dominants : D1, D2, D5.</p>
+<div class="exam-tip">
+<p><strong>Contexte du scénario.</strong> Système de recherche multi-agents sur le Claude Agent SDK. Un coordinateur délègue à des subagents spécialisés : recherche web, analyse de documents, synthèse, génération de rapport. Le système produit des rapports complets et sourcés. Domaines dominants : D1, D2, D5.</p>
+</div>
 
 <details id="pq-q43" data-domain="D1" data-task="1.3">
 <summary>Q43 (Multi-Agent Research) — The coordinator cannot spawn anything</summary>
@@ -1072,9 +1096,9 @@
 <p><strong>Why:</strong> attribution survives summarisation only when it is carried as structure rather than prose. The metadata that travels with each claim — the evidence excerpt, the source name, the publication date — gives downstream agents something they can merge without inventing or losing the mapping (Tasks 1.3 and 5.6).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="d">The coordinator's list says which sources were consulted, not which claim came from which — so the mapping gets reconstructed by guesswork.</li>
-<li data-opt="c">Inline naming reads well until the next summarisation step rewrites the sentence, and the source name goes with it.</li>
 <li data-opt="b">Shifts verification onto the reader, which is what a cited report is supposed to avoid.</li>
+<li data-opt="c">Inline naming reads well until the next summarisation step rewrites the sentence, and the source name goes with it.</li>
+<li data-opt="d">The coordinator's list says which sources were consulted, not which claim came from which — so the mapping gets reconstructed by guesswork.</li>
 </ul>
 </div>
 </details>
@@ -1220,8 +1244,8 @@
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">A central retry budget is worth having, but making the coordinator the only retry point produces exactly the described waste: its sole lever is re-invoking the whole subagent.</li>
-<li data-opt="c">Sparing the coordinator every transient error sounds tidy, but a retry loop with no exit burns latency and budget and hides a genuine outage as a hang.</li>
 <li data-opt="b">One uniform path is easy to reason about and ruinous in practice — restarting everything over a single branch is the anti-pattern of terminating a workflow over one failure.</li>
+<li data-opt="c">Sparing the coordinator every transient error sounds tidy, but a retry loop with no exit burns latency and budget and hides a genuine outage as a hang.</li>
 </ul>
 </div>
 </details>
@@ -1331,11 +1355,11 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="devtools">6. Scénario 4 — Developer Productivity with Claude (Q59–Q72)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Contexte du scénario.</strong> Outils de productivité développeur sur le Claude Agent SDK. L'agent aide les ingénieurs à explorer des codebases inconnues, comprendre des systèmes legacy, générer du boilerplate et automatiser des tâches répétitives. Il utilise les outils built-in (<code>Read</code>, <code>Write</code>, <code>Bash</code>, <code>Grep</code>, <code>Glob</code>) et s'intègre à des serveurs MCP. Domaines dominants : D2, D3, D1.</p>
+<div class="exam-tip">
+<p><strong>Contexte du scénario.</strong> Outils de productivité développeur sur le Claude Agent SDK. L'agent aide les ingénieurs à explorer des codebases inconnues, comprendre des systèmes legacy, générer du boilerplate et automatiser des tâches répétitives. Il utilise les outils built-in (<code>Read</code>, <code>Write</code>, <code>Bash</code>, <code>Grep</code>, <code>Glob</code>) et s'intègre à des serveurs MCP. Domaines dominants : D2, D3, D1.</p>
+</div>
 
 <details id="pq-q59" data-domain="D2" data-task="2.5">
 <summary>Q59 (Developer Productivity) — Finding every caller of a function</summary>
@@ -1631,11 +1655,11 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="ci">7. Scénario 5 — Claude Code for Continuous Integration (Q73–Q86)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Contexte du scénario.</strong> Claude Code intégré au pipeline CI/CD : revues de code automatisées, génération de cas de test, feedback sur les pull requests. Il faut concevoir des prompts qui produisent un feedback actionnable et minimisent les faux positifs. Domaines dominants : D3, D4.</p>
+<div class="exam-tip">
+<p><strong>Contexte du scénario.</strong> Claude Code intégré au pipeline CI/CD : revues de code automatisées, génération de cas de test, feedback sur les pull requests. Il faut concevoir des prompts qui produisent un feedback actionnable et minimisent les faux positifs. Domaines dominants : D3, D4.</p>
+</div>
 
 <details id="pq-q73" data-domain="D3" data-task="3.6">
 <summary>Q73 (CI/CD) — From review output to inline PR comments</summary>
@@ -1931,11 +1955,11 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="extraction">8. Scénario 6 — Structured Data Extraction (Q87–Q100)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Contexte du scénario.</strong> Système d'extraction de données structurées : extraction depuis des documents non structurés, validation par JSON Schema, maintien d'une haute exactitude. Il doit traiter les cas limites proprement et s'intégrer aux systèmes en aval. Domaines dominants : D4, D5.</p>
+<div class="exam-tip">
+<p><strong>Contexte du scénario.</strong> Système d'extraction de données structurées : extraction depuis des documents non structurés, validation par JSON Schema, maintien d'une haute exactitude. Il doit traiter les cas limites proprement et s'intégrer aux systèmes en aval. Domaines dominants : D4, D5.</p>
+</div>
 
 <details id="pq-q87" data-domain="D4" data-task="4.3">
 <summary>Q87 (Structured Extraction) — What tool use guarantees</summary>
@@ -2035,9 +2059,9 @@
 <p><strong>Why:</strong> forced tool selection guarantees that a named tool runs, which is how you ensure extraction precedes enrichment. Subsequent steps are then processed in follow-up turns, where the metadata is already available (Tasks 2.3 and 4.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
+<li data-opt="a">A dependency stated in a description informs the choice probabilistically; the scenario asks for a guarantee.</li>
 <li data-opt="c"><code>"any"</code> guarantees that <em>a</em> tool is called, not which one; answering from memory was never the failure, and the enrichment-first call remains possible.</li>
 <li data-opt="d">Being listed first does not make a tool the first candidate — array order is not a selection mechanism.</li>
-<li data-opt="a">A dependency stated in a description informs the choice probabilistically; the scenario asks for a guarantee.</li>
 </ul>
 </div>
 </details>
@@ -2231,11 +2255,11 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="transverse">9. Questions transversales et multi-réponses (Q101–Q112)</h2></div>
-<!-- ============================================================ -->
 
-<p class="exam-tip"><strong>Ce que couvre cette section.</strong> Les concepts qui traversent plusieurs scénarios — stratégies de décomposition, découpage d'outils, reprise après crash, rendu de synthèse — puis quatre items <strong>multi-réponses</strong>. À l'examen, chaque item indique combien de réponses sélectionner ; ici c'est écrit dans l'intitulé.</p>
+<div class="exam-tip">
+<p><strong>Ce que couvre cette section.</strong> Les concepts qui traversent plusieurs scénarios — stratégies de décomposition, découpage d'outils, reprise après crash, rendu de synthèse — puis quatre items <strong>multi-réponses</strong>. À l'examen, chaque item indique combien de réponses sélectionner ; ici c'est écrit dans l'intitulé.</p>
+</div>
 
 <details id="pq-q101" data-domain="D1" data-task="1.6">
 <summary>Q101 (Cross-cutting) — Adding tests to a codebase you do not know</summary>
@@ -2421,8 +2445,8 @@
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
 <li data-opt="a">An aggregate figure is exactly what conceals a badly performing segment; it is not a threshold.</li>
-<li data-opt="e">Uncalibrated self-rating on an arbitrary scale — the model is confident where it is wrong.</li>
 <li data-opt="c">Complaint history is a lagging and biased signal; the errors nobody complained about are the ones you most need to find.</li>
+<li data-opt="e">Uncalibrated self-rating on an arbitrary scale — the model is confident where it is wrong.</li>
 </ul>
 </div>
 </details>
@@ -2442,9 +2466,9 @@
 <p><strong>Why:</strong> the reliable triggers are an explicit request for a human, a policy exception or gap, and an inability to make meaningful progress. The policy gap and the stalled case are two of those three (Task 5.2).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
+<li data-opt="b">A filling context window is a technical constraint with technical remedies (case facts, compaction), not a business reason to involve a human.</li>
 <li data-opt="c">Sentiment does not correlate with case complexity — a furious customer may have a trivial problem.</li>
 <li data-opt="e">Self-reported confidence is poorly calibrated, and is high precisely on the hard cases.</li>
-<li data-opt="b">A filling context window is a technical constraint with technical remedies (case facts, compaction), not a business reason to involve a human.</li>
 </ul>
 </div>
 </details>
@@ -2464,9 +2488,9 @@
 <p><strong>Why:</strong> subagents have isolated context, so everything they need is provided explicitly in the prompt; and separating content from metadata is what preserves attribution through the handoff (Task 1.3).</p>
 <p class="incorrect"><strong>Why the others are wrong:</strong></p>
 <ul>
-<li data-opt="d">A subagent is not a spawned process that inherits its parent's state: there is no automatic inheritance, and this is the single most common misconception about subagents.</li>
-<li data-opt="b">The full transcript floods the subagent's context with material irrelevant to its task; "complete findings" is not "everything that happened".</li>
 <li data-opt="a">Cross-session access breaks both the isolation of subagents and the hub-and-spoke routing through the coordinator.</li>
+<li data-opt="b">The full transcript floods the subagent's context with material irrelevant to its task; "complete findings" is not "everything that happened".</li>
+<li data-opt="d">A subagent is not a spawned process that inherits its parent's state: there is no automatic inheritance, and this is the single most common misconception about subagents.</li>
 </ul>
 </div>
 </details>
@@ -2493,48 +2517,174 @@
 </div>
 </details>
 
-<!-- ============================================================ -->
 <div class="section-header"><h2 id="couverture">10. Couverture — les 30 task statements</h2></div>
-<!-- ============================================================ -->
 
 <p>Chaque task statement du guide est couvert par au moins un item. Utilisez ce tableau pour cibler une révision : si un domaine ressort faible sur votre rapport de score, reprenez d'abord ses questions.</p>
 
 <table>
-<tr><th>Task</th><th>Sujet</th><th>Questions</th></tr>
-<tr><td><strong>1.1</strong></td><td>Boucle agentique, <code>stop_reason</code>, historique</td><td>Q13, Q14</td></tr>
-<tr><td><strong>1.2</strong></td><td>Coordinateur-subagents, hub-and-spoke, décomposition, raffinement itératif</td><td>Q7, Q48, Q49, Q50, Q51</td></tr>
-<tr><td><strong>1.3</strong></td><td>Outil <code>Task</code>, passage de contexte explicite, parallélisme</td><td>Q43, Q44, Q45, Q46, Q47, Q111</td></tr>
-<tr><td><strong>1.4</strong></td><td>Prérequis programmatiques, handoff structuré, requêtes multi-sujets</td><td>Q1, Q25, Q26, Q112</td></tr>
-<tr><td><strong>1.5</strong></td><td>Hooks : normalisation <code>PostToolUse</code>, interception d'appels</td><td>Q15, Q16, Q112</td></tr>
-<tr><td><strong>1.6</strong></td><td>Prompt chaining contre décomposition dynamique</td><td>Q12, Q101, Q102</td></tr>
-<tr><td><strong>1.7</strong></td><td>Sessions : <code>--resume</code>, <code>fork_session</code>, reprise ou session neuve</td><td>Q52, Q71, Q72</td></tr>
-<tr><td><strong>2.1</strong></td><td>Descriptions d'outils, découpage, renommage, system prompt keyword-sensitive</td><td>Q2, Q27, Q103, Q104</td></tr>
-<tr><td><strong>2.2</strong></td><td>Erreurs structurées MCP, catégories, <code>isRetryable</code></td><td>Q17, Q18, Q53</td></tr>
-<tr><td><strong>2.3</strong></td><td>Distribution d'outils, <code>tool_choice</code>, outils contraints</td><td>Q9, Q28, Q69, Q70, Q91</td></tr>
-<tr><td><strong>2.4</strong></td><td>Serveurs MCP : portées, <code>${VAR}</code>, resources, community contre custom</td><td>Q64, Q65, Q66, Q67, Q68</td></tr>
-<tr><td><strong>2.5</strong></td><td>Outils built-in : <code>Grep</code>, <code>Glob</code>, <code>Read</code>/<code>Write</code>/<code>Edit</code></td><td>Q59, Q60, Q61, Q62, Q63</td></tr>
-<tr><td><strong>3.1</strong></td><td>Hiérarchie <code>CLAUDE.md</code>, <code>@import</code>, <code>/memory</code>, <code>.claude/rules/</code></td><td>Q29, Q30, Q31, Q32</td></tr>
-<tr><td><strong>3.2</strong></td><td>Slash commands et skills : portées, <code>context: fork</code>, <code>allowed-tools</code>, <code>argument-hint</code></td><td>Q4, Q33, Q34, Q35, Q36, Q37</td></tr>
-<tr><td><strong>3.3</strong></td><td>Règles par chemin, patterns glob</td><td>Q6, Q32</td></tr>
-<tr><td><strong>3.4</strong></td><td>Plan mode contre exécution directe, subagent <code>Explore</code></td><td>Q5, Q38, Q39</td></tr>
-<tr><td><strong>3.5</strong></td><td>Raffinement itératif : exemples, TDD, pattern interview, groupement des correctifs</td><td>Q40, Q41, Q42, Q85</td></tr>
-<tr><td><strong>3.6</strong></td><td>CI/CD : <code>-p</code>, <code>--output-format json</code>, contexte <code>CLAUDE.md</code>, isolation de session</td><td>Q10, Q73, Q74, Q75, Q76, Q77</td></tr>
-<tr><td><strong>4.1</strong></td><td>Critères explicites, faux positifs, sévérité</td><td>Q78, Q79, Q80</td></tr>
-<tr><td><strong>4.2</strong></td><td>Few-shot : format, cas ambigus, généralisation, variété structurelle</td><td>Q81, Q82, Q98</td></tr>
-<tr><td><strong>4.3</strong></td><td><code>tool_use</code> + JSON Schema, nullable, enums, normalisation de format</td><td>Q87, Q88, Q89, Q90, Q91, Q92</td></tr>
-<tr><td><strong>4.4</strong></td><td>Validation, retry avec feedback, limites du retry, <code>detected_pattern</code></td><td>Q83, Q93, Q94, Q95</td></tr>
-<tr><td><strong>4.5</strong></td><td>Message Batches API : pertinence, <code>custom_id</code>, calcul de SLA</td><td>Q11, Q86, Q96, Q97</td></tr>
-<tr><td><strong>4.6</strong></td><td>Revue indépendante, multi-passes, routage par confiance</td><td>Q12, Q75, Q84</td></tr>
-<tr><td><strong>5.1</strong></td><td><code>Case facts</code>, trimming des tool results, lost-in-the-middle, données structurées en amont</td><td>Q19, Q20, Q99, Q107</td></tr>
-<tr><td><strong>5.2</strong></td><td>Escalation : déclencheurs fiables et non fiables, correspondances multiples</td><td>Q3, Q21, Q22, Q23, Q24, Q110</td></tr>
-<tr><td><strong>5.3</strong></td><td>Propagation d'erreurs, échec d'accès contre résultat vide, coverage annotations</td><td>Q8, Q54, Q55</td></tr>
-<tr><td><strong>5.4</strong></td><td>Grandes codebases : scratchpad, <code>/compact</code>, manifeste de reprise</td><td>Q105, Q106</td></tr>
-<tr><td><strong>5.5</strong></td><td>Revue humaine, échantillonnage stratifié, confiance par champ calibrée</td><td>Q100, Q109</td></tr>
-<tr><td><strong>5.6</strong></td><td>Provenance, conflits de sources, dates, rendu par type de contenu</td><td>Q56, Q57, Q58, Q108</td></tr>
+<thead>
+<tr>
+<th>Task</th>
+<th>Sujet</th>
+<th>Questions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1.1</strong></td>
+<td>Boucle agentique, <code>stop_reason</code>, historique</td>
+<td>Q13, Q14</td>
+</tr>
+<tr>
+<td><strong>1.2</strong></td>
+<td>Coordinateur-subagents, hub-and-spoke, décomposition, raffinement itératif</td>
+<td>Q7, Q48, Q49, Q50, Q51</td>
+</tr>
+<tr>
+<td><strong>1.3</strong></td>
+<td>Outil <code>Task</code>, passage de contexte explicite, parallélisme</td>
+<td>Q43, Q44, Q45, Q46, Q47, Q111</td>
+</tr>
+<tr>
+<td><strong>1.4</strong></td>
+<td>Prérequis programmatiques, handoff structuré, requêtes multi-sujets</td>
+<td>Q1, Q25, Q26, Q112</td>
+</tr>
+<tr>
+<td><strong>1.5</strong></td>
+<td>Hooks : normalisation <code>PostToolUse</code>, interception d'appels</td>
+<td>Q15, Q16, Q112</td>
+</tr>
+<tr>
+<td><strong>1.6</strong></td>
+<td>Prompt chaining contre décomposition dynamique</td>
+<td>Q12, Q101, Q102</td>
+</tr>
+<tr>
+<td><strong>1.7</strong></td>
+<td>Sessions : <code>--resume</code>, <code>fork_session</code>, reprise ou session neuve</td>
+<td>Q52, Q71, Q72</td>
+</tr>
+<tr>
+<td><strong>2.1</strong></td>
+<td>Descriptions d'outils, découpage, renommage, system prompt keyword-sensitive</td>
+<td>Q2, Q27, Q103, Q104</td>
+</tr>
+<tr>
+<td><strong>2.2</strong></td>
+<td>Erreurs structurées MCP, catégories, <code>isRetryable</code></td>
+<td>Q17, Q18, Q53</td>
+</tr>
+<tr>
+<td><strong>2.3</strong></td>
+<td>Distribution d'outils, <code>tool_choice</code>, outils contraints</td>
+<td>Q9, Q28, Q69, Q70, Q91</td>
+</tr>
+<tr>
+<td><strong>2.4</strong></td>
+<td>Serveurs MCP : portées, <code>${VAR}</code>, resources, community contre custom</td>
+<td>Q64, Q65, Q66, Q67, Q68</td>
+</tr>
+<tr>
+<td><strong>2.5</strong></td>
+<td>Outils built-in : <code>Grep</code>, <code>Glob</code>, <code>Read</code>/<code>Write</code>/<code>Edit</code></td>
+<td>Q59, Q60, Q61, Q62, Q63</td>
+</tr>
+<tr>
+<td><strong>3.1</strong></td>
+<td>Hiérarchie <code>CLAUDE.md</code>, <code>@import</code>, <code>/memory</code>, <code>.claude/rules/</code></td>
+<td>Q29, Q30, Q31, Q32</td>
+</tr>
+<tr>
+<td><strong>3.2</strong></td>
+<td>Slash commands et skills : portées, <code>context: fork</code>, <code>allowed-tools</code>, <code>argument-hint</code></td>
+<td>Q4, Q33, Q34, Q35, Q36, Q37</td>
+</tr>
+<tr>
+<td><strong>3.3</strong></td>
+<td>Règles par chemin, patterns glob</td>
+<td>Q6, Q32</td>
+</tr>
+<tr>
+<td><strong>3.4</strong></td>
+<td>Plan mode contre exécution directe, subagent <code>Explore</code></td>
+<td>Q5, Q38, Q39</td>
+</tr>
+<tr>
+<td><strong>3.5</strong></td>
+<td>Raffinement itératif : exemples, TDD, pattern interview, groupement des correctifs</td>
+<td>Q40, Q41, Q42, Q85</td>
+</tr>
+<tr>
+<td><strong>3.6</strong></td>
+<td>CI/CD : <code>-p</code>, <code>--output-format json</code>, contexte <code>CLAUDE.md</code>, isolation de session</td>
+<td>Q10, Q73, Q74, Q75, Q76, Q77</td>
+</tr>
+<tr>
+<td><strong>4.1</strong></td>
+<td>Critères explicites, faux positifs, sévérité</td>
+<td>Q78, Q79, Q80</td>
+</tr>
+<tr>
+<td><strong>4.2</strong></td>
+<td>Few-shot : format, cas ambigus, généralisation, variété structurelle</td>
+<td>Q81, Q82, Q98</td>
+</tr>
+<tr>
+<td><strong>4.3</strong></td>
+<td><code>tool_use</code> + JSON Schema, nullable, enums, normalisation de format</td>
+<td>Q87, Q88, Q89, Q90, Q91, Q92</td>
+</tr>
+<tr>
+<td><strong>4.4</strong></td>
+<td>Validation, retry avec feedback, limites du retry, <code>detected_pattern</code></td>
+<td>Q83, Q93, Q94, Q95</td>
+</tr>
+<tr>
+<td><strong>4.5</strong></td>
+<td>Message Batches API : pertinence, <code>custom_id</code>, calcul de SLA</td>
+<td>Q11, Q86, Q96, Q97</td>
+</tr>
+<tr>
+<td><strong>4.6</strong></td>
+<td>Revue indépendante, multi-passes, routage par confiance</td>
+<td>Q12, Q75, Q84</td>
+</tr>
+<tr>
+<td><strong>5.1</strong></td>
+<td><code>Case facts</code>, trimming des tool results, lost-in-the-middle, données structurées en amont</td>
+<td>Q19, Q20, Q99, Q107</td>
+</tr>
+<tr>
+<td><strong>5.2</strong></td>
+<td>Escalation : déclencheurs fiables et non fiables, correspondances multiples</td>
+<td>Q3, Q21, Q22, Q23, Q24, Q110</td>
+</tr>
+<tr>
+<td><strong>5.3</strong></td>
+<td>Propagation d'erreurs, échec d'accès contre résultat vide, coverage annotations</td>
+<td>Q8, Q54, Q55</td>
+</tr>
+<tr>
+<td><strong>5.4</strong></td>
+<td>Grandes codebases : scratchpad, <code>/compact</code>, manifeste de reprise</td>
+<td>Q105, Q106</td>
+</tr>
+<tr>
+<td><strong>5.5</strong></td>
+<td>Revue humaine, échantillonnage stratifié, confiance par champ calibrée</td>
+<td>Q100, Q109</td>
+</tr>
+<tr>
+<td><strong>5.6</strong></td>
+<td>Provenance, conflits de sources, dates, rendu par type de contenu</td>
+<td>Q56, Q57, Q58, Q108</td>
+</tr>
+</tbody>
 </table>
 
 <nav class="doc-nav">
-  <a class="prev" href="D5_Context_Fiabilite_15pct.html"><span class="label">Précédent</span><span class="title">D5 — Gestion du contexte et fiabilité</span></a>
+  <a class="prev" href="D5_Context_Fiabilite_15pct.html"><span class="label">Précédent</span><span class="title">D5 — Context et reliability</span></a>
   <a class="next" href="Scenarios_Exam.html"><span class="label">Suivant</span><span class="title">Les 6 scénarios d'examen</span></a>
 </nav>
 
