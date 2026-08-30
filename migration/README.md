@@ -53,7 +53,14 @@ Le frontmatter d'une leçon porte `module`, `lesson`, `order`, `lang`, `title`,
 affiche déjà sur ses propres leçons.
 
 Une question sort sous la forme que l'academy rend à l'écran : un tableau
-d'options, chacune avec son `comment`, une seule portant `expected: true`.
+d'options, chacune avec son `comment`, celles attendues portant
+`expected: true`.
+
+Les titres de leçon sont identiques en FR et en EN sur 25 des 36 : ce sont les
+libellés des task statements, que le guide fixe en anglais et que le corpus
+laisse invariants **à dessein**, pour qu'une question repérée le jour J renvoie
+à sa leçon sans traduction. Les onze autres — les prérequis de M0, qui ne sont
+pas des task statements — sont traduits.
 
 ## Cinq points à trancher avec l'intégrateur
 
@@ -72,19 +79,25 @@ devinées faute d'accès au schéma réel.
    S'il n'y a pas de champ pour lui, concaténer `stem` + `question` — ne jamais
    le supprimer.
 
-3. **Le HTML inline.** Les énoncés portent des `<code>` autour des identifiants
-   (`get_customer`, `.mcp.json`). Si l'academy attend du Markdown, un
-   `<code>x</code>` → `` `x` `` suffit et se scripte en une ligne.
+3. **Le HTML inline, dans les questions seulement.** Les leçons sont du
+   Markdown pur (zéro balise). Les énoncés de questions, eux, portent 458
+   `<code>` autour des identifiants, 27 `<em>`, et quatre paires `<request>` /
+   `<rationale>` dans des exemples few-shot. Si l'academy attend du Markdown,
+   `<code>x</code>` → `` `x` `` et `<em>x</em>` → `*x*` se scriptent en deux
+   lignes ; les deux balises inventées se rendent telles quelles ou en bloc de
+   code.
 
 4. **Les encadrés.** Les cours utilisent trois conteneurs — `exam-tip`,
    `key-concept`, `anti-pattern` — qui portent une intention pédagogique, pas
    une décoration. L'academy a au moins un encadré (le disclaimer). Il faut lui
    en donner trois, ou les rendre en citation avec un intitulé en gras.
 
-5. **Les réponses multiples.** Quatre questions attendent deux réponses
-   (`multipleAnswers: true`). Le CCDF n'en montre pas. Si le moteur ne les gère
-   pas, ces quatre sortent de la banque plutôt que d'être transformées en
-   questions à réponse unique, ce qui les rendrait fausses.
+5. **Les réponses multiples.** Dix questions attendent deux réponses
+   (`multipleAnswers: true`) : quatre dans la banque, six dans les
+   auto-évaluations de module. Le CCDF n'en montre aucune. Si le moteur ne les
+   gère pas, ces dix sortent de la banque plutôt que d'être transformées en
+   questions à réponse unique, ce qui les rendrait fausses — l'examen réel en
+   pose, et chaque item y annonce combien de réponses cocher.
 
 ## Ce qui ne migre pas, et n'a pas à migrer
 

@@ -19,7 +19,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
-const OUT = path.join(ROOT, 'migration');
+/* --out permet à tools/check-academy-export.mjs de rendre dans une copie
+ * isolée et de la comparer à ce qui est committé, sans jamais toucher au
+ * dossier qu'il surveille — même discipline que check-courses.mjs. */
+const outArg = process.argv.indexOf('--out');
+const OUT = outArg !== -1 ? path.resolve(process.argv[outArg + 1]) : path.join(ROOT, 'migration');
+const quiet = process.argv.includes('--quiet');
 
 /* Le blueprint CCAR-F : cinq domaines et leurs poids, tels que le guide les
  * fixe. C'est ce que l'academy appelle la pondération du blueprint, et ce qui
@@ -176,8 +181,8 @@ fs.writeFileSync(path.join(OUT, 'questions.json'), JSON.stringify(bank, null, 2)
 const byDomain = {};
 for (const q of bank) byDomain[q.domain] = (byDomain[q.domain] || 0) + 1;
 
-console.log(`migration/blueprint.json  — ${BLUEPRINT.length} domaines`);
-console.log(`migration/modules.json    — ${manifest.length} modules, ${manifest.reduce((s, m) => s + m.lessonCount, 0)} leçons`);
-console.log(`migration/lessons/        — ${manifest.reduce((s, m) => s + m.lessonCount, 0) * 2} fichiers (fr + en)`);
-console.log(`migration/questions.json  — ${bank.length} questions :`);
-for (const [d, n] of Object.entries(byDomain).sort()) console.log(`    ${d} : ${n}`);
+if (!quiet) console.log(`migration/blueprint.json  — ${BLUEPRINT.length} domaines`);
+if (!quiet) console.log(`migration/modules.json    — ${manifest.length} modules, ${manifest.reduce((s, m) => s + m.lessonCount, 0)} leçons`);
+if (!quiet) console.log(`migration/lessons/        — ${manifest.reduce((s, m) => s + m.lessonCount, 0) * 2} fichiers (fr + en)`);
+if (!quiet) console.log(`migration/questions.json  — ${bank.length} questions :`);
+if (!quiet) for (const [d, n] of Object.entries(byDomain).sort()) console.log(`    ${d} : ${n}`);

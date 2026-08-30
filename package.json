@@ -7,13 +7,14 @@
     "node": ">=20.11"
   },
   "scripts": {
-    "check": "npm run check:questions && npm run check:nav && npm run check:links && npm run check:quizzes && npm run check:runtime && npm run check:courses",
+    "check": "npm run check:questions && npm run check:nav && npm run check:links && npm run check:quizzes && npm run check:runtime && npm run check:courses && npm run check:academy",
     "check:questions": "node tools/check-questions.mjs",
     "check:nav": "node tools/check-nav.mjs",
     "check:links": "node tools/check-links.mjs",
     "check:quizzes": "node tools/check-quizzes.mjs",
     "check:runtime": "node tools/check-runtime.mjs",
     "check:courses": "node tools/check-courses.mjs",
+    "check:academy": "node tools/check-academy-export.mjs",
     "fix:nav": "node tools/check-nav.mjs --fix",
     "build:courses": "po4a --force courses/po4a.conf",
     "render:courses": "node tools/render-courses.mjs",

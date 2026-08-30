@@ -1,0 +1,52 @@
+{
+  "certification": {
+    "code": "CCAR-F",
+    "title": "Claude Certified Architect — Foundations",
+    "guideVersion": "1.0 (juillet 2026)"
+  },
+  "exam": {
+    "items": 60,
+    "minutes": 120,
+    "passingScore": 720,
+    "scale": [
+      100,
+      1000
+    ],
+    "scenarios": {
+      "total": 6,
+      "drawn": 4
+    }
+  },
+  "domains": [
+    {
+      "code": "D1",
+      "title": "Agentic Architecture & Orchestration",
+      "weight": 27,
+      "taskStatements": 7
+    },
+    {
+      "code": "D2",
+      "title": "Tool Design & MCP Integration",
+      "weight": 18,
+      "taskStatements": 5
+    },
+    {
+      "code": "D3",
+      "title": "Claude Code Configuration & Workflows",
+      "weight": 20,
+      "taskStatements": 6
+    },
+    {
+      "code": "D4",
+      "title": "Prompt Engineering & Structured Output",
+      "weight": 20,
+      "taskStatements": 6
+    },
+    {
+      "code": "D5",
+      "title": "Context Management & Reliability",
+      "weight": 15,
+      "taskStatements": 6
+    }
+  ]
+}

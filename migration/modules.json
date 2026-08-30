@@ -1,0 +1,578 @@
+[
+  {
+    "id": "M0",
+    "domain": null,
+    "weight": 0,
+    "prerequisite": true,
+    "title": "API Foundations",
+    "subtitle": "Les prérequis que le guide suppose acquis",
+    "lessonCount": 6,
+    "estimatedMinutes": 14,
+    "lessons": [
+      {
+        "id": "S01",
+        "order": 1,
+        "taskStatement": null,
+        "estimatedMinutes": 2,
+        "title": {
+          "en": "Anatomy of a Messages API request",
+          "fr": "Anatomie d'une requête Messages API"
+        },
+        "path": {
+          "en": "lessons/M0/en/S01.md",
+          "fr": "lessons/M0/fr/S01.md"
+        }
+      },
+      {
+        "id": "S02",
+        "order": 2,
+        "taskStatement": null,
+        "estimatedMinutes": 2,
+        "title": {
+          "en": "Roles, turns, and a stateless API",
+          "fr": "Rôles, tours de parole et API sans état"
+        },
+        "path": {
+          "en": "lessons/M0/en/S02.md",
+          "fr": "lessons/M0/fr/S02.md"
+        }
+      },
+      {
+        "id": "S03",
+        "order": 3,
+        "taskStatement": null,
+        "estimatedMinutes": 3,
+        "title": {
+          "en": "Content blocks",
+          "fr": "Les blocs de contenu"
+        },
+        "path": {
+          "en": "lessons/M0/en/S03.md",
+          "fr": "lessons/M0/fr/S03.md"
+        }
+      },
+      {
+        "id": "S04",
+        "order": 4,
+        "taskStatement": null,
+        "estimatedMinutes": 3,
+        "title": {
+          "en": "`stop_reason`",
+          "fr": "Le champ `stop_reason`"
+        },
+        "path": {
+          "en": "lessons/M0/en/S04.md",
+          "fr": "lessons/M0/fr/S04.md"
+        }
+      },
+      {
+        "id": "S05",
+        "order": 5,
+        "taskStatement": null,
+        "estimatedMinutes": 2,
+        "title": {
+          "en": "System prompts",
+          "fr": "Les system prompts"
+        },
+        "path": {
+          "en": "lessons/M0/en/S05.md",
+          "fr": "lessons/M0/fr/S05.md"
+        }
+      },
+      {
+        "id": "S06",
+        "order": 6,
+        "taskStatement": null,
+        "estimatedMinutes": 2,
+        "title": {
+          "en": "The context window",
+          "fr": "La fenêtre de contexte"
+        },
+        "path": {
+          "en": "lessons/M0/en/S06.md",
+          "fr": "lessons/M0/fr/S06.md"
+        }
+      }
+    ]
+  },
+  {
+    "id": "M1",
+    "domain": "D1",
+    "weight": 27,
+    "prerequisite": false,
+    "title": "Agentic Architecture & Orchestration",
+    "subtitle": "Le domaine le plus lourd de l’examen",
+    "lessonCount": 7,
+    "estimatedMinutes": 32,
+    "lessons": [
+      {
+        "id": "S01",
+        "order": 1,
+        "taskStatement": "1.1",
+        "estimatedMinutes": 5,
+        "title": {
+          "en": "1.1 — Design and implement agentic loops for autonomous task execution",
+          "fr": "1.1 — Design and implement agentic loops for autonomous task execution"
+        },
+        "path": {
+          "en": "lessons/M1/en/S01.md",
+          "fr": "lessons/M1/fr/S01.md"
+        }
+      },
+      {
+        "id": "S02",
+        "order": 2,
+        "taskStatement": "1.2",
+        "estimatedMinutes": 5,
+        "title": {
+          "en": "1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns",
+          "fr": "1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns"
+        },
+        "path": {
+          "en": "lessons/M1/en/S02.md",
+          "fr": "lessons/M1/fr/S02.md"
+        }
+      },
+      {
+        "id": "S03",
+        "order": 3,
+        "taskStatement": "1.3",
+        "estimatedMinutes": 7,
+        "title": {
+          "en": "1.3 — Configure subagent invocation, context passing, and spawning",
+          "fr": "1.3 — Configure subagent invocation, context passing, and spawning"
+        },
+        "path": {
+          "en": "lessons/M1/en/S03.md",
+          "fr": "lessons/M1/fr/S03.md"
+        }
+      },
+      {
+        "id": "S04",
+        "order": 4,
+        "taskStatement": "1.4",
+        "estimatedMinutes": 4,
+        "title": {
+          "en": "1.4 — Implement multi-step workflows with enforcement and handoff patterns",
+          "fr": "1.4 — Implement multi-step workflows with enforcement and handoff patterns"
+        },
+        "path": {
+          "en": "lessons/M1/en/S04.md",
+          "fr": "lessons/M1/fr/S04.md"
+        }
+      },
+      {
+        "id": "S05",
+        "order": 5,
+        "taskStatement": "1.5",
+        "estimatedMinutes": 4,
+        "title": {
+          "en": "1.5 — Apply Agent SDK hooks for tool call interception and data normalization",
+          "fr": "1.5 — Apply Agent SDK hooks for tool call interception and data normalization"
+        },
+        "path": {
+          "en": "lessons/M1/en/S05.md",
+          "fr": "lessons/M1/fr/S05.md"
+        }
+      },
+      {
+        "id": "S06",
+        "order": 6,
+        "taskStatement": "1.6",
+        "estimatedMinutes": 3,
+        "title": {
+          "en": "1.6 — Design task decomposition strategies for complex workflows",
+          "fr": "1.6 — Design task decomposition strategies for complex workflows"
+        },
+        "path": {
+          "en": "lessons/M1/en/S06.md",
+          "fr": "lessons/M1/fr/S06.md"
+        }
+      },
+      {
+        "id": "S07",
+        "order": 7,
+        "taskStatement": "1.7",
+        "estimatedMinutes": 4,
+        "title": {
+          "en": "1.7 — Manage session state, resumption, and forking",
+          "fr": "1.7 — Manage session state, resumption, and forking"
+        },
+        "path": {
+          "en": "lessons/M1/en/S07.md",
+          "fr": "lessons/M1/fr/S07.md"
+        }
+      }
+    ]
+  },
+  {
+    "id": "M2",
+    "domain": "D2",
+    "weight": 18,
+    "prerequisite": false,
+    "title": "Tool Design & MCP Integration",
+    "subtitle": "Ce que le modèle lit pour choisir un outil",
+    "lessonCount": 5,
+    "estimatedMinutes": 42,
+    "lessons": [
+      {
+        "id": "S01",
+        "order": 1,
+        "taskStatement": "2.1",
+        "estimatedMinutes": 9,
+        "title": {
+          "en": "2.1 — Design effective tool interfaces with clear descriptions and boundaries",
+          "fr": "2.1 — Concevoir des interfaces d'outils claires, avec des descriptions et des frontières nettes"
+        },
+        "path": {
+          "en": "lessons/M2/en/S01.md",
+          "fr": "lessons/M2/fr/S01.md"
+        }
+      },
+      {
+        "id": "S02",
+        "order": 2,
+        "taskStatement": "2.2",
+        "estimatedMinutes": 10,
+        "title": {
+          "en": "2.2 — Implement structured error responses for MCP tools",
+          "fr": "2.2 — Implémenter des réponses d'erreur structurées pour les outils MCP"
+        },
+        "path": {
+          "en": "lessons/M2/en/S02.md",
+          "fr": "lessons/M2/fr/S02.md"
+        }
+      },
+      {
+        "id": "S03",
+        "order": 3,
+        "taskStatement": "2.3",
+        "estimatedMinutes": 8,
+        "title": {
+          "en": "2.3 — Distribute tools appropriately across agents and configure tool choice",
+          "fr": "2.3 — Distribuer les outils entre les agents et configurer le choix d'outil"
+        },
+        "path": {
+          "en": "lessons/M2/en/S03.md",
+          "fr": "lessons/M2/fr/S03.md"
+        }
+      },
+      {
+        "id": "S04",
+        "order": 4,
+        "taskStatement": "2.4",
+        "estimatedMinutes": 10,
+        "title": {
+          "en": "2.4 — Integrate MCP servers into Claude Code and agent workflows",
+          "fr": "2.4 — Intégrer des serveurs MCP dans Claude Code et dans les workflows d'agents"
+        },
+        "path": {
+          "en": "lessons/M2/en/S04.md",
+          "fr": "lessons/M2/fr/S04.md"
+        }
+      },
+      {
+        "id": "S05",
+        "order": 5,
+        "taskStatement": "2.5",
+        "estimatedMinutes": 5,
+        "title": {
+          "en": "2.5 — Select and apply built-in tools (Read, Write, Edit, Bash, Grep, Glob) effectively",
+          "fr": "2.5 — Sélectionner et employer efficacement les outils intégrés (Read, Write, Edit, Bash, Grep, Glob)"
+        },
+        "path": {
+          "en": "lessons/M2/en/S05.md",
+          "fr": "lessons/M2/fr/S05.md"
+        }
+      }
+    ]
+  },
+  {
+    "id": "M3",
+    "domain": "D3",
+    "weight": 20,
+    "prerequisite": false,
+    "title": "Claude Code Configuration & Workflows",
+    "subtitle": "Les fichiers qui pilotent l’outil",
+    "lessonCount": 6,
+    "estimatedMinutes": 34,
+    "lessons": [
+      {
+        "id": "S01",
+        "order": 1,
+        "taskStatement": "3.1",
+        "estimatedMinutes": 6,
+        "title": {
+          "en": "3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization",
+          "fr": "3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization"
+        },
+        "path": {
+          "en": "lessons/M3/en/S01.md",
+          "fr": "lessons/M3/fr/S01.md"
+        }
+      },
+      {
+        "id": "S02",
+        "order": 2,
+        "taskStatement": "3.2",
+        "estimatedMinutes": 9,
+        "title": {
+          "en": "3.2 — Create and configure custom slash commands and skills",
+          "fr": "3.2 — Create and configure custom slash commands and skills"
+        },
+        "path": {
+          "en": "lessons/M3/en/S02.md",
+          "fr": "lessons/M3/fr/S02.md"
+        }
+      },
+      {
+        "id": "S03",
+        "order": 3,
+        "taskStatement": "3.3",
+        "estimatedMinutes": 4,
+        "title": {
+          "en": "3.3 — Apply path-specific rules for conditional convention loading",
+          "fr": "3.3 — Apply path-specific rules for conditional convention loading"
+        },
+        "path": {
+          "en": "lessons/M3/en/S03.md",
+          "fr": "lessons/M3/fr/S03.md"
+        }
+      },
+      {
+        "id": "S04",
+        "order": 4,
+        "taskStatement": "3.4",
+        "estimatedMinutes": 4,
+        "title": {
+          "en": "3.4 — Determine when to use plan mode vs direct execution",
+          "fr": "3.4 — Determine when to use plan mode vs direct execution"
+        },
+        "path": {
+          "en": "lessons/M3/en/S04.md",
+          "fr": "lessons/M3/fr/S04.md"
+        }
+      },
+      {
+        "id": "S05",
+        "order": 5,
+        "taskStatement": "3.5",
+        "estimatedMinutes": 5,
+        "title": {
+          "en": "3.5 — Apply iterative refinement techniques for progressive improvement",
+          "fr": "3.5 — Apply iterative refinement techniques for progressive improvement"
+        },
+        "path": {
+          "en": "lessons/M3/en/S05.md",
+          "fr": "lessons/M3/fr/S05.md"
+        }
+      },
+      {
+        "id": "S06",
+        "order": 6,
+        "taskStatement": "3.6",
+        "estimatedMinutes": 6,
+        "title": {
+          "en": "3.6 — Integrate Claude Code into CI/CD pipelines",
+          "fr": "3.6 — Integrate Claude Code into CI/CD pipelines"
+        },
+        "path": {
+          "en": "lessons/M3/en/S06.md",
+          "fr": "lessons/M3/fr/S06.md"
+        }
+      }
+    ]
+  },
+  {
+    "id": "M4",
+    "domain": "D4",
+    "weight": 20,
+    "prerequisite": false,
+    "title": "Prompt Engineering & Structured Output",
+    "subtitle": "Du critère explicite au schéma contraint",
+    "lessonCount": 6,
+    "estimatedMinutes": 35,
+    "lessons": [
+      {
+        "id": "S01",
+        "order": 1,
+        "taskStatement": "4.1",
+        "estimatedMinutes": 5,
+        "title": {
+          "en": "4.1 — Design prompts with explicit criteria to improve precision and reduce false positives",
+          "fr": "4.1 — Design prompts with explicit criteria to improve precision and reduce false positives"
+        },
+        "path": {
+          "en": "lessons/M4/en/S01.md",
+          "fr": "lessons/M4/fr/S01.md"
+        }
+      },
+      {
+        "id": "S02",
+        "order": 2,
+        "taskStatement": "4.2",
+        "estimatedMinutes": 5,
+        "title": {
+          "en": "4.2 — Apply few-shot prompting to improve output consistency and quality",
+          "fr": "4.2 — Apply few-shot prompting to improve output consistency and quality"
+        },
+        "path": {
+          "en": "lessons/M4/en/S02.md",
+          "fr": "lessons/M4/fr/S02.md"
+        }
+      },
+      {
+        "id": "S03",
+        "order": 3,
+        "taskStatement": "4.3",
+        "estimatedMinutes": 8,
+        "title": {
+          "en": "4.3 — Enforce structured output using tool use and JSON schemas",
+          "fr": "4.3 — Enforce structured output using tool use and JSON schemas"
+        },
+        "path": {
+          "en": "lessons/M4/en/S03.md",
+          "fr": "lessons/M4/fr/S03.md"
+        }
+      },
+      {
+        "id": "S04",
+        "order": 4,
+        "taskStatement": "4.4",
+        "estimatedMinutes": 6,
+        "title": {
+          "en": "4.4 — Implement validation, retry, and feedback loops for extraction quality",
+          "fr": "4.4 — Implement validation, retry, and feedback loops for extraction quality"
+        },
+        "path": {
+          "en": "lessons/M4/en/S04.md",
+          "fr": "lessons/M4/fr/S04.md"
+        }
+      },
+      {
+        "id": "S05",
+        "order": 5,
+        "taskStatement": "4.5",
+        "estimatedMinutes": 6,
+        "title": {
+          "en": "4.5 — Design efficient batch processing strategies",
+          "fr": "4.5 — Design efficient batch processing strategies"
+        },
+        "path": {
+          "en": "lessons/M4/en/S05.md",
+          "fr": "lessons/M4/fr/S05.md"
+        }
+      },
+      {
+        "id": "S06",
+        "order": 6,
+        "taskStatement": "4.6",
+        "estimatedMinutes": 5,
+        "title": {
+          "en": "4.6 — Design multi-instance and multi-pass review architectures",
+          "fr": "4.6 — Design multi-instance and multi-pass review architectures"
+        },
+        "path": {
+          "en": "lessons/M4/en/S06.md",
+          "fr": "lessons/M4/fr/S06.md"
+        }
+      }
+    ]
+  },
+  {
+    "id": "M5",
+    "domain": "D5",
+    "weight": 15,
+    "prerequisite": false,
+    "title": "Context Management & Reliability",
+    "subtitle": "Ce qui survit à une longue session",
+    "lessonCount": 6,
+    "estimatedMinutes": 48,
+    "lessons": [
+      {
+        "id": "S01",
+        "order": 1,
+        "taskStatement": "5.1",
+        "estimatedMinutes": 10,
+        "title": {
+          "en": "5.1 — Manage conversation context to preserve critical information across long interactions",
+          "fr": "5.1 — Manage conversation context to preserve critical information across long interactions"
+        },
+        "path": {
+          "en": "lessons/M5/en/S01.md",
+          "fr": "lessons/M5/fr/S01.md"
+        }
+      },
+      {
+        "id": "S02",
+        "order": 2,
+        "taskStatement": "5.2",
+        "estimatedMinutes": 8,
+        "title": {
+          "en": "5.2 — Design effective escalation and ambiguity resolution patterns",
+          "fr": "5.2 — Design effective escalation and ambiguity resolution patterns"
+        },
+        "path": {
+          "en": "lessons/M5/en/S02.md",
+          "fr": "lessons/M5/fr/S02.md"
+        }
+      },
+      {
+        "id": "S03",
+        "order": 3,
+        "taskStatement": "5.3",
+        "estimatedMinutes": 8,
+        "title": {
+          "en": "5.3 — Implement error propagation strategies across multi-agent systems",
+          "fr": "5.3 — Implement error propagation strategies across multi-agent systems"
+        },
+        "path": {
+          "en": "lessons/M5/en/S03.md",
+          "fr": "lessons/M5/fr/S03.md"
+        }
+      },
+      {
+        "id": "S04",
+        "order": 4,
+        "taskStatement": "5.4",
+        "estimatedMinutes": 8,
+        "title": {
+          "en": "5.4 — Manage context effectively in large codebase exploration",
+          "fr": "5.4 — Manage context effectively in large codebase exploration"
+        },
+        "path": {
+          "en": "lessons/M5/en/S04.md",
+          "fr": "lessons/M5/fr/S04.md"
+        }
+      },
+      {
+        "id": "S05",
+        "order": 5,
+        "taskStatement": "5.5",
+        "estimatedMinutes": 7,
+        "title": {
+          "en": "5.5 — Design human review workflows and confidence calibration",
+          "fr": "5.5 — Design human review workflows and confidence calibration"
+        },
+        "path": {
+          "en": "lessons/M5/en/S05.md",
+          "fr": "lessons/M5/fr/S05.md"
+        }
+      },
+      {
+        "id": "S06",
+        "order": 6,
+        "taskStatement": "5.6",
+        "estimatedMinutes": 7,
+        "title": {
+          "en": "5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis",
+          "fr": "5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis"
+        },
+        "path": {
+          "en": "lessons/M5/en/S06.md",
+          "fr": "lessons/M5/fr/S06.md"
+        }
+      }
+    ]
+  }
+]

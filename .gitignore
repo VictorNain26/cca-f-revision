@@ -34,7 +34,6 @@ docs/
 # Outillage des contrôles qualité (le site publié reste statique)
 node_modules/
 
-# Export vers l'academy : produit dérivé de courses/, régénéré par
-# npm run export:academy. Seuls le README et l'exporteur sont suivis.
-migration/lessons/
-migration/*.json
+# migration/ est un produit dérivé de courses/, mais il est suivi par git : le
+# dossier doit se transmettre tel quel à un intégrateur, sans Node ni script à
+# lancer. C'est check:academy qui garantit qu'il n'a pas vieilli.
