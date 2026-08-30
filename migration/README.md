@@ -1,6 +1,6 @@
 # Migration du corpus CCA-F vers l'Academy Growth Wave
 
-**Ce dossier se suffit à lui-même** : les quatre fichiers et les 72 leçons qu'il
+**Ce dossier se suffit à lui-même** : les cinq fichiers et les 72 leçons qu'il
 contient ne dépendent d'aucun autre. Il peut être transmis seul, par archive ou
 par partage de dossier.
 
@@ -58,6 +58,7 @@ parcours CCDF, pas à un module noté — d'où `weight: 0` et `prerequisite: tr
 
 | Fichier | Contenu |
 |---|---|
+| `manifest.json` | Le point d'entrée : ordre de lecture, forme des objets, règles à ne pas enfreindre, invariants à revérifier après import |
 | `blueprint.json` | La certification, le format d'examen, les 5 domaines et leurs poids |
 | `modules.json` | 6 modules, 36 leçons, durées estimées, titres FR et EN, chemins |
 | `lessons/<M>/<lang>/<S>.md` | 72 fichiers : le Markdown de chaque leçon, frontmatter compris |
