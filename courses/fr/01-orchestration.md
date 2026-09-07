@@ -298,6 +298,15 @@ document, numéro de page et date de collecte vivent dans leurs propres champs,
 pas fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport
 final, et le guide le nomme parmi les skills de ce task statement.
 
+::: key-concept
+**Rien n'est hérité : la chaîne du prompt est tout le canal.** Un subagent qui
+renvoie une réponse maigre ou à côté a été mal briefé, pas sous-doté. Cela trie
+les options d'un seul geste : agrandir sa fenêtre de contexte, lui passer le
+transcript du parent, ou le laisser lire le travail d'un autre subagent traitent
+tous l'isolation comme un défaut à contourner, alors qu'elle est le mécanisme
+lui-même. Tout ce dont le subagent a besoin entre dans le prompt de lancement.
+:::
+
 ### Parallélisme : une réponse, plusieurs appels
 
 Le parallélisme vient d'**une réponse, plusieurs appels**. Un coordinateur qui
@@ -430,6 +439,17 @@ un identifiant vérifié. Pas « a peu de chances de » — ne peut pas. La cha�
 raison compte autant que le blocage : le modèle la lit, donc il réessaie la bonne
 chose au lieu de réessayer à l'aveugle. **L'API des hooks elle-même — événements,
 matchers, champs de décision — est en TS 1.5, ci-dessous.**
+
+::: key-concept
+**La conformité déterministe est une propriété du code, pas de la formulation.**
+Les mauvaises réponses sont ici de vraies améliorations : une consigne plus
+ferme, des exemples few-shot montrant le bon ordre, un audit qui rattrape les
+violations après coup. Les deux premières abaissent le taux d'échec et laissent
+un reste ; la troisième signale la brèche après l'action qu'elle devait
+empêcher. Quand le scénario nomme une conséquence financière, légale ou de
+sécurité, seul un mécanisme qui rend la violation impossible satisfait
+l'exigence.
+:::
 
 ### La demande à plusieurs objets
 
@@ -738,6 +758,15 @@ Une session reprise transporte des réponses enregistrées qui décrivent un sys
 qui n'existe plus, et l'agent raisonne dessus comme si elles étaient à jour. Un
 résumé écrit emporte les conclusions qui ont survécu et laisse derrière les
 payloads morts.
+
+::: key-concept
+**Une session est un relevé de ce qui a été lu, pas l'état de ce qui est sur le
+disque.** Chacun des trois choix se joue sur ce qui reste vrai de ce relevé. La
+reprise garde le relevé entier, et ne marche que tant qu'il l'est. Un fork copie
+le relevé, lectures périmées comprises, et c'est pourquoi il compare deux
+approches et jamais deux versions d'un fichier. Une session neuve garde les
+conclusions que vous avez écrites et laisse derrière elle les lectures expirées.
+:::
 
 ::: anti-pattern
 Trois gestes que les distracteurs proposent à la place des trois réponses

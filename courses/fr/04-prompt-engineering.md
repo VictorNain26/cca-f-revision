@@ -710,6 +710,17 @@ instruction d'auto-relecture ou que l'extended thinking.** Demander au modèle
 d'être critique envers lui-même, ou lui donner plus de place pour délibérer,
 opèrent tous deux à l'intérieur de la trace qui a produit le biais.
 
+::: key-concept
+**Une autre instance, pas une meilleure consigne.** Les correctifs que le guide
+écarte restent tous à l'intérieur du transcript qui a produit le code : demander
+à la même session de relire son travail de façon critique, ou lui donner de
+l'extended thinking pour délibérer davantage. Les deux ajoutent de l'effort à un
+lecteur qui détient déjà le raisonnement qu'il faudrait mettre en question. Le
+remède est architectural : lisez donc chaque option pour savoir *quelle instance
+reçoit l'artefact*, pas pour savoir avec quelle insistance on lui demande de
+regarder.
+:::
+
 « Indépendante » a un sens opérationnel : une session distincte, ou un subagent,
 qui reçoit l'artefact et les critères et **pas** la conversation qui les a
 produits. Dans Claude Code, c'est un subagent relecteur, qui tourne dans sa

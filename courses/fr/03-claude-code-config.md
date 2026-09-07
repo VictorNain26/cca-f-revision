@@ -484,6 +484,16 @@ Il n'est pas lié au plan mode. Vous pouvez demander une exploration via le suba
 hors plan mode quand tout ce que vous voulez est un résumé du fonctionnement de
 quelque chose.
 
+::: key-concept
+**Le plan mode arbitre, le subagent Explore achète du contexte.** Ils répondent
+à deux pénuries différentes et aucune n'implique l'autre. Prenez le plan mode
+quand quelque chose doit être décidé avant toute modification de fichier ;
+prenez Explore quand une phase de découverte remplit la fenêtre de lectures dont
+vous n'aurez plus jamais besoin. Un scénario à court de contexte en pleine
+exploration ne vous demande pas de planifier, et un scénario à deux
+architectures viables ne vous demande pas de déléguer.
+:::
+
 ### La combinaison sur laquelle le guide interroge
 
 Le plan mode et l'exécution directe ne sont pas une allégeance définitive. La
@@ -613,6 +623,17 @@ La défaillance : plusieurs problèmes à la fois, et les correctifs se combatte
 Une gestion d'erreurs manquante *et* une validation d'entrée fausse font un seul
 message : une réponse unifiée doit les placer ensemble. Renommer une variable et
 changer un type de retour font deux conversations.
+
+::: key-concept
+**Quatre techniques, quatre défaillances différentes.** Une sortie qui varie
+d'une exécution à l'autre est une transformation sous-spécifiée, et la réponse
+est des paires travaillées. Du code que personne ne peut juger est une garde
+manquante, et la réponse est des tests écrits d'abord. Une conception que vous
+ne savez pas énoncer est une spécification incomplète, et la réponse est de
+laisser Claude vous interroger. Des correctifs qui se défont l'un l'autre sont
+une question de feedback, et elle se joue sur l'interdépendance, jamais sur le
+nombre de problèmes.
+:::
 
 ::: anti-pattern
 **Regrouper des problèmes indépendants pour économiser des allers-retours.**

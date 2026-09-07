@@ -671,6 +671,16 @@ context, catches subtle issues better than a self-review instruction or extended
 thinking.** Telling the model to be critical of itself, or giving it more room to
 deliberate, both operate inside the transcript that produced the bias.
 
+::: key-concept
+**A different instance, not a better instruction.** The fixes the guide rules
+out all stay inside the transcript that produced the code: instructing the same
+session to review its work critically, or giving it extended thinking to
+deliberate further. Both add effort to a reader that already holds the reasoning
+it would have to question. The remedy is architectural, so read each option for
+*which instance receives the artifact*, not for how hard that instance is asked
+to look.
+:::
+
 "Independent" has an operational meaning: a separate session, or a subagent,
 which receives the artifact and the criteria and **not** the conversation that
 produced them. In Claude Code that is a reviewer subagent, running in its own

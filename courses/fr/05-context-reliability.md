@@ -321,6 +321,18 @@ La confiance auto-déclarée revient en 5.5 comme une partie de la *bonne* répo
 sous une autre forme et pour un autre usage. La distinction y est posée, et il
 vaut la peine de lire les deux sections l'une contre l'autre une fois.
 
+::: key-concept
+**Des faits vérifiables déclenchent l'escalade ; des estimations de difficulté,
+non.** Les quatre déclencheurs acceptés sont tous observables : ce que dit le
+message du client, si la politique couvre la demande, ce qu'a retourné la
+consultation, combien de tentatives ont échoué. Les proxys rejetés, le ton et la
+confiance auto-évaluée, sont des estimations de la difficulté du cas, et la
+difficulté n'est de toute façon pas un déclencheur : l'exemple de l'alignement
+de prix tient en un appel d'outil, et il escalade parce que la politique est
+indécise. Quand une option propose un signal, demandez-vous si vous pourriez le
+vérifier sans interroger le modèle.
+:::
+
 ### Les trois comportements, et celui qui est testé
 
 Le guide sépare l'escalade immédiate de la proposition de résoudre, et la
@@ -997,6 +1009,17 @@ Deux points de conception font que cela survit au pipeline :
   source, nom du document, numéro de page, date de publication — doit y être exigé,
   sans quoi il n'arrivera pas.
 
+
+::: key-concept
+**La provenance se préserve, elle ne se restaure jamais.** L'URL, la date et la
+méthodologie n'existent que dans l'étape qui a lu la source, si bien que tout
+remède agissant après la compression demande à un agent de reconstruire ce qu'il
+n'a jamais reçu : une passe finale qui « ajoute les citations », un agent de
+synthèse chargé d'attacher les sources lui-même. C'est pourquoi l'exigence
+retombe sur le prompt du subagent et sur l'obligation de l'agent de synthèse de
+faire passer la correspondance. Dans un scénario, trouvez l'étape où
+l'attribution existait encore ; les mauvaises réponses agissent toutes en aval.
+:::
 
 ### Valeurs contradictoires : annoter, ne pas choisir
 

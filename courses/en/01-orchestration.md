@@ -282,6 +282,16 @@ and retrieval date live in their own fields, not woven into prose. That is what
 preserves attribution all the way to the final report, and the guide names it as
 a skill of this task statement.
 
+::: key-concept
+**Nothing is inherited: the prompt string is the whole channel.** A subagent
+that returns a thin or off-target answer was under-briefed, not
+under-resourced. That sorts the options in one move: enlarging its context
+window, handing it the parent's transcript, or letting it read another
+subagent's work all treat isolation as a defect to be worked around, when it is
+the mechanism itself. Whatever the subagent needs goes into the spawning
+prompt.
+:::
+
 ### Parallelism: one reply, several calls
 
 Parallelism comes from **one response, several calls**. A coordinator that
@@ -402,6 +412,16 @@ async def require_verified_customer(input_data, tool_use_id, context):
 Not "is unlikely to" — cannot. The reason string matters as much as the block:
 the model reads it, so it retries the right thing instead of retrying blindly.
 **The hook API itself — events, matchers, decision fields — is TS 1.5, below.**
+
+::: key-concept
+**Deterministic compliance is a property of code, not of wording.** The wrong
+answers here are all genuine improvements: a firmer instruction, few-shot
+examples showing the right order, an audit that catches violations afterwards.
+The first two lower the failure rate and leave a remainder; the third reports
+the breach after the action it was meant to stop. When the scenario names a
+financial, legal or safety consequence, only a mechanism that makes the
+violation impossible clears the requirement.
+:::
 
 ### The multi-concern request
 
@@ -700,6 +720,15 @@ reliable than resuming with stale tool results.** A resumed session carries
 recorded responses that describe a system that no longer exists, and the agent
 reasons on them as if they were current. A written summary carries the
 conclusions that survived and leaves the dead payloads behind.
+
+::: key-concept
+**A session is a record of what was read, not the state of what is on disk.**
+Every choice among the three turns on how much of that record is still true.
+Resumption keeps the record whole, and works only while it is. A fork copies
+the record including its stale readings, which is why it compares two
+approaches and never two versions of a file. A fresh session keeps the
+conclusions you wrote down and leaves the expired readings behind.
+:::
 
 ::: anti-pattern
 Three moves the distractors put in place of the three answers above:

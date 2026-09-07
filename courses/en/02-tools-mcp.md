@@ -804,6 +804,15 @@ as "searching". Glob never opens a file: it matches paths. Grep never cares abou
 the filename: it matches contents. "Find every test file for the checkout flow"
 is Glob. "Find every caller of `applyDiscount`" is Grep.
 
+::: key-concept
+**Both are called "search"; only one of them opens a file.** Glob answers a
+question about names and paths, Grep a question about the bytes inside them.
+"Every test file for the checkout flow" is a naming pattern; "every caller of
+`applyDiscount`" is a string that lives in file contents. The two distractor
+shapes are the same confusion in either direction: `Glob` offered for a content
+search, and a content match such as `describe(` offered for a naming pattern.
+:::
+
 ### When `Edit` fails, `Read` + `Write` is the documented fallback
 
 `Edit` works by matching text that must be **unique in the file**. When the

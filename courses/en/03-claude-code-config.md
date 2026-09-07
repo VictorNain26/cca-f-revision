@@ -459,6 +459,15 @@ available for planning and then implementing.
 It is not tied to plan mode. You can ask for exploration through the subagent
 outside plan mode when all you want is a summary of how something works.
 
+::: key-concept
+**Plan mode arbitrates, the Explore subagent buys context.** They answer two
+different shortages and neither implies the other. Reach for plan mode when
+something has to be decided before any file changes; reach for Explore when a
+discovery phase is filling the window with reads you will never need again. A
+scenario running out of context mid-exploration is not asking you to plan, and
+a scenario with two viable architectures is not asking you to delegate.
+:::
+
 ### The combination the guide asks about
 
 Plan mode and direct execution are not a permanent allegiance. The common shape
@@ -585,6 +594,16 @@ The failure: several problems at once, and the fixes fight each other.
 Error handling that is missing *and* input validation that is wrong are one
 message: a unified answer has to place them together. Renaming a variable and
 changing a return type are two conversations.
+
+::: key-concept
+**Four techniques, four different failures.** Output that varies between runs
+is an under-specified transformation, and the answer is worked pairs. Code
+nobody can judge is a missing gate, and the answer is tests written first. A
+design you cannot state is an incomplete specification, and the answer is
+letting Claude interview you. Fixes that undo each other are a feedback
+question, and it turns on interdependence, never on how many problems there
+are.
+:::
 
 ::: anti-pattern
 **Batching independent problems to save round-trips.** It is more

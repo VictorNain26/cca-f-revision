@@ -213,7 +213,7 @@
     "title": "Tool Design & MCP Integration",
     "subtitle": "Ce que le modèle lit pour choisir un outil",
     "lessonCount": 5,
-    "estimatedMinutes": 42,
+    "estimatedMinutes": 43,
     "lessons": [
       {
         "id": "S01",
@@ -275,7 +275,7 @@
         "id": "S05",
         "order": 5,
         "taskStatement": "2.5",
-        "estimatedMinutes": 5,
+        "estimatedMinutes": 6,
         "title": {
           "en": "2.5 — Select and apply built-in tools (Read, Write, Edit, Bash, Grep, Glob) effectively",
           "fr": "2.5 — Sélectionner et employer efficacement les outils intégrés (Read, Write, Edit, Bash, Grep, Glob)"
@@ -295,7 +295,7 @@
     "title": "Claude Code Configuration & Workflows",
     "subtitle": "Les fichiers qui pilotent l’outil",
     "lessonCount": 6,
-    "estimatedMinutes": 34,
+    "estimatedMinutes": 36,
     "lessons": [
       {
         "id": "S01",
@@ -343,7 +343,7 @@
         "id": "S04",
         "order": 4,
         "taskStatement": "3.4",
-        "estimatedMinutes": 4,
+        "estimatedMinutes": 5,
         "title": {
           "en": "3.4 — Determine when to use plan mode vs direct execution",
           "fr": "3.4 — Determine when to use plan mode vs direct execution"
@@ -357,7 +357,7 @@
         "id": "S05",
         "order": 5,
         "taskStatement": "3.5",
-        "estimatedMinutes": 5,
+        "estimatedMinutes": 6,
         "title": {
           "en": "3.5 — Apply iterative refinement techniques for progressive improvement",
           "fr": "3.5 — Apply iterative refinement techniques for progressive improvement"
@@ -391,7 +391,7 @@
     "title": "Prompt Engineering & Structured Output",
     "subtitle": "Du critère explicite au schéma contraint",
     "lessonCount": 6,
-    "estimatedMinutes": 35,
+    "estimatedMinutes": 36,
     "lessons": [
       {
         "id": "S01",
@@ -467,7 +467,7 @@
         "id": "S06",
         "order": 6,
         "taskStatement": "4.6",
-        "estimatedMinutes": 5,
+        "estimatedMinutes": 6,
         "title": {
           "en": "4.6 — Design multi-instance and multi-pass review architectures",
           "fr": "4.6 — Design multi-instance and multi-pass review architectures"
@@ -487,7 +487,7 @@
     "title": "Context Management & Reliability",
     "subtitle": "Ce qui survit à une longue session",
     "lessonCount": 6,
-    "estimatedMinutes": 48,
+    "estimatedMinutes": 49,
     "lessons": [
       {
         "id": "S01",
@@ -563,7 +563,7 @@
         "id": "S06",
         "order": 6,
         "taskStatement": "5.6",
-        "estimatedMinutes": 7,
+        "estimatedMinutes": 8,
         "title": {
           "en": "5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis",
           "fr": "5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis"

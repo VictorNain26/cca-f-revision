@@ -416,6 +416,17 @@ pour empêcher.</p>
 <p>La confiance auto-déclarée revient en 5.5 comme une partie de la <em>bonne</em> réponse,
 sous une autre forme et pour un autre usage. La distinction y est posée, et il
 vaut la peine de lire les deux sections l'une contre l'autre une fois.</p>
+<div class="key-concept">
+<p><strong>Des faits vérifiables déclenchent l'escalade ; des estimations de difficulté,
+non.</strong> Les quatre déclencheurs acceptés sont tous observables : ce que dit le
+message du client, si la politique couvre la demande, ce qu'a retourné la
+consultation, combien de tentatives ont échoué. Les proxys rejetés, le ton et la
+confiance auto-évaluée, sont des estimations de la difficulté du cas, et la
+difficulté n'est de toute façon pas un déclencheur : l'exemple de l'alignement
+de prix tient en un appel d'outil, et il escalade parce que la politique est
+indécise. Quand une option propose un signal, demandez-vous si vous pourriez le
+vérifier sans interroger le modèle.</p>
+</div>
 <h3>Les trois comportements, et celui qui est testé</h3>
 <p>Le guide sépare l'escalade immédiate de la proposition de résoudre, et la
 séparation tient à ce que le client a réellement dit.</p>
@@ -1166,6 +1177,16 @@ l'appel qui l'a lancé, donc un format qui sépare le contenu des métadonnées 
 source, nom du document, numéro de page, date de publication — doit y être exigé,
 sans quoi il n'arrivera pas.</li>
 </ul>
+<div class="key-concept">
+<p><strong>La provenance se préserve, elle ne se restaure jamais.</strong> L'URL, la date et la
+méthodologie n'existent que dans l'étape qui a lu la source, si bien que tout
+remède agissant après la compression demande à un agent de reconstruire ce qu'il
+n'a jamais reçu : une passe finale qui « ajoute les citations », un agent de
+synthèse chargé d'attacher les sources lui-même. C'est pourquoi l'exigence
+retombe sur le prompt du subagent et sur l'obligation de l'agent de synthèse de
+faire passer la correspondance. Dans un scénario, trouvez l'étape où
+l'attribution existait encore ; les mauvaises réponses agissent toutes en aval.</p>
+</div>
 <h3>Valeurs contradictoires : annoter, ne pas choisir</h3>
 <p>Deux sources crédibles donnent des chiffres différents pour la même grandeur.
 L'instruction du guide est nette : <strong>annoter le conflit avec l'attribution des

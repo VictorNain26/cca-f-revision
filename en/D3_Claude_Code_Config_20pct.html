@@ -664,6 +664,14 @@ is paid in a context you are going to throw away, and the main window stays
 available for planning and then implementing.</p>
 <p>It is not tied to plan mode. You can ask for exploration through the subagent
 outside plan mode when all you want is a summary of how something works.</p>
+<div class="key-concept">
+<p><strong>Plan mode arbitrates, the Explore subagent buys context.</strong> They answer two
+different shortages and neither implies the other. Reach for plan mode when
+something has to be decided before any file changes; reach for Explore when a
+discovery phase is filling the window with reads you will never need again. A
+scenario running out of context mid-exploration is not asking you to plan, and
+a scenario with two viable architectures is not asking you to delegate.</p>
+</div>
 <h3>The combination the guide asks about</h3>
 <p>Plan mode and direct execution are not a permanent allegiance. The common shape
 is both, in order: plan the library migration, approve the plan, then execute it
@@ -804,6 +812,15 @@ context you have not stated.</p>
 <p>Error handling that is missing <em>and</em> input validation that is wrong are one
 message: a unified answer has to place them together. Renaming a variable and
 changing a return type are two conversations.</p>
+<div class="key-concept">
+<p><strong>Four techniques, four different failures.</strong> Output that varies between runs
+is an under-specified transformation, and the answer is worked pairs. Code
+nobody can judge is a missing gate, and the answer is tests written first. A
+design you cannot state is an incomplete specification, and the answer is
+letting Claude interview you. Fixes that undo each other are a feedback
+question, and it turns on interdependence, never on how many problems there
+are.</p>
+</div>
 <div class="anti-pattern">
 <p><strong>Batching independent problems to save round-trips.</strong> It is more
 token-efficient and it gives up the per-step validation that made sequential

@@ -305,6 +305,17 @@ Self-reported confidence returns in 5.5 as part of the *correct* answer, in a
 different form and for a different job. The distinction is set out there, and it
 is worth reading the two sections against each other once.
 
+::: key-concept
+**Checkable facts trigger escalation; estimates of difficulty do not.** The four
+accepted triggers are all observable: what the customer's message says, whether
+the policy covers the request, what the lookup returned, how many attempts have
+failed. The rejected proxies, tone and self-rated confidence, are estimates of
+how hard the case is, and difficulty is not a trigger in the first place: the
+price-match example is one tool call, and it escalates because the policy is
+undecided. When an option offers a signal, ask whether you could verify it
+without asking the model.
+:::
+
 ### The three behaviours, and the one that is tested
 
 The guide separates escalating immediately from offering to resolve, and the
@@ -936,6 +947,17 @@ Two design points make this survive the pipeline:
   that launched it, so a format that separates content from metadata — source
   URL, document name, page number, publication date — has to be demanded there
   or it will not happen.
+
+::: key-concept
+**Provenance is preserved, never restored.** The URL, the date and the
+methodology exist only in the step that read the source, so every remedy that
+acts after the compression asks an agent to reconstruct what it never received:
+a final pass that "adds citations", a synthesis agent told to attach sources
+itself. That is why the requirement lands on the subagent's prompt and on the
+synthesis agent's obligation to carry the mapping through. In a scenario, find
+the step where the attribution still existed; the wrong answers all act
+downstream of it.
+:::
 
 ### Conflicting values: annotate, do not choose
 

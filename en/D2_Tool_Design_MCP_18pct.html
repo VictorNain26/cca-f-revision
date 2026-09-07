@@ -1036,6 +1036,14 @@ pairs account for most of the questions.</p>
 as &quot;searching&quot;. Glob never opens a file: it matches paths. Grep never cares about
 the filename: it matches contents. &quot;Find every test file for the checkout flow&quot;
 is Glob. &quot;Find every caller of <code>applyDiscount</code>&quot; is Grep.</p>
+<div class="key-concept">
+<p><strong>Both are called &quot;search&quot;; only one of them opens a file.</strong> Glob answers a
+question about names and paths, Grep a question about the bytes inside them.
+&quot;Every test file for the checkout flow&quot; is a naming pattern; &quot;every caller of
+<code>applyDiscount</code>&quot; is a string that lives in file contents. The two distractor
+shapes are the same confusion in either direction: <code>Glob</code> offered for a content
+search, and a content match such as <code>describe(</code> offered for a naming pattern.</p>
+</div>
 <h3>When <code>Edit</code> fails, <code>Read</code> + <code>Write</code> is the documented fallback</h3>
 <p><code>Edit</code> works by matching text that must be <strong>unique in the file</strong>. When the
 anchor appears more than once, the edit is refused, and the refusal is
