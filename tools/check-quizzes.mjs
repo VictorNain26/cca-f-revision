@@ -3,6 +3,11 @@
  * DOM, puis on vérifie ce que le lecteur voit avant d'avoir répondu.
  * Le défaut historique que ce contrôle attrape : quiz.js déplaçait l'énoncé
  * entier dans le bloc verrouillé, ne laissant que les réponses visibles.
+ * Il garde aussi l'identité des questions : l'état du lecteur est stocké par
+ * `id` (cca-quiz-state-v2) et la file « à revoir » de l'accueil fabrique ses
+ * liens depuis cet id. Un id vide ou dupliqué rend l'entrée déjà stockée chez
+ * un lecteur inatteignable, et check-links.mjs ne peut pas le voir : il ne
+ * vérifie que les ancres écrites dans le dépôt, pas celles construites en JS.
  * Requiert jsdom (devDependency) et Node >= 20.11.
  */
 import fs from 'node:fs';
@@ -30,11 +35,16 @@ for (const page of pages) {
   if (!quizzes.length) continue;
 
   let bad = 0;
+  const seen = new Set();
   for (const quiz of quizzes) {
     const label = quiz.querySelector('summary')?.textContent.slice(0, 60) ?? '?';
     const holder = quiz.querySelector(':scope > div');
     const visible = holder ? [...holder.children].filter((el) => !el.classList.contains('answer-reveal')) : [];
     const report = (msg) => { console.log(`  ${msg} — ${page} :: ${label}`); bad++; };
+
+    if (!quiz.id) report('ID MANQUANT');
+    else if (seen.has(quiz.id)) report(`ID DUPLIQUÉ (${quiz.id})`);
+    else seen.add(quiz.id);
 
     if (!/Situation|Scenario|Question/i.test(visible.map((el) => el.textContent).join(' '))) report('ÉNONCÉ MANQUANT');
     if (!quiz.querySelector('.choices li')) report('CHOIX MANQUANTS');
