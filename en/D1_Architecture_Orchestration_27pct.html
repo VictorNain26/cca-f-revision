@@ -126,8 +126,8 @@ history, so the model's next choice of tool is made in the light of what the
 last one returned. A loop that runs the tools but never appends their results
 asks the same question forever.</p>
 <h3>Several calls in one reply</h3>
-<p>One reply can also carry <strong>several</strong> <code>tool_use</code> blocks at once — two lookups the
-model wants done together, for instance. Run them all, then send every
+<p>One reply can also carry <strong>several</strong> <code>tool_use</code> blocks at once, for instance two
+lookups the model wants done together. Run them all, then send every
 <code>tool_result</code> back in a <em>single</em> <code>user</code> message, one block per call. That is the
 same mechanism a coordinator uses to start several subagents at once, developed
 in 1.3.</p>
@@ -149,7 +149,8 @@ language is not a signal; Claude can write &quot;done&quot; while a <code>tool_u
 still pending in the same reply.</li>
 <li><strong>Using an arbitrary iteration cap</strong> (<code>max_iterations = 5</code>) as the primary
 stopping mechanism. A cap is a guardrail against a runaway agent, not a
-statement about whether the work is finished — it cuts legitimate runs short.</li>
+statement about whether the work is finished, and it cuts legitimate runs
+short.</li>
 <li><strong>Checking for text content</strong> as a completion indicator. Text and <code>tool_use</code>
 travel in the same reply; the presence of one says nothing about the other.</li>
 </ul>
@@ -195,12 +196,12 @@ above, dressed up.</p>
 
 <div class="section-header"><h2 id="s2">2. 1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns</h2></div>
 
-<p>Before the architecture, the decision. A subagent runs in its own context
-window, does its work, and returns only a summary; the intermediate reads,
-searches and tool calls are discarded with it. That trade has one question:
-<strong>does the intermediate work matter to the caller?</strong> If you only need the
-answer, delegate. If you need to see and react to each step, keep it in the
-main thread.</p>
+<p>Delegating to a subagent is a decision that comes before any architecture. A
+subagent runs in its own context window, does its work, and returns only a
+summary; the intermediate reads, searches and tool calls are discarded with it.
+That trade has one question: <strong>does the intermediate work matter to the
+caller?</strong> If you only need the answer, delegate. If you need to see and react to
+each step, keep it in the main thread.</p>
 <h3>The hub-and-spoke shape</h3>
 <p>When a task is genuinely too broad for one agent — a research brief needing web
 search, document analysis and synthesis — you get a <strong>hub-and-spoke</strong>
@@ -261,7 +262,7 @@ named remedy for incomplete coverage.</p>
 <p>Subagents start from an <strong>isolated context</strong>: they do not inherit the
 coordinator's conversation history, and they share no memory between
 invocations. Everything a spoke needs travels in the prompt the hub writes for
-it — the mechanics are TS 1.3, below.</p>
+it, and the mechanics of that passing are TS 1.3, below.</p>
 </div>
 <h3>Decomposition that is too narrow</h3>
 <p>The risk the guide names by name is <strong>overly narrow decomposition by the
@@ -269,7 +270,7 @@ coordinator</strong>. Asked for a brief on &quot;AI impact on creative industrie
 coordinator splits it into &quot;AI in digital art&quot;, &quot;AI in graphic design&quot; and &quot;AI
 in photography&quot;. Each subagent executes its brief correctly. The report covers
 visual art only; music, literature and film are simply absent. Nothing failed
-downstream — the assignment was already incomplete.</p>
+downstream, because the assignment was already incomplete.</p>
 <div class="exam-tip">
 <p>When every subagent did what it was asked and the final report still misses
 whole areas of the topic, the defect is the <strong>coordinator's decomposition</strong>,
@@ -324,7 +325,7 @@ error payloads — categories, retryability, business versus permission failures
 
 <div class="section-header"><h2 id="s3">3. 1.3 — Configure subagent invocation, context passing, and spawning</h2></div>
 
-<p>The mechanism is a tool. A coordinator spawns a subagent by calling the
+<p>The spawning mechanism is a tool: a coordinator spawns a subagent by calling the
 <strong><code>Task</code> tool</strong>, and its <code>allowedTools</code> must include <code>&quot;Task&quot;</code> for those
 invocations to be auto-approved. Leave it out and the call falls back to the
 permission flow: under the default mode, with no <code>canUseTool</code> callback to answer
@@ -362,9 +363,9 @@ this domain:</p>
 </tbody>
 </table>
 <p>The consequence is decisive: <strong>the only content that crosses from parent to
-subagent is the prompt string of the spawning call.</strong> File paths, error
-messages, prior search results, decisions already taken — if they are not in
-that string, the subagent does not have them.</p>
+subagent is the prompt string of the spawning call.</strong> If file paths, error
+messages, prior search results or decisions already taken are not in that
+string, the subagent does not have them.</p>
 <pre><code class="language-text">Bad   Task: &quot;Analyse the document.&quot;
       → which document? no prior findings, no expected output shape.
 
@@ -376,11 +377,11 @@ Good  Task: &quot;Analyse the document below and return the clause table.
                  source_url: https://…  retrieved: 2026-08-14
              OUTPUT FORMAT: one row per clause — clause_type, text, page.&quot;
 </code></pre>
-<p>Note what the good version does beyond being long. It uses a <strong>structured
-format that separates content from metadata</strong> — source URL, document name, page
-number, retrieval date live in their own fields, not woven into prose. That is
-what preserves attribution all the way to the final report, and the guide names
-it as a skill of this task statement.</p>
+<p>Note what the good version does beyond being long. It uses a <strong>structured format
+that separates content from metadata</strong>. Source URL, document name, page number
+and retrieval date live in their own fields, not woven into prose. That is what
+preserves attribution all the way to the final report, and the guide names it as
+a skill of this task statement.</p>
 <h3>Parallelism: one reply, several calls</h3>
 <p>Parallelism comes from <strong>one response, several calls</strong>. A coordinator that
 emits three <code>Task</code> calls in a single reply gets three subagents running at the
@@ -454,7 +455,7 @@ have to be rediscovered by the main thread.</li>
 subagent free to adapt; a step-by-step script does not.</li>
 </ul>
 <h3>Restricting a subagent's tools</h3>
-<p>Tool restrictions belong here too — the guide lists them among this task
+<p>Tool restrictions belong here too, since the guide lists them among this task
 statement's knowledge. A read-only research subagent gets <code>Read</code>, <code>Grep</code>,
 <code>Glob</code>; a reviewer adds <code>Bash</code> to run <code>git diff</code>; only an agent whose job is to
 change code gets <code>Edit</code> and <code>Write</code>. A tool you leave out is not in the
@@ -468,9 +469,9 @@ how to scope tools across agents, is tool distribution, developed in D2.3.</stro
 Nothing was passed to it; the size of an empty window changes nothing.</li>
 <li><strong>Spawning across successive turns</strong> and calling it parallel. Consecutive
 turns are sequential execution with extra round-trips.</li>
-<li><strong>Counting on inheritance</strong> — &quot;the subagent will see what the coordinator
-found&quot;. Isolation is the defining property of a subagent, not a limitation to
-work around.</li>
+<li><strong>Counting on inheritance</strong>, on the idea that &quot;the subagent will see what the
+coordinator found&quot;. Isolation is the defining property of a subagent, not a
+limitation to work around.</li>
 </ul>
 </div>
 <p><strong>Forking a session to give two subagents a shared analysis baseline is session
@@ -506,13 +507,13 @@ Code configuration, developed in domain 3.</strong></p>
 
 <div class="section-header"><h2 id="s4">4. 1.4 — Implement multi-step workflows with enforcement and handoff patterns</h2></div>
 
-<p>Some orderings must hold every time. Verify the customer's identity before
-processing a refund; check drug interactions before dispensing. You can write
-that in the system prompt — and a prompt instruction is a request the model
-usually honours. The guide's formulation is blunt: <strong>when deterministic
-compliance is required, prompt instructions alone have a non-zero failure
-rate.</strong> Over thousands of interactions, that remainder is refunds paid to the
-wrong customer.</p>
+<p>Some orderings in a workflow must hold every single time it runs: verify the
+customer's identity before processing a refund; check drug interactions before
+dispensing. You can write that in the system prompt, and a prompt instruction is
+a request the model usually honours. The guide's formulation is blunt: <strong>when
+deterministic compliance is required, prompt instructions alone have a non-zero
+failure rate.</strong> Over thousands of interactions, that remainder is refunds paid
+to the wrong customer.</p>
 <h3>The prerequisite gate</h3>
 <p><strong>Programmatic enforcement</strong> closes it by making the violation impossible in
 code rather than improbable in prose. The concrete shape is a <strong>prerequisite
@@ -567,15 +568,15 @@ handoff.</p>
 <p>The distractors on enforcement questions are the measures that genuinely lower
 the failure rate without ever reaching zero:</p>
 <ul>
-<li>Strengthening the system prompt — &quot;verification is mandatory&quot;.</li>
+<li>Strengthening the system prompt to say &quot;verification is mandatory&quot;.</li>
 <li>Adding few-shot examples showing the verification tool called first.</li>
 <li>Auditing transactions afterwards to catch violations.</li>
 <li>Deploying a routing classifier that only enables the relevant tool subset.</li>
 </ul>
 <p>The first three lower the rate; the question asked for a guarantee, and an
 audit finds the violation after the money is gone. The fourth addresses which
-tools are <em>available</em>, not the order in which they are called — a different
-problem.</p>
+tools are <em>available</em>, not the order in which they are called, which is a
+different problem.</p>
 </div>
 <div class="exam-tip">
 <p>The rule to carry in: <strong>financial, legal or safety consequences → programmatic
@@ -713,8 +714,9 @@ result, not in a prompt asking the model to cope with three formats.</p>
 </table>
 </div>
 <div class="anti-pattern">
-<p>Reaching for <code>PostToolUse</code> to stop something. It fires after the tool has run —
-the refund is paid, the rows are deleted. Blocking is <code>PreToolUse</code>.</p>
+<p>Reaching for <code>PostToolUse</code> to stop something. It fires after the tool has run,
+by which point the refund is paid and the rows are deleted. Blocking is
+<code>PreToolUse</code>.</p>
 <p>The mirror error is a <code>PreToolUse</code> block used to fix a <em>reading</em> problem. If a
 tool returns an overloaded field the model misinterprets, blocking the
 downstream call suppresses the correct calls too; the fix is to rewrite the
@@ -811,18 +813,18 @@ you are about to discover:</p>
 4. Surprise: an unmocked external API dependency
 5. Adapt the plan                   → build the mock, then write the tests
 </code></pre>
-<p>Map structure, identify high-impact areas, produce a prioritized plan that
-adapts as dependencies surface — that is the guide's wording, and step 4 is the
-whole point: the plan changed because of what step 1 found.</p>
+<p>The guide's wording is: map structure, identify high-impact areas, produce a
+prioritized plan that adapts as dependencies surface. Step 4 is the whole point:
+the plan changed because of what step 1 found.</p>
 <div class="anti-pattern">
 <p>Three mismatches, and they are exactly the distractors:</p>
 <ul>
-<li>A <strong>fixed pipeline on unknown scope</strong> — it demands the list of steps before
-you start, which is precisely what you do not have.</li>
-<li>A <strong>multi-pass review offered for an open-ended investigation</strong> — it is built
-for a bounded, enumerable set of targets like the files of a PR.</li>
-<li>A <strong>single exhaustive prompt</strong> meant to cover everything at once — it assumes
-you already know the scope.</li>
+<li>A <strong>fixed pipeline on unknown scope</strong> demands the list of steps before you
+start, which is precisely what you do not have.</li>
+<li>A <strong>multi-pass review offered for an open-ended investigation</strong> is built for a
+bounded, enumerable set of targets like the files of a PR.</li>
+<li>A <strong>single exhaustive prompt</strong> meant to cover everything at once assumes you
+already know the scope.</li>
 </ul>
 <p>And the fourth, quieter one: adaptive decomposition on frozen targets. It buys
 nothing once the targets never vary, and it makes successive runs harder to
@@ -903,7 +905,7 @@ async for message in query(
 </code></pre>
 <h3>Two facts about forking</h3>
 <p>Two facts about forking that questions turn on. It always combines with
-resumption — you fork <em>an existing session</em>, never out of nothing. And it
+resumption, since you fork <em>an existing session</em>, never out of nothing. And it
 branches the <strong>conversation history, not the filesystem</strong>: two forked agents
 editing files in the same directory are editing the same files.</p>
 <h3>Choosing between the three</h3>
@@ -944,7 +946,7 @@ conclusions that survived and leaves the dead payloads behind.</p>
 <p>Three moves the distractors put in place of the three answers above:</p>
 <ul>
 <li><strong>Resuming without saying what changed.</strong> The agent keeps a false picture of
-the files and reasons on dead tool results — the very failure resumption was
+the files and reasons on dead tool results, the very failure resumption was
 supposed to avoid.</li>
 <li><strong>Re-exploring everything from scratch</strong> when only three files moved. It
 throws away work that is still valid.</li>

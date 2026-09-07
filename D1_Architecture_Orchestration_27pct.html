@@ -127,11 +127,11 @@ choix d'outil se fait à la lumière de ce que le dernier a retourné. Une boucl
 qui exécute les outils sans jamais ajouter leurs résultats repose éternellement
 la même question.</p>
 <h3>Plusieurs appels dans une même réponse</h3>
-<p>Une même réponse peut aussi porter <strong>plusieurs</strong> blocs <code>tool_use</code> — deux
-recherches que le modèle veut mener ensemble, par exemple. Exécutez-les toutes,
-puis renvoyez chaque <code>tool_result</code> dans un <em>seul</em> message <code>user</code>, un bloc par
-appel. C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à
-la fois, développé en 1.3.</p>
+<p>Une même réponse peut aussi porter <strong>plusieurs</strong> blocs <code>tool_use</code>, par exemple
+deux recherches que le modèle veut mener ensemble. Exécutez-les toutes, puis
+renvoyez chaque <code>tool_result</code> dans un <em>seul</em> message <code>user</code>, un bloc par appel.
+C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à la
+fois, développé en 1.3.</p>
 <div class="key-concept">
 <p>La boucle est <strong>model-driven</strong> : Claude lit le contexte accumulé et décide quel
 outil vient ensuite. C'est ce qui sépare un agent d'un workflow. Un
@@ -147,10 +147,11 @@ distracteurs de ce task statement :</p>
 <ul>
 <li><strong>Parser le texte de l'assistant</strong> à la recherche de « task completed » ou
 « I'm done ». Le langage naturel n'est pas un signal ; Claude peut écrire
-« done » alors qu'un bloc <code>tool_use</code> est encore en attente dans la même réponse.</li>
+« done » alors qu'un bloc <code>tool_use</code> est encore en attente dans la même
+réponse.</li>
 <li><strong>Utiliser un plafond d'itérations arbitraire</strong> (<code>max_iterations = 5</code>) comme
 mécanisme d'arrêt principal. Un plafond est un garde-fou contre un agent qui
-s'emballe, pas un constat sur l'achèvement du travail — il interrompt des
+s'emballe, pas un constat sur l'achèvement du travail, et il interrompt des
 exécutions légitimes.</li>
 <li><strong>Vérifier la présence de texte</strong> comme indicateur de complétion. Texte et
 <code>tool_use</code> voyagent dans la même réponse ; la présence de l'un ne dit rien de
@@ -199,12 +200,13 @@ anti-patterns ci-dessus, déguisé.</p>
 
 <div class="section-header"><h2 id="s2">2. 1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns</h2></div>
 
-<p>Avant l'architecture, la décision. Un subagent tourne dans sa propre fenêtre de
-contexte, fait son travail et ne renvoie qu'un résumé ; les lectures, recherches
-et appels d'outils intermédiaires sont jetés avec lui. Ce compromis tient en une
-question : <strong>le travail intermédiaire intéresse-t-il l'appelant ?</strong> Si seule la
-réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main
-dans le thread principal.</p>
+<p>Déléguer à un subagent est une décision qui vient avant toute architecture. Un
+subagent tourne dans sa propre fenêtre de contexte, fait son travail et ne
+renvoie qu'un résumé ; les lectures, recherches et appels d'outils
+intermédiaires sont jetés avec lui. Ce compromis tient en une question : <strong>le
+travail intermédiaire intéresse-t-il l'appelant ?</strong> Si seule la réponse compte,
+déléguez. S'il faut voir et réagir à chaque étape, gardez la main dans le thread
+principal.</p>
 <h3>La forme hub-and-spoke</h3>
 <p>Quand une tâche est vraiment trop large pour un seul agent — un rapport de
 recherche qui demande recherche web, analyse documentaire et synthèse — on
@@ -264,9 +266,10 @@ de qualité posée au-dessus de la boucle d'exécution de 1.1, et c'est le remè
 que le guide nomme contre une couverture incomplète.</p>
 <div class="key-concept">
 <p>Les subagents démarrent d'un <strong>contexte isolé</strong> : ils n'héritent pas de
-l'historique de conversation du coordinateur et ne partagent aucune mémoire d'une
-invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le
-hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.</p>
+l'historique de conversation du coordinateur et ne partagent aucune mémoire
+d'une invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt
+que le hub écrit pour lui, et la mécanique de ce passage est en TS 1.3,
+ci-dessous.</p>
 </div>
 <h3>Une décomposition trop étroite</h3>
 <p>Le risque que le guide nomme explicitement est une <strong>décomposition trop étroite
@@ -274,8 +277,8 @@ par le coordinateur</strong>. Chargé d'un rapport sur « AI impact on creative
 industries », un coordinateur le découpe en « AI in digital art », « AI in
 graphic design » et « AI in photography ». Chaque subagent exécute correctement
 son brief. Le rapport ne couvre que l'art visuel ; la musique, la littérature et
-le cinéma sont simplement absents. Rien n'a échoué en aval — l'assignation était
-déjà incomplète.</p>
+le cinéma sont simplement absents. Rien n'a échoué en aval, parce que
+l'assignation était déjà incomplète.</p>
 <div class="exam-tip">
 <p>Quand chaque subagent a fait ce qu'on lui demandait et que le rapport final rate
 encore des pans entiers du sujet, le défaut est la <strong>décomposition du
@@ -332,11 +335,12 @@ structurées, développée en D2.2.</strong></p>
 
 <div class="section-header"><h2 id="s3">3. 1.3 — Configure subagent invocation, context passing, and spawning</h2></div>
 
-<p>Le mécanisme est un outil. Un coordinateur lance un subagent en appelant
-l'<strong>outil <code>Task</code></strong>, et son <code>allowedTools</code> doit inclure <code>&quot;Task&quot;</code> pour que ces
-invocations soient auto-approuvées. Omettez-le et l'appel retombe dans le flux de
-permission : en mode par défaut, sans callback <code>canUseTool</code> pour y répondre, il
-est refusé. Le coordinateur ne délègue pas, quoi que dise son prompt.</p>
+<p>Le mécanisme de lancement est un outil : un coordinateur lance un subagent en
+appelant l'<strong>outil <code>Task</code></strong>, et son <code>allowedTools</code> doit inclure <code>&quot;Task&quot;</code> pour
+que ces invocations soient auto-approuvées. Omettez-le et l'appel retombe dans
+le flux de permission : en mode par défaut, sans callback <code>canUseTool</code> pour y
+répondre, il est refusé. Le coordinateur ne délègue pas, quoi que dise son
+prompt.</p>
 <div class="exam-tip">
 <p>Les versions récentes du SDK ont renommé cet outil de <code>Task</code> en <code>Agent</code>, et le
 code actuel émet <code>Agent</code> dans les blocs <code>tool_use</code>. Le guide d'examen v1.0 dit
@@ -370,9 +374,9 @@ ce domaine :</p>
 </tbody>
 </table>
 <p>La conséquence est décisive : <strong>le seul contenu qui passe du parent au subagent
-est la chaîne de prompt de l'appel qui le lance.</strong> Chemins de fichiers, messages
-d'erreur, résultats de recherche antérieurs, décisions déjà prises — s'ils ne
-sont pas dans cette chaîne, le subagent ne les a pas.</p>
+est la chaîne de prompt de l'appel qui le lance.</strong> Si les chemins de fichiers,
+les messages d'erreur, les résultats de recherche antérieurs ou les décisions
+déjà prises ne sont pas dans cette chaîne, le subagent ne les a pas.</p>
 <pre><code class="language-text">Mauvais  Task: « Analyse le document. »
          → quel document ? aucun résultat antérieur, aucun format de sortie attendu.
 
@@ -385,10 +389,10 @@ Bon      Task: « Analyse le document ci-dessous et renvoie le tableau des claus
               FORMAT DE SORTIE : une ligne par clause — clause_type, text, page. »
 </code></pre>
 <p>Notez ce que la bonne version fait au-delà d'être longue. Elle emploie un
-<strong>format structuré qui sépare le contenu des métadonnées</strong> — URL source, nom du
-document, numéro de page, date de collecte vivent dans leurs propres champs, pas
-fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,
-et le guide le nomme parmi les skills de ce task statement.</p>
+<strong>format structuré qui sépare le contenu des métadonnées</strong>. URL source, nom du
+document, numéro de page et date de collecte vivent dans leurs propres champs,
+pas fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport
+final, et le guide le nomme parmi les skills de ce task statement.</p>
 <h3>Parallélisme : une réponse, plusieurs appels</h3>
 <p>Le parallélisme vient d'<strong>une réponse, plusieurs appels</strong>. Un coordinateur qui
 émet trois appels <code>Task</code> dans une seule réponse obtient trois subagents qui
@@ -464,9 +468,9 @@ procédures.</strong> « Le rapport doit couvrir au moins cinq secteurs avec des
 datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.</li>
 </ul>
 <h3>Restreindre les outils d'un subagent</h3>
-<p>Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les
-connaissances de ce task statement. Un subagent de recherche en lecture seule
-reçoit <code>Read</code>, <code>Grep</code>, <code>Glob</code> ; un relecteur y ajoute <code>Bash</code> pour lancer
+<p>Les restrictions d'outils relèvent aussi d'ici, puisque le guide les liste parmi
+les connaissances de ce task statement. Un subagent de recherche en lecture
+seule reçoit <code>Read</code>, <code>Grep</code>, <code>Glob</code> ; un relecteur y ajoute <code>Bash</code> pour lancer
 <code>git diff</code> ; seul un agent dont le métier est de modifier du code reçoit <code>Edit</code>
 et <code>Write</code>. Un outil que vous laissez de côté n'est pas du tout dans la session
 du subagent : ni prompt de permission, ni erreur, l'agent travaille simplement
@@ -477,12 +481,14 @@ outils, développée en D2.3.</strong></p>
 <p>Trois gestes qui ressemblent à des correctifs et n'en sont pas :</p>
 <ul>
 <li><strong>Agrandir la fenêtre de contexte du subagent</strong> quand il a rendu une réponse
-maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change rien.</li>
-<li><strong>Lancer sur des tours successifs</strong> en appelant cela du parallélisme. Des tours
-consécutifs, c'est de l'exécution séquentielle avec des allers-retours en plus.</li>
-<li><strong>Compter sur l'héritage</strong> — « le subagent verra ce que le coordinateur a
-trouvé ». L'isolation est la propriété qui définit un subagent, pas une
-limitation à contourner.</li>
+maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change
+rien.</li>
+<li><strong>Lancer sur des tours successifs</strong> en appelant cela du parallélisme. Des
+tours consécutifs, c'est de l'exécution séquentielle avec des allers-retours
+en plus.</li>
+<li><strong>Compter sur l'héritage</strong>, sur l'idée que « le subagent verra ce que le
+coordinateur a trouvé ». L'isolation est la propriété qui définit un subagent,
+pas une limitation à contourner.</li>
 </ul>
 </div>
 <p><strong>Forker une session pour donner à deux subagents une base d'analyse commune
@@ -519,14 +525,14 @@ domaine 3.</strong></p>
 
 <div class="section-header"><h2 id="s4">4. 1.4 — Implement multi-step workflows with enforcement and handoff patterns</h2></div>
 
-<p>Certains ordonnancements doivent tenir à chaque fois. Vérifier l'identité du
-client avant de traiter un remboursement ; contrôler les interactions
-médicamenteuses avant de délivrer. Vous pouvez l'écrire dans le system prompt —
-et une instruction de prompt est une demande que le modèle honore généralement.
-La formulation du guide est nette : <strong>quand une conformité déterministe est
-requise, les instructions de prompt seules ont un taux d'échec non nul.</strong> Sur des
-milliers d'interactions, ce reliquat, ce sont des remboursements versés au
-mauvais client.</p>
+<p>Certains ordonnancements dans un workflow doivent tenir à chaque fois qu'il
+s'exécute : vérifier l'identité du client avant de traiter un remboursement ;
+contrôler les interactions médicamenteuses avant de délivrer. Vous pouvez
+l'écrire dans le system prompt, et une instruction de prompt est une demande que
+le modèle honore généralement. La formulation du guide est nette : <strong>quand une
+conformité déterministe est requise, les instructions de prompt seules ont un
+taux d'échec non nul.</strong> Sur des milliers d'interactions, ce reliquat, ce sont
+des remboursements versés au mauvais client.</p>
 <h3>Le gate de prérequis</h3>
 <p>Le <strong>programmatic enforcement</strong> referme cet écart en rendant la violation
 impossible par le code plutôt qu'improbable par la prose. Sa forme concrète est
@@ -580,18 +586,20 @@ Le résumé doit donc se tenir seul :</p>
 guide nomme. Un handoff qui suppose que l'humain lira la conversation est un
 handoff raté.</p>
 <div class="anti-pattern">
-<p>Les distracteurs des questions d'enforcement sont les mesures qui font réellement
-baisser le taux d'échec sans jamais atteindre zéro :</p>
+<p>Les distracteurs des questions d'enforcement sont les mesures qui font
+réellement baisser le taux d'échec sans jamais atteindre zéro :</p>
 <ul>
-<li>Renforcer le system prompt — « la vérification est obligatoire ».</li>
-<li>Ajouter des few-shot examples montrant l'outil de vérification appelé en premier.</li>
+<li>Renforcer le system prompt pour y dire « la vérification est obligatoire ».</li>
+<li>Ajouter des few-shot examples montrant l'outil de vérification appelé en
+premier.</li>
 <li>Auditer les transactions après coup pour repérer les violations.</li>
 <li>Déployer un classifieur de routage qui n'active que le sous-ensemble d'outils
 pertinent.</li>
 </ul>
 <p>Les trois premiers font baisser le taux ; la question demandait une garantie, et
 un audit trouve la violation une fois l'argent parti. Le quatrième traite les
-outils <em>disponibles</em>, pas l'ordre dans lequel ils sont appelés — un autre problème.</p>
+outils <em>disponibles</em>, pas l'ordre dans lequel ils sont appelés, ce qui est un
+autre problème.</p>
 </div>
 <div class="exam-tip">
 <p>La règle à emporter : <strong>conséquences financières, légales ou de sécurité →
@@ -732,12 +740,13 @@ niveau plus bas :</p>
 </div>
 <div class="anti-pattern">
 <p>Recourir à <code>PostToolUse</code> pour empêcher quelque chose. Il se déclenche après
-l'exécution de l'outil — le remboursement est versé, les lignes sont supprimées.
-Bloquer, c'est <code>PreToolUse</code>.</p>
+l'exécution de l'outil, quand le remboursement est déjà versé et les lignes
+déjà supprimées. Bloquer, c'est <code>PreToolUse</code>.</p>
 <p>L'erreur miroir est un blocage <code>PreToolUse</code> employé pour corriger un problème de
 <em>lecture</em>. Si un outil renvoie un champ surchargé que le modèle interprète mal,
 bloquer l'appel en aval supprime aussi les appels corrects ; le correctif est de
-réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le modèle.</p>
+réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le
+modèle.</p>
 </div>
 <div class="exam-tip">
 <p>Deux questions séparent proprement les deux hooks. <em>Faut-il que quelque chose
@@ -831,19 +840,19 @@ d'avance, parce qu'elles sont précisément ce que vous allez découvrir :</p>
 4. Surprise : une dépendance vers une API externe non mockée
 5. Adapter le plan                    → construire le mock, puis écrire les tests
 </code></pre>
-<p>Cartographier la structure, identifier les zones à fort impact, produire un plan
-priorisé qui s'adapte à mesure que les dépendances apparaissent — c'est la
-formulation du guide, et l'étape 4 est tout l'enjeu : le plan a changé à cause de
-ce que l'étape 1 a trouvé.</p>
+<p>La formulation du guide est : cartographier la structure, identifier les zones à
+fort impact, produire un plan priorisé qui s'adapte à mesure que les dépendances
+apparaissent. L'étape 4 est tout l'enjeu : le plan a changé à cause de ce que
+l'étape 1 a trouvé.</p>
 <div class="anti-pattern">
 <p>Trois mauvais appariements, et ce sont exactement les distracteurs :</p>
 <ul>
-<li>Un <strong>pipeline fixe sur un périmètre inconnu</strong> — il exige la liste des étapes
-avant de commencer, ce qui est précisément ce dont vous ne disposez pas.</li>
-<li>Une <strong>revue multi-passes proposée pour une investigation ouverte</strong> — elle est
-conçue pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.</li>
-<li>Un <strong>prompt exhaustif unique</strong> censé tout couvrir d'un coup — il suppose que
-vous connaissez déjà le périmètre.</li>
+<li>Un <strong>pipeline fixe sur un périmètre inconnu</strong> exige la liste des étapes avant
+de commencer, ce qui est précisément ce dont vous ne disposez pas.</li>
+<li>Une <strong>revue multi-passes proposée pour une investigation ouverte</strong> est conçue
+pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.</li>
+<li>Un <strong>prompt exhaustif unique</strong> censé tout couvrir d'un coup suppose que vous
+connaissez déjà le périmètre.</li>
 </ul>
 <p>Et le quatrième, plus discret : la décomposition adaptative sur des cibles
 figées. Elle n'apporte rien dès lors que les cibles ne varient jamais, et elle
@@ -925,10 +934,10 @@ async for message in query(
 </code></pre>
 <h3>Deux faits sur le fork</h3>
 <p>Deux faits sur le fork sur lesquels les questions se jouent. Il se combine
-toujours à la reprise — on forke <em>une session existante</em>, jamais à partir de
-rien. Et il branche l'<strong>historique de conversation, pas le système de fichiers</strong> :
-deux agents forkés qui modifient des fichiers dans le même répertoire modifient
-les mêmes fichiers.</p>
+toujours à la reprise, puisqu'on forke <em>une session existante</em>, jamais à partir
+de rien. Et il branche l'<strong>historique de conversation, pas le système de
+fichiers</strong> : deux agents forkés qui modifient des fichiers dans le même
+répertoire modifient les mêmes fichiers.</p>
 <h3>Choisir entre les trois</h3>
 <p>Choisir entre les trois est la compétence que le guide teste :</p>
 <table>
@@ -965,10 +974,11 @@ qui n'existe plus, et l'agent raisonne dessus comme si elles étaient à jour. U
 résumé écrit emporte les conclusions qui ont survécu et laisse derrière les
 payloads morts.</p>
 <div class="anti-pattern">
-<p>Trois gestes que les distracteurs proposent à la place des trois réponses ci-dessus :</p>
+<p>Trois gestes que les distracteurs proposent à la place des trois réponses
+ci-dessus :</p>
 <ul>
 <li><strong>Reprendre sans dire ce qui a changé.</strong> L'agent garde une image fausse des
-fichiers et raisonne sur des résultats d'outils morts — précisément l'échec que
+fichiers et raisonne sur des résultats d'outils morts, précisément l'échec que
 la reprise devait éviter.</li>
 <li><strong>Tout ré-explorer de zéro</strong> alors que seuls trois fichiers ont bougé. C'est
 jeter du travail encore valide.</li>

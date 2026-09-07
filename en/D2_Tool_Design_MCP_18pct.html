@@ -42,7 +42,7 @@
 exam stops asking what an agent can call and starts asking what you put in front
 of it: the wording of a description, the shape of an error, the size of a tool
 set, the file a server is declared in. One section per task statement, in the
-guide's own order and under the guide's own wording — so that a question spotted
+guide's own order and under the guide's own wording, so that a question spotted
 on exam day maps to a section here without translation.</p>
 </div>
 
@@ -178,8 +178,8 @@ bare <code>search</code> in a session holding four servers is an invitation to m
 shipping <code>create_pr</code>, <code>review_pr</code> and <code>merge_pr</code> as three tools. The same
 economy the tool-count rule of 2.3 asks for, applied at design time.</li>
 </ul>
-<p>The name itself must match <code>^[a-zA-Z0-9_-]{1,64}$</code> — letters, digits, underscore
-and hyphen, up to sixty-four characters.</p>
+<p>The name itself must match <code>^[a-zA-Z0-9_-]{1,64}$</code>, which allows letters,
+digits, underscore and hyphen, up to sixty-four characters.</p>
 <div class="key-concept">
 <p><strong>Return signal, not filler.</strong> A tool that answers with a wall of boilerplate
 spends the agent's context on text no decision depends on. Return semantic
@@ -198,7 +198,7 @@ answering anything.
 <p>Nothing in that sentence names a tool. But &quot;verify the customer&quot; matches
 <code>get_customer</code> closely enough, and &quot;always&quot; carries further than any per-turn
 wording, so the model now calls <code>get_customer</code> on turns where identity is not in
-question — including &quot;what are your opening hours&quot;. The tool descriptions are
+question, including &quot;what are your opening hours&quot;. The tool descriptions are
 fine. The instruction above them is what routed the turn.</p>
 <p>The guide's skill is a review, not a rewrite: <strong>read the system prompt for
 keyword-sensitive instructions that might override well-written tool
@@ -229,8 +229,9 @@ colleague enough because the colleague will read the code. The model will not.</
 <p><strong>Letting the schema carry the meaning alone.</strong> A parameter named <code>mode</code> with an
 <code>enum</code> of five values and no per-value description is a decision the model has
 to make with no information. Field descriptions are part of the tool's
-description surface — with the MCP Python SDK they come from <code>Field(description=…)</code>
-on each parameter, and the SDK builds the schema from the type hints around them.</p>
+description surface. With the MCP Python SDK they come from
+<code>Field(description=…)</code> on each parameter, and the SDK builds the schema from the
+type hints around them.</p>
 </div>
 
 <div class="section-quiz">
@@ -271,7 +272,7 @@ prevent the agent from making appropriate recovery decisions.</strong> The agent
 still do <em>something</em>. It will retry a permission denial four times, or give up
 on a timeout that would have cleared on the second attempt, because nothing in
 the payload distinguishes them.</p>
-<p><code>isError</code> is the flag MCP gives you — it tells the agent the call failed rather
+<p><code>isError</code> is the flag MCP gives you: it tells the agent the call failed rather
 than returning data. Everything that makes the failure actionable is what you
 put beside it.</p>
 <pre><code class="language-json">{
@@ -285,21 +286,22 @@ put beside it.</p>
 <div class="key-concept">
 <p><strong><code>errorCategory</code>, <code>isRetryable</code> and the human-readable description are not
 fields of the MCP protocol.</strong> They are an application-level convention, and they
-live inside the text of the content block — as prose or as stringified JSON.
-What the protocol gives you is <code>isError</code>; the structure is yours to impose, and
-the guide tests you on imposing it consistently.</p>
-<p>Two points of form that go with it. <code>content</code> is an <strong>array of content
-blocks</strong>, never a bare string and never an object — so the structured metadata
-has to live inside a block, which is exactly why it is encoded as text. And the
-same convention on the Claude API side is a <code>tool_result</code> block carrying
+live inside the text of the content block, as prose or as stringified JSON. What
+the protocol gives you is <code>isError</code>; the structure is yours to impose, and the
+guide tests you on imposing it consistently.</p>
+<p>Two points of form that go with it. <code>content</code> is an <strong>array of content blocks</strong>,
+never a bare string and never an object. The structured metadata therefore has
+to live inside a block, which is exactly why it is encoded as text. And the same
+convention on the Claude API side is a <code>tool_result</code> block carrying
 <code>is_error: true</code>, whose <code>content</code> is what the model reads to decide what to do
 next. Same discipline, different envelope.</p>
 <p>Last, a spelling detail worth neutralising before it costs you a point: <strong>the
 guide itself writes both <code>isRetryable</code> and <code>retriable</code></strong>, two bullets apart in
-the same &quot;Skills in&quot; block — <code>isRetryable</code> for the general boolean, <code>retriable: false</code> for business rule violations. Neither is a normalised field, so neither
-can be the trapped one: they are application conventions carried in the error
-content, like <code>errorCategory</code>. An option using one spelling is not wrong because
-it did not use the other.</p>
+the same &quot;Skills in&quot; block. It uses <code>isRetryable</code> for the general boolean and
+<code>retriable: false</code> for business rule violations. Neither is a normalised field,
+so neither can be the trapped one: they are application conventions carried in
+the error content, like <code>errorCategory</code>. An option using one spelling is not
+wrong because it did not use the other.</p>
 </div>
 <h3>Two error mechanisms, and only one of them is yours</h3>
 <p>Before the categories, a frontier the protocol draws and a distractor loves.
@@ -329,9 +331,9 @@ interchangeable.</p>
 <p>Read the second row twice, because it is counter-intuitive and it is the whole
 of this task statement. <strong>A violated business rule is not a protocol error.</strong>
 The call reached the tool, the tool ran, and it decided the operation must not
-happen — so the answer comes back as a normal result whose <code>isError</code> is true
-and whose content the agent can read. A booking outside the 90-day horizon is
-not a malformed request; it is a request the tool understood and refused.</p>
+happen. The answer therefore comes back as a normal result whose <code>isError</code> is
+true and whose content the agent can read. A booking outside the 90-day horizon
+is not a malformed request; it is a request the tool understood and refused.</p>
 <p>That is why everything below is about the <em>content</em> of a result rather than
 about error codes. The protocol errors are the transport's business and there
 is nothing for you to design in them. The execution errors are yours, and the
@@ -375,7 +377,7 @@ agent's recovery decision is made entirely out of what you put in them.</p>
 </table>
 <p>The two right-hand columns are the whole point. Retryability is a claim about
 whether repeating the call can succeed, and it is knowable at the tool, not at
-the agent. <strong>Structured metadata prevents wasted retry attempts</strong> — that is the
+the agent. <strong>Structured metadata prevents wasted retry attempts</strong>. That is the
 guide's phrasing, and the waste is billed per attempt.</p>
 <p>The row that is misread most often is <code>validation</code>. It is retryable, and its
 retry is not a repetition: the agent repairs its own arguments and calls again.
@@ -422,7 +424,7 @@ one that produces silent wrong answers rather than loud ones.</p>
 <p>Collapse them and you get one of two defects. Report the empty result as an
 error and the agent retries a question that has already been answered. Report
 the timeout as an empty result and the agent concludes, in good faith, that
-there is nothing to find — and the gap never appears in the final answer.</p>
+there is nothing to find, and the gap never appears in the final answer.</p>
 <pre><code class="language-json">// Not an error: the catalogue was searched, and it holds no match.
 { &quot;isError&quot;: false, &quot;content&quot;: [{ &quot;type&quot;: &quot;text&quot;,
   &quot;text&quot;: &quot;{\&quot;results\&quot;: [], \&quot;searched\&quot;: \&quot;parts_catalog\&quot;, \&quot;query\&quot;: \&quot;part_no=88-2210\&quot;}&quot; }] }
@@ -430,7 +432,7 @@ there is nothing to find — and the gap never appears in the final answer.</p>
 <h3>Local recovery, and what crosses the boundary</h3>
 <p>The guide asks for <strong>local error recovery within subagents</strong>: a subagent handles
 its own transient failures and propagates to the coordinator only what it cannot
-resolve locally — <strong>together with its partial results and what it attempted</strong>.</p>
+resolve locally, <strong>together with its partial results and what it attempted</strong>.</p>
 <pre><code class="language-json">{
   &quot;status&quot;: &quot;partial&quot;,
   &quot;completed&quot;: [&quot;order_lookup&quot;, &quot;customer_profile&quot;],
@@ -464,7 +466,7 @@ longer make: whether the call is worth repeating, and whether it actually
 received nothing or never got through.</p>
 <p>The distractors soften the defect rather than repairing it. Saying a timeout is
 &quot;a delay, not a real failure&quot; and clearing the flag hides the failure entirely.
-Calling the payload malformed misreads the defect — it parses and reaches the
+Calling the payload malformed misreads the defect: it parses and reaches the
 agent intact; it is empty of decision metadata, not broken. Blaming the message
 for being too short for a human aims at the wrong reader. And claiming the four
 categories come from the MCP specification inverts the actual arrangement:
@@ -534,10 +536,10 @@ The guide puts a number on where that stops working: <strong>giving an agent acc
 too many tools — 18 instead of 4-5 — degrades tool selection reliability by
 increasing decision complexity.</strong></p>
 <p>This is D1's debt, and it is worth being precise about what it claims. Nothing
-degrades in the model; what degrades is the decision. Eighteen descriptions, some
-of them adjacent, produce a selection problem that no individual description can
-solve — which is why 2.1's remedy is the wrong answer here, and why reading the
-scenario matters more than knowing both remedies.</p>
+degrades in the model; what degrades is the decision. Eighteen descriptions,
+some of them adjacent, produce a selection problem that no individual
+description can solve, which is why 2.1's remedy is the wrong answer here, and
+why reading the scenario matters more than knowing both remedies.</p>
 <div class="exam-tip">
 <p>The two task statements share a symptom — the wrong tool gets called — and split
 on the evidence the scenario gives you.</p>
@@ -549,7 +551,7 @@ that catches people who learned only one of the two answers.</p>
 </div>
 <h3>Scoped tool access</h3>
 <p>The second knowledge point explains what goes wrong beyond the count: <strong>agents
-with tools outside their specialization tend to misuse them</strong> — the guide's own
+with tools outside their specialization tend to misuse them</strong>. The guide's own
 case is a synthesis agent attempting web searches. The tool is there, the turn
 is hard, and reaching for it is a locally sensible move that produces work
 nobody asked for.</p>
@@ -609,7 +611,7 @@ documents.</p>
 documents&quot; is an instruction the model weighs against everything else in its
 context. A tool that rejects a non-document URL is a contract: the wrong call
 stops being discouraged and starts being impossible, and it returns a
-<code>validation</code> error the agent can act on — which is 2.2 arriving as a design
+<code>validation</code> error the agent can act on, which is 2.2 arriving as a design
 consequence.</p>
 </div>
 <h3>Cross-role tools, scoped rather than opened</h3>
@@ -637,7 +639,7 @@ It is <strong>a limited cross-role tool for a specific high-frequency need</stro
 }
 </code></pre>
 <p>Two properties make it a scoped cross-role tool rather than a hole in the
-scoping. It is narrower in capability than the tool it replaces — it checks a
+scoping. It is narrower in capability than the tool it replaces: it checks a
 claim against a named source, it does not search. And its description states
 where its remit ends, so <strong>the complex cases keep going through the
 coordinator</strong>. The high-frequency simple case gets a direct path; the rest keeps
@@ -676,14 +678,14 @@ is the two uses the guide names, and one thing it does not fix.</p>
 </code></pre>
 <p>Note what the forced call buys and what it does not. It fixes the <strong>first</strong>
 action of the turn. Sequencing the rest is a matter of processing the result and
-issuing another request — the ordering lives in your loop, not in a single
+issuing another request. The ordering lives in your loop, not in a single
 parameter.</p>
 <div class="exam-tip">
 <p><code>tool_choice: {&quot;type&quot;: &quot;any&quot;}</code> guarantees that a tool is called. It does not
 guarantee that the <em>right</em> one is called, and it says nothing about the shape of
 what comes back. An option offering it as the cure for a misrouting scenario is
 answering a selection problem with a compulsion.</p>
-<p>Forced selection is the answer when the scenario names an order — &quot;the screening
+<p>Forced selection is the answer when the scenario names an order: &quot;the screening
 must run before anything else&quot;, &quot;metadata must be extracted before enrichment&quot;.
 A sentence in the tool description saying it should always run first stays
 probabilistic where the parameter is deterministic.</p>
@@ -748,15 +750,15 @@ was written before anything in it was verified.</p>
 
 <div class="section-header"><h2 id="s4">4. 2.4 — Integrate MCP servers into Claude Code and agent workflows</h2></div>
 
-<p>Before the configuration, one sentence about what is being configured. <strong>MCP
-shifts the burden of tool definition and execution off your application and onto
-dedicated servers.</strong> Without it, exposing GitHub to Claude means you author,
-test and maintain a schema and a function for every repository, pull request and
-issue operation you want. With it, you connect to a GitHub MCP server that
-already carries them.</p>
+<p>Everything this task statement configures is a connection to an MCP server.
+<strong>MCP shifts the burden of tool definition and execution off your application
+and onto dedicated servers.</strong> Without it, exposing GitHub to Claude means you
+author, test and maintain a schema and a function for every repository, pull
+request and issue operation you want. With it, you connect to a GitHub MCP
+server that already carries them.</p>
 <p>That is also the answer to the question the course flags as a common confusion:
-<strong>MCP and tool use are not the same thing.</strong> Tool use is how Claude calls a tool.
-MCP is where the tool came from — someone else already wrote it.</p>
+<strong>MCP and tool use are not the same thing.</strong> Tool use is how Claude calls a
+tool. MCP is where the tool came from: someone else already wrote it.</p>
 <h3>The two scopes</h3>
 <p>A server is declared at one of two scopes, and the choice turns on a single
 question: does the whole team need it?</p>
@@ -789,8 +791,8 @@ effect are the same fact seen from two sides, and the guide's wording and the
 tool's behaviour agree here.</p>
 <p>They coexist. <strong>Tools from all configured MCP servers are discovered at
 connection time and are available to the agent simultaneously</strong>, whatever scope
-declared them. Putting a personal server in <code>~/.claude.json</code> does not cut you off
-from the project servers — you get the union.</p>
+declared them. Putting a personal server in <code>~/.claude.json</code> does not cut you
+off from the project servers. You get the union.</p>
 <p>That discovery-at-connection-time property is worth holding as a mechanism and
 not just a fact. The client asks each server what it provides — a
 <code>ListToolsRequest</code>, answered with a <code>ListToolsResult</code> — and the collected tool
@@ -814,7 +816,7 @@ variable expansion</strong>:</p>
 </code></pre>
 <p><code>${GITHUB_TOKEN}</code> resolves at launch from the developer's own environment. The
 file can be committed and shared; each teammate supplies their own credential,
-and the repository never carries one. <code>type</code> says how the server is reached —
+and the repository never carries one. <code>type</code> says how the server is reached:
 <code>&quot;stdio&quot;</code> for a process launched by <code>command</code>, <code>&quot;http&quot;</code> for one reached at a
 <code>url</code>.</p>
 <p>Two properties of the expansion are worth carrying. It accepts a <strong>default</strong>,
@@ -842,10 +844,10 @@ errors. The fix is in the developer's environment, not in <code>.mcp.json</code>
 help: git history keeps it. The credential has to be treated as compromised and
 rotated. <code>${VAR}</code> or the untracked <code>~/.claude.json</code> are the two legitimate
 places.</p>
-<p><strong>A personal, machine-specific server added to the tracked <code>.mcp.json</code></strong> — an
-absolute path under one person's home directory, a binary nobody else has. Every
-clone inherits a server that cannot start. It belongs in <code>~/.claude.json</code>, where
-it still loads for its author and reaches nobody else.</p>
+<p><strong>A personal, machine-specific server added to the tracked <code>.mcp.json</code></strong>,
+pointing at an absolute path under one person's home directory or at a binary
+nobody else has. Every clone inherits a server that cannot start. It belongs in
+<code>~/.claude.json</code>, where it still loads for its author and reaches nobody else.</p>
 </div>
 <h3>Resources, and why they exist beside tools</h3>
 <p>MCP servers expose three primitives, and the guide is explicit about which two
@@ -883,7 +885,7 @@ them as a distractor.</p>
 </tbody>
 </table>
 <p>A resource is closer to an HTTP <code>GET</code> handler than to a tool: a URI comes in,
-data goes out, and <strong>your application decides when to read it</strong> — the model does
+data goes out, and <strong>your application decides when to read it</strong>. The model does
 not call it. A direct resource has a static URI; a templated one carries
 parameters in the URI, which the SDK parses and hands to your function as
 keyword arguments.</p>
@@ -905,8 +907,8 @@ documentation hierarchy, a database schema — <strong>reduces exploratory tool 
 calls discovering that the table exists, then its columns, then its keys. With
 the schema exposed as a resource, the application reads it once and puts it in
 the prompt, and the first call the agent makes is the one that does the work.
-<code>mime_type</code> tells the client how to parse what comes back —
-<code>application/json</code> for structured data, <code>text/plain</code> for text.</p>
+<code>mime_type</code> tells the client how to parse what comes back: <code>application/json</code>
+for structured data, <code>text/plain</code> for text.</p>
 <p>The division of labour is the thing to remember: <strong>tools serve the model,
 resources serve your application, prompts serve your users.</strong></p>
 </div>
@@ -934,7 +936,7 @@ a literal string you can spell exactly.
 </code></pre>
 <div class="exam-tip">
 <p>When a scenario describes an agent preferring a built-in tool over a more
-capable MCP one, the answer is to repair the description — it is the cheapest
+capable MCP one, the answer is to repair the description, which is the cheapest
 lever and the one that addresses the cause.</p>
 <p>It is not to remove or disable the built-in tool, which takes away a capability
 that is legitimately useful for literal searches. It is not to add an
@@ -955,8 +957,8 @@ exists, maintained, with its schemas already tested.</p>
 You have adopted a maintenance burden for a delta. The exam's own framing is
 that custom servers are for what is genuinely team-specific.</p>
 <p><strong>Duplicating a built-in capability in an MCP server.</strong> If <code>Grep</code> already
-answers the need, a server that greps is a second way to do one thing — and the
-selection problem of 2.3, for free.</p>
+answers the need, a server that greps is a second way to do one thing. It also
+buys the selection problem of 2.3, for free.</p>
 </div>
 
 <div class="section-quiz">
@@ -1036,8 +1038,8 @@ the filename: it matches contents. &quot;Find every test file for the checkout f
 is Glob. &quot;Find every caller of <code>applyDiscount</code>&quot; is Grep.</p>
 <h3>When <code>Edit</code> fails, <code>Read</code> + <code>Write</code> is the documented fallback</h3>
 <p><code>Edit</code> works by matching text that must be <strong>unique in the file</strong>. When the
-anchor appears more than once, the edit is refused — deliberately, because the
-tool cannot know which occurrence you meant.</p>
+anchor appears more than once, the edit is refused, and the refusal is
+deliberate: the tool cannot know which occurrence you meant.</p>
 <p>The guide names the fallback: <strong><code>Read</code> the file in full, amend the content, and
 <code>Write</code> it back.</strong></p>
 <pre><code class="language-text"># runbooks/db-failover.yaml — the line &quot;owner: unassigned&quot; appears 23 times.

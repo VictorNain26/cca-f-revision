@@ -135,8 +135,8 @@ body, never inside a message.</p>
 instructions in as a first <code>user</code> message is the most common shape error on
 this endpoint, and it changes how the model weighs them.</p>
 </div>
-<p>Exact model identifiers are not exam material. <code>temperature</code> is not either —
-the guide never names it, and no task statement turns on it; the row is here so
+<p>Exact model identifiers are not exam material. <code>temperature</code> is not either.
+The guide never names it, and no task statement turns on it; the row is here so
 you recognize the field in a request body you are handed, not to be memorized.</p>
 <p><strong>To test</strong> — the self-assessment questions of this page.</p>
 
@@ -166,7 +166,7 @@ are two roles:</p>
 <p><strong>The API stores nothing.</strong> Every request is independent and carries no memory
 of the ones before it. Ask &quot;What is quantum computing?&quot;, get an answer, then
 send &quot;Write another sentence&quot; on its own, and the model has no idea what it is
-being asked to extend — it will write a sentence about something else entirely.</p>
+being asked to extend, so it writes a sentence about something else entirely.</p>
 <p>Multi-turn conversation is therefore work you do, not a service the API renders:
 send the first user message, append Claude's reply to your list as an
 <code>assistant</code> message, append the follow-up as a <code>user</code> message, and send the
@@ -183,7 +183,8 @@ sentence&quot; mean anything on the third.</p>
 <p>Everything that must still be visible on turn five has to be in the array you
 send on turn five. This is the rule behind most &quot;the model forgot&quot; bugs, and it
 applies to tool results exactly as it applies to text. The same rule is why a
-spawned subagent has to be handed its context explicitly — it inherits nothing.</p>
+spawned subagent has to be handed its context explicitly, since it inherits
+nothing.</p>
 </div>
 <div class="anti-pattern">
 <p>Sending only the latest message and expecting the earlier turns to still be
@@ -218,10 +219,10 @@ rebuilding the history is the caller's job, on every single request.</p>
 
 <div class="section-header"><h2 id="s3">3. Content blocks</h2></div>
 
-<p>A reply's <code>content</code> is never a bare string — it is a <strong>list of blocks</strong>, each
-with its own type. Reading a reply as text works only because you indexed into
-that list: <code>message.content[0].text</code> is the first block's text, not the message.
-The two directions are not symmetrical: a request accepts either form, a plain
+<p>A reply's <code>content</code> is never a bare string but a <strong>list of blocks</strong>, each with
+its own type. Reading a reply as text works only because you indexed into that
+list: <code>message.content[0].text</code> is the first block's text, not the message. The
+two directions are not symmetrical: a request accepts either form, a plain
 string or a list of blocks.</p>
 <table>
 <thead>
@@ -249,11 +250,11 @@ string or a list of blocks.</p>
 </tr>
 </tbody>
 </table>
-<p>A single assistant reply routinely holds several blocks at once — a text block
-explaining what it is about to do, plus a <code>tool_use</code> block requesting it. A
-<code>tool_result</code> block carries three fields: <code>tool_use_id</code>, matching the id of the
-<code>tool_use</code> block it answers; <code>content</code>, the function output serialized as a
-string; and <code>is_error</code>, a boolean. It travels back inside a <code>user</code> message,
+<p>A single assistant reply routinely holds several blocks at once, for instance a
+text block explaining what it is about to do plus a <code>tool_use</code> block requesting
+it. A <code>tool_result</code> block carries three fields: <code>tool_use_id</code>, matching the id
+of the <code>tool_use</code> block it answers; <code>content</code>, the function output serialized as
+a string; and <code>is_error</code>, a boolean. It travels back inside a <code>user</code> message,
 alongside the complete history.</p>
 <pre><code class="language-json">{ &quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: [
     { &quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;Let me look that order up.&quot; },
@@ -286,7 +287,7 @@ developed in D4.3.</strong></p>
 
 <div class="section-header"><h2 id="s4">4. <code>stop_reason</code></h2></div>
 
-<p>When the model stops, the response says why in <code>stop_reason</code> — and that field,
+<p>When the model stops, the response says why in <code>stop_reason</code>, and that field,
 not the presence of a text block, is what tells you whether a reply is finished.</p>
 <table>
 <thead>
@@ -342,12 +343,12 @@ and newer models return it without a beta header, and earlier models need the
   &quot;stop_details&quot;: null
 }
 </code></pre>
-<p>That response carries text <em>and</em> a tool request — which is exactly why the
+<p>That response carries text <em>and</em> a tool request, which is exactly why the
 presence of text cannot serve as a completion signal.</p>
 <div class="exam-tip">
 <p><code>end_turn</code> is the only value that means <em>complete</em>. A response with
 <code>stop_reason: &quot;max_tokens&quot;</code> holds a text block like any other, but it was cut
-off mid-sentence — display code that checks for text instead of checking
+off mid-sentence. Display code that checks for text instead of checking
 <code>stop_reason</code> will present a truncated draft as a finished one. That is the
 classic distractor on this field.</p>
 </div>
@@ -355,7 +356,7 @@ classic distractor on this field.</p>
 waiting on <strong>your</strong> tool always says <code>tool_use</code>, and you continue it by sending
 <code>tool_result</code> blocks. <code>pause_turn</code> concerns a <strong>server</strong> tool that ran out of
 iterations, and you continue it by sending the assistant content back unchanged.</p>
-<p>The guide only ever asks you to tell <code>tool_use</code> from <code>end_turn</code> — that pair
+<p>The guide only ever asks you to tell <code>tool_use</code> from <code>end_turn</code>. That pair
 drives the loop, and it is all TS 1.1 tests. <strong>Turning the check into a loop —
 call, inspect <code>stop_reason</code>, execute, append, call again — is the agentic loop,
 developed in D1.1.</strong> D0 stops at naming the signal.</p>
@@ -392,8 +393,8 @@ sits <strong>outside</strong> the conversation: it is not a turn, it has no role
 not something the model answers. It shapes <em>how</em> Claude responds, not <em>what</em> it
 responds.</p>
 <p>Take a maths tutor. Without a system prompt, &quot;How do I solve 5x + 2 = 3 for x?&quot;
-gets a complete step-by-step solution immediately — correct, and useless for
-teaching. With:</p>
+gets a complete step-by-step solution immediately, which is correct and useless
+for teaching. With:</p>
 <pre><code>You are a patient math tutor.
 Do not directly answer a student's questions.
 Guide them to a solution step by step.
@@ -404,14 +405,14 @@ behaviour.</p>
 <p>That is what a system prompt is for: assign a role, and the model answers the
 way someone in that role would; state durable constraints, and they hold across
 every turn without being restated. They hold because you resend them every
-request, not because the API remembers them — and you pay for them every time.</p>
+request, not because the API remembers them, and you pay for them every time.</p>
 <div class="anti-pattern">
 <p>Putting the system prompt in as the first <code>user</code> message. It then reads as
 conversational context rather than a standing instruction, and it competes with
 the turns around it instead of sitting above them.</p>
 </div>
 <div class="exam-tip">
-<p>A system instruction carries further than any per-turn wording — far enough that
+<p>A system instruction carries further than any per-turn wording, far enough that
 a single absolute keyword can override tool descriptions that are otherwise
 well written. &quot;Always verify the customer's identity&quot; will drag the
 nearest-matching tool onto every turn. <strong>How that overriding works, and how to
@@ -424,10 +425,11 @@ helper has to add the key only when a prompt was actually given.</p>
 
 <div class="section-header"><h2 id="s6">6. The context window</h2></div>
 
-<p>Put the two previous facts together. The API keeps no state, so every request
-ships the entire history; and every request has a finite token budget. The
-history is therefore not free — it is a recurring cost that grows with the
-conversation, monotonically, unless you do something about it.</p>
+<p>The context window is the finite token budget every request must fit into, and
+the two previous facts set it against you: the API keeps no state, so every
+request ships the entire history. The history is therefore not free. It is a
+recurring cost that grows monotonically with the conversation, unless you do
+something about it.</p>
 <p>What accumulates, per request:</p>
 <table>
 <thead>
@@ -457,7 +459,7 @@ conversation, monotonically, unless you do something about it.</p>
 </table>
 <p>Tool results are the part people underestimate. A tool that returns a large
 record puts that record into the history for the rest of the run, and you pay
-for it on every subsequent turn — not once.</p>
+for it on every subsequent turn, not once.</p>
 <pre><code>lookup_order → 42 fields returned, 5 useful for return eligibility
   order_id, status, total, items, return_eligible          ← useful
   warehouse_route, carrier_scac, pick_wave, audit_flags,
@@ -475,7 +477,7 @@ specifics first.</p>
 <p>Recognize the three failure modes here; the fixes are not D0's. <strong>Trimming
 verbose tool outputs, extracting structured facts, and ordering input by
 position are developed in D5.1.</strong> Retrieval and chunking are not the answer the
-guide asks for — it puts them out of scope, and so does this corpus.</p>
+guide asks for. It puts them out of scope, and so does this corpus.</p>
 </div>
 
 <p class="to-test"><a href="../Practice_Questions.html?task=5.1">All bank questions on 5.1</a></p>

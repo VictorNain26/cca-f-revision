@@ -138,7 +138,7 @@ permanentes en premier message <code>user</code> est l'erreur de forme la plus c
 ce point d'entrée, et elle change le poids que le modèle leur accorde.</p>
 </div>
 <p>Les identifiants exacts de modèles ne sont pas matière d'examen. <code>temperature</code>
-non plus — le guide ne la nomme jamais et aucun task statement n'en dépend ; la
+non plus. Le guide ne la nomme jamais et aucun task statement n'en dépend ; la
 ligne est là pour que vous reconnaissiez le champ dans un corps de requête qu'on
 vous présente, pas pour l'apprendre par cœur.</p>
 <p><strong>À tester</strong> — les questions d'auto-évaluation de cette page.</p>
@@ -169,8 +169,8 @@ Il y a deux rôles :</p>
 <p><strong>L'API ne stocke rien.</strong> Chaque requête est indépendante et ne garde aucune
 mémoire des précédentes. Demandez « Qu'est-ce que l'informatique quantique ? »,
 obtenez une réponse, puis envoyez « Écris une autre phrase » sans rien d'autre :
-le modèle n'a aucune idée de ce qu'on lui demande de prolonger — il écrira une
-phrase sur tout autre chose.</p>
+le modèle n'a aucune idée de ce qu'on lui demande de prolonger, donc il écrit
+une phrase sur tout autre chose.</p>
 <p>La conversation multi-tours est donc un travail que vous faites, pas un service
 que l'API rend : envoyer le premier message user, ajouter la réponse de Claude à
 votre liste comme message <code>assistant</code>, ajouter la relance comme message <code>user</code>,
@@ -188,7 +188,7 @@ que « Écris une autre phrase » veut dire quelque chose au troisième.</p>
 tableau que vous envoyez au cinquième tour. C'est la règle derrière la plupart
 des bugs « le modèle a oublié », et elle vaut pour les résultats d'outils
 exactement comme pour le texte. C'est la même règle qui impose de passer
-explicitement son contexte à un subagent lancé — il n'hérite de rien.</p>
+explicitement son contexte à un subagent lancé, puisqu'il n'hérite de rien.</p>
 </div>
 <div class="anti-pattern">
 <p>N'envoyer que le dernier message en s'attendant à ce que les tours précédents
@@ -223,7 +223,7 @@ reconstruire l'historique est le travail de l'appelant, à chaque requête.</p>
 
 <div class="section-header"><h2 id="s3">3. Les blocs de contenu</h2></div>
 
-<p>Le <code>content</code> d'une réponse n'est jamais une simple chaîne — c'est une <strong>liste de
+<p>Le <code>content</code> d'une réponse n'est jamais une simple chaîne mais une <strong>liste de
 blocs</strong>, chacun avec son type. Lire une réponse comme du texte ne marche que
 parce que vous avez indexé cette liste : <code>message.content[0].text</code> est le texte
 du premier bloc, pas celui du message. Les deux sens ne sont pas symétriques :
@@ -255,9 +255,9 @@ blocs.</p>
 </tr>
 </tbody>
 </table>
-<p>Une seule réponse d'assistant porte couramment plusieurs blocs à la fois — un
-bloc texte qui explique ce que le modèle s'apprête à faire, plus un bloc
-<code>tool_use</code> qui le demande. Un bloc <code>tool_result</code> porte trois champs :
+<p>Une seule réponse d'assistant porte couramment plusieurs blocs à la fois, par
+exemple un bloc texte qui explique ce que le modèle s'apprête à faire plus un
+bloc <code>tool_use</code> qui le demande. Un bloc <code>tool_result</code> porte trois champs :
 <code>tool_use_id</code>, qui correspond à l'id du bloc <code>tool_use</code> auquel il répond ;
 <code>content</code>, la sortie de la fonction sérialisée en chaîne ; et <code>is_error</code>, un
 booléen. Il repart dans un message <code>user</code>, accompagné de l'historique complet.</p>
@@ -292,7 +292,7 @@ utile conforme est la sortie structurée, développée en D4.3.</strong></p>
 
 <div class="section-header"><h2 id="s4">4. Le champ <code>stop_reason</code></h2></div>
 
-<p>Quand le modèle s'arrête, la réponse dit pourquoi dans <code>stop_reason</code> — et c'est
+<p>Quand le modèle s'arrête, la réponse dit pourquoi dans <code>stop_reason</code>, et c'est
 ce champ, pas la présence d'un bloc texte, qui vous dit si une réponse est
 terminée.</p>
 <table>
@@ -350,12 +350,12 @@ et les modèles antérieurs ont besoin de l'en-tête
   &quot;stop_details&quot;: null
 }
 </code></pre>
-<p>Cette réponse porte du texte <em>et</em> une demande d'outil — c'est précisément
+<p>Cette réponse porte du texte <em>et</em> une demande d'outil, et c'est précisément
 pourquoi la présence de texte ne peut pas servir de signal de fin.</p>
 <div class="exam-tip">
 <p><code>end_turn</code> est la seule valeur qui signifie <em>terminé</em>. Une réponse avec
 <code>stop_reason: &quot;max_tokens&quot;</code> porte un bloc texte comme n'importe quelle autre,
-mais elle a été coupée en pleine phrase — un code d'affichage qui teste la
+mais elle a été coupée en pleine phrase. Un code d'affichage qui teste la
 présence de texte au lieu de lire <code>stop_reason</code> présentera un brouillon tronqué
 comme un texte fini. C'est le distracteur classique sur ce champ.</p>
 </div>
@@ -364,8 +364,8 @@ réponse qui attend <strong>votre</strong> outil dit toujours <code>tool_use</co
 en envoyant des blocs <code>tool_result</code>. <code>pause_turn</code> concerne un outil <strong>serveur</strong> à
 court d'itérations, et vous la poursuivez en renvoyant le contenu de l'assistant
 tel quel.</p>
-<p>Le guide ne vous demande jamais que de distinguer <code>tool_use</code> de <code>end_turn</code> —
-c'est cette paire qui pilote la boucle, et c'est tout ce que teste TS 1.1.
+<p>Le guide ne vous demande jamais que de distinguer <code>tool_use</code> de <code>end_turn</code>.
+C'est cette paire qui pilote la boucle, et c'est tout ce que teste TS 1.1.
 <strong>Transformer cette vérification en boucle — appeler, inspecter <code>stop_reason</code>,
 exécuter, ajouter, rappeler — est la boucle agentique, développée en D1.1.</strong> D0
 s'arrête à nommer le signal.</p>
@@ -402,8 +402,8 @@ place <strong>hors</strong> de la conversation : ce n'est pas un tour, il n'a pa
 ce n'est pas quelque chose à quoi le modèle répond. Il façonne <em>comment</em> Claude
 répond, pas *ce qu'*il répond.</p>
 <p>Prenez l'exemple d'un tuteur de maths. Sans system prompt, « Comment résoudre
-5x + 2 = 3 pour x ? » donne aussitôt une solution complète pas à pas — correcte,
-et inutile pour enseigner. Avec :</p>
+5x + 2 = 3 pour x ? » donne aussitôt une solution complète pas à pas, ce qui est
+correct et inutile pour enseigner. Avec :</p>
 <pre><code>Tu es un tuteur de maths patient.
 Ne réponds pas directement aux questions de l'élève.
 Guide-le vers la solution, étape par étape.
@@ -414,7 +414,7 @@ qui a changé le comportement.</p>
 <p>Voilà à quoi sert un system prompt : assigner un rôle, et le modèle répond comme
 quelqu'un dans ce rôle le ferait ; énoncer des contraintes durables, et elles
 tiennent à tous les tours sans être répétées. Elles tiennent parce que vous les
-renvoyez à chaque requête, pas parce que l'API s'en souvient — et vous les payez
+renvoyez à chaque requête, pas parce que l'API s'en souvient, et vous les payez
 à chaque fois.</p>
 <div class="anti-pattern">
 <p>Mettre le system prompt en premier message <code>user</code>. Il se lit alors comme du
@@ -423,11 +423,11 @@ entre en concurrence avec les tours qui l'entourent au lieu de les surplomber.</
 </div>
 <div class="exam-tip">
 <p>Une instruction system porte plus loin que n'importe quelle formulation à
-l'échelle d'un tour — assez loin pour qu'un seul mot-clé absolu prenne le pas sur
+l'échelle d'un tour, assez loin pour qu'un seul mot-clé absolu prenne le pas sur
 des descriptions d'outils par ailleurs bien écrites. « Vérifie toujours
-l'identité du client » fera appeler l'outil le plus proche sémantiquement à chaque
-tour. <strong>Comment cette instruction prend le pas, et comment la formuler autrement,
-est développé en D2.1.</strong></p>
+l'identité du client » fera appeler l'outil le plus proche sémantiquement à
+chaque tour. <strong>Comment cette instruction prend le pas, et comment la formuler
+autrement, est développé en D2.1.</strong></p>
 </div>
 <p>Une note pratique : l'API n'accepte pas <code>system=None</code>, donc une fonction de chat
 réutilisable ne doit ajouter la clé que si un prompt a réellement été fourni.</p>
@@ -436,11 +436,11 @@ réutilisable ne doit ajouter la clé que si un prompt a réellement été fourn
 
 <div class="section-header"><h2 id="s6">6. La fenêtre de contexte</h2></div>
 
-<p>Mettez bout à bout les deux faits précédents. L'API ne garde aucun état, donc
-chaque requête embarque l'historique entier ; et chaque requête a un budget de
-tokens fini. L'historique n'est donc pas gratuit — c'est un coût récurrent qui
-croît avec la conversation, de façon monotone, sauf si vous y faites quelque
-chose.</p>
+<p>La fenêtre de contexte est le budget de tokens fini dans lequel chaque requête
+doit tenir, et les deux faits précédents le retournent contre vous : l'API ne
+garde aucun état, donc chaque requête embarque l'historique entier. L'historique
+n'est donc pas gratuit. C'est un coût récurrent qui croît de façon monotone avec
+la conversation, sauf si vous y faites quelque chose.</p>
 <p>Ce qui s'accumule, à chaque requête :</p>
 <table>
 <thead>
@@ -470,7 +470,7 @@ chose.</p>
 </table>
 <p>Les résultats d'outils sont la part qu'on sous-estime. Un outil qui retourne un
 gros enregistrement met cet enregistrement dans l'historique pour tout le reste
-de l'exécution, et vous le payez à chaque tour suivant — pas une seule fois.</p>
+de l'exécution, et vous le payez à chaque tour suivant, pas une seule fois.</p>
 <pre><code>lookup_order → 42 champs retournés, 5 utiles pour l'éligibilité au retour
   order_id, status, total, items, return_eligible          ← utiles
   warehouse_route, carrier_scac, pick_wave, audit_flags,
@@ -485,10 +485,10 @@ sont lus de façon fiable ; <strong>l'accumulation</strong>, la croissance montr
 et la <strong>progressive summarization</strong>, où comprimer l'historique pour faire de la
 place sacrifie d'abord les nombres, les dates et les détails précis.</p>
 <div class="exam-tip">
-<p>Reconnaissez ici les trois modes de défaillance ; les remèdes ne sont pas ceux de
-D0. <strong>Élaguer les sorties d'outils verbeuses, extraire des faits structurés et
-ordonner l'entrée selon la position sont développés en D5.1.</strong> Le retrieval et le
-chunking ne sont pas la réponse attendue par le guide — il les met hors
+<p>Reconnaissez ici les trois modes de défaillance ; les remèdes ne sont pas ceux
+de D0. <strong>Élaguer les sorties d'outils verbeuses, extraire des faits structurés
+et ordonner l'entrée selon la position sont développés en D5.1.</strong> Le retrieval
+et le chunking ne sont pas la réponse attendue par le guide. Il les met hors
 périmètre, et ce corpus aussi.</p>
 </div>
 

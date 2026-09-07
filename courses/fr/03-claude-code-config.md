@@ -4,15 +4,16 @@
 
 Vingt pour cent de la note, six task statements, et un sujet trompeusement
 anodin : des fichiers dans un dépôt. Une section par task statement, dans
-l'ordre du guide et sous le libellé du guide — pour qu'une question repérée le
+l'ordre du guide et sous le libellé du guide, pour qu'une question repérée le
 jour J renvoie ici sans traduction.
 
 <!-- cross-refs:start -->
 
 D0 et D1 sont supposés acquis. D1 a enseigné la mécanique *interne* d'un agent :
 la boucle, les subagents, les hooks comme callbacks du SDK, les sessions. D3 est
-la couche au-dessus — les fichiers et les flags qui configurent un Claude Code en
-marche, et les habitudes de travail qui décident si une session se passe bien.
+la couche au-dessus : les fichiers et les flags qui configurent un Claude Code
+en marche, et les habitudes de travail qui décident si une session se passe
+bien.
 
 Le guide place les notions voisines ailleurs, et ce cours le respecte. Le
 mécanisme des hooks — événements, `permissionDecision`, `updatedInput` — est
@@ -52,16 +53,16 @@ recopie.
 
 ::: exam-tip
 La signature d'un défaut de hiérarchie, c'est **« ça marche pour tout le monde
-sauf pour le dernier arrivé »** — ou sauf pour la machine reconstruite depuis une
-image, ou sauf en CI. Une instruction que les anciens appliquent et que le dernier
-embauché n'a jamais reçue vit au niveau user. Le correctif est de la déplacer au
-niveau projet et de la committer.
+sauf pour le dernier arrivé »**, ou sauf pour la machine reconstruite depuis une
+image, ou sauf en CI. Une instruction que les anciens appliquent et que le
+dernier embauché n'a jamais reçue vit au niveau user. Le correctif est de la
+déplacer au niveau projet et de la committer.
 
 Les distracteurs nomment des choses réelles et n'expliquent rien. Une version
-différente de Claude Code ne supprimerait pas une instruction ciblée. Un CLAUDE.md
-devenu trop long dégrade l'adhérence *pour toute l'équipe*, pas pour un seul
-poste. Faire recopier le fichier à la main par chacun reproduit manuellement ce
-que le commit fait déjà, et redivergera au premier changement.
+différente de Claude Code ne supprimerait pas une instruction ciblée. Un
+CLAUDE.md devenu trop long dégrade l'adhérence *pour toute l'équipe*, pas pour
+un seul poste. Faire recopier le fichier à la main par chacun reproduit
+manuellement ce que le commit fait déjà, et redivergera au premier changement.
 :::
 
 ### Garder le fichier modulaire
@@ -98,9 +99,9 @@ besoin, au lieu de charger tous les standards partout.
 ```
 
 Les règles sans scoping par chemin se chargent au démarrage, au même rang que
-`.claude/CLAUDE.md`. Ajouter un champ `paths` à une règle la rend conditionnelle —
-c'est le TS 3.3, plus bas, et c'est la seule chose qui réduise vraiment ce qui se
-charge.
+`.claude/CLAUDE.md`. Ajouter un champ `paths` à une règle la rend
+conditionnelle. C'est le TS 3.3, plus bas, et c'est la seule chose qui réduise
+vraiment ce qui se charge.
 
 ::: anti-pattern
 **Prendre `@import` pour réduire le contexte.** Les fichiers importés sont
@@ -122,9 +123,9 @@ Trois habitudes en découlent, et elles méritent d'être connues parce qu'elles
 donnent aussi la forme des mauvaises réponses :
 
 - **Spécifique et vérifiable.** « Placer les nouvelles routes API dans
-  `src/api/handlers`, une par fichier » — pas « suivre les bonnes pratiques pour les
-  routes API ». Si vous ne pouvez pas vérifier qu'une règle a été suivie, Claude non
-  plus.
+  `src/api/handlers`, une par fichier », pas « suivre les bonnes pratiques pour
+  les routes API ». Si vous ne pouvez pas vérifier qu'une règle a été suivie,
+  Claude non plus.
 
 - **Nommer le remplacement.** « Utiliser des exports nommés, pas des exports par
   défaut » ferme la question ; « ne pas utiliser d'exports par défaut » la laisse
@@ -135,23 +136,24 @@ donnent aussi la forme des mauvaises réponses :
   chaque ligne crie, plus aucune ne se distingue.
 
 
-Et la règle qui n'a pas sa place dans ce fichier du tout : ce qui ne doit *jamais*
-arriver. « Ne jamais pousser sur `main` » écrit dans CLAUDE.md est un espoir. Un
-hook est du code qui s'exécute en un point fixe et peut refuser l'action — le
-mécanisme est le TS 1.5 de D1 ; savoir où va telle règle est le 3.2, plus bas.
+Et la règle qui n'a pas sa place dans ce fichier du tout : ce qui ne doit
+*jamais* arriver. « Ne jamais pousser sur `main` » écrit dans CLAUDE.md est un
+espoir. Un hook est du code qui s'exécute en un point fixe et peut refuser
+l'action. Le mécanisme est le TS 1.5 de D1 ; savoir où va telle règle est le
+3.2, plus bas.
 
 ::: key-concept
 `/memory` est la commande de diagnostic de ce task statement : elle liste les
-emplacements de vos fichiers mémoire aux portées user et project et permet de les
-ouvrir, ce qui est la manière de vérifier si l'instruction que vous cherchez est là
-où vous le croyez.
+emplacements de vos fichiers mémoire aux portées user et project et permet de
+les ouvrir, ce qui est la manière de vérifier si l'instruction que vous cherchez
+est là où vous le croyez.
 
 **Le guide fait loi ici.** Sa compétence dit « using the `/memory` command to
 verify which memory files are loaded and diagnose inconsistent behavior across
-sessions » — répondez `/memory`. Nuance terrain, pour ne pas être surpris devant un
-terminal : la documentation actuelle scinde le travail, `/memory` listant et
-ouvrant les fichiers, `/context` rapportant lesquels ont réellement été chargés
-dans la session en cours.
+sessions », et la réponse est `/memory`. Nuance terrain, pour ne pas être
+surpris devant un terminal : la documentation actuelle scinde le travail,
+`/memory` listant et ouvrant les fichiers, `/context` rapportant lesquels ont
+réellement été chargés dans la session en cours.
 :::
 
 **À tester** — les questions de la banque étiquetées `data-task="3.1"`.
@@ -223,35 +225,35 @@ toute la trace. C'est la réponse chaque fois que le *volume de sortie* d'un ski
 est le problème : une analyse de codebase qui imprime chaque chemin inspecté, un
 brainstorming qui explore cinq options que vous n'avez pas retenues.
 
-**`allowed-tools`** restreint l'accès aux outils pendant l'exécution du skill —
+**`allowed-tools`** restreint l'accès aux outils pendant l'exécution du skill,
 par exemple limiter un skill aux opérations d'écriture de fichiers pour qu'il ne
 puisse rien faire de destructeur. C'est la formulation du guide, et c'est elle
-qu'il faut répondre. Nuance terrain, pour votre propre machine : la documentation
-actuelle décrit ce champ comme une *pré-approbation* des outils listés pour le
-tour d'invocation, de sorte que Claude peut les employer sans demander, plutôt
-que comme un retrait des autres ; le champ qui retire réellement un outil du lot
-est `disallowed-tools`.
+qu'il faut répondre. Nuance terrain, pour votre propre machine : la
+documentation actuelle décrit ce champ comme une *pré-approbation* des outils
+listés pour le tour d'invocation, de sorte que Claude peut les employer sans
+demander, plutôt que comme un retrait des autres ; le champ qui retire
+réellement un outil du lot est `disallowed-tools`.
 
 **`argument-hint`** est l'indice affiché à l'autocomplétion, de sorte qu'un
 développeur qui invoque le skill sans argument se voit dire quel paramètre il
 attend.
 
 ::: exam-tip
-Un skill s'exécute, produit un mur de sortie, et la session qui suit a visiblement
-perdu le fil. La réponse est `context: fork`. Deux options voisines sont
-plausibles et aucune ne déplace la sortie. `allowed-tools` change ce que le skill
-peut *faire*, pas l'endroit où atterrit ce qu'il écrit. Et une consigne « sois
-concis » ajoutée au corps du skill demande au modèle d'écrire moins au lieu
-d'écrire ailleurs — réduite ou non, la sortie arrive toujours dans la session
-principale.
+Un skill s'exécute, produit un mur de sortie, et la session qui suit a
+visiblement perdu le fil. La réponse est `context: fork`. Deux options voisines
+sont plausibles et aucune ne déplace la sortie. `allowed-tools` change ce que le
+skill peut *faire*, pas l'endroit où atterrit ce qu'il écrit. Et une consigne
+« sois concis » ajoutée au corps du skill demande au modèle d'écrire moins au
+lieu d'écrire ailleurs. Réduite ou non, la sortie arrive toujours dans la
+session principale.
 :::
 
 ### Les variantes personnelles, et pourquoi le nom compte
 
 Les skills de même nom sont départagés par leur source, et un skill personnel
-l'emporte sur un skill projet. Clonez un dépôt qui livre `.claude/skills/review/`,
-gardez votre propre `~/.claude/skills/review/`, et `/review` exécute le vôtre —
-silencieusement, sur votre machine seulement.
+l'emporte sur un skill projet. Clonez un dépôt qui livre
+`.claude/skills/review/`, gardez votre propre `~/.claude/skills/review/`, et
+`/review` exécute le vôtre, silencieusement, sur votre machine seulement.
 
 ::: key-concept
 L'instruction du guide est de donner à une variante personnelle **un nom
@@ -294,7 +296,7 @@ déclarée dans les settings : il répond donc par un **code de sortie**, `2`
 bloque, et ce qu'il a écrit sur la sortie d'erreur est renvoyé à Claude comme
 motif. Un hook de l'Agent SDK est un callback dans votre processus et répond par
 un `permissionDecision` en JSON. Même événement, même intention, deux
-conventions — et `exit 1` est le piège côté Claude Code : il a l'air d'un échec
+conventions. Et `exit 1` est le piège côté Claude Code : il a l'air d'un échec
 et ne bloque rien.
 
 ```bash
@@ -342,10 +344,10 @@ l'énoncé dit qu'une personne l'invoque, le hook n'est pas la réponse.
 ## 3.3 — Apply path-specific rules for conditional convention loading
 <!-- ts:3.3 | src:exam guide TS 3.3 (rules files with a YAML paths field of glob patterns, loading only when editing matching files to cut irrelevant context and tokens, the advantage of globs over directory-level CLAUDE.md for conventions spanning several directories, the paths: ["terraform/**/*"] and **/*.test.tsx examples) ; code.claude.com/docs/en/memory#path-specific-rules (the paths frontmatter, the glob table, rules without paths loading unconditionally, the read-time trigger, ~/.claude/rules/) -->
 
-Le 3.1 a laissé un problème ouvert. Découper CLAUDE.md en fichiers
-`.claude/rules/` rend les instructions maintenables, et charge exactement autant de
-tokens qu'avant. C'est l'ajout d'un champ `paths` à une règle qui rend le
-chargement conditionnel.
+Découper CLAUDE.md en fichiers `.claude/rules/` rend les instructions
+maintenables, et charge exactement autant de tokens qu'avant : c'est le problème
+que le 3.1 a laissé ouvert. C'est l'ajout d'un champ `paths` à une règle qui
+rend le chargement conditionnel.
 
 ```markdown
 ---
@@ -385,13 +387,12 @@ quand la convention est réellement locale : tout ce qui est sous `terraform/` o
 à ces règles de tagging, et rien en dehors.
 
 Une règle scopée par chemin est attachée à un **motif**. C'est la bonne réponse
-quand les fichiers qui partagent une convention ne partagent pas de répertoire — et
-le cas canonique est celui des fichiers de test, colocalisés avec le code qu'ils
+quand les fichiers qui partagent une convention ne partagent pas de répertoire.
+Le cas canonique est celui des fichiers de test, colocalisés avec le code qu'ils
 couvrent et donc dispersés dans tout l'arbre. Écrire un CLAUDE.md dans chacun de
 quarante répertoires pour y dire les mêmes trois choses sur les tests est
 impossible à maintenir, et un unique CLAUDE.md racine qui les dit coûte à chaque
-session qui
-n'ouvre jamais un test.
+session qui n'ouvre jamais un test.
 
 ::: exam-tip
 Lisez l'énoncé pour une seule chose : **où vivent les fichiers ?**
@@ -411,23 +412,23 @@ s'apparie à une demande, pas au fichier en cours d'édition.
 :::
 
 ::: key-concept
-**Le guide fait loi ici.** Il écrit que les règles scopées par chemin se chargent
-« when editing matching files » — si une option porte le mot *édition*, c'est
-celle-là. Nuance terrain, pour votre propre machine : la documentation actuelle dit
-que les règles scopées par chemin se déclenchent quand Claude *lit* un fichier
-correspondant au motif, donc en pratique la règle est déjà en contexte avant votre
-première modification. Même mécanisme, mêmes `paths`, mêmes globs ; seul le
-déclencheur diffère.
+**Le guide fait loi ici.** Il écrit que les règles scopées par chemin se
+chargent « when editing matching files ». Si une option porte le mot *édition*,
+c'est celle-là. Nuance terrain, pour votre propre machine : la documentation
+actuelle dit que les règles scopées par chemin se déclenchent quand Claude *lit*
+un fichier correspondant au motif, donc en pratique la règle est déjà en
+contexte avant votre première modification. Même mécanisme, mêmes `paths`, mêmes
+globs ; seul le déclencheur diffère.
 :::
 
 ::: anti-pattern
-**Se servir du scoping par chemin pour faire appliquer quelque chose.** Une règle
-qui se charge reste une règle que Claude lit, avec les propriétés d'adhérence de
-n'importe quelle instruction. « Toute ressource Terraform doit porter un tag
-`cost_center` » comme règle scopée par chemin oriente l'écriture ; elle ne garantit
-pas le résultat. Si l'exigence est un verrou, c'est un hook ou un contrôle en CI —
-et les deux sont complémentaires, pas alternatifs : la règle fait juste la plupart
-du temps, le verrou attrape le reste.
+**Se servir du scoping par chemin pour faire appliquer quelque chose.** Une
+règle qui se charge reste une règle que Claude lit, avec les propriétés
+d'adhérence de n'importe quelle instruction. « Toute ressource Terraform doit
+porter un tag `cost_center` » comme règle scopée par chemin oriente l'écriture ;
+elle ne garantit pas le résultat. Si l'exigence est un verrou, c'est un hook ou
+un contrôle en CI. Les deux sont complémentaires, pas alternatifs : la règle
+fait juste la plupart du temps, le verrou attrape le reste.
 :::
 
 **À tester** — les questions de la banque étiquetées `data-task="3.3"`.
@@ -436,10 +437,10 @@ du temps, le verrou attrape le reste.
 <!-- ts:3.4 | src:exam guide TS 3.4 (plan mode for large-scale changes, several valid approaches, architectural decisions and multi-file modifications; direct execution for simple well-scoped changes; plan mode as safe exploration before committing; the Explore subagent for verbose discovery; the microservice, 45-file migration and integration-choice examples against the single-file stack trace and the date validation; combining planning with direct execution) ; 06claudecode101 L4 (plan mode uses read-only tools, analyses the codebase, asks clarifying questions and returns a plan), L5 (explore → plan → code → commit, plan mode is where course-correction is cheap, the explore subagent can run outside plan mode), L6 (subagents run in a separate context window and return only a summary), L9 (subagent isolation and the returned summary) ; 01claudecodeinaction L1 (scope the work before Claude starts, read the plan rather than skim it, iterating on a plan beats cleaning up after a run), L4 (plan is a permission mode: reads only, proposes without editing) ; code.claude.com/docs/en/permission-modes (entering plan mode with Shift+Tab, prefixing a single prompt with /plan, or --permission-mode plan from the CLI) ; code.claude.com/docs/en/sub-agents (Explore is read-only, Write and Edit denied) -->
 <!-- owns:plan-mode -->
 
-Le **plan mode** est un mode de permission dans lequel Claude lit, cherche et lance
-des commandes en lecture seule, pose ses questions de clarification, et renvoie un
-plan — sans rien modifier. L'**exécution directe** est le mode ordinaire : vous
-décrivez le changement et Claude le fait.
+Le **plan mode** est un mode de permission dans lequel Claude lit, cherche et
+lance des commandes en lecture seule, pose ses questions de clarification, et
+renvoie un plan, sans rien modifier. L'**exécution directe** est le mode
+ordinaire : vous décrivez le changement et Claude le fait.
 
 ```bash
 # Y entrer pour toute une session…
@@ -462,7 +463,7 @@ décisions**.
 Le plan mode gagne son coût pour une raison : itérer sur un plan est bien moins
 cher que laisser une exécution avoir lieu puis nettoyer derrière. L'endroit où
 corriger le tir est avant qu'une ligne soit écrite. Et quand le plan revient,
-lisez-le au lieu de le parcourir — un plan non lu est une approbation que vous
+lisez-le au lieu de le parcourir : un plan non lu est une approbation que vous
 n'avez pas réellement donnée.
 
 ### Le subagent Explore
@@ -485,25 +486,25 @@ quelque chose.
 
 ### La combinaison sur laquelle le guide interroge
 
-Le plan mode et l'exécution directe ne sont pas une allégeance définitive. La forme
-courante est les deux, dans l'ordre : planifier la migration de bibliothèque,
-approuver le plan, puis l'exécuter directement. Le plan approuvé devient le
-périmètre de la phase d'écriture — l'arbitrage a eu lieu avant qu'un fichier
-change.
+Le plan mode et l'exécution directe ne sont pas une allégeance définitive. La
+forme courante est les deux, dans l'ordre : planifier la migration de
+bibliothèque, approuver le plan, puis l'exécuter directement. Le plan approuvé
+devient le périmètre de la phase d'écriture. L'arbitrage a eu lieu avant qu'un
+fichier change.
 
 ::: exam-tip
-La complexité est **énoncée dans le scénario** ; elle ne se devine jamais. Comptez
-les signaux : plusieurs fichiers, des approches concurrentes, des frontières à
-tracer → plan mode. Une stack trace, un seul fichier, un changement que tout le
-monde comprend déjà → exécution directe.
+La complexité est **énoncée dans le scénario** ; elle ne se devine jamais.
+Comptez les signaux : plusieurs fichiers, des approches concurrentes, des
+frontières à tracer → plan mode. Une stack trace, un seul fichier, un changement
+que tout le monde comprend déjà → exécution directe.
 
-Le distracteur le plus fin propose de commencer en exécution directe et de basculer
-en plan mode si cela s'avère compliqué. Il a l'air prudent et il ignore que
-l'énoncé a déjà établi la complexité — vous iriez découvrir, à vos frais, ce qu'on
-vous a dit. Deux plus grossiers : le plan mode partout par principe, qui dépense de
-la délibération sur une correction d'une ligne ; et donner des instructions
-exhaustives d'emblée en exécution directe, ce qui suppose de connaître la bonne
-structure avant que quiconque ait lu le code.
+Le distracteur le plus fin propose de commencer en exécution directe et de
+basculer en plan mode si cela s'avère compliqué. Il a l'air prudent et il ignore
+que l'énoncé a déjà établi la complexité : vous iriez découvrir, à vos frais, ce
+qu'on vous a dit. Deux plus grossiers : le plan mode partout par principe, qui
+dépense de la délibération sur une correction d'une ligne ; et donner des
+instructions exhaustives d'emblée en exécution directe, ce qui suppose de
+connaître la bonne structure avant que quiconque ait lu le code.
 :::
 
 ::: anti-pattern
@@ -574,10 +575,10 @@ code cassé transforme l'itération en fausse confiance. Et « terminé » doit 
 dire que les portes ont été franchies et observées, pas qu'un résumé affirme
 qu'elles l'ont été.
 
-La version la plus tranchante qu'en donne le guide concerne les cas limites :
-plutôt que de décrire le problème, fournissez le cas précis — cette entrée, cette
-sortie attendue, par exemple la valeur nulle que votre script de migration traite
-mal.
+La version la plus tranchante qu'en donne le guide concerne les cas limites.
+Plutôt que de décrire le problème, fournissez le cas précis : cette entrée,
+cette sortie attendue, par exemple la valeur nulle que votre script de migration
+traite mal.
 
 ### L'interview pattern
 
@@ -614,10 +615,10 @@ message : une réponse unifiée doit les placer ensemble. Renommer une variable 
 changer un type de retour font deux conversations.
 
 ::: anti-pattern
-**Regrouper des problèmes indépendants pour économiser des allers-retours.** C'est
-plus économe en tokens et cela abandonne la validation pas à pas qui faisait tout
-l'intérêt du feedback séquentiel — vous découvrez à la fin lequel des cinq
-changements était faux.
+**Regrouper des problèmes indépendants pour économiser des allers-retours.**
+C'est plus économe en tokens et cela abandonne la validation pas à pas qui
+faisait tout l'intérêt du feedback séquentiel : vous découvrez à la fin lequel
+des cinq changements était faux.
 
 **Découper des problèmes interdépendants pour garder le contrôle.** Chaque
 correction se fait sans voir les autres, si bien que la seconde démonte la
@@ -629,9 +630,9 @@ première. Le critère est l'interdépendance, jamais le nombre de problèmes.
 ## 3.6 — Integrate Claude Code into CI/CD pipelines
 <!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->
 
-Claude Code est interactif par défaut. Invoqué dans une pipeline sans personne pour
-répondre à une invite, il attend — et le runner finit par le tuer au timeout de
-l'étape. Tout ce task statement découle de là.
+Claude Code est interactif par défaut. Invoqué dans une pipeline sans personne
+pour répondre à une invite, il attend, et le runner finit par le tuer au timeout
+de l'étape. Tout ce task statement découle de là.
 
 ### `-p`, et la forme de la sortie
 
@@ -679,12 +680,13 @@ secrets du dépôt, jamais du fichier de workflow.
 
 Un Claude Code invoqué en CI n'a pas d'historique de session et personne à qui
 demander. La réponse du guide à cela est **CLAUDE.md** : le fichier projet
-versionné est le mécanisme qui porte à l'instance qui tourne dans la pipeline les
-standards de test, les conventions de fixtures et les critères de revue. Documentez
-quelles fixtures existent et ce qui fait qu'un test vaut la peine d'être écrit, et
-la génération de tests cesse de produire des tests de faible valeur qui recouvrent
-un terrain que la suite tient déjà — c'est aussi pourquoi vous mettez les fichiers
-de test existants en contexte quand vous en demandez de nouveaux.
+versionné est le mécanisme qui porte à l'instance qui tourne dans la pipeline
+les standards de test, les conventions de fixtures et les critères de revue.
+Documentez quelles fixtures existent et ce qui fait qu'un test vaut la peine
+d'être écrit, et la génération de tests cesse de produire des tests de faible
+valeur qui recouvrent un terrain que la suite tient déjà, c'est aussi pourquoi
+vous mettez les fichiers de test existants en contexte quand vous en demandez de
+nouveaux.
 
 ::: key-concept
 `claude -p` charge le même contexte projet qu'une session interactive, CLAUDE.md
@@ -694,19 +696,19 @@ CLAUDE.md pour démarrer plus vite et s'exécuter de façon déterministe.
 
 Soyez précis ici, car une lecture courante de cette paire est fausse : elle
 attribue ce saut à `-p` lui-même. La documentation l'attribue à `--bare` et
-précise que sans lui,
-`claude -p` charge le même contexte qu'une session interactive — et le TS 3.6 du
-guide lui-même suppose que CLAUDE.md atteint l'instance CI, ce qu'il ne pourrait
-pas faire si `-p` le laissait tomber. La pipeline reçoit votre CLAUDE.md sauf si
-vous avez demandé le mode bare ; et si vous l'avez demandé, vous avez aussi
-renoncé aux standards sur lesquels le guide vous dit de vous appuyer.
+précise que sans lui, `claude -p` charge le même contexte qu'une session
+interactive. Le TS 3.6 du guide lui-même suppose que CLAUDE.md atteint
+l'instance CI, ce qu'il ne pourrait pas faire si `-p` le laissait tomber. La
+pipeline reçoit votre CLAUDE.md sauf si vous avez demandé le mode bare ; et si
+vous l'avez demandé, vous avez aussi renoncé aux standards sur lesquels le guide
+vous dit de vous appuyer.
 :::
 
 ### Relire est le travail d'une seconde instance
 
 La session qui a écrit le code en est le plus mauvais relecteur. Elle porte le
 raisonnement qui a produit ce code et remet le moins en question ses propres
-décisions — le même biais qu'un auteur relisant son propre texte. La revue tourne
+décisions, le même biais qu'un auteur relisant son propre texte. La revue tourne
 dans une **instance indépendante** : une session séparée, ou un subagent sans
 mémoire de la façon dont le code a été construit. Un œil neuf attrape ce que
 l'exécution d'origine s'est raconté pour passer outre.
@@ -725,8 +727,8 @@ compétences du guide :
 
 
 ::: exam-tip
-Quatre associations tranchent la plupart des questions CI. Un job qui se bloque en
-attente de saisie → `-p`. Une pipeline qui doit parser des constats →
+Quatre associations tranchent la plupart des questions CI. Un job qui se bloque
+en attente de saisie → `-p`. Une pipeline qui doit parser des constats →
 `--output-format json` avec `--json-schema`. Une instance CI qui ignore les
 conventions de test du projet → le CLAUDE.md versionné les lui porte. Relire du
 code que Claude vient d'écrire → une instance indépendante.
@@ -734,7 +736,7 @@ code que Claude vient d'écrire → une instance indépendante.
 Les distracteurs viennent de deux familles. **Les mécanismes inventés** : une
 variable d'environnement `CLAUDE_HEADLESS`, un flag `--batch`, une option
 `--no-tty`. Ils sont plausibles parce que *headless* et *batch* sont bien le
-vocabulaire du domaine, et aucun des trois n'existe — un flag que le binaire ne
+vocabulaire du domaine, et aucun des trois n'existe. Un flag que le binaire ne
 connaît pas ne change pas le mode. **Les contournements** : rediriger l'entrée
 standard depuis `/dev/null`, qui traite le symptôme sans activer le mode
 documenté ; envelopper l'appel dans un `timeout`, qui transforme un long blocage
@@ -743,7 +745,18 @@ regex, qui déplace la fragilité dans votre propre code au lieu de la supprimer
 :::
 
 ::: anti-pattern
-**Laisser le job qui a produit le code le relire aussi, pour économiser une exécution.** Un job coûte moins que deux, et il achète la revue que le guide désigne comme la moins efficace : le raisonnement qui a écrit le code est encore dans la fenêtre. **Pourquoi une instance indépendante attrape ce qu'une auto-revue manque, et comment découper une grande revue en passes par fichier puis inter-fichiers, est développé en D4.6.**
+**Relancer la revue depuis zéro à chaque push.** Claude n'a pas de mémoire entre
+les exécutions, donc il resignale tout ce qu'il avait trouvé la fois précédente.
+La pull request accumule les doublons jusqu'à ce que plus personne ne lise le
+bot. Le correctif n'est pas de relire moins souvent ; c'est d'inclure les
+constats précédents et de demander le delta.
+
+**Laisser le job qui a produit le code le relire aussi, pour économiser une
+exécution.** Un job coûte moins que deux, et il achète la revue que le guide
+désigne comme la moins efficace : le raisonnement qui a écrit le code est encore
+dans la fenêtre. **Pourquoi une instance indépendante attrape ce qu'une
+auto-revue manque, et comment découper une grande revue en passes par fichier
+puis inter-fichiers, est développé en D4.6.**
 :::
 
 **À tester** — les questions de la banque étiquetées `data-task="3.6"`.
