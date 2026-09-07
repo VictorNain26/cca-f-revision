@@ -194,7 +194,7 @@ coordinator**. Asked for a brief on "AI impact on creative industries", a
 coordinator splits it into "AI in digital art", "AI in graphic design" and "AI
 in photography". Each subagent executes its brief correctly. The report covers
 visual art only; music, literature and film are simply absent. Nothing failed
-downstream, because the assignment was already incomplete.
+downstream. The assignment was already incomplete.
 
 ::: exam-tip
 When every subagent did what it was asked and the final report still misses
@@ -415,7 +415,7 @@ the model reads it, so it retries the right thing instead of retrying blindly.
 
 ::: key-concept
 **Deterministic compliance is a property of code, not of wording.** The wrong
-answers here are all genuine improvements: a firmer instruction, few-shot
+answers here are usually genuine improvements: a firmer instruction, few-shot
 examples showing the right order, an audit that catches violations afterwards.
 The first two lower the failure rate and leave a remainder; the third reports
 the breach after the action it was meant to stop. When the scenario names a
@@ -724,10 +724,11 @@ conclusions that survived and leaves the dead payloads behind.
 ::: key-concept
 **A session is a record of what was read, not the state of what is on disk.**
 Every choice among the three turns on how much of that record is still true.
-Resumption keeps the record whole, and works only while it is. A fork copies
-the record including its stale readings, which is why it compares two
-approaches and never two versions of a file. A fresh session keeps the
-conclusions you wrote down and leaves the expired readings behind.
+Resumption fits while the record is *mostly* valid, and naming the files that
+changed is what makes it targeted rather than a gamble. A fork branches the
+conversation history and not the filesystem, which is why it compares two
+approaches and never two versions of a file. A fresh session with a written
+summary keeps your conclusions and leaves the expired readings behind.
 :::
 
 ::: anti-pattern

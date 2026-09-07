@@ -417,15 +417,15 @@ pour empêcher.</p>
 sous une autre forme et pour un autre usage. La distinction y est posée, et il
 vaut la peine de lire les deux sections l'une contre l'autre une fois.</p>
 <div class="key-concept">
-<p><strong>Des faits vérifiables déclenchent l'escalade ; des estimations de difficulté,
-non.</strong> Les quatre déclencheurs acceptés sont tous observables : ce que dit le
-message du client, si la politique couvre la demande, ce qu'a retourné la
-consultation, combien de tentatives ont échoué. Les proxys rejetés, le ton et la
-confiance auto-évaluée, sont des estimations de la difficulté du cas, et la
-difficulté n'est de toute façon pas un déclencheur : l'exemple de l'alignement
-de prix tient en un appel d'outil, et il escalade parce que la politique est
-indécise. Quand une option propose un signal, demandez-vous si vous pourriez le
-vérifier sans interroger le modèle.</p>
+<p><strong>Trois déclencheurs, et une ambiguïté n'en fait pas partie.</strong> Le guide accepte
+qu'un client demande un humain, qu'il y ait une lacune ou une exception dans la
+politique, et l'incapacité à progresser réellement : les trois sont vérifiables
+sans interroger le modèle. Le ton et la confiance auto-déclarée sont rejetés
+parce qu'ils estiment la difficulté d'un cas, et la difficulté n'a jamais été un
+déclencheur ; l'exemple de l'alignement de prix tient en un appel d'outil, et il
+escalade parce que la politique n'a rien tranché. Une consultation qui retourne
+plusieurs correspondances est le cas à garder à part : elle appelle un
+identifiant discriminant, pas un humain.</p>
 </div>
 <h3>Les trois comportements, et celui qui est testé</h3>
 <p>Le guide sépare l'escalade immédiate de la proposition de résoudre, et la
@@ -1184,8 +1184,8 @@ remède agissant après la compression demande à un agent de reconstruire ce qu
 n'a jamais reçu : une passe finale qui « ajoute les citations », un agent de
 synthèse chargé d'attacher les sources lui-même. C'est pourquoi l'exigence
 retombe sur le prompt du subagent et sur l'obligation de l'agent de synthèse de
-faire passer la correspondance. Dans un scénario, trouvez l'étape où
-l'attribution existait encore ; les mauvaises réponses agissent toutes en aval.</p>
+faire passer les mappings. Dans un scénario, trouvez l'étape où l'attribution
+existait encore ; les mauvaises réponses agissent toutes en aval de celle-ci.</p>
 </div>
 <h3>Valeurs contradictoires : annoter, ne pas choisir</h3>
 <p>Deux sources crédibles donnent des chiffres différents pour la même grandeur.

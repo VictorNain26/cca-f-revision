@@ -460,12 +460,14 @@ It is not tied to plan mode. You can ask for exploration through the subagent
 outside plan mode when all you want is a summary of how something works.
 
 ::: key-concept
-**Plan mode arbitrates, the Explore subagent buys context.** They answer two
-different shortages and neither implies the other. Reach for plan mode when
-something has to be decided before any file changes; reach for Explore when a
-discovery phase is filling the window with reads you will never need again. A
-scenario running out of context mid-exploration is not asking you to plan, and
-a scenario with two viable architectures is not asking you to delegate.
+**Plan mode decides, Explore keeps the window clear, and the guide combines
+them.** They answer two different shortages: plan mode when something has to be
+settled before any file changes, Explore when a discovery phase fills the window
+with reads you will never need again. Neither implies the other, and neither
+excludes the other: a multi-phase task that has to be scoped *and* is running out
+of room during discovery takes both, which is the combination the guide names.
+The distractors answer the context shortage alone, with compaction or a restart,
+and leave the decision unmade.
 :::
 
 ### The combination the guide asks about

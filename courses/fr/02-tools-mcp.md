@@ -285,7 +285,7 @@ ne sont pas interchangeables.
 | **Erreur d'exécution d'outil** | Un **résultat réussi** portant `isError: true` | Échec d'API, données d'entrée invalides, violation de règle métier |
 
 Relisez la seconde ligne deux fois, parce qu'elle est contre-intuitive et
-qu'elle est tout ce task statement. **Une règle métier violée n'est pas une
+qu'elle résume à elle seule ce task statement. **Une règle métier violée n'est pas une
 erreur de protocole.** L'appel est parvenu à l'outil, l'outil a tourné, et il a
 décidé que l'opération ne devait pas avoir lieu. La réponse revient donc comme
 un résultat normal dont `isError` vaut vrai et dont l'agent peut lire le
@@ -349,7 +349,7 @@ c'est celle qui produit des réponses fausses silencieuses plutôt que bruyantes
 | **Échec d'accès** | La requête n'a jamais tourné — timeout, 503, connexion refusée | `isError: true`, catégorie `transient`, `isRetryable: true` |
 | **Résultat vide valide** | La requête a tourné et n'a rien trouvé | **Ce n'est pas une erreur.** Un succès portant une liste vide |
 
-Confondez-les et vous obtenez l'un de deux défauts. Signalez le résultat vide
+Confondez-les et vous obtenez l'un des deux défauts. Signalez le résultat vide
 comme une erreur et l'agent réessaie une question à laquelle il a déjà été
 répondu. Signalez le timeout comme un résultat vide et l'agent conclut, de bonne
 foi, qu'il n'y a rien à trouver, et le trou n'apparaît jamais dans la réponse
@@ -821,7 +821,7 @@ réellement spécifique à l'équipe.
 
 **Dupliquer une capacité intégrée dans un serveur MCP.** Si `Grep` répond déjà
 au besoin, un serveur qui fait du grep est une deuxième manière de faire une
-seule chose. Il achète aussi le problème de sélection de 2.3, offert.
+seule chose. Il vous vaut en prime le problème de sélection de 2.3.
 :::
 
 **À tester** — les questions de la banque étiquetées `data-task="2.4"`.
@@ -849,14 +849,12 @@ du contenu. « Trouve tous les fichiers de test du parcours de commande », c'es
 Glob. « Trouve tous les appelants de `applyDiscount` », c'est Grep.
 
 ::: key-concept
-**Les deux s'appellent « recherche » ; un seul ouvre un fichier.** Glob répond à
-une question sur les noms et les chemins, Grep à une question sur les octets
-qu'ils contiennent. « Tous les fichiers de test du parcours de commande » est un
-motif de nom ; « tous les appelants de `applyDiscount` » est une chaîne qui vit
-dans le contenu des fichiers. Les deux formes de distracteur sont la même
-confusion dans un sens ou dans l'autre : `Glob` proposé pour une recherche de
-contenu, et une correspondance de contenu comme `describe(` proposée pour un
-motif de nom.
+**Les deux s'appellent « recherche » ; un seul ouvre un fichier.** Les deux
+formes de distracteur sont cette confusion jouée dans un sens ou dans l'autre :
+`Glob` proposé pour une recherche de contenu, et une correspondance de contenu
+comme `describe(` proposée pour ce qui est en réalité un motif de nom. Lisez la
+demande pour savoir ce qui est mis en correspondance, un chemin ou un octet,
+avant de lire les noms d'outils.
 :::
 
 ### Quand `Edit` échoue, `Read` + `Write` est le repli documenté

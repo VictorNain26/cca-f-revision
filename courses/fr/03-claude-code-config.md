@@ -485,13 +485,15 @@ hors plan mode quand tout ce que vous voulez est un résumé du fonctionnement d
 quelque chose.
 
 ::: key-concept
-**Le plan mode arbitre, le subagent Explore achète du contexte.** Ils répondent
-à deux pénuries différentes et aucune n'implique l'autre. Prenez le plan mode
-quand quelque chose doit être décidé avant toute modification de fichier ;
-prenez Explore quand une phase de découverte remplit la fenêtre de lectures dont
-vous n'aurez plus jamais besoin. Un scénario à court de contexte en pleine
-exploration ne vous demande pas de planifier, et un scénario à deux
-architectures viables ne vous demande pas de déléguer.
+**Le plan mode décide, `Explore` garde la fenêtre dégagée, et le guide combine
+les deux.** Ils répondent à deux pénuries différentes : le plan mode quand
+quelque chose doit être tranché avant toute modification de fichier, `Explore`
+quand une phase de découverte remplit la fenêtre de lectures dont vous n'aurez
+plus jamais besoin. Aucun n'implique l'autre, et aucun n'exclut l'autre : une
+tâche en plusieurs phases qu'il faut à la fois cadrer *et* qui manque de place
+pendant la découverte prend les deux, et c'est la combinaison que le guide
+nomme. Les distracteurs répondent à la seule pénurie de contexte, par compaction
+ou par redémarrage, et laissent la décision en suspens.
 :::
 
 ### La combinaison sur laquelle le guide interroge
@@ -627,8 +629,8 @@ changer un type de retour font deux conversations.
 ::: key-concept
 **Quatre techniques, quatre défaillances différentes.** Une sortie qui varie
 d'une exécution à l'autre est une transformation sous-spécifiée, et la réponse
-est des paires travaillées. Du code que personne ne peut juger est une garde
-manquante, et la réponse est des tests écrits d'abord. Une conception que vous
+est les exemples travaillés. Du code que personne ne peut juger est un verrou
+manquant, et la réponse est des tests écrits d'abord. Une conception que vous
 ne savez pas énoncer est une spécification incomplète, et la réponse est de
 laisser Claude vous interroger. Des correctifs qui se défont l'un l'autre sont
 une question de feedback, et elle se joue sur l'interdépendance, jamais sur le

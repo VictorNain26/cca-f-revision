@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: cca-f-revision\n"
-"POT-Creation-Date: 2026-09-07 15:32+0200\n"
+"POT-Creation-Date: 2026-09-07 16:07+0200\n"
 "PO-Revision-Date: 2026-08-29 20:27+0200\n"
 "Last-Translator: Victor Lenain <victor.lenain26@gmail.com>\n"
 "Language-Team: French\n"
@@ -1411,15 +1411,16 @@ msgid ""
 "coordinator splits it into \"AI in digital art\", \"AI in graphic design\" and \"AI\n"
 "in photography\". Each subagent executes its brief correctly. The report covers\n"
 "visual art only; music, literature and film are simply absent. Nothing failed\n"
-"downstream, because the assignment was already incomplete.\n"
+"downstream. The assignment was already incomplete.\n"
 msgstr ""
 "Le risque que le guide nomme explicitement est une **décomposition trop étroite\n"
-"par le coordinateur**. Chargé d'un rapport sur « AI impact on creative\n"
-"industries », un coordinateur le découpe en « AI in digital art », « AI in\n"
-"graphic design » et « AI in photography ». Chaque subagent exécute correctement\n"
-"son brief. Le rapport ne couvre que l'art visuel ; la musique, la littérature et\n"
-"le cinéma sont simplement absents. Rien n'a échoué en aval, parce que\n"
-"l'assignation était déjà incomplète.\n"
+"par le coordinateur**, et il se voit dans le rapport plutôt que dans les\n"
+"journaux. Un coordinateur à qui l'on demande un panorama de l'IA générative dans\n"
+"les industries créatives assigne « l'IA dans l'art visuel », « l'IA dans la\n"
+"génération d'images », « l'IA en photographie ». Chaque subagent exécute\n"
+"correctement sa consigne. Le rapport ne couvre que l'art visuel ; la musique, la\n"
+"littérature et le cinéma sont simplement absents. Rien n'a échoué en aval.\n"
+"L'assignation était déjà incomplète.\n"
 
 #. type: Fenced div block (exam-tip)
 #: courses/en/01-orchestration.md:199
@@ -1972,7 +1973,7 @@ msgstr ""
 #, no-wrap
 msgid ""
 "**Deterministic compliance is a property of code, not of wording.** The wrong\n"
-"answers here are all genuine improvements: a firmer instruction, few-shot\n"
+"answers here are usually genuine improvements: a firmer instruction, few-shot\n"
 "examples showing the right order, an audit that catches violations afterwards.\n"
 "The first two lower the failure rate and leave a remainder; the third reports\n"
 "the breach after the action it was meant to stop. When the scenario names a\n"
@@ -1980,12 +1981,12 @@ msgid ""
 "violation impossible clears the requirement.\n"
 msgstr ""
 "**La conformité déterministe est une propriété du code, pas de la formulation.**\n"
-"Les mauvaises réponses sont ici de vraies améliorations : une consigne plus\n"
-"ferme, des exemples few-shot montrant le bon ordre, un audit qui rattrape les\n"
-"violations après coup. Les deux premières abaissent le taux d'échec et laissent\n"
-"un reste ; la troisième signale la brèche après l'action qu'elle devait\n"
-"empêcher. Quand le scénario nomme une conséquence financière, légale ou de\n"
-"sécurité, seul un mécanisme qui rend la violation impossible satisfait\n"
+"Les mauvaises réponses sont ici le plus souvent de vraies améliorations : une\n"
+"consigne plus ferme, des exemples few-shot montrant le bon ordre, un audit qui\n"
+"rattrape les violations après coup. Les deux premières abaissent le taux d'échec\n"
+"et laissent un reste ; la troisième signale la brèche après l'action qu'elle\n"
+"devait empêcher. Quand le scénario nomme une conséquence financière, légale ou\n"
+"de sécurité, seul un mécanisme qui rend la violation impossible satisfait\n"
 "l'exigence.\n"
 
 #. type: Title ###
@@ -2743,20 +2744,23 @@ msgstr ""
 msgid ""
 "**A session is a record of what was read, not the state of what is on disk.**\n"
 "Every choice among the three turns on how much of that record is still true.\n"
-"Resumption keeps the record whole, and works only while it is. A fork copies\n"
-"the record including its stale readings, which is why it compares two\n"
-"approaches and never two versions of a file. A fresh session keeps the\n"
-"conclusions you wrote down and leaves the expired readings behind.\n"
+"Resumption fits while the record is *mostly* valid, and naming the files that\n"
+"changed is what makes it targeted rather than a gamble. A fork branches the\n"
+"conversation history and not the filesystem, which is why it compares two\n"
+"approaches and never two versions of a file. A fresh session with a written\n"
+"summary keeps your conclusions and leaves the expired readings behind.\n"
 msgstr ""
 "**Une session est un relevé de ce qui a été lu, pas l'état de ce qui est sur le\n"
 "disque.** Chacun des trois choix se joue sur ce qui reste vrai de ce relevé. La\n"
-"reprise garde le relevé entier, et ne marche que tant qu'il l'est. Un fork copie\n"
-"le relevé, lectures périmées comprises, et c'est pourquoi il compare deux\n"
-"approches et jamais deux versions d'un fichier. Une session neuve garde les\n"
-"conclusions que vous avez écrites et laisse derrière elle les lectures expirées.\n"
+"reprise convient tant que le relevé est *en grande partie* valide, et c'est le\n"
+"fait de nommer les fichiers qui ont changé qui la rend ciblée plutôt que\n"
+"hasardeuse. Un fork branche l'historique de conversation et non le système de\n"
+"fichiers, et c'est pourquoi il compare deux approches et jamais deux versions\n"
+"d'un fichier. Une session neuve accompagnée d'un résumé écrit garde vos\n"
+"conclusions et laisse derrière elle les lectures périmées.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/01-orchestration.md:733
+#: courses/en/01-orchestration.md:734
 #, no-wrap
 msgid ""
 "Three moves the distractors put in place of the three answers above:\n"
@@ -2783,7 +2787,7 @@ msgstr ""
 "  réconcilie pas un état disque.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/01-orchestration.md:746
+#: courses/en/01-orchestration.md:747
 #, no-wrap
 msgid ""
 "Three situations, three answers, and the distractors trade them around. Context\n"
@@ -2803,7 +2807,7 @@ msgstr ""
 "travail — qui est testé, pas la syntaxe.\n"
 
 #. type: Plain text
-#: courses/en/01-orchestration.md:756
+#: courses/en/01-orchestration.md:757
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"1.7\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"1.7\"`.\n"
@@ -3493,7 +3497,7 @@ msgid ""
 "is not a malformed request; it is a request the tool understood and refused.\n"
 msgstr ""
 "Relisez la seconde ligne deux fois, parce qu'elle est contre-intuitive et\n"
-"qu'elle est tout ce task statement. **Une règle métier violée n'est pas une\n"
+"qu'elle résume à elle seule ce task statement. **Une règle métier violée n'est pas une\n"
 "erreur de protocole.** L'appel est parvenu à l'outil, l'outil a tourné, et il a\n"
 "décidé que l'opération ne devait pas avoir lieu. La réponse revient donc comme\n"
 "un résultat normal dont `isError` vaut vrai et dont l'agent peut lire le\n"
@@ -3658,7 +3662,7 @@ msgid ""
 "the timeout as an empty result and the agent concludes, in good faith, that\n"
 "there is nothing to find, and the gap never appears in the final answer.\n"
 msgstr ""
-"Confondez-les et vous obtenez l'un de deux défauts. Signalez le résultat vide\n"
+"Confondez-les et vous obtenez l'un des deux défauts. Signalez le résultat vide\n"
 "comme une erreur et l'agent réessaie une question à laquelle il a déjà été\n"
 "répondu. Signalez le timeout comme un résultat vide et l'agent conclut, de bonne\n"
 "foi, qu'il n'y a rien à trouver, et le trou n'apparaît jamais dans la réponse\n"
@@ -4752,7 +4756,7 @@ msgstr ""
 "\n"
 "**Dupliquer une capacité intégrée dans un serveur MCP.** Si `Grep` répond déjà\n"
 "au besoin, un serveur qui fait du grep est une deuxième manière de faire une\n"
-"seule chose. Il achète aussi le problème de sélection de 2.3, offert.\n"
+"seule chose. Il vous vaut en prime le problème de sélection de 2.3.\n"
 
 #. type: Plain text
 #: courses/en/02-tools-mcp.md:785
@@ -4826,30 +4830,27 @@ msgstr ""
 #: courses/en/02-tools-mcp.md:807
 #, no-wrap
 msgid ""
-"**Both are called \"search\"; only one of them opens a file.** Glob answers a\n"
-"question about names and paths, Grep a question about the bytes inside them.\n"
-"\"Every test file for the checkout flow\" is a naming pattern; \"every caller of\n"
-"`applyDiscount`\" is a string that lives in file contents. The two distractor\n"
-"shapes are the same confusion in either direction: `Glob` offered for a content\n"
-"search, and a content match such as `describe(` offered for a naming pattern.\n"
+"**Both are called \"search\"; only one of them opens a file.** The two distractor\n"
+"shapes are that confusion running in either direction: `Glob` offered for a\n"
+"content search, and a content match such as `describe(` offered for what is\n"
+"really a naming pattern. Read the request for the thing being matched, a path or\n"
+"a byte, before reading the tool names.\n"
 msgstr ""
-"**Les deux s'appellent « recherche » ; un seul ouvre un fichier.** Glob répond à\n"
-"une question sur les noms et les chemins, Grep à une question sur les octets\n"
-"qu'ils contiennent. « Tous les fichiers de test du parcours de commande » est un\n"
-"motif de nom ; « tous les appelants de `applyDiscount` » est une chaîne qui vit\n"
-"dans le contenu des fichiers. Les deux formes de distracteur sont la même\n"
-"confusion dans un sens ou dans l'autre : `Glob` proposé pour une recherche de\n"
-"contenu, et une correspondance de contenu comme `describe(` proposée pour un\n"
-"motif de nom.\n"
+"**Les deux s'appellent « recherche » ; un seul ouvre un fichier.** Les deux\n"
+"formes de distracteur sont cette confusion jouée dans un sens ou dans l'autre :\n"
+"`Glob` proposé pour une recherche de contenu, et une correspondance de contenu\n"
+"comme `describe(` proposée pour ce qui est en réalité un motif de nom. Lisez la\n"
+"demande pour savoir ce qui est mis en correspondance, un chemin ou un octet,\n"
+"avant de lire les noms d'outils.\n"
 
 #. type: Title ###
-#: courses/en/02-tools-mcp.md:816
+#: courses/en/02-tools-mcp.md:815
 #, no-wrap
 msgid "When `Edit` fails, `Read` + `Write` is the documented fallback"
 msgstr "Quand `Edit` échoue, `Read` + `Write` est le repli documenté"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:821
+#: courses/en/02-tools-mcp.md:820
 #, no-wrap
 msgid ""
 "`Edit` works by matching text that must be **unique in the file**. When the\n"
@@ -4862,7 +4863,7 @@ msgstr ""
 "occurrence vous parliez.\n"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:824
+#: courses/en/02-tools-mcp.md:823
 #, no-wrap
 msgid ""
 "The guide names the fallback: **`Read` the file in full, amend the content, and\n"
@@ -4872,7 +4873,7 @@ msgstr ""
 "le `Write` en retour.**\n"
 
 #. type: Fenced code block (text)
-#: courses/en/02-tools-mcp.md:825
+#: courses/en/02-tools-mcp.md:824
 #, no-wrap
 msgid ""
 "# runbooks/db-failover.yaml — the line \"owner: unassigned\" appears 23 times.\n"
@@ -4894,7 +4895,7 @@ msgstr ""
 "Write(\"runbooks/db-failover.yaml\", …)    # le fichier amendé, écrit en entier\n"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:839
+#: courses/en/02-tools-mcp.md:838
 #, no-wrap
 msgid ""
 "The reason this works where `Edit` could not is that the full content carries the\n"
@@ -4907,7 +4908,7 @@ msgstr ""
 "vingt-deux autres.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/02-tools-mcp.md:840
+#: courses/en/02-tools-mcp.md:839
 #, no-wrap
 msgid ""
 "**Retrying `Edit` with the same anchor.** The matching is deterministic; a\n"
@@ -4924,13 +4925,13 @@ msgstr ""
 "un succès.\n"
 
 #. type: Title ###
-#: courses/en/02-tools-mcp.md:848
+#: courses/en/02-tools-mcp.md:847
 #, no-wrap
 msgid "Building understanding incrementally"
 msgstr "Construire la compréhension par incréments"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:854
+#: courses/en/02-tools-mcp.md:853
 #, no-wrap
 msgid ""
 "The guide's strategy for an unfamiliar codebase is explicit, and its value is as\n"
@@ -4944,7 +4945,7 @@ msgstr ""
 "tous les fichiers d'emblée.**\n"
 
 #. type: Fenced code block (text)
-#: courses/en/02-tools-mcp.md:855
+#: courses/en/02-tools-mcp.md:854
 #, no-wrap
 msgid ""
 "1. Grep \"createCheckoutSession\"    → the definition, and three call sites\n"
@@ -4960,7 +4961,7 @@ msgstr ""
 "5. Répéter jusqu'à ce que le flux soit complet\n"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:866
+#: courses/en/02-tools-mcp.md:865
 #, no-wrap
 msgid ""
 "Reading everything first fills the context window with files that turn out to be\n"
@@ -4973,13 +4974,13 @@ msgstr ""
 "mérite un Read.\n"
 
 #. type: Title ###
-#: courses/en/02-tools-mcp.md:867
+#: courses/en/02-tools-mcp.md:866
 #, no-wrap
 msgid "Tracing a function through wrapper modules"
 msgstr "Tracer une fonction à travers des modules d'enrobage"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:872
+#: courses/en/02-tools-mcp.md:871
 #, no-wrap
 msgid ""
 "The last skill is a specific failure of the naive approach, and it is worth\n"
@@ -4991,7 +4992,7 @@ msgstr ""
 "les appels passant par un alias ou un ré-export.\n"
 
 #. type: Fenced code block (text)
-#: courses/en/02-tools-mcp.md:873
+#: courses/en/02-tools-mcp.md:872
 #, no-wrap
 msgid ""
 "# Misses the indirect callers\n"
@@ -5017,7 +5018,7 @@ msgstr ""
 "                                     → tous les appelants sont maintenant trouvés\n"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:889
+#: courses/en/02-tools-mcp.md:888
 #, no-wrap
 msgid ""
 "The order is the substance: **first identify all the exported names, then search\n"
@@ -5029,7 +5030,7 @@ msgstr ""
 "à une question plus étroite que celle qui était posée.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/02-tools-mcp.md:890
+#: courses/en/02-tools-mcp.md:889
 #, no-wrap
 msgid ""
 "Three phrasings, three answers. \"Find files matching a naming pattern\" → Glob.\n"
@@ -5055,7 +5056,7 @@ msgstr ""
 "humain, alors que le repli documenté existe, n'achète rien.\n"
 
 #. type: Plain text
-#: courses/en/02-tools-mcp.md:903
+#: courses/en/02-tools-mcp.md:902
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"2.5\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"2.5\"`.\n"
@@ -6256,29 +6257,33 @@ msgstr ""
 #: courses/en/03-claude-code-config.md:462
 #, no-wrap
 msgid ""
-"**Plan mode arbitrates, the Explore subagent buys context.** They answer two\n"
-"different shortages and neither implies the other. Reach for plan mode when\n"
-"something has to be decided before any file changes; reach for Explore when a\n"
-"discovery phase is filling the window with reads you will never need again. A\n"
-"scenario running out of context mid-exploration is not asking you to plan, and\n"
-"a scenario with two viable architectures is not asking you to delegate.\n"
+"**Plan mode decides, Explore keeps the window clear, and the guide combines\n"
+"them.** They answer two different shortages: plan mode when something has to be\n"
+"settled before any file changes, Explore when a discovery phase fills the window\n"
+"with reads you will never need again. Neither implies the other, and neither\n"
+"excludes the other: a multi-phase task that has to be scoped *and* is running out\n"
+"of room during discovery takes both, which is the combination the guide names.\n"
+"The distractors answer the context shortage alone, with compaction or a restart,\n"
+"and leave the decision unmade.\n"
 msgstr ""
-"**Le plan mode arbitre, le subagent Explore achète du contexte.** Ils répondent\n"
-"à deux pénuries différentes et aucune n'implique l'autre. Prenez le plan mode\n"
-"quand quelque chose doit être décidé avant toute modification de fichier ;\n"
-"prenez Explore quand une phase de découverte remplit la fenêtre de lectures dont\n"
-"vous n'aurez plus jamais besoin. Un scénario à court de contexte en pleine\n"
-"exploration ne vous demande pas de planifier, et un scénario à deux\n"
-"architectures viables ne vous demande pas de déléguer.\n"
+"**Le plan mode décide, `Explore` garde la fenêtre dégagée, et le guide combine\n"
+"les deux.** Ils répondent à deux pénuries différentes : le plan mode quand\n"
+"quelque chose doit être tranché avant toute modification de fichier, `Explore`\n"
+"quand une phase de découverte remplit la fenêtre de lectures dont vous n'aurez\n"
+"plus jamais besoin. Aucun n'implique l'autre, et aucun n'exclut l'autre : une\n"
+"tâche en plusieurs phases qu'il faut à la fois cadrer *et* qui manque de place\n"
+"pendant la découverte prend les deux, et c'est la combinaison que le guide\n"
+"nomme. Les distracteurs répondent à la seule pénurie de contexte, par compaction\n"
+"ou par redémarrage, et laissent la décision en suspens.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:471
+#: courses/en/03-claude-code-config.md:473
 #, no-wrap
 msgid "The combination the guide asks about"
 msgstr "La combinaison sur laquelle le guide interroge"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:477
+#: courses/en/03-claude-code-config.md:479
 #, no-wrap
 msgid ""
 "Plan mode and direct execution are not a permanent allegiance. The common shape\n"
@@ -6293,7 +6298,7 @@ msgstr ""
 "fichier change.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/03-claude-code-config.md:478
+#: courses/en/03-claude-code-config.md:480
 #, no-wrap
 msgid ""
 "The complexity is **stated in the scenario**; it is never something you infer.\n"
@@ -6323,7 +6328,7 @@ msgstr ""
 "connaître la bonne structure avant que quiconque ait lu le code.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/03-claude-code-config.md:493
+#: courses/en/03-claude-code-config.md:495
 #, no-wrap
 msgid ""
 "**Treating plan mode as a safety feature and direct execution as the risky one.**\n"
@@ -6339,27 +6344,27 @@ msgstr ""
 "valeur attendue a déjà écrit la réponse que la planification irait chercher.\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:502
+#: courses/en/03-claude-code-config.md:504
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"3.4\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.4\"`.\n"
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/03-claude-code-config.md:503
+#: courses/en/03-claude-code-config.md:505
 #, no-wrap
 msgid "3.5 — Apply iterative refinement techniques for progressive improvement"
 msgstr "3.5 — Apply iterative refinement techniques for progressive improvement"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:505
+#: courses/en/03-claude-code-config.md:507
 #, no-wrap
 msgid "<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
 msgstr "<!-- ts:3.5 | src:exam guide TS 3.5 (concrete input/output examples as the most effective way to communicate an expected transformation when prose is read inconsistently, test-driven iteration, the interview pattern, one message for interacting problems versus sequential fixes for independent ones, and the associated skills: 2-3 pairs, tests covering expected behaviour, edge cases and performance before implementation, interviewing on cache invalidation and failure modes, a specific test case for a null value in a migration script) ; 06claudecode101 L5 (define an explicit success criterion, give Claude a test suite it can continuously validate against, make sure the tests are a reliable source of truth first) ; 01claudecodeinaction L8 (tests as a gate rather than a promise) -->\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:509
+#: courses/en/03-claude-code-config.md:511
 #, no-wrap
 msgid ""
 "The four techniques in this task statement come from the guide's own list. They\n"
@@ -6371,13 +6376,13 @@ msgstr ""
 "d'examen est toujours *de quelle défaillance il s'agit*.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:510
+#: courses/en/03-claude-code-config.md:512
 #, no-wrap
 msgid "Concrete input/output examples"
 msgstr "Des exemples entrée/sortie concrets"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:515
+#: courses/en/03-claude-code-config.md:517
 #, no-wrap
 msgid ""
 "The failure: the same prose instruction produces a different result each run.\n"
@@ -6389,7 +6394,7 @@ msgstr ""
 "C'est deux ou trois paires concrètes montrant la transformation.\n"
 
 #. type: Fenced code block (text)
-#: courses/en/03-claude-code-config.md:516
+#: courses/en/03-claude-code-config.md:518
 #, no-wrap
 msgid ""
 "Normalise these customer records.\n"
@@ -6405,7 +6410,7 @@ msgstr ""
 "  \"O'Brien, Sean (Jr.)\"    →  { first: \"Sean\", last: \"O'Brien\", suffix: \"Jr.\" }\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:528
+#: courses/en/03-claude-code-config.md:530
 #, no-wrap
 msgid ""
 "Three pairs settle what a paragraph of definition left open: where the comma\n"
@@ -6419,7 +6424,7 @@ msgstr ""
 "choisissez d'y inclure sont exactement ceux qui vous inquiétaient.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/03-claude-code-config.md:529
+#: courses/en/03-claude-code-config.md:531
 #, no-wrap
 msgid ""
 "When the scenario says a written instruction was rewritten once or twice and the\n"
@@ -6445,13 +6450,13 @@ msgstr ""
 "la même demande non contrainte.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:542
+#: courses/en/03-claude-code-config.md:544
 #, no-wrap
 msgid "Test-driven iteration"
 msgstr "L'itération guidée par les tests"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:548
+#: courses/en/03-claude-code-config.md:550
 #, no-wrap
 msgid ""
 "The failure: you cannot tell whether the code is right, so neither can Claude.\n"
@@ -6466,7 +6471,7 @@ msgstr ""
 
 # invariant: sortie brute de pytest — noms de tests et messages d'assertion produits par l'outil, que traduire rendrait faux
 #. type: Fenced code block (bash)
-#: courses/en/03-claude-code-config.md:549
+#: courses/en/03-claude-code-config.md:551
 #, no-wrap
 msgid ""
 "$ pytest tests/test_migration.py\n"
@@ -6478,7 +6483,7 @@ msgstr ""
 "FAILED test_duplicate_account_ids - KeyError: 'legacy_id'\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:559
+#: courses/en/03-claude-code-config.md:561
 #, no-wrap
 msgid ""
 "Two conditions make this work rather than merely feel rigorous. The tests must\n"
@@ -6493,7 +6498,7 @@ msgstr ""
 "qu'elles l'ont été.\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:563
+#: courses/en/03-claude-code-config.md:565
 #, no-wrap
 msgid ""
 "The guide's sharpest version of this is for edge cases. Rather than describing\n"
@@ -6506,13 +6511,13 @@ msgstr ""
 "traite mal.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:564
+#: courses/en/03-claude-code-config.md:566
 #, no-wrap
 msgid "The interview pattern"
 msgstr "L'interview pattern"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:568
+#: courses/en/03-claude-code-config.md:570
 #, no-wrap
 msgid ""
 "The failure: the specification is incomplete and nobody knows it yet. Ask Claude\n"
@@ -6522,7 +6527,7 @@ msgstr ""
 "Demandez à Claude de vous interroger avant d'implémenter.\n"
 
 #. type: Fenced code block (text)
-#: courses/en/03-claude-code-config.md:569
+#: courses/en/03-claude-code-config.md:571
 #, no-wrap
 msgid ""
 "Before implementing the cache for the pricing API, ask me whatever you need to\n"
@@ -6542,7 +6547,7 @@ msgstr ""
 "  4. Quel volume de lecture doit-il tenir ?\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:584
+#: courses/en/03-claude-code-config.md:586
 #, no-wrap
 msgid ""
 "Its value is question 2. You had not thought about the cache being unreachable,\n"
@@ -6558,19 +6563,19 @@ msgstr ""
 "dépend d'un contexte que vous n'avez pas énoncé.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:585
+#: courses/en/03-claude-code-config.md:587
 #, no-wrap
 msgid "One message, or one at a time"
 msgstr "Un seul message, ou un à la fois"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:588
+#: courses/en/03-claude-code-config.md:590
 #, no-wrap
 msgid "The failure: several problems at once, and the fixes fight each other.\n"
 msgstr "La défaillance : plusieurs problèmes à la fois, et les correctifs se combattent.\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:593
+#: courses/en/03-claude-code-config.md:595
 #, no-wrap
 msgid ""
 "| The problems are | Give feedback | Because |\n"
@@ -6584,7 +6589,7 @@ msgstr ""
 "| Indépendants — chacun se tient seul | **Séquentiellement** | Vous validez chaque étape, et rien de ce que vous approuvez n'est défait par le tour suivant |\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:597
+#: courses/en/03-claude-code-config.md:599
 #, no-wrap
 msgid ""
 "Error handling that is missing *and* input validation that is wrong are one\n"
@@ -6596,7 +6601,7 @@ msgstr ""
 "changer un type de retour font deux conversations.\n"
 
 #. type: Fenced div block (key-concept)
-#: courses/en/03-claude-code-config.md:598
+#: courses/en/03-claude-code-config.md:600
 #, no-wrap
 msgid ""
 "**Four techniques, four different failures.** Output that varies between runs\n"
@@ -6609,15 +6614,15 @@ msgid ""
 msgstr ""
 "**Quatre techniques, quatre défaillances différentes.** Une sortie qui varie\n"
 "d'une exécution à l'autre est une transformation sous-spécifiée, et la réponse\n"
-"est des paires travaillées. Du code que personne ne peut juger est une garde\n"
-"manquante, et la réponse est des tests écrits d'abord. Une conception que vous\n"
+"est les exemples travaillés. Du code que personne ne peut juger est un verrou\n"
+"manquant, et la réponse est des tests écrits d'abord. Une conception que vous\n"
 "ne savez pas énoncer est une spécification incomplète, et la réponse est de\n"
 "laisser Claude vous interroger. Des correctifs qui se défont l'un l'autre sont\n"
 "une question de feedback, et elle se joue sur l'interdépendance, jamais sur le\n"
 "nombre de problèmes.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/03-claude-code-config.md:608
+#: courses/en/03-claude-code-config.md:610
 #, no-wrap
 msgid ""
 "**Batching independent problems to save round-trips.** It is more\n"
@@ -6639,27 +6644,27 @@ msgstr ""
 "première. Le critère est l'interdépendance, jamais le nombre de problèmes.\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:620
+#: courses/en/03-claude-code-config.md:622
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"3.5\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.5\"`.\n"
 
 # invariant: libellé exact du task statement dans le guide d'examen, en anglais : le traduire romprait la correspondance avec l'énoncé du jour J
 #. type: Title ##
-#: courses/en/03-claude-code-config.md:621
+#: courses/en/03-claude-code-config.md:623
 #, no-wrap
 msgid "3.6 — Integrate Claude Code into CI/CD pipelines"
 msgstr "3.6 — Integrate Claude Code into CI/CD pipelines"
 
 # invariant: métadonnée machine (référence source / slug owns), jamais affichée ni traduisible
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:623
+#: courses/en/03-claude-code-config.md:625
 #, no-wrap
 msgid "<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
 msgstr "<!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:627
+#: courses/en/03-claude-code-config.md:629
 #, no-wrap
 msgid ""
 "Claude Code is interactive by default. Invoked in a pipeline with no one to\n"
@@ -6671,13 +6676,13 @@ msgstr ""
 "de l'étape. Tout ce task statement découle de là.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:628
+#: courses/en/03-claude-code-config.md:630
 #, no-wrap
 msgid "`-p`, and the shape of the output"
 msgstr "`-p`, et la forme de la sortie"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:633
+#: courses/en/03-claude-code-config.md:635
 #, no-wrap
 msgid ""
 "`-p`, spelled out `--print`, runs Claude Code as a one-shot command: it processes\n"
@@ -6690,7 +6695,7 @@ msgstr ""
 "branche en pipe comme n'importe quel outil shell.\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:639
+#: courses/en/03-claude-code-config.md:641
 #, no-wrap
 msgid ""
 "That gets the job to finish. Getting something the *next step* can act on takes\n"
@@ -6706,7 +6711,7 @@ msgstr ""
 "l'enveloppe, à un endroit fixe, si bien que rien en aval n'a de prose à parser.\n"
 
 #. type: Fenced code block (yaml)
-#: courses/en/03-claude-code-config.md:640
+#: courses/en/03-claude-code-config.md:642
 #, no-wrap
 msgid ""
 "- name: Review the diff\n"
@@ -6756,7 +6761,7 @@ msgstr ""
 "      | jq '.structured_output.issues' > findings.json\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:668
+#: courses/en/03-claude-code-config.md:670
 #, no-wrap
 msgid ""
 "`findings.json` is now a list a later step can post as inline pull-request\n"
@@ -6768,13 +6773,13 @@ msgstr ""
 "secrets du dépôt, jamais du fichier de workflow.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:669
+#: courses/en/03-claude-code-config.md:671
 #, no-wrap
 msgid "What the CI instance knows"
 msgstr "Ce que l'instance CI sait"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:678
+#: courses/en/03-claude-code-config.md:680
 #, no-wrap
 msgid ""
 "A CI-invoked Claude Code has no session history and nobody to ask. The guide's\n"
@@ -6796,7 +6801,7 @@ msgstr ""
 "nouveaux.\n"
 
 #. type: Fenced div block (key-concept)
-#: courses/en/03-claude-code-config.md:679
+#: courses/en/03-claude-code-config.md:681
 #, no-wrap
 msgid ""
 "`claude -p` loads the same project context an interactive session would,\n"
@@ -6827,13 +6832,13 @@ msgstr ""
 "vous dit de vous appuyer.\n"
 
 #. type: Title ###
-#: courses/en/03-claude-code-config.md:694
+#: courses/en/03-claude-code-config.md:696
 #, no-wrap
 msgid "Reviewing is a second instance's job"
 msgstr "Relire est le travail d'une seconde instance"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:701
+#: courses/en/03-claude-code-config.md:703
 #, no-wrap
 msgid ""
 "The session that wrote the code is the worst reviewer of it. It carries the\n"
@@ -6850,7 +6855,7 @@ msgstr ""
 "l'exécution d'origine s'est raconté pour passer outre.\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:703
+#: courses/en/03-claude-code-config.md:705
 #, no-wrap
 msgid "Two operational rules complete the picture, and both are guide skills:\n"
 msgstr ""
@@ -6858,7 +6863,7 @@ msgstr ""
 "compétences du guide :\n"
 
 #. type: Bullet: '- '
-#: courses/en/03-claude-code-config.md:710
+#: courses/en/03-claude-code-config.md:712
 #, no-wrap
 msgid ""
 "**Re-running a review after new commits, pass the previous findings in** and\n"
@@ -6873,7 +6878,7 @@ msgstr ""
 "remplit de commentaires dupliqués, et les développeurs cessent de les lire.\n"
 
 #. type: Bullet: '- '
-#: courses/en/03-claude-code-config.md:710
+#: courses/en/03-claude-code-config.md:712
 #, no-wrap
 msgid ""
 "**Pass the existing test files** when generating tests, so the new ones do not\n"
@@ -6883,7 +6888,7 @@ msgstr ""
 "les nouveaux ne dupliquent pas des scénarios déjà couverts.\n"
 
 #. type: Fenced div block (exam-tip)
-#: courses/en/03-claude-code-config.md:711
+#: courses/en/03-claude-code-config.md:713
 #, no-wrap
 msgid ""
 "Four associations settle most CI questions. A job hanging on input → `-p`. A\n"
@@ -6919,7 +6924,7 @@ msgstr ""
 "regex, qui déplace la fragilité dans votre propre code au lieu de la supprimer.\n"
 
 #. type: Fenced div block (anti-pattern)
-#: courses/en/03-claude-code-config.md:729
+#: courses/en/03-claude-code-config.md:731
 #, no-wrap
 msgid ""
 "**Re-running the review from scratch on every push.** Claude has no memory\n"
@@ -6947,7 +6952,7 @@ msgstr ""
 "puis inter-fichiers, est développé en D4.6.**\n"
 
 #. type: Plain text
-#: courses/en/03-claude-code-config.md:742
+#: courses/en/03-claude-code-config.md:744
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"3.6\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"3.6\"`.\n"
@@ -9635,24 +9640,24 @@ msgstr ""
 #: courses/en/05-context-reliability.md:308
 #, no-wrap
 msgid ""
-"**Checkable facts trigger escalation; estimates of difficulty do not.** The four\n"
-"accepted triggers are all observable: what the customer's message says, whether\n"
-"the policy covers the request, what the lookup returned, how many attempts have\n"
-"failed. The rejected proxies, tone and self-rated confidence, are estimates of\n"
-"how hard the case is, and difficulty is not a trigger in the first place: the\n"
-"price-match example is one tool call, and it escalates because the policy is\n"
-"undecided. When an option offers a signal, ask whether you could verify it\n"
-"without asking the model.\n"
+"**Three triggers, and an ambiguity is not one of them.** The guide accepts a\n"
+"customer asking for a human, a policy gap or exception, and an inability to make\n"
+"real progress: all three are checkable without asking the model. Tone and\n"
+"self-rated confidence are rejected because they estimate how hard a case is, and\n"
+"difficulty was never a trigger; the price-match example is one tool call, and it\n"
+"escalates because the policy has not settled the question. A lookup that returns\n"
+"several matches is the case to keep separate: it calls for a discriminating\n"
+"identifier, not for a human.\n"
 msgstr ""
-"**Des faits vérifiables déclenchent l'escalade ; des estimations de difficulté,\n"
-"non.** Les quatre déclencheurs acceptés sont tous observables : ce que dit le\n"
-"message du client, si la politique couvre la demande, ce qu'a retourné la\n"
-"consultation, combien de tentatives ont échoué. Les proxys rejetés, le ton et la\n"
-"confiance auto-évaluée, sont des estimations de la difficulté du cas, et la\n"
-"difficulté n'est de toute façon pas un déclencheur : l'exemple de l'alignement\n"
-"de prix tient en un appel d'outil, et il escalade parce que la politique est\n"
-"indécise. Quand une option propose un signal, demandez-vous si vous pourriez le\n"
-"vérifier sans interroger le modèle.\n"
+"**Trois déclencheurs, et une ambiguïté n'en fait pas partie.** Le guide accepte\n"
+"qu'un client demande un humain, qu'il y ait une lacune ou une exception dans la\n"
+"politique, et l'incapacité à progresser réellement : les trois sont vérifiables\n"
+"sans interroger le modèle. Le ton et la confiance auto-déclarée sont rejetés\n"
+"parce qu'ils estiment la difficulté d'un cas, et la difficulté n'a jamais été un\n"
+"déclencheur ; l'exemple de l'alignement de prix tient en un appel d'outil, et il\n"
+"escalade parce que la politique n'a rien tranché. Une consultation qui retourne\n"
+"plusieurs correspondances est le cas à garder à part : elle appelle un\n"
+"identifiant discriminant, pas un humain.\n"
 
 #. type: Title ###
 #: courses/en/05-context-reliability.md:319
@@ -11271,8 +11276,8 @@ msgstr ""
 "n'a jamais reçu : une passe finale qui « ajoute les citations », un agent de\n"
 "synthèse chargé d'attacher les sources lui-même. C'est pourquoi l'exigence\n"
 "retombe sur le prompt du subagent et sur l'obligation de l'agent de synthèse de\n"
-"faire passer la correspondance. Dans un scénario, trouvez l'étape où\n"
-"l'attribution existait encore ; les mauvaises réponses agissent toutes en aval.\n"
+"faire passer les mappings. Dans un scénario, trouvez l'étape où l'attribution\n"
+"existait encore ; les mauvaises réponses agissent toutes en aval de celle-ci.\n"
 
 #. type: Title ###
 #: courses/en/05-context-reliability.md:962
@@ -11563,6 +11568,62 @@ msgstr ""
 #, no-wrap
 msgid "**To test** — bank questions tagged `data-task=\"5.6\"`.\n"
 msgstr "**À tester** — les questions de la banque étiquetées `data-task=\"5.6\"`.\n"
+
+#, no-wrap
+#~ msgid ""
+#~ "**Both are called \"search\"; only one of them opens a file.** Glob answers a\n"
+#~ "question about names and paths, Grep a question about the bytes inside them.\n"
+#~ "\"Every test file for the checkout flow\" is a naming pattern; \"every caller of\n"
+#~ "`applyDiscount`\" is a string that lives in file contents. The two distractor\n"
+#~ "shapes are the same confusion in either direction: `Glob` offered for a content\n"
+#~ "search, and a content match such as `describe(` offered for a naming pattern.\n"
+#~ msgstr ""
+#~ "**Les deux s'appellent « recherche » ; un seul ouvre un fichier.** Glob répond à\n"
+#~ "une question sur les noms et les chemins, Grep à une question sur les octets\n"
+#~ "qu'ils contiennent. « Tous les fichiers de test du parcours de commande » est un\n"
+#~ "motif de nom ; « tous les appelants de `applyDiscount` » est une chaîne qui vit\n"
+#~ "dans le contenu des fichiers. Les deux formes de distracteur sont la même\n"
+#~ "confusion dans un sens ou dans l'autre : `Glob` proposé pour une recherche de\n"
+#~ "contenu, et une correspondance de contenu comme `describe(` proposée pour un\n"
+#~ "motif de nom.\n"
+
+#, no-wrap
+#~ msgid ""
+#~ "**Plan mode arbitrates, the Explore subagent buys context.** They answer two\n"
+#~ "different shortages and neither implies the other. Reach for plan mode when\n"
+#~ "something has to be decided before any file changes; reach for Explore when a\n"
+#~ "discovery phase is filling the window with reads you will never need again. A\n"
+#~ "scenario running out of context mid-exploration is not asking you to plan, and\n"
+#~ "a scenario with two viable architectures is not asking you to delegate.\n"
+#~ msgstr ""
+#~ "**Le plan mode arbitre, le subagent Explore achète du contexte.** Ils répondent\n"
+#~ "à deux pénuries différentes et aucune n'implique l'autre. Prenez le plan mode\n"
+#~ "quand quelque chose doit être décidé avant toute modification de fichier ;\n"
+#~ "prenez Explore quand une phase de découverte remplit la fenêtre de lectures dont\n"
+#~ "vous n'aurez plus jamais besoin. Un scénario à court de contexte en pleine\n"
+#~ "exploration ne vous demande pas de planifier, et un scénario à deux\n"
+#~ "architectures viables ne vous demande pas de déléguer.\n"
+
+#, no-wrap
+#~ msgid ""
+#~ "**Checkable facts trigger escalation; estimates of difficulty do not.** The four\n"
+#~ "accepted triggers are all observable: what the customer's message says, whether\n"
+#~ "the policy covers the request, what the lookup returned, how many attempts have\n"
+#~ "failed. The rejected proxies, tone and self-rated confidence, are estimates of\n"
+#~ "how hard the case is, and difficulty is not a trigger in the first place: the\n"
+#~ "price-match example is one tool call, and it escalates because the policy is\n"
+#~ "undecided. When an option offers a signal, ask whether you could verify it\n"
+#~ "without asking the model.\n"
+#~ msgstr ""
+#~ "**Des faits vérifiables déclenchent l'escalade ; des estimations de difficulté,\n"
+#~ "non.** Les quatre déclencheurs acceptés sont tous observables : ce que dit le\n"
+#~ "message du client, si la politique couvre la demande, ce qu'a retourné la\n"
+#~ "consultation, combien de tentatives ont échoué. Les proxys rejetés, le ton et la\n"
+#~ "confiance auto-évaluée, sont des estimations de la difficulté du cas, et la\n"
+#~ "difficulté n'est de toute façon pas un déclencheur : l'exemple de l'alignement\n"
+#~ "de prix tient en un appel d'outil, et il escalade parce que la politique est\n"
+#~ "indécise. Quand une option propose un signal, demandez-vous si vous pourriez le\n"
+#~ "vérifier sans interroger le modèle.\n"
 
 #, no-wrap
 #~ msgid ""

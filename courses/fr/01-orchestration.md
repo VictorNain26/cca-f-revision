@@ -202,12 +202,13 @@ ci-dessous.
 ### Une décomposition trop étroite
 
 Le risque que le guide nomme explicitement est une **décomposition trop étroite
-par le coordinateur**. Chargé d'un rapport sur « AI impact on creative
-industries », un coordinateur le découpe en « AI in digital art », « AI in
-graphic design » et « AI in photography ». Chaque subagent exécute correctement
-son brief. Le rapport ne couvre que l'art visuel ; la musique, la littérature et
-le cinéma sont simplement absents. Rien n'a échoué en aval, parce que
-l'assignation était déjà incomplète.
+par le coordinateur**, et il se voit dans le rapport plutôt que dans les
+journaux. Un coordinateur à qui l'on demande un panorama de l'IA générative dans
+les industries créatives assigne « l'IA dans l'art visuel », « l'IA dans la
+génération d'images », « l'IA en photographie ». Chaque subagent exécute
+correctement sa consigne. Le rapport ne couvre que l'art visuel ; la musique, la
+littérature et le cinéma sont simplement absents. Rien n'a échoué en aval.
+L'assignation était déjà incomplète.
 
 ::: exam-tip
 Quand chaque subagent a fait ce qu'on lui demandait et que le rapport final rate
@@ -442,12 +443,12 @@ matchers, champs de décision — est en TS 1.5, ci-dessous.**
 
 ::: key-concept
 **La conformité déterministe est une propriété du code, pas de la formulation.**
-Les mauvaises réponses sont ici de vraies améliorations : une consigne plus
-ferme, des exemples few-shot montrant le bon ordre, un audit qui rattrape les
-violations après coup. Les deux premières abaissent le taux d'échec et laissent
-un reste ; la troisième signale la brèche après l'action qu'elle devait
-empêcher. Quand le scénario nomme une conséquence financière, légale ou de
-sécurité, seul un mécanisme qui rend la violation impossible satisfait
+Les mauvaises réponses sont ici le plus souvent de vraies améliorations : une
+consigne plus ferme, des exemples few-shot montrant le bon ordre, un audit qui
+rattrape les violations après coup. Les deux premières abaissent le taux d'échec
+et laissent un reste ; la troisième signale la brèche après l'action qu'elle
+devait empêcher. Quand le scénario nomme une conséquence financière, légale ou
+de sécurité, seul un mécanisme qui rend la violation impossible satisfait
 l'exigence.
 :::
 
@@ -762,10 +763,12 @@ payloads morts.
 ::: key-concept
 **Une session est un relevé de ce qui a été lu, pas l'état de ce qui est sur le
 disque.** Chacun des trois choix se joue sur ce qui reste vrai de ce relevé. La
-reprise garde le relevé entier, et ne marche que tant qu'il l'est. Un fork copie
-le relevé, lectures périmées comprises, et c'est pourquoi il compare deux
-approches et jamais deux versions d'un fichier. Une session neuve garde les
-conclusions que vous avez écrites et laisse derrière elle les lectures expirées.
+reprise convient tant que le relevé est *en grande partie* valide, et c'est le
+fait de nommer les fichiers qui ont changé qui la rend ciblée plutôt que
+hasardeuse. Un fork branche l'historique de conversation et non le système de
+fichiers, et c'est pourquoi il compare deux approches et jamais deux versions
+d'un fichier. Une session neuve accompagnée d'un résumé écrit garde vos
+conclusions et laisse derrière elle les lectures périmées.
 :::
 
 ::: anti-pattern

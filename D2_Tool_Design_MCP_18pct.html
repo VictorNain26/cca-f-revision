@@ -344,7 +344,7 @@ ne sont pas interchangeables.</p>
 </tbody>
 </table>
 <p>Relisez la seconde ligne deux fois, parce qu'elle est contre-intuitive et
-qu'elle est tout ce task statement. <strong>Une règle métier violée n'est pas une
+qu'elle résume à elle seule ce task statement. <strong>Une règle métier violée n'est pas une
 erreur de protocole.</strong> L'appel est parvenu à l'outil, l'outil a tourné, et il a
 décidé que l'opération ne devait pas avoir lieu. La réponse revient donc comme
 un résultat normal dont <code>isError</code> vaut vrai et dont l'agent peut lire le
@@ -440,7 +440,7 @@ c'est celle qui produit des réponses fausses silencieuses plutôt que bruyantes
 </tr>
 </tbody>
 </table>
-<p>Confondez-les et vous obtenez l'un de deux défauts. Signalez le résultat vide
+<p>Confondez-les et vous obtenez l'un des deux défauts. Signalez le résultat vide
 comme une erreur et l'agent réessaie une question à laquelle il a déjà été
 répondu. Signalez le timeout comme un résultat vide et l'agent conclut, de bonne
 foi, qu'il n'y a rien à trouver, et le trou n'apparaît jamais dans la réponse
@@ -998,7 +998,7 @@ l'examen lui-même est que les serveurs sur mesure sont pour ce qui est
 réellement spécifique à l'équipe.</p>
 <p><strong>Dupliquer une capacité intégrée dans un serveur MCP.</strong> Si <code>Grep</code> répond déjà
 au besoin, un serveur qui fait du grep est une deuxième manière de faire une
-seule chose. Il achète aussi le problème de sélection de 2.3, offert.</p>
+seule chose. Il vous vaut en prime le problème de sélection de 2.3.</p>
 </div>
 
 <div class="section-quiz">
@@ -1078,14 +1078,12 @@ correspondre des chemins. Grep se moque du nom de fichier : il fait correspondre
 du contenu. « Trouve tous les fichiers de test du parcours de commande », c'est
 Glob. « Trouve tous les appelants de <code>applyDiscount</code> », c'est Grep.</p>
 <div class="key-concept">
-<p><strong>Les deux s'appellent « recherche » ; un seul ouvre un fichier.</strong> Glob répond à
-une question sur les noms et les chemins, Grep à une question sur les octets
-qu'ils contiennent. « Tous les fichiers de test du parcours de commande » est un
-motif de nom ; « tous les appelants de <code>applyDiscount</code> » est une chaîne qui vit
-dans le contenu des fichiers. Les deux formes de distracteur sont la même
-confusion dans un sens ou dans l'autre : <code>Glob</code> proposé pour une recherche de
-contenu, et une correspondance de contenu comme <code>describe(</code> proposée pour un
-motif de nom.</p>
+<p><strong>Les deux s'appellent « recherche » ; un seul ouvre un fichier.</strong> Les deux
+formes de distracteur sont cette confusion jouée dans un sens ou dans l'autre :
+<code>Glob</code> proposé pour une recherche de contenu, et une correspondance de contenu
+comme <code>describe(</code> proposée pour ce qui est en réalité un motif de nom. Lisez la
+demande pour savoir ce qui est mis en correspondance, un chemin ou un octet,
+avant de lire les noms d'outils.</p>
 </div>
 <h3>Quand <code>Edit</code> échoue, <code>Read</code> + <code>Write</code> est le repli documenté</h3>
 <p><code>Edit</code> fonctionne en faisant correspondre un texte qui doit être <strong>unique dans
