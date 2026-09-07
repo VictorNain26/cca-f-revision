@@ -17,16 +17,16 @@ sans traduction.
 
 <!-- cross-refs:start -->
 
-Quatre cours renvoient à celui-ci, et les quatre dettes sont réglées
-ci-dessous. **D0** a nommé les trois modes de défaillance d'une fenêtre de
-contexte pleine — lost-in-the-middle, accumulation, compression progressive — et
-s'est arrêté là : les parades sont en 5.1. **D1** a dit quand une règle exige une
-application programmatique et a renvoyé la question de *quand escalader tout
-court* en 5.2. **D2** a enseigné la forme d'une charge utile d'erreur —
-`isError`, la catégorie, le drapeau de reprise, l'enveloppe des résultats
-partiels — et a renvoyé ce que le coordinateur *fait* de cette enveloppe en 5.3.
-**D3** a renvoyé `/compact` à ce domaine ; il relève de **5.4**, là où le guide
-le place parmi les skills de l'exploration de grandes codebases.
+Quatre cours renvoient à celui-ci, et les quatre dettes sont réglées ci-dessous.
+**D0** a nommé les trois modes de défaillance d'une fenêtre de contexte pleine —
+lost-in-the-middle, accumulation, compression progressive — et s'est arrêté là :
+les parades sont en 5.1. **D1** a dit quand une règle exige une application
+programmatique et a renvoyé la question de *quand escalader tout court* en 5.2.
+**D2** a enseigné la forme d'une charge utile d'erreur — `isError`, la
+catégorie, le drapeau de reprise, l'enveloppe des résultats partiels — et a
+renvoyé ce que le coordinateur *fait* de cette enveloppe en 5.3. **D3** a
+renvoyé `/compact` à ce domaine ; il relève de **5.4**, là où le guide le place
+parmi les compétences de l'exploration de grandes codebases.
 
 Le trafic va aussi dans l'autre sens, et ce cours le respecte. L'anatomie de la
 fenêtre de contexte appartient à D0. L'isolation d'un subagent et ce dont il
@@ -138,13 +138,13 @@ lookup_order(ORD-67890) →
   promo_ledger, tax_jurisdiction, … (35 autres)          ← payés à chaque tour suivant
 ```
 
-Le skill consiste à réduire **avant** que le résultat n'entre dans le contexte,
-c'est-à-dire entre le retour de l'outil et la lecture du modèle. **Le guide ne
-nomme aucun mécanisme pour cela** : il énonce le skill et s'arrête là. Un
-mécanisme se tient exactement dans cette fenêtre : un hook `PostToolUse`, dont
-l'`updatedToolOutput` remplace la sortie d'un outil avant que Claude ne la voie.
-La documentation du SDK présente ce champ pour un autre usage — normaliser des
-formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est
+La compétence consiste à réduire **avant** que le résultat n'entre dans le
+contexte, c'est-à-dire entre le retour de l'outil et la lecture du modèle. **Le
+guide ne nomme aucun mécanisme pour cela** : il énonce la compétence et s'arrête
+là. Un mécanisme se tient exactement dans cette fenêtre : un hook `PostToolUse`,
+dont l'`updatedToolOutput` remplace la sortie d'un outil avant que Claude ne la
+voie. La documentation du SDK présente ce champ pour un autre usage — normaliser
+des formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est
 propre à la normalisation, donc il sert aussi celui-ci. La déduction est celle
 de ce cours ; le champ et son moment d'exécution sont ceux de la documentation.
 
@@ -208,8 +208,9 @@ autres.
 
 ### Ce que les agents en amont doivent envoyer en aval
 
-Deux des skills du guide portent sur le format de sortie de l'*autre* agent, et
-tous deux s'appliquent quand un agent en aval a un budget de contexte limité.
+Deux des compétences du guide portent sur le format de sortie de l'*autre*
+agent, et toutes deux s'appliquent quand un agent en aval a un budget de
+contexte limité.
 
 - **Exiger des métadonnées dans les sorties des subagents** — dates, localisations
   des sources, contexte méthodologique — pour que la synthèse en aval soit exacte
@@ -364,9 +365,9 @@ s'applique.
 
 ### Comment la politique entre dans l'agent
 
-Le premier skill du guide nomme les deux moitiés et aucune ne fonctionne seule :
-des **critères d'escalade explicites** *avec* des **exemples few-shot** dans le
-system prompt.
+La première compétence du guide nomme les deux moitiés et aucune ne fonctionne
+seule : des **critères d'escalade explicites** *avec* des **exemples few-shot**
+dans le system prompt.
 
 ```text
 # Critères d'escalade
@@ -578,10 +579,10 @@ comptez pas parmi eux.
 
 ### Les annotations de couverture dans la synthèse
 
-Le dernier skill boucle la boucle. Une synthèse construite à partir d'entrées
-incomplètes doit le dire, dans la sortie, section par section : **quelles
-découvertes sont bien étayées, et quels domaines du sujet ont des lacunes parce
-qu'une source était indisponible.**
+La dernière compétence boucle la boucle. Une synthèse construite à partir
+d'entrées incomplètes doit le dire, dans la sortie, section par section :
+**quelles découvertes sont bien étayées, et quels domaines du sujet ont des
+lacunes parce qu'une source était indisponible.**
 
 ```text
 L'IA dans les industries créatives
@@ -701,7 +702,7 @@ trajet ; garder dans le thread principal quand chaque étape dépend de ce que
 l'étape précédente a trouvé, parce que la passation est l'endroit où cette
 dépendance casse.
 
-**Et résumez entre les phases.** Le skill est facile à sauter et le guide
+**Et résumez entre les phases.** La compétence est facile à sauter et le guide
 l'énonce explicitement : avant de lancer les subagents de la phase suivante,
 résumer les découvertes clés de la phase en cours et **injecter ce résumé dans
 leur contexte initial**. Un subagent n'hérite de rien (TS 1.3) : ni de
@@ -803,10 +804,9 @@ subagent lanceur de tests qui retourne « les tests ont échoué » cache la sor
 dont vous avez besoin pour déboguer, et un pipeline séquentiel où chaque agent
 dépend des découvertes du précédent perd de l'information à chaque passation.
 L'isolation n'est gratuite que quand le trajet n'a vraiment aucun intérêt.
-
 **Traiter `/compact` comme la réponse entière.** Il est bien sur la liste des
-skills de ce task statement, et c'est celui qui ne garantit rien sur un fait
-donné.
+compétences de ce task statement, et c'est celle qui ne garantit rien sur un
+fait donné.
 :::
 
 **À tester** — les questions de la banque étiquetées `data-task="5.4"`.
@@ -1046,12 +1046,12 @@ sur un catalogue et une enquête déclarative auprès de labels ne mesurent pas 
 à fait la même chose. Cette explication n'existe que parce que la méthodologie a
 voyagé avec la valeur.
 
-La même règle s'applique un étage plus tôt, et le guide l'énonce comme un skill de
-l'agent d'analyse : **terminer l'analyse du document avec les deux valeurs
-incluses et explicitement annotées, et laisser le coordinateur décider comment les
-réconcilier** avant que quoi que ce soit n'atteigne la synthèse. Un agent
-d'analyse qui désigne un gagnant a pris une décision qui ne lui revenait pas,
-silencieusement, dans une étape que personne ne relit.
+La même règle s'applique un étage plus tôt, et le guide l'énonce comme une
+compétence de l'agent d'analyse : **terminer l'analyse du document avec les deux
+valeurs incluses et explicitement annotées, et laisser le coordinateur décider
+comment les réconcilier** avant que quoi que ce soit n'atteigne la synthèse. Un
+agent d'analyse qui désigne un gagnant a pris une décision qui ne lui revenait
+pas, silencieusement, dans une étape que personne ne relit.
 
 ### Les dates transforment une fausse contradiction en tendance
 
@@ -1099,8 +1099,8 @@ par deux côtés : sur quoi ceci repose-t-il, et que lui manque-t-il.
 
 ### Rendre chaque type de contenu dans sa forme propre
 
-Le dernier skill porte sur le format de sortie, et c'est celui qui prend les
-gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
+La dernière compétence porte sur le format de sortie, et c'est celle qui prend
+les gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
 agent de synthèse reçoit du matériau hétérogène et est tenté de tout couler dans
 une seule forme, de la prose en général, parce que la prose est le format par
 défaut.

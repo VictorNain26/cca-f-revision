@@ -116,10 +116,10 @@ commentaire nomme une fonction qui n'existe pas ».</p>
 produit deux fois la même réponse.</p>
 </div>
 <h3>Des critères de severity qui classent de la même façon</h3>
-<p>Le troisième skill du guide porte sur la severity, et il demande deux choses :
-des critères explicites pour chaque niveau, <strong>et un exemple de code concret par
-niveau</strong>. La définition seule laisse « medium » au goût de chacun ; l'exemple
-travaillé le fixe.</p>
+<p>La troisième compétence du guide porte sur la severity, et elle demande deux
+choses : des critères explicites pour chaque niveau, <strong>et un exemple de code
+concret par niveau</strong>. La définition seule laisse « medium » au goût de chacun ;
+l'exemple travaillé le fixe.</p>
 <pre><code class="language-text">CRITICAL — échoue à l'exécution pour les utilisateurs.
   Exemple : payment_total = order.get(&quot;total&quot;) + order[&quot;tip&quot;]   # KeyError s'il n'y a pas de tip
 HIGH — vulnérabilité de sécurité.
@@ -454,7 +454,7 @@ réponse conforme.</p>
 </tr>
 </tbody>
 </table>
-<p>Le dernier skill du guide sur ce task statement est facile à sauter et peu
+<p>La dernière compétence du guide sur ce task statement est facile à sauter et peu
 coûteux à appliquer : <strong>les règles de normalisation de format vont dans le
 prompt, à côté du schéma strict.</strong> Le schéma dit qu'un champ est une chaîne ;
 seul le prompt peut dire laquelle.</p>
@@ -637,11 +637,11 @@ qu'un code qui ne vérifie que le statut traite un refus comme un succès et par
 une réponse non conforme. <code>stop_reason: &quot;max_tokens&quot;</code> signifie que la sortie a
 été coupée en cours de génération ; le retry est alors un budget plus grand, pas
 un meilleur prompt. L'ensemble complet des valeurs de <code>stop_reason</code> appartient à
-D0.</p>
-<p>Le dernier étage du pattern, et un skill du guide : faire produire au modèle une
-confidence par champ, router les extractions à faible confiance vers une
-relecture humaine, et mesurer la précision par type de document et par champ.
-Une précision globale acceptable peut masquer un type de document raté
+D0.
+Le dernier étage du pattern, et une compétence du guide : faire produire au
+modèle une confidence par champ, router les extractions à faible confiance vers
+une relecture humaine, et mesurer la précision par type de document et par
+champ. Une précision globale acceptable peut masquer un type de document raté
 systématiquement.</p>
 </div>
 <div class="exam-tip">
@@ -977,7 +977,7 @@ review --scope=&quot;$(git diff --name-only main...HEAD)&quot; \
 local contre inter-fichiers, parce que ce sont les deux choses qu'une passe
 indifférenciée fait le plus mal.</p>
 <h3>La confidence, auto-reportée</h3>
-<p>Le troisième skill est une passe de vérification où le modèle reporte une
+<p>La troisième compétence est une passe de vérification où le modèle reporte une
 confidence à côté de chaque signalement. La valeur n'est pas le nombre lui-même
 mais le routage qu'il permet : les signalements à forte confidence vont
 directement au développeur, ceux à faible confidence vers une vérification

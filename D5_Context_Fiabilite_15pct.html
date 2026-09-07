@@ -64,16 +64,16 @@ sans traduction.</p>
 
 <details class="cross-refs" open>
 <summary>Ce que ce cours possède, ce qu’il renvoie ailleurs</summary>
-<p>Quatre cours renvoient à celui-ci, et les quatre dettes sont réglées
-ci-dessous. <strong>D0</strong> a nommé les trois modes de défaillance d'une fenêtre de
-contexte pleine — lost-in-the-middle, accumulation, compression progressive — et
-s'est arrêté là : les parades sont en 5.1. <strong>D1</strong> a dit quand une règle exige une
-application programmatique et a renvoyé la question de <em>quand escalader tout
-court</em> en 5.2. <strong>D2</strong> a enseigné la forme d'une charge utile d'erreur —
-<code>isError</code>, la catégorie, le drapeau de reprise, l'enveloppe des résultats
-partiels — et a renvoyé ce que le coordinateur <em>fait</em> de cette enveloppe en 5.3.
-<strong>D3</strong> a renvoyé <code>/compact</code> à ce domaine ; il relève de <strong>5.4</strong>, là où le guide
-le place parmi les skills de l'exploration de grandes codebases.</p>
+<p>Quatre cours renvoient à celui-ci, et les quatre dettes sont réglées ci-dessous.
+<strong>D0</strong> a nommé les trois modes de défaillance d'une fenêtre de contexte pleine —
+lost-in-the-middle, accumulation, compression progressive — et s'est arrêté là :
+les parades sont en 5.1. <strong>D1</strong> a dit quand une règle exige une application
+programmatique et a renvoyé la question de <em>quand escalader tout court</em> en 5.2.
+<strong>D2</strong> a enseigné la forme d'une charge utile d'erreur — <code>isError</code>, la
+catégorie, le drapeau de reprise, l'enveloppe des résultats partiels — et a
+renvoyé ce que le coordinateur <em>fait</em> de cette enveloppe en 5.3. <strong>D3</strong> a
+renvoyé <code>/compact</code> à ce domaine ; il relève de <strong>5.4</strong>, là où le guide le place
+parmi les compétences de l'exploration de grandes codebases.</p>
 <p>Le trafic va aussi dans l'autre sens, et ce cours le respecte. L'anatomie de la
 fenêtre de contexte appartient à D0. L'isolation d'un subagent et ce dont il
 hérite relèvent des TS 1.2 et 1.3. Le mécanisme des hooks — les événements,
@@ -185,13 +185,13 @@ suivante pour tout le reste de la session.</p>
   warehouse_route, carrier_scac, pick_wave, audit_flags,
   promo_ledger, tax_jurisdiction, … (35 autres)          ← payés à chaque tour suivant
 </code></pre>
-<p>Le skill consiste à réduire <strong>avant</strong> que le résultat n'entre dans le contexte,
-c'est-à-dire entre le retour de l'outil et la lecture du modèle. <strong>Le guide ne
-nomme aucun mécanisme pour cela</strong> : il énonce le skill et s'arrête là. Un
-mécanisme se tient exactement dans cette fenêtre : un hook <code>PostToolUse</code>, dont
-l'<code>updatedToolOutput</code> remplace la sortie d'un outil avant que Claude ne la voie.
-La documentation du SDK présente ce champ pour un autre usage — normaliser des
-formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est
+<p>La compétence consiste à réduire <strong>avant</strong> que le résultat n'entre dans le
+contexte, c'est-à-dire entre le retour de l'outil et la lecture du modèle. <strong>Le
+guide ne nomme aucun mécanisme pour cela</strong> : il énonce la compétence et s'arrête
+là. Un mécanisme se tient exactement dans cette fenêtre : un hook <code>PostToolUse</code>,
+dont l'<code>updatedToolOutput</code> remplace la sortie d'un outil avant que Claude ne la
+voie. La documentation du SDK présente ce champ pour un autre usage — normaliser
+des formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est
 propre à la normalisation, donc il sert aussi celui-ci. La déduction est celle
 de ce cours ; le champ et son moment d'exécution sont ceux de la documentation.</p>
 <pre><code class="language-python">async def trim_order_lookup(input_data, tool_use_id, context):
@@ -244,8 +244,9 @@ la seconde moitié du travail : ils donnent au milieu une structure par laquelle
 être retrouvé, au lieu d'un mur plat où un paragraphe ressemble à tous les
 autres.</p>
 <h3>Ce que les agents en amont doivent envoyer en aval</h3>
-<p>Deux des skills du guide portent sur le format de sortie de l'<em>autre</em> agent, et
-tous deux s'appliquent quand un agent en aval a un budget de contexte limité.</p>
+<p>Deux des compétences du guide portent sur le format de sortie de l'<em>autre</em>
+agent, et toutes deux s'appliquent quand un agent en aval a un budget de
+contexte limité.</p>
 <ul>
 <li><strong>Exiger des métadonnées dans les sorties des subagents</strong> — dates, localisations
 des sources, contexte méthodologique — pour que la synthèse en aval soit exacte
@@ -452,9 +453,9 @@ l'agent pouvait appliquer tout de suite. Et la porte de sortie est dans la même
 règle : si le client <em>réitère</em>, il a maintenant demandé, et le premier déclencheur
 s'applique.</p>
 <h3>Comment la politique entre dans l'agent</h3>
-<p>Le premier skill du guide nomme les deux moitiés et aucune ne fonctionne seule :
-des <strong>critères d'escalade explicites</strong> <em>avec</em> des <strong>exemples few-shot</strong> dans le
-system prompt.</p>
+<p>La première compétence du guide nomme les deux moitiés et aucune ne fonctionne
+seule : des <strong>critères d'escalade explicites</strong> <em>avec</em> des <strong>exemples few-shot</strong>
+dans le system prompt.</p>
 <pre><code class="language-text"># Critères d'escalade
 Escalader immédiatement quand le client demande un humain, quelle qu'en soit la
 formulation.
@@ -714,10 +715,10 @@ quelque part.</p>
 gaspillé — mais ils ne figurent pas sur la liste des trois du guide. Ne les
 comptez pas parmi eux.</p>
 <h3>Les annotations de couverture dans la synthèse</h3>
-<p>Le dernier skill boucle la boucle. Une synthèse construite à partir d'entrées
-incomplètes doit le dire, dans la sortie, section par section : <strong>quelles
-découvertes sont bien étayées, et quels domaines du sujet ont des lacunes parce
-qu'une source était indisponible.</strong></p>
+<p>La dernière compétence boucle la boucle. Une synthèse construite à partir
+d'entrées incomplètes doit le dire, dans la sortie, section par section :
+<strong>quelles découvertes sont bien étayées, et quels domaines du sujet ont des
+lacunes parce qu'une source était indisponible.</strong></p>
 <pre><code class="language-text">L'IA dans les industries créatives
 
 Art visuel — COUVERTURE COMPLÈTE
@@ -839,7 +840,7 @@ D1, s'applique inchangée : déléguer quand vous voulez le résultat et non le
 trajet ; garder dans le thread principal quand chaque étape dépend de ce que
 l'étape précédente a trouvé, parce que la passation est l'endroit où cette
 dépendance casse.</p>
-<p><strong>Et résumez entre les phases.</strong> Le skill est facile à sauter et le guide
+<p><strong>Et résumez entre les phases.</strong> La compétence est facile à sauter et le guide
 l'énonce explicitement : avant de lancer les subagents de la phase suivante,
 résumer les découvertes clés de la phase en cours et <strong>injecter ce résumé dans
 leur contexte initial</strong>. Un subagent n'hérite de rien (TS 1.3) : ni de
@@ -941,10 +942,10 @@ exploitable.</p>
 subagent lanceur de tests qui retourne « les tests ont échoué » cache la sortie
 dont vous avez besoin pour déboguer, et un pipeline séquentiel où chaque agent
 dépend des découvertes du précédent perd de l'information à chaque passation.
-L'isolation n'est gratuite que quand le trajet n'a vraiment aucun intérêt.</p>
-<p><strong>Traiter <code>/compact</code> comme la réponse entière.</strong> Il est bien sur la liste des
-skills de ce task statement, et c'est celui qui ne garantit rien sur un fait
-donné.</p>
+L'isolation n'est gratuite que quand le trajet n'a vraiment aucun intérêt.
+<strong>Traiter <code>/compact</code> comme la réponse entière.</strong> Il est bien sur la liste des
+compétences de ce task statement, et c'est celle qui ne garantit rien sur un
+fait donné.</p>
 </div>
 
 <div class="section-quiz">
@@ -1207,12 +1208,12 @@ sources plutôt que de sélectionner arbitrairement une valeur.</strong></p>
 sur un catalogue et une enquête déclarative auprès de labels ne mesurent pas tout
 à fait la même chose. Cette explication n'existe que parce que la méthodologie a
 voyagé avec la valeur.</p>
-<p>La même règle s'applique un étage plus tôt, et le guide l'énonce comme un skill de
-l'agent d'analyse : <strong>terminer l'analyse du document avec les deux valeurs
-incluses et explicitement annotées, et laisser le coordinateur décider comment les
-réconcilier</strong> avant que quoi que ce soit n'atteigne la synthèse. Un agent
-d'analyse qui désigne un gagnant a pris une décision qui ne lui revenait pas,
-silencieusement, dans une étape que personne ne relit.</p>
+<p>La même règle s'applique un étage plus tôt, et le guide l'énonce comme une
+compétence de l'agent d'analyse : <strong>terminer l'analyse du document avec les deux
+valeurs incluses et explicitement annotées, et laisser le coordinateur décider
+comment les réconcilier</strong> avant que quoi que ce soit n'atteigne la synthèse. Un
+agent d'analyse qui désigne un gagnant a pris une décision qui ne lui revenait
+pas, silencieusement, dans une étape que personne ne relit.</p>
 <h3>Les dates transforment une fausse contradiction en tendance</h3>
 <p>Le quatrième point de connaissance du guide est la correction la moins chère du
 domaine : exiger les <strong>dates de publication ou de collecte</strong> dans les sorties
@@ -1248,8 +1249,8 @@ LACUNES DE COUVERTURE
 document. La provenance et la couverture répondent à la même question du lecteur
 par deux côtés : sur quoi ceci repose-t-il, et que lui manque-t-il.</p>
 <h3>Rendre chaque type de contenu dans sa forme propre</h3>
-<p>Le dernier skill porte sur le format de sortie, et c'est celui qui prend les
-gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
+<p>La dernière compétence porte sur le format de sortie, et c'est celle qui prend
+les gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
 agent de synthèse reçoit du matériau hétérogène et est tenté de tout couler dans
 une seule forme, de la prose en général, parce que la prose est le format par
 défaut.</p>
