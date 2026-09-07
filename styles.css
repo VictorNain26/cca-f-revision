@@ -11,7 +11,7 @@
 
   --ink:           #1f2328;
   --ink-soft:      #424950;
-  --ink-mute:      #6e7781;
+  --ink-mute:      #5f666e;
   --ink-faint:     #9aa0a6;
 
   --bg:            #fbfaf7;
@@ -41,13 +41,18 @@
   --anti-border:   #c0392b;
   --anti-ink:      #7a1a12;
 
-  --high-bg:       #fde2dd;
-  --high-border:   #b03020;
-  --high-ink:      #5c1108;
+  --high-bg:       #f2ecfa;
+  --high-border:   #7c5cbf;
+  --high-ink:      #4a2f80;
 
   --tldr-bg:       #2c3e50;
   --tldr-ink:      #f4f1ec;
   --tldr-accent:   #f0b30a;
+
+  /* Bandeau de titre : plus sombre que --primary/--primary-soft, dont l'extrémité
+     claire ne portait pas de texte blanc en AA (2,95:1). */
+  --header-from:   #a03e26;
+  --header-to:     #bb5238;
 
   /* Polices et tailles */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -74,6 +79,10 @@ html {
   scroll-behavior: smooth;
   /* Compense la sticky navbar quand on saute à un anchor */
   scroll-padding-top: 70px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 body {
@@ -224,7 +233,7 @@ body {
    HEADER — bandeau de titre du document
    ============================================================ */
 .header-bar {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-soft) 100%);
+  background: linear-gradient(135deg, var(--header-from) 0%, var(--header-to) 100%);
   color: white;
   padding: 28px 32px;
   border-radius: var(--radius-lg);
@@ -242,16 +251,33 @@ body {
   line-height: 1.25;
 }
 
+/* Les sélecteurs d'élément (strong, em, code…) battent l'héritage : sans cette
+   règle, le texte du bandeau retombe sur --ink et --ink-soft, illisibles sur le
+   dégradé (2,07:1 pour <em>). */
+.header-bar :is(p, span, strong, em, b, i, code, a, li, small) {
+  color: inherit;
+}
+
 .header-bar p {
   margin: 10px 0 0 0;
-  opacity: 0.94;
   font-size: 10.5pt;
   line-height: 1.5;
 }
 
+.header-bar code {
+  background: rgba(0,0,0,0.22);
+  border-color: rgba(255,255,255,0.30);
+}
+
+.header-bar a {
+  border-bottom: 1px solid rgba(255,255,255,0.6);
+}
+
+/* Voile noir plutôt que blanc : un voile blanc éclaircit le dégradé et fait
+   tomber le texte blanc de la pastille sous AA. */
 .header-bar .weight {
   display: inline-block;
-  background: rgba(255,255,255,0.22);
+  background: rgba(0,0,0,0.18);
   padding: 4px 12px;
   border-radius: 16px;
   font-size: 9.5pt;
@@ -457,8 +483,7 @@ tbody tr:hover { background: rgba(243, 239, 233, 0.4); }
 td code, th code { font-size: 9pt; }
 
 /* ============================================================
-   CALLOUTS — pas de pseudo-element ::before
-   Le contenu du callout commence par son propre intitulé
+   CALLOUTS
    ============================================================ */
 .exam-tip,
 .key-concept,
@@ -495,6 +520,36 @@ td code, th code { font-size: 9pt; }
   border-left: 4px solid var(--high-border);
 }
 .high-priority strong { color: var(--high-ink); }
+
+/* Libellé de type : le code couleur seul ne dit pas la nature de l'encadré
+   (WCAG 1.4.1) et n'existe pas à l'impression noir et blanc. Le texte est lu
+   par les lecteurs d'écran en tête de l'encadré, d'où la casse normale et
+   l'interlettrage modéré — des capitales ou 0,14em font épeler certains
+   moteurs de synthèse. */
+.exam-tip::before,
+.key-concept::before,
+.anti-pattern::before,
+.high-priority::before {
+  display: block;
+  font-size: 9pt;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+.exam-tip::before      { color: var(--tip-ink); }
+.key-concept::before   { color: var(--concept-ink); }
+.anti-pattern::before  { color: var(--anti-ink); }
+.high-priority::before { color: var(--high-ink); }
+
+html[lang="fr"] .exam-tip::before      { content: "Astuce d'examen"; }
+html[lang="fr"] .key-concept::before   { content: "Concept clé"; }
+html[lang="fr"] .anti-pattern::before  { content: "Anti-pattern"; }
+html[lang="fr"] .high-priority::before { content: "Priorité haute"; }
+
+html[lang="en"] .exam-tip::before      { content: "Exam tip"; }
+html[lang="en"] .key-concept::before   { content: "Key concept"; }
+html[lang="en"] .anti-pattern::before  { content: "Anti-pattern"; }
+html[lang="en"] .high-priority::before { content: "High priority"; }
 
 /* Le premier <strong> en début de callout est mis en valeur */
 .exam-tip > strong:first-child,
@@ -545,14 +600,16 @@ td code, th code { font-size: 9pt; }
   box-shadow: var(--shadow);
 }
 .tldr::before {
-  content: "L'essentiel";
   display: block;
   font-size: 9pt;
   font-weight: 700;
   color: var(--tldr-accent);
-  letter-spacing: 0.14em;
+  letter-spacing: 0.06em;
   margin-bottom: 10px;
 }
+html[lang="fr"] .tldr::before { content: "L'essentiel"; }
+html[lang="en"] .tldr::before { content: "In short"; }
+
 .tldr strong { color: var(--tldr-accent); font-weight: 700; }
 .tldr ul, .tldr ol { color: var(--tldr-ink); }
 .tldr code {
@@ -885,10 +942,10 @@ details > div p:last-child { margin-bottom: 0; }
   outline-offset: 2px;
 }
 .quiz-check:disabled {
-  background: var(--ink-faint);
-  border-color: var(--ink-faint);
+  background: var(--bg-soft);
+  border-color: var(--border);
+  color: var(--ink-mute);
   cursor: default;
-  opacity: 0.7;
 }
 
 /* Bouton "Voir la réponse" + nested details */
@@ -1301,13 +1358,15 @@ footer,
   box-shadow: var(--shadow-lg);
   z-index: 99;
   border: none;
-  transition: transform 0.18s, background 0.18s;
+  transition: transform 0.18s, background 0.18s, opacity 0.18s;
   opacity: 0;
+  visibility: hidden;
   pointer-events: none;
 }
 
 .back-to-top.visible {
   opacity: 1;
+  visibility: visible;
   pointer-events: auto;
 }
 
@@ -1502,16 +1561,16 @@ footer,
 @media screen {
   [data-theme="dark"] {
     --primary:#e8775c; --primary-soft:#f0997f; --primary-dark:#f0997f;
-    --ink:#e7e3da; --ink-soft:#b9b4a9; --ink-mute:#8b9097; --ink-faint:#868d95;
+    --ink:#e7e3da; --ink-soft:#b9b4a9; --ink-mute:#969da5; --ink-faint:#868d95;
     --bg:#15181c; --bg-card:#1d2126; --bg-soft:#24292f; --bg-code:#1a1e23;
     /* --navy sert AUSSI de couleur de texte (titres de cartes…) → clair en dark ;
        les fonds qui l'utilisaient sont réaffirmés en sombre ci-dessous */
     --navy:#cdd9e6; --navy-soft:#b3c2d4; --border:#353b42; --border-soft:#2a3036;
-    --status-ok:#1a9553; --status-weak:#d0503f;
+    --status-ok:#12813f; --status-weak:#c04030;
     --tip-bg:#2c2410; --tip-border:#e8a317; --tip-ink:#f0d58f;
     --concept-bg:#142434; --concept-border:#4a93d6; --concept-ink:#bcd9f5;
     --anti-bg:#2f1714; --anti-border:#d9614f; --anti-ink:#f3bdb4;
-    --high-bg:#371712; --high-border:#d9614f; --high-ink:#f3bdb4;
+    --high-bg:#231c33; --high-border:#9b7fd4; --high-ink:#d6c6f2;
     --tldr-bg:#1b2735; --tldr-ink:#f4f1ec; --tldr-accent:#f5c542;
     --shadow-sm:0 1px 2px rgba(0,0,0,0.4);
     --shadow:0 2px 8px rgba(0,0,0,0.45);
@@ -1524,7 +1583,7 @@ footer,
   /* fonds qui s'appuyaient sur --navy (devenu clair) : dégradés sombres explicites */
   [data-theme="dark"] .section-header { background: linear-gradient(90deg, #26384d 0%, #2f4257 100%); }
   /* header & lien actif : fond assez sombre pour garder le texte blanc lisible (AA) */
-  [data-theme="dark"] .header-bar { background: linear-gradient(135deg, #7d3322 0%, #9a3d2a 100%); }
+  [data-theme="dark"] { --header-from:#7d3322; --header-to:#9a3d2a; }
   [data-theme="dark"] .navbar a.current { background: #9a3d2a; color: #fff; }
   [data-theme="dark"] .choices li.is-correct,
   [data-theme="dark"] .choices li.is-correct-pick { border-color:#3fae7a; background:#15241c; }
@@ -1549,11 +1608,11 @@ footer,
    SOMMAIRE FLOTTANT — rail sticky (desktop) + bouton (mobile) + scroll-spy
    ============================================================= */
 .toc-rail { display: none; }
-.toc-rail-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 8pt; color: var(--ink-mute); margin: 0 0 8px 10px; }
+.toc-rail-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; font-size: 8pt; color: var(--ink-soft); margin: 0 0 8px 10px; }
 .toc-rail a { display: block; padding: 3px 10px; margin: 1px 0; font-size: 9.5pt; line-height: 1.35; color: var(--ink-soft); text-decoration: none; border-left: 2px solid transparent; border-radius: 0 5px 5px 0; transition: color 0.12s, background 0.12s, border-color 0.12s; }
-.toc-rail a:hover { color: var(--primary); background: var(--bg-soft); }
+.toc-rail a:hover { color: var(--primary-dark); background: var(--bg-soft); }
 /* actif : couleur + barre + fond (PAS de bold → évite le reflow/2 lignes) */
-.toc-rail a.active { color: var(--primary); border-left-color: var(--primary); background: var(--bg-soft); }
+.toc-rail a.active { color: var(--primary-dark); border-left-color: var(--primary); background: var(--bg-soft); }
 
 /* En-tête de sheet et backdrop : inertes hors du bottom-sheet mobile */
 .toc-sheet-head, .toc-grip, .toc-close { display: none; }
@@ -1725,4 +1784,184 @@ footer,
   .back-to-top { bottom: 20px; right: 16px; }
   body.has-progress .back-to-top { bottom: calc(var(--progress-h) + 16px); }
   body.has-progress .toc-fab { bottom: calc(var(--progress-h) + 24px); }
+}
+
+
+/* =============================================================
+   FOCUS CLAVIER — anneau commun
+   Aucun style de focus générique n'existait : navbar, cartes, doc-nav et rail
+   ne montraient que l'anneau par défaut du navigateur, invisible sur fond
+   sombre. L'anneau est décalé de 2px, donc tracé sur le fond du parent : il
+   reste lisible même sur une pastille pleine (.navbar a.current).
+   ============================================================= */
+:focus-visible {
+  outline: 2px solid var(--primary-dark);
+  outline-offset: 2px;
+}
+
+/* =============================================================
+   LIEN D'ÉVITEMENT ET CONTENU PRINCIPAL
+   Douze liens de navbar séparaient le clavier du contenu.
+   ============================================================= */
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 12px;
+  z-index: 200;
+  transform: translateY(-200%);
+  /* couleurs en dur : --primary-dark devient clair en thème sombre et ne
+     porterait plus de texte blanc (même choix que .toc-fab) */
+  background: #9a3d2a;
+  color: #fff;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  font-size: 10pt;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.skip-link:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: -5px;
+}
+
+main { display: block; }
+main:focus { outline: none; }
+
+/* =============================================================
+   RENVOIS INTER-COURS — repli discret sous le sommaire
+   ============================================================= */
+details.cross-refs {
+  margin: 0 0 30px;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+details.cross-refs:hover { box-shadow: none; }
+details.cross-refs[open] { border-color: var(--border-soft); }
+
+details.cross-refs > summary,
+details.cross-refs[open] > summary {
+  background: transparent;
+  border-bottom: none;
+  color: var(--ink-mute);
+  font-size: 9.5pt;
+  font-weight: 600;
+  padding: 9px 34px 9px 2px;
+}
+
+details.cross-refs > summary:hover { background: transparent; color: var(--primary-dark); }
+
+details.cross-refs > summary::after {
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-color: var(--ink-mute);
+}
+
+details.cross-refs[open] > summary::after { border-color: var(--ink-mute); }
+
+details.cross-refs > div,
+details.cross-refs > p,
+details.cross-refs > ul {
+  background: transparent;
+  padding: 0 2px 12px;
+  font-size: 9.8pt;
+  color: var(--ink-soft);
+}
+
+details.cross-refs > ul { padding-left: 24px; }
+
+/* =============================================================
+   AUTO-ÉVALUATION DE FIN DE SECTION
+   Frontière franche : la section est finie, on se teste avant de continuer.
+   ============================================================= */
+.section-quiz {
+  margin: 44px 0 8px;
+  padding: 20px 24px 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--primary);
+  border-radius: var(--radius);
+  page-break-inside: avoid;
+}
+
+.section-quiz-title {
+  margin: 0 0 14px;
+  padding: 0;
+  border: none;
+  color: var(--navy);
+  font-size: 11.5pt;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.section-quiz > details:last-of-type { margin-bottom: 16px; }
+
+/* Renvoi vers la banque de questions filtrée : une ligne, sans poids visuel */
+.to-test {
+  margin: 14px 0 0;
+  font-size: 9.5pt;
+  color: var(--ink-mute);
+}
+
+.to-test a { color: var(--primary-dark); }
+
+@media (max-width: 720px) {
+  .section-quiz { padding: 16px 14px 6px; }
+}
+
+/* =============================================================
+   IMPRESSION — fonds et replis
+   Les navigateurs suppriment les fonds par défaut : les bandeaux et pastilles
+   sortaient en blanc sur blanc. Et un <details> fermé n'imprime pas son
+   contenu — site.js les ouvre à l'impression, ce bloc neutralise ce qui
+   restait masqué visuellement.
+   ============================================================= */
+@media print {
+  .header-bar,
+  .header-bar .weight,
+  .section-header,
+  .section-header h2,
+  .section-header h2 code,
+  .tldr,
+  .q-tag,
+  .choices li,
+  .choices li::before,
+  .card-status,
+  .exam-tip,
+  .key-concept,
+  .anti-pattern,
+  .high-priority,
+  .section-quiz,
+  details > summary,
+  .answer-block,
+  details details.answer-reveal > div .answer-correct,
+  details details.answer-reveal > div .answer-correct::before {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  details.answer-reveal.is-locked {
+    opacity: 1;
+    border-style: dashed;
+  }
+
+  details.cross-refs { border-color: var(--border); }
+
+  /* la règle générique `a { color: var(--ink) !important }` du bloc print
+     précédent poserait de l'encre sombre sur le dégradé du bandeau */
+  .header-bar a { color: inherit !important; }
+
+  .skip-link { display: none; }
 }

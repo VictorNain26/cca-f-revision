@@ -12,8 +12,33 @@
 
   const STORAGE_KEY = 'cca-quiz-state-v2';
   const LETTERS = ['A', 'B', 'C', 'D', 'E'];
-  // Les énoncés sont en anglais (langue de l'examen), le chrome reste en français.
+  // Les énoncés sont en anglais (langue de l'examen) ; le chrome suit la langue
+  // de la page, sinon les pages en/ affichent un chrome français.
   const ANSWER_LABEL = /^\s*(?:R[ée]ponses?|Answers?)\s*[:.]/i;
+
+  const UI = {
+    fr: {
+      reveal: 'Voir la réponse complète',
+      locked: "🔒 Réponds d'abord pour voir l'explication",
+      check: (n) => `Vérifier (${n} réponses attendues)`,
+      questions: 'Questions',
+      score: 'Score',
+      reset: 'Réinitialiser',
+      resetShort: 'Reset',
+      confirmReset: 'Effacer ton score sur cette page ?',
+    },
+    en: {
+      reveal: 'Show the full answer',
+      locked: '🔒 Answer first to see the explanation',
+      check: (n) => `Check (${n} answers expected)`,
+      questions: 'Questions',
+      score: 'Score',
+      reset: 'Reset',
+      resetShort: 'Reset',
+      confirmReset: 'Clear your score on this page?',
+    },
+  };
+  const T = UI[(document.documentElement.lang || 'fr').slice(0, 2).toLowerCase()] || UI.fr;
 
   // ---------- localStorage helpers ----------
   const loadState = () => {
@@ -84,7 +109,7 @@
     revealEl.classList.remove('is-locked');
     const revSummary = revealEl.querySelector(':scope > summary');
     if (!revSummary) return;
-    revSummary.innerHTML = 'Voir la réponse complète';
+    revSummary.textContent = T.reveal;
     revSummary.removeAttribute('aria-disabled');
   };
 
@@ -122,7 +147,7 @@
     const reveal = document.createElement('details');
     reveal.className = 'answer-reveal is-locked';
     const revSummary = document.createElement('summary');
-    revSummary.innerHTML = '<span class="lock-hint">🔒 Réponds d\'abord pour voir l\'explication</span>';
+    revSummary.innerHTML = `<span class="lock-hint">${T.locked}</span>`;
     revSummary.setAttribute('aria-disabled', 'true');
     revSummary.addEventListener('click', (ev) => {
       if (reveal.classList.contains('is-locked')) ev.preventDefault();
@@ -156,13 +181,13 @@
 
     const lis = [...ul.querySelectorAll('li')];
 
-    // ---- Mode multi-réponses : cases à cocher + bouton « Vérifier » ----
+    // ---- Mode multi-réponses : cases à cocher + bouton de validation ----
     if (correct.multi) {
       const answers = new Set(correct.letters);
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'quiz-check';
-      btn.textContent = `Vérifier (${answers.size} réponses attendues)`;
+      btn.textContent = T.check(answers.size);
       ul.insertAdjacentElement('afterend', btn);
 
       const grade = () => {
@@ -356,17 +381,17 @@
     const scorePct = answered > 0 ? Math.round((correct / answered) * 100) : 0;
 
     widget.innerHTML =
-      `<div class="prog-row"><span class="prog-label">Questions</span>` +
+      `<div class="prog-row"><span class="prog-label">${T.questions}</span>` +
       `<strong>${answered} / ${totalQ}</strong></div>` +
       `<div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>` +
       (answered > 0
-        ? `<div class="prog-score"><span class="prog-label">Score</span>` +
+        ? `<div class="prog-score"><span class="prog-label">${T.score}</span>` +
           `<strong class="${scorePct >= 70 ? 'good' : 'warn'}">${correct} / ${answered} (${scorePct}%)</strong></div>`
         : '') +
-      `<button class="prog-reset" type="button" aria-label="Réinitialiser">Reset</button>`;
+      `<button class="prog-reset" type="button" aria-label="${T.reset}">${T.resetShort}</button>`;
 
     widget.querySelector('.prog-reset')?.addEventListener('click', () => {
-      if (!confirm('Effacer ton score sur cette page ?')) return;
+      if (!confirm(T.confirmReset)) return;
       const st = loadState();
       delete st[pageKey()];
       saveState(st);
