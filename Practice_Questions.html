@@ -11,9 +11,11 @@
 <script src="theme.js" defer></script>
 <script src="toc.js" defer></script>
 <script src="site.js" defer></script>
+<script src="practice.js" defer></script>
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Aller au contenu</a>
 
 <nav class="navbar">
   <a class="home" href="index.html">CCA-F</a>
@@ -29,6 +31,8 @@
   <a href="Exam_Strategy.html" title="Stratégie jour J + cheat sheet">Stratégie</a>
   <a href="anthropic_courses/CCA-F_Exam_Guide_v1.0.pdf" title="Le guide d'examen officiel (PDF) — la seule source qui fait foi" target="_blank" rel="noopener">Guide</a>
 </nav>
+
+<main id="content">
 
 <div class="header-bar">
 <h1>Practice Questions — CCA-F</h1>
@@ -114,7 +118,7 @@
 <h3>Scenario: Customer Support Resolution Agent</h3>
 
 <details id="pq-q1" data-domain="D1" data-task="1.4">
-<summary>Q1 (Customer Support) — Deterministic tool ordering</summary>
+<summary>Q1 Deterministic tool ordering</summary>
 <div>
 <p><strong>Scenario:</strong> Production data shows that in 12% of cases, your agent skips <code>get_customer</code> entirely and calls <code>lookup_order</code> using only the customer's stated name, occasionally leading to misidentified accounts and incorrect refunds.</p>
 <p><strong>Question:</strong> What change would most effectively address this reliability issue?</p>
@@ -135,7 +139,7 @@
 </details>
 
 <details id="pq-q2" data-domain="D2" data-task="2.1">
-<summary>Q2 (Customer Support) — Minimal tool descriptions</summary>
+<summary>Q2 Minimal tool descriptions</summary>
 <div>
 <p><strong>Scenario:</strong> Production logs show the agent frequently calls <code>get_customer</code> when users ask about orders (e.g. "check my order #12345"), instead of calling <code>lookup_order</code>. Both tools have minimal descriptions ("Retrieves customer information" / "Retrieves order details") and accept similar identifier formats.</p>
 <p><strong>Question:</strong> What’s the most effective first step to improve tool selection reliability?</p>
@@ -156,7 +160,7 @@
 </details>
 
 <details id="pq-q3" data-domain="D5" data-task="5.2">
-<summary>Q3 (Customer Support) — Escalation calibration</summary>
+<summary>Q3 Escalation calibration</summary>
 <div>
 <p><strong>Scenario:</strong> Your agent achieves 55% first-contact resolution, well below the 80% target. Logs show it escalates straightforward cases (standard damage replacements with photo evidence) while attempting to autonomously handle complex situations requiring policy exceptions.</p>
 <p><strong>Question:</strong> What’s the most effective way to improve escalation calibration?</p>
@@ -179,7 +183,7 @@
 <h3>Scenario: Code Generation with Claude Code</h3>
 
 <details id="pq-q4" data-domain="D3" data-task="3.2">
-<summary>Q4 (Code Generation) — Where a shared slash command lives</summary>
+<summary>Q4 Where a shared slash command lives</summary>
 <div>
 <p><strong>Scenario:</strong> You want to create a custom <code>/review</code> slash command that runs your team's standard code review checklist. This command should be available to every developer when they clone or pull the repository.</p>
 <p><strong>Question:</strong> Where should you create this command file?</p>
@@ -200,7 +204,7 @@
 </details>
 
 <details id="pq-q5" data-domain="D3" data-task="3.4">
-<summary>Q5 (Code Generation) — Plan mode versus direct execution</summary>
+<summary>Q5 Plan mode versus direct execution</summary>
 <div>
 <p><strong>Scenario:</strong> You’ve been assigned to restructure the team's monolithic application into microservices. This will involve changes across dozens of files and requires decisions about service boundaries and module dependencies.</p>
 <p><strong>Question:</strong> Which approach should you take?</p>
@@ -221,7 +225,7 @@
 </details>
 
 <details id="pq-q6" data-domain="D3" data-task="3.3">
-<summary>Q6 (Code Generation) — Conventions for files spread across directories</summary>
+<summary>Q6 Conventions for files spread across directories</summary>
 <div>
 <p><strong>Scenario:</strong> Your codebase has distinct areas with different coding conventions: React components use functional style with hooks, API handlers use async/await with specific error handling, and database models follow a repository pattern. Test files are spread throughout the codebase alongside the code they test (e.g. <code>Button.test.tsx</code> next to <code>Button.tsx</code>), and you want all tests to follow the same conventions regardless of location.</p>
 <p><strong>Question:</strong> What’s the most maintainable way to ensure Claude automatically applies the correct conventions when generating code?</p>
@@ -244,7 +248,7 @@
 <h3>Scenario: Multi-Agent Research System</h3>
 
 <details id="pq-q7" data-domain="D1" data-task="1.2">
-<summary>Q7 (Multi-Agent Research) — Reports that cover only part of the topic</summary>
+<summary>Q7 Reports that cover only part of the topic</summary>
 <div>
 <p><strong>Scenario:</strong> After running the system on the topic "impact of AI on creative industries," you observe that each subagent completes successfully: the web search agent finds relevant articles, the document analysis agent summarizes papers correctly, and the synthesis agent produces coherent output. However, the final reports cover only visual arts, completely missing music, writing, and film production. When you examine the coordinator's logs, you see it decomposed the topic into three subtasks: "AI in digital art creation," "AI in graphic design," and "AI in photography."</p>
 <p><strong>Question:</strong> What is the most likely root cause?</p>
@@ -265,7 +269,7 @@
 </details>
 
 <details id="pq-q8" data-domain="D5" data-task="5.3">
-<summary>Q8 (Multi-Agent Research) — A subagent times out</summary>
+<summary>Q8 A subagent times out</summary>
 <div>
 <p><strong>Scenario:</strong> The web search subagent times out while researching a complex topic. You need to design how this failure information flows back to the coordinator agent.</p>
 <p><strong>Question:</strong> Which error propagation approach best enables intelligent recovery?</p>
@@ -286,7 +290,7 @@
 </details>
 
 <details id="pq-q9" data-domain="D2" data-task="2.3">
-<summary>Q9 (Multi-Agent Research) — Round-trips for fact verification</summary>
+<summary>Q9 Round-trips for fact verification</summary>
 <div>
 <p><strong>Scenario:</strong> During testing, you observe that the synthesis agent frequently needs to verify specific claims while combining findings. Currently, when verification is needed, the synthesis agent returns control to the coordinator, which invokes the web search agent, then re-invokes synthesis with results. This adds 2-3 round trips per task and increases latency by 40%. Your evaluation shows that 85% of these verifications are simple fact-checks (dates, names, statistics) while 15% require deeper investigation.</p>
 <p><strong>Question:</strong> What's the most effective approach to reduce overhead while maintaining system reliability?</p>
@@ -309,7 +313,7 @@
 <h3>Scenario: Claude Code for Continuous Integration</h3>
 
 <details id="pq-q10" data-domain="D3" data-task="3.6">
-<summary>Q10 (CI/CD) — The pipeline job hangs</summary>
+<summary>Q10 The pipeline job hangs</summary>
 <div>
 <p><strong>Scenario:</strong> Your pipeline script runs <code>claude "Analyze this pull request for security issues"</code> but the job hangs indefinitely. Logs indicate Claude Code is waiting for interactive input.</p>
 <p><strong>Question:</strong> What’s the correct approach to run Claude Code in an automated pipeline?</p>
@@ -330,7 +334,7 @@
 </details>
 
 <details id="pq-q11" data-domain="D4" data-task="4.5">
-<summary>Q11 (CI/CD) — Which workflows can move to the Batches API</summary>
+<summary>Q11 Which workflows can move to the Batches API</summary>
 <div>
 <p><strong>Scenario:</strong> Your team wants to reduce API costs for automated analysis. Currently, real-time Claude calls power two workflows: (1) a blocking pre-merge check that must complete before developers can merge, and (2) a technical debt report generated overnight for review the next morning. Your manager proposes switching both to the Message Batches API for its 50% cost savings.</p>
 <p><strong>Question:</strong> How should you evaluate this proposal?</p>
@@ -350,8 +354,8 @@
 </div>
 </details>
 
-<details id="pq-q12" data-domain="D1" data-task="1.6">
-<summary>Q12 (CI/CD) — Inconsistent review of a 14-file pull request</summary>
+<details id="pq-q12" data-domain="D1" data-task="1.6" data-also-tasks="4.6">
+<summary>Q12 Inconsistent review of a 14-file pull request</summary>
 <div>
 <p><strong>Scenario:</strong> A pull request modifies 14 files across the stock tracking module. Your single-pass review analyzing all files together produces inconsistent results: detailed feedback for some files but superficial comments for others, obvious bugs missed, and contradictory feedback—flagging a pattern as problematic in one file while approving identical code elsewhere in the same PR.</p>
 <p><strong>Question:</strong> How should you restructure the review?</p>
@@ -378,7 +382,7 @@
 </div>
 
 <details id="pq-q13" data-domain="D1" data-task="1.1">
-<summary>Q13 (Customer Support) — Terminating the agentic loop</summary>
+<summary>Q13 Terminating the agentic loop</summary>
 <div>
 <p><strong>Scenario:</strong> Your agentic loop occasionally stops before the work is done: the agent calls <code>lookup_order</code>, receives the result, and the loop exits before the refund is processed. Your implementation exits as soon as the response contains any text content.</p>
 <p><strong>Question:</strong> What is the correct loop control condition?</p>
@@ -399,7 +403,7 @@
 </details>
 
 <details id="pq-q14" data-domain="D1" data-task="1.1">
-<summary>Q14 (Customer Support) — What to send on the next iteration</summary>
+<summary>Q14 What to send on the next iteration</summary>
 <div>
 <p><strong>Scenario:</strong> After executing <code>lookup_order</code>, your code calls the API again with only the original user message and the tool's output as a plain string appended to it. The agent then re-requests the same tool call.</p>
 <p><strong>Question:</strong> What is the correct way to return the result to the model?</p>
@@ -420,7 +424,7 @@
 </details>
 
 <details id="pq-q15" data-domain="D1" data-task="1.5">
-<summary>Q15 (Customer Support) — Heterogeneous date formats across MCP tools</summary>
+<summary>Q15 Heterogeneous date formats across MCP tools</summary>
 <div>
 <p><strong>Scenario:</strong> Your three MCP tools return dates differently: <code>get_customer</code> emits Unix timestamps, <code>lookup_order</code> emits ISO 8601 strings, and the legacy billing tool emits numeric status codes. The agent regularly miscomputes whether an order is still inside the 30-day return window.</p>
 <p><strong>Question:</strong> What is the most reliable way to fix this?</p>
@@ -441,7 +445,7 @@
 </details>
 
 <details id="pq-q16" data-domain="D1" data-task="1.5">
-<summary>Q16 (Customer Support) — A refund ceiling that must hold</summary>
+<summary>Q16 A refund ceiling that must hold</summary>
 <div>
 <p><strong>Scenario:</strong> Company policy caps agent-issued refunds at $500; anything above must go to a human. The system prompt states the rule, but audit logs show four refunds above the cap were processed last quarter.</p>
 <p><strong>Question:</strong> What change guarantees the policy holds?</p>
@@ -462,7 +466,7 @@
 </details>
 
 <details id="pq-q17" data-domain="D2" data-task="2.2">
-<summary>Q17 (Customer Support) — Every failure looks the same</summary>
+<summary>Q17 Every failure looks the same</summary>
 <div>
 <p><strong>Scenario:</strong> All four MCP tools return <code>{"error": "Operation failed"}</code> with <code>isError: true</code> on any failure — a database timeout, an invalid order number, a refund refused by policy, and a permissions problem all look identical. The agent retries everything three times, then apologises.</p>
 <p><strong>Question:</strong> What should the tools return instead?</p>
@@ -483,7 +487,7 @@
 </details>
 
 <details id="pq-q18" data-domain="D2" data-task="2.2">
-<summary>Q18 (Customer Support) — A refund the policy forbids</summary>
+<summary>Q18 A refund the policy forbids</summary>
 <div>
 <p><strong>Scenario:</strong> A customer requests a refund on an item bought 60 days ago; the return window is 30 days. Your <code>process_refund</code> tool currently returns <code>{"isError": true, "error": "Refund rejected"}</code>, and the agent retries the call twice before telling the customer that "the system is unavailable".</p>
 <p><strong>Question:</strong> How should the tool report this?</p>
@@ -504,7 +508,7 @@
 </details>
 
 <details id="pq-q19" data-domain="D5" data-task="5.1">
-<summary>Q19 (Customer Support) — A number lost twenty turns back</summary>
+<summary>Q19 A number lost twenty turns back</summary>
 <div>
 <p><strong>Scenario:</strong> In a long billing dispute, the customer agreed early on to a partial refund of $89.99 on order ORD-67890. Thirty turns later, after the history has been summarised twice, the agent offers "a partial refund" without an amount and cannot recall the order number.</p>
 <p><strong>Question:</strong> What is the correct fix?</p>
@@ -525,7 +529,7 @@
 </details>
 
 <details id="pq-q20" data-domain="D5" data-task="5.1">
-<summary>Q20 (Customer Support) — Forty fields per order lookup</summary>
+<summary>Q20 Forty fields per order lookup</summary>
 <div>
 <p><strong>Scenario:</strong> <code>lookup_order</code> returns 40+ fields per order — warehouse routing codes, carrier metadata, internal audit flags — of which the agent needs five for return eligibility. Sessions handling three or four orders run out of context before the case is resolved.</p>
 <p><strong>Question:</strong> What is the most effective remedy?</p>
@@ -546,7 +550,7 @@
 </details>
 
 <details id="pq-q21" data-domain="D5" data-task="5.2">
-<summary>Q21 (Customer Support) — "Just give me a manager"</summary>
+<summary>Q21 "Just give me a manager"</summary>
 <div>
 <p><strong>Scenario:</strong> A customer's second message reads: "I don't want to go through this again with a bot. Put me through to a manager." The underlying issue is a straightforward damaged-item replacement that the agent could resolve in two tool calls.</p>
 <p><strong>Question:</strong> What should the agent do?</p>
@@ -567,7 +571,7 @@
 </details>
 
 <details id="pq-q22" data-domain="D5" data-task="5.2">
-<summary>Q22 (Customer Support) — "This is outrageous!"</summary>
+<summary>Q22 "This is outrageous!"</summary>
 <div>
 <p><strong>Scenario:</strong> A customer writes: "This is outrageous, I've been a customer for six years and I'm very unhappy!" They have not asked for a human. Their issue is a duplicate charge that the agent can reverse.</p>
 <p><strong>Question:</strong> What is the correct behaviour?</p>
@@ -588,7 +592,7 @@
 </details>
 
 <details id="pq-q23" data-domain="D5" data-task="5.2">
-<summary>Q23 (Customer Support) — Three customers, one name</summary>
+<summary>Q23 Three customers, one name</summary>
 <div>
 <p><strong>Scenario:</strong> The customer gives their name as "J. Martin". <code>get_customer</code> returns three matching records with different addresses and order histories. Two of the three have an open return.</p>
 <p><strong>Question:</strong> What should the agent do?</p>
@@ -609,7 +613,7 @@
 </details>
 
 <details id="pq-q24" data-domain="D5" data-task="5.2">
-<summary>Q24 (Customer Support) — The policy is silent</summary>
+<summary>Q24 The policy is silent</summary>
 <div>
 <p><strong>Scenario:</strong> A customer asks you to match a competitor's lower price on an item they bought last week. Your price-adjustment policy covers price drops on your own site and says nothing about competitors' prices — neither allowing nor forbidding a match.</p>
 <p><strong>Question:</strong> What should the agent do?</p>
@@ -630,7 +634,7 @@
 </details>
 
 <details id="pq-q25" data-domain="D1" data-task="1.4">
-<summary>Q25 (Customer Support) — Handing off mid-case</summary>
+<summary>Q25 Handing off mid-case</summary>
 <div>
 <p><strong>Scenario:</strong> After verifying the customer, confirming the order, and offering a replacement that was refused, the agent escalates. Human agents receive only a notification saying "Customer requests human assistance — refund issue" and do not have access to the conversation transcript. They routinely re-ask questions the customer already answered.</p>
 <p><strong>Question:</strong> What should the handoff include?</p>
@@ -651,7 +655,7 @@
 </details>
 
 <details id="pq-q26" data-domain="D1" data-task="1.4">
-<summary>Q26 (Customer Support) — Three problems in one message</summary>
+<summary>Q26 Three problems in one message</summary>
 <div>
 <p><strong>Scenario:</strong> A customer writes a single message containing three issues: a damaged item on order A, a duplicate charge on order B, and a request to change the delivery address on order C. The agent addresses the damaged item, then replies as though the conversation were finished.</p>
 <p><strong>Question:</strong> What is the right handling pattern?</p>
@@ -672,7 +676,7 @@
 </details>
 
 <details id="pq-q27" data-domain="D2" data-task="2.1">
-<summary>Q27 (Customer Support) — An instruction that pulls a tool</summary>
+<summary>Q27 An instruction that pulls a tool</summary>
 <div>
 <p><strong>Scenario:</strong> Your system prompt opens with "Always verify the customer's identity." You observe <code>get_customer</code> being called on every turn, including when the customer only asks about store opening hours. The tool descriptions are detailed and well differentiated.</p>
 <p><strong>Question:</strong> What is the root cause?</p>
@@ -693,7 +697,7 @@
 </details>
 
 <details id="pq-q28" data-domain="D2" data-task="2.3">
-<summary>Q28 (Customer Support) — Guaranteeing a tool call</summary>
+<summary>Q28 Guaranteeing a tool call</summary>
 <div>
 <p><strong>Scenario:</strong> You are building a triage step that must always produce a structured classification of the incoming message. You have three classification tools, one per request family, and the request type is not known in advance. Today the model sometimes answers in prose instead of calling any of them.</p>
 <p><strong>Question:</strong> Which configuration fits?</p>
@@ -720,7 +724,7 @@
 </div>
 
 <details id="pq-q29" data-domain="D3" data-task="3.1">
-<summary>Q29 (Code Generation) — The new hire gets different behaviour</summary>
+<summary>Q29 The new hire gets different behaviour</summary>
 <div>
 <p><strong>Scenario:</strong> Your team's conventions — error handling style, test naming, import ordering — are respected on every existing developer's machine. A developer who joined last week reports that Claude Code ignores all of them. The conventions were written by the tech lead in <code>~/.claude/CLAUDE.md</code>.</p>
 <p><strong>Question:</strong> What is the diagnosis and fix?</p>
@@ -741,7 +745,7 @@
 </details>
 
 <details id="pq-q30" data-domain="D3" data-task="3.1">
-<summary>Q30 (Code Generation) — One monorepo, four sets of standards</summary>
+<summary>Q30 One monorepo, four sets of standards</summary>
 <div>
 <p><strong>Scenario:</strong> Your monorepo holds four packages, each with its own standards documents already maintained by their owners (<code>docs/api-standards.md</code>, <code>docs/ui-standards.md</code>, and so on). You want each package's <code>CLAUDE.md</code> to carry the relevant standards without copying them, so that updates to the source documents propagate.</p>
 <p><strong>Question:</strong> Which mechanism fits?</p>
@@ -762,7 +766,7 @@
 </details>
 
 <details id="pq-q31" data-domain="D3" data-task="3.1">
-<summary>Q31 (Code Generation) — Inconsistent behaviour between sessions</summary>
+<summary>Q31 Inconsistent behaviour between sessions</summary>
 <div>
 <p><strong>Scenario:</strong> Claude Code applies your testing conventions in some sessions and not others, on the same machine and the same repository. You suspect a configuration file is not always being picked up.</p>
 <p><strong>Question:</strong> What is the fastest way to confirm?</p>
@@ -782,8 +786,8 @@
 </div>
 </details>
 
-<details id="pq-q32" data-domain="D3" data-task="3.1">
-<summary>Q32 (Code Generation) — A 900-line CLAUDE.md</summary>
+<details id="pq-q32" data-domain="D3" data-task="3.1" data-also-tasks="3.3">
+<summary>Q32 A 900-line CLAUDE.md</summary>
 <div>
 <p><strong>Scenario:</strong> Your root <code>CLAUDE.md</code> has grown to 900 lines covering testing, API conventions, deployment, database migrations and code review. Developers report that Claude follows the sections near the top reliably and the rest inconsistently, and every session pays for the whole file.</p>
 <p><strong>Question:</strong> What is the most maintainable restructuring?</p>
@@ -804,7 +808,7 @@
 </details>
 
 <details id="pq-q33" data-domain="D3" data-task="3.2">
-<summary>Q33 (Code Generation) — A skill that floods the conversation</summary>
+<summary>Q33 A skill that floods the conversation</summary>
 <div>
 <p><strong>Scenario:</strong> Your <code>/analyze-architecture</code> skill walks the dependency graph and prints hundreds of lines of intermediate findings. Developers like the final summary, but after running it the main session is saturated and subsequent answers degrade.</p>
 <p><strong>Question:</strong> Which frontmatter option addresses this?</p>
@@ -825,7 +829,7 @@
 </details>
 
 <details id="pq-q34" data-domain="D3" data-task="3.2">
-<summary>Q34 (Code Generation) — A skill that must not delete anything</summary>
+<summary>Q34 A skill that must not delete anything</summary>
 <div>
 <p><strong>Scenario:</strong> You are writing a <code>/scaffold-component</code> skill that creates new files from templates. During testing it occasionally runs shell commands and once removed a directory it had just created. You want the skill to be structurally incapable of destructive actions.</p>
 <p><strong>Question:</strong> What do you configure?</p>
@@ -846,7 +850,7 @@
 </details>
 
 <details id="pq-q35" data-domain="D3" data-task="3.2">
-<summary>Q35 (Code Generation) — A skill invoked with no arguments</summary>
+<summary>Q35 A skill invoked with no arguments</summary>
 <div>
 <p><strong>Scenario:</strong> Your <code>/new-endpoint</code> skill needs a resource name and an HTTP method. Developers frequently type <code>/new-endpoint</code> with nothing after it, and the skill either guesses or produces a generic stub.</p>
 <p><strong>Question:</strong> Which frontmatter field addresses this?</p>
@@ -867,7 +871,7 @@
 </details>
 
 <details id="pq-q36" data-domain="D3" data-task="3.2">
-<summary>Q36 (Code Generation) — Skill or CLAUDE.md?</summary>
+<summary>Q36 Skill or CLAUDE.md?</summary>
 <div>
 <p><strong>Scenario:</strong> You need to encode two things: (1) the team's naming and error-handling standards, which apply to every piece of code anyone writes, and (2) a twelve-step release-preparation procedure that runs roughly once a month.</p>
 <p><strong>Question:</strong> Where does each belong?</p>
@@ -888,7 +892,7 @@
 </details>
 
 <details id="pq-q37" data-domain="D3" data-task="3.2">
-<summary>Q37 (Code Generation) — Customising a shared skill for yourself</summary>
+<summary>Q37 Customising a shared skill for yourself</summary>
 <div>
 <p><strong>Scenario:</strong> The team's <code>/commit</code> skill in <code>.claude/skills/</code> enforces a commit message format you find too verbose for your own experimental branches. You want your own variant without changing your teammates' behaviour.</p>
 <p><strong>Question:</strong> What do you do?</p>
@@ -909,7 +913,7 @@
 </details>
 
 <details id="pq-q38" data-domain="D3" data-task="3.4">
-<summary>Q38 (Code Generation) — A stack trace and a one-line fix</summary>
+<summary>Q38 A stack trace and a one-line fix</summary>
 <div>
 <p><strong>Scenario:</strong> A production stack trace points to a null dereference in <code>formatInvoiceDate()</code> when the <code>issued_at</code> column is null. The fix is a guard clause in one function, in one file.</p>
 <p><strong>Question:</strong> Plan mode or direct execution?</p>
@@ -930,7 +934,7 @@
 </details>
 
 <details id="pq-q39" data-domain="D3" data-task="3.4">
-<summary>Q39 (Code Generation) — Discovery that eats the session</summary>
+<summary>Q39 Discovery that eats the session</summary>
 <div>
 <p><strong>Scenario:</strong> You are migrating a library across 45 files. The discovery phase — locating every call site, reading each one, checking which use the deprecated signature — produces a large volume of output, and by the time you reach implementation the session is degraded.</p>
 <p><strong>Question:</strong> How should you structure this?</p>
@@ -951,7 +955,7 @@
 </details>
 
 <details id="pq-q40" data-domain="D3" data-task="3.5">
-<summary>Q40 (Code Generation) — A transformation described three ways</summary>
+<summary>Q40 A transformation described three ways</summary>
 <div>
 <p><strong>Scenario:</strong> You ask Claude to "normalise the legacy customer records into the new schema". Each run interprets "normalise" differently: one flattens nested addresses, another keeps them; one uppercases country codes, another does not. Your prose description has been rewritten twice without converging.</p>
 <p><strong>Question:</strong> What is the most effective next step?</p>
@@ -972,7 +976,7 @@
 </details>
 
 <details id="pq-q41" data-domain="D3" data-task="3.5">
-<summary>Q41 (Code Generation) — Building in an unfamiliar domain</summary>
+<summary>Q41 Building in an unfamiliar domain</summary>
 <div>
 <p><strong>Scenario:</strong> You must add a caching layer to a service you have never worked on. You know roughly what you want but suspect there are considerations — invalidation, stampede protection, failure behaviour — that you have not thought through, and you would rather surface them before code exists.</p>
 <p><strong>Question:</strong> Which technique fits?</p>
@@ -993,7 +997,7 @@
 </details>
 
 <details id="pq-q42" data-domain="D3" data-task="3.5">
-<summary>Q42 (Code Generation) — Five issues in one review</summary>
+<summary>Q42 Five issues in one review</summary>
 <div>
 <p><strong>Scenario:</strong> A generated module has five problems. Three are independent — a typo in a log message, a missing null check, an unused import. Two interact: the retry logic and the timeout configuration are inconsistent with each other, and fixing either alone changes what the correct fix for the other is.</p>
 <p><strong>Question:</strong> How should you feed these back?</p>
@@ -1020,7 +1024,7 @@
 </div>
 
 <details id="pq-q43" data-domain="D1" data-task="1.3">
-<summary>Q43 (Multi-Agent Research) — The coordinator cannot spawn anything</summary>
+<summary>Q43 The coordinator cannot spawn anything</summary>
 <div>
 <p><strong>Scenario:</strong> Your coordinator's prompt describes the four subagents and when to use each. At runtime it never delegates: it attempts the research itself with its own web tools and produces a shallow report. Its <code>allowedTools</code> is <code>["WebSearch", "Read", "Write"]</code>.</p>
 <p><strong>Question:</strong> What is the cause?</p>
@@ -1041,7 +1045,7 @@
 </details>
 
 <details id="pq-q44" data-domain="D1" data-task="1.3">
-<summary>Q44 (Multi-Agent Research) — The synthesis agent knows nothing</summary>
+<summary>Q44 The synthesis agent knows nothing</summary>
 <div>
 <p><strong>Scenario:</strong> The web search agent and the document analysis agent both complete successfully. The coordinator then spawns the synthesis agent with the prompt "Synthesise the findings into a report." The synthesis agent produces a generic essay about the topic with no reference to anything the other two found.</p>
 <p><strong>Question:</strong> What is the fix?</p>
@@ -1062,7 +1066,7 @@
 </details>
 
 <details id="pq-q45" data-domain="D1" data-task="1.3">
-<summary>Q45 (Multi-Agent Research) — Four searches, one after another</summary>
+<summary>Q45 Four searches, one after another</summary>
 <div>
 <p><strong>Scenario:</strong> The coordinator needs four independent web searches on four distinct subtopics. It currently emits one <code>Task</code> call, waits for the result, emits the next, and so on. End-to-end latency is four times a single search.</p>
 <p><strong>Question:</strong> How do you parallelise?</p>
@@ -1083,7 +1087,7 @@
 </details>
 
 <details id="pq-q46" data-domain="D1" data-task="1.3">
-<summary>Q46 (Multi-Agent Research) — Citations that dissolve</summary>
+<summary>Q46 Citations that dissolve</summary>
 <div>
 <p><strong>Scenario:</strong> The web search agent returns its findings as flowing prose: "According to a recent industry report, adoption grew sharply, and a separate academic study found similar effects." By the time the synthesis agent has combined three such reports, no claim can be traced to a source.</p>
 <p><strong>Question:</strong> How should subagent output be designed?</p>
@@ -1104,7 +1108,7 @@
 </details>
 
 <details id="pq-q47" data-domain="D1" data-task="1.3">
-<summary>Q47 (Multi-Agent Research) — A coordinator prompt that scripts every step</summary>
+<summary>Q47 A coordinator prompt that scripts every step</summary>
 <div>
 <p><strong>Scenario:</strong> Your coordinator prompt reads: "Step 1: call the web search agent with the exact topic string. Step 2: pass the first five results to the document analysis agent. Step 3: pass its output to synthesis. Step 4: call the report agent." On topics where the first five results are weak, the system still marches through all four steps and produces a poor report.</p>
 <p><strong>Question:</strong> How should the coordinator prompt be written instead?</p>
@@ -1125,7 +1129,7 @@
 </details>
 
 <details id="pq-q48" data-domain="D1" data-task="1.2">
-<summary>Q48 (Multi-Agent Research) — Subagents talking to each other</summary>
+<summary>Q48 Subagents talking to each other</summary>
 <div>
 <p><strong>Scenario:</strong> To reduce latency, a developer wires the document analysis agent to call the web search agent directly when it needs an extra source, bypassing the coordinator. Failures in that path are now invisible in the coordinator's logs, and two agents have started requesting overlapping searches.</p>
 <p><strong>Question:</strong> What principle does this violate, and what is the fix?</p>
@@ -1146,7 +1150,7 @@
 </details>
 
 <details id="pq-q49" data-domain="D1" data-task="1.2">
-<summary>Q49 (Multi-Agent Research) — A four-stage pipeline for a one-line question</summary>
+<summary>Q49 A four-stage pipeline for a one-line question</summary>
 <div>
 <p><strong>Scenario:</strong> Every query runs through all four subagents. For "what is the current EU AI Act enforcement date?", the system performs a web search, a full document analysis pass, a synthesis pass and a report generation pass, taking ninety seconds to return a date.</p>
 <p><strong>Question:</strong> How should the coordinator be designed?</p>
@@ -1167,7 +1171,7 @@
 </details>
 
 <details id="pq-q50" data-domain="D1" data-task="1.2">
-<summary>Q50 (Multi-Agent Research) — Three agents, one answer, three times</summary>
+<summary>Q50 Three agents, one answer, three times</summary>
 <div>
 <p><strong>Scenario:</strong> The coordinator spawns three search subagents for "renewable energy storage". All three are given the same topic string. The returned findings overlap heavily — the same six articles appear in all three result sets — while several subdomains go uncovered.</p>
 <p><strong>Question:</strong> How should the work be partitioned?</p>
@@ -1188,7 +1192,7 @@
 </details>
 
 <details id="pq-q51" data-domain="D1" data-task="1.2">
-<summary>Q51 (Multi-Agent Research) — The synthesis has holes</summary>
+<summary>Q51 The synthesis has holes</summary>
 <div>
 <p><strong>Scenario:</strong> The synthesis agent's first output covers two of the five subdomains well and mentions the other three only in passing, because the underlying searches returned little on them. Today the coordinator forwards this synthesis straight to report generation.</p>
 <p><strong>Question:</strong> What should the coordinator do instead?</p>
@@ -1209,7 +1213,7 @@
 </details>
 
 <details id="pq-q52" data-domain="D1" data-task="1.7">
-<summary>Q52 (Multi-Agent Research) — Two strategies from one baseline</summary>
+<summary>Q52 Two strategies from one baseline</summary>
 <div>
 <p><strong>Scenario:</strong> After an expensive analysis pass that mapped the source landscape for a topic, you want to compare two synthesis strategies — one organised chronologically, one organised by claim — without repeating the analysis and without letting either branch contaminate the other.</p>
 <p><strong>Question:</strong> Which mechanism fits?</p>
@@ -1230,7 +1234,7 @@
 </details>
 
 <details id="pq-q53" data-domain="D2" data-task="2.2">
-<summary>Q53 (Multi-Agent Research) — Where a transient failure should be handled</summary>
+<summary>Q53 Where a transient failure should be handled</summary>
 <div>
 <p><strong>Scenario:</strong> The search subagent's first API call fails with a connection reset. It currently propagates the failure to the coordinator immediately. The coordinator, having no better information, retries the whole subagent invocation from scratch — re-running the two queries that had already succeeded.</p>
 <p><strong>Question:</strong> Where should this failure be handled?</p>
@@ -1251,7 +1255,7 @@
 </details>
 
 <details id="pq-q54" data-domain="D5" data-task="5.3">
-<summary>Q54 (Multi-Agent Research) — Zero results is not a failure</summary>
+<summary>Q54 Zero results is not a failure</summary>
 <div>
 <p><strong>Scenario:</strong> Three source categories return different outcomes: academic databases return 15 articles, industry reports return 0 results, and the patent database returns a connection timeout. Your subagent reports the last two identically, as "source failure".</p>
 <p><strong>Question:</strong> How should these be reported to the coordinator?</p>
@@ -1272,7 +1276,7 @@
 </details>
 
 <details id="pq-q55" data-domain="D5" data-task="5.3">
-<summary>Q55 (Multi-Agent Research) — Reporting on incomplete evidence</summary>
+<summary>Q55 Reporting on incomplete evidence</summary>
 <div>
 <p><strong>Scenario:</strong> Two of five subdomains could not be researched: one source timed out repeatedly, one database was unavailable for the whole run. The remaining three are well covered. The deadline is now and the report must go out.</p>
 <p><strong>Question:</strong> How should the synthesis be structured?</p>
@@ -1293,7 +1297,7 @@
 </details>
 
 <details id="pq-q56" data-domain="D5" data-task="5.6">
-<summary>Q56 (Multi-Agent Research) — Attribution lost at the summarisation step</summary>
+<summary>Q56 Attribution lost at the summarisation step</summary>
 <div>
 <p><strong>Scenario:</strong> Subagents return well-attributed findings. The coordinator summarises each subagent's output before passing it to synthesis, to save context. The final report contains accurate claims with no traceable sources, and reviewers cannot verify anything.</p>
 <p><strong>Question:</strong> What is the fix?</p>
@@ -1314,7 +1318,7 @@
 </details>
 
 <details id="pq-q57" data-domain="D5" data-task="5.6">
-<summary>Q57 (Multi-Agent Research) — Two credible sources, two numbers</summary>
+<summary>Q57 Two credible sources, two numbers</summary>
 <div>
 <p><strong>Scenario:</strong> The document analysis agent finds two figures for the same statistic: 12% from a platform's own annual report, using automated classification, and 8% from an industry survey of 500 labels. Both sources are credible and the methodologies differ.</p>
 <p><strong>Question:</strong> What should the analysis agent pass to synthesis?</p>
@@ -1335,7 +1339,7 @@
 </details>
 
 <details id="pq-q58" data-domain="D5" data-task="5.6">
-<summary>Q58 (Multi-Agent Research) — A contradiction that is really a trend</summary>
+<summary>Q58 A contradiction that is really a trend</summary>
 <div>
 <p><strong>Scenario:</strong> The report flags a contradiction: "Source A states adoption is at 10%, while Source B states 15%." A reviewer checks and finds Source A was published in 2023 and Source B in 2024. Several similar false conflicts appear across the report.</p>
 <p><strong>Question:</strong> What should be required of subagent output?</p>
@@ -1362,7 +1366,7 @@
 </div>
 
 <details id="pq-q59" data-domain="D2" data-task="2.5">
-<summary>Q59 (Developer Productivity) — Finding every caller of a function</summary>
+<summary>Q59 Finding every caller of a function</summary>
 <div>
 <p><strong>Scenario:</strong> A developer asks: "Where is <code>calculateTax()</code> called from?" The agent needs to locate every call site across a codebase of several thousand files.</p>
 <p><strong>Question:</strong> Which built-in tool is appropriate?</p>
@@ -1383,7 +1387,7 @@
 </details>
 
 <details id="pq-q60" data-domain="D2" data-task="2.5">
-<summary>Q60 (Developer Productivity) — Locating all the test files</summary>
+<summary>Q60 Locating all the test files</summary>
 <div>
 <p><strong>Scenario:</strong> You need every React component test in the repository. They are named <code>*.test.tsx</code> and sit next to the components they test, scattered across dozens of directories.</p>
 <p><strong>Question:</strong> Which tool fits?</p>
@@ -1404,7 +1408,7 @@
 </details>
 
 <details id="pq-q61" data-domain="D2" data-task="2.5">
-<summary>Q61 (Developer Productivity) — Edit cannot find a unique anchor</summary>
+<summary>Q61 Edit cannot find a unique anchor</summary>
 <div>
 <p><strong>Scenario:</strong> The agent tries to change a <code>return null;</code> statement in a 400-line file. <code>Edit</code> fails because <code>return null;</code> appears eleven times in that file.</p>
 <p><strong>Question:</strong> What is the correct fallback?</p>
@@ -1425,7 +1429,7 @@
 </details>
 
 <details id="pq-q62" data-domain="D2" data-task="2.5">
-<summary>Q62 (Developer Productivity) — Understanding an unfamiliar service</summary>
+<summary>Q62 Understanding an unfamiliar service</summary>
 <div>
 <p><strong>Scenario:</strong> A developer asks the agent to explain how a payment service works. The service has about 200 files. The agent's first move is to <code>Read</code> all of them.</p>
 <p><strong>Question:</strong> What is the better strategy?</p>
@@ -1446,7 +1450,7 @@
 </details>
 
 <details id="pq-q63" data-domain="D2" data-task="2.5">
-<summary>Q63 (Developer Productivity) — A function re-exported through wrappers</summary>
+<summary>Q63 A function re-exported through wrappers</summary>
 <div>
 <p><strong>Scenario:</strong> <code>validateOrder</code> is defined in one module, re-exported by a barrel file under the same name, and re-exported again by a facade under the alias <code>checkOrder</code>. A search for <code>validateOrder</code> finds three hits and misses every caller that imports the facade.</p>
 <p><strong>Question:</strong> How should the agent trace real usage?</p>
@@ -1467,7 +1471,7 @@
 </details>
 
 <details id="pq-q64" data-domain="D2" data-task="2.4">
-<summary>Q64 (Developer Productivity) — Where two MCP servers belong</summary>
+<summary>Q64 Where two MCP servers belong</summary>
 <div>
 <p><strong>Scenario:</strong> Your team needs a Jira MCP server available to every developer on the project. Separately, you personally want to try an experimental local server that indexes your own notes; nobody else should get it.</p>
 <p><strong>Question:</strong> Where do you configure each?</p>
@@ -1488,7 +1492,7 @@
 </details>
 
 <details id="pq-q65" data-domain="D2" data-task="2.4">
-<summary>Q65 (Developer Productivity) — A token in a committed file</summary>
+<summary>Q65 A token in a committed file</summary>
 <div>
 <p><strong>Scenario:</strong> The GitHub MCP server needs an authentication token. <code>.mcp.json</code> is committed to the repository so every developer gets the server configuration.</p>
 <p><strong>Question:</strong> How do you supply the credential?</p>
@@ -1509,7 +1513,7 @@
 </details>
 
 <details id="pq-q66" data-domain="D2" data-task="2.4">
-<summary>Q66 (Developer Productivity) — The agent ignores your MCP tool</summary>
+<summary>Q66 The agent ignores your MCP tool</summary>
 <div>
 <p><strong>Scenario:</strong> You built an MCP tool that queries a pre-built code index and returns callers, definitions and type information in one call. The agent keeps using the built-in <code>Grep</code> instead, producing slower and less complete answers. Your tool's description reads "Searches the code index."</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
@@ -1530,7 +1534,7 @@
 </details>
 
 <details id="pq-q67" data-domain="D2" data-task="2.4">
-<summary>Q67 (Developer Productivity) — Discovering what data is available</summary>
+<summary>Q67 Discovering what data is available</summary>
 <div>
 <p><strong>Scenario:</strong> Your internal MCP server exposes 40 database schemas. Agents currently discover them by calling <code>describe_schema</code> repeatedly with guessed names, burning several turns before finding the right one.</p>
 <p><strong>Question:</strong> What should the server expose?</p>
@@ -1551,7 +1555,7 @@
 </details>
 
 <details id="pq-q68" data-domain="D2" data-task="2.4">
-<summary>Q68 (Developer Productivity) — Build or adopt an MCP server</summary>
+<summary>Q68 Build or adopt an MCP server</summary>
 <div>
 <p><strong>Scenario:</strong> You need two integrations: Jira, used in the standard way, and an in-house deployment system with a bespoke API and team-specific workflows. A well-maintained community MCP server exists for Jira.</p>
 <p><strong>Question:</strong> What is the right split?</p>
@@ -1572,7 +1576,7 @@
 </details>
 
 <details id="pq-q69" data-domain="D2" data-task="2.3">
-<summary>Q69 (Developer Productivity) — Eighteen tools, unreliable choices</summary>
+<summary>Q69 Eighteen tools, unreliable choices</summary>
 <div>
 <p><strong>Scenario:</strong> Your boilerplate-generation agent has 18 tools: five for file operations, four for template rendering, three for dependency lookups, three for git, and three for issue tracking. It routinely picks a plausible but wrong tool, and adding clearer descriptions has produced only modest improvement.</p>
 <p><strong>Question:</strong> What is the underlying problem?</p>
@@ -1593,7 +1597,7 @@
 </details>
 
 <details id="pq-q70" data-domain="D2" data-task="2.3">
-<summary>Q70 (Developer Productivity) — A tool that can fetch anything</summary>
+<summary>Q70 A tool that can fetch anything</summary>
 <div>
 <p><strong>Scenario:</strong> Your documentation agent has a generic <code>fetch_url</code> tool. It is being used to pull arbitrary pages — search result listings, unrelated blogs, an internal admin endpoint — when the intended use was retrieving known documentation URLs.</p>
 <p><strong>Question:</strong> What is the appropriate change?</p>
@@ -1614,7 +1618,7 @@
 </details>
 
 <details id="pq-q71" data-domain="D1" data-task="1.7">
-<summary>Q71 (Developer Productivity) — Resuming after changing the code</summary>
+<summary>Q71 Resuming after changing the code</summary>
 <div>
 <p><strong>Scenario:</strong> Yesterday you ran a long investigation session named <code>refund-flow</code> that mapped the refund dependencies. Overnight, two of the analysed files were refactored by a teammate. You want to continue the investigation today.</p>
 <p><strong>Question:</strong> What is the right approach?</p>
@@ -1635,7 +1639,7 @@
 </details>
 
 <details id="pq-q72" data-domain="D1" data-task="1.7">
-<summary>Q72 (Developer Productivity) — When resuming is the wrong choice</summary>
+<summary>Q72 When resuming is the wrong choice</summary>
 <div>
 <p><strong>Scenario:</strong> A session from three weeks ago holds an architecture analysis. Since then the module was restructured, three files were deleted and the data layer was replaced. Nearly every tool result in that session describes code that no longer exists.</p>
 <p><strong>Question:</strong> Resume or start fresh?</p>
@@ -1662,7 +1666,7 @@
 </div>
 
 <details id="pq-q73" data-domain="D3" data-task="3.6">
-<summary>Q73 (CI/CD) — From review output to inline PR comments</summary>
+<summary>Q73 From review output to inline PR comments</summary>
 <div>
 <p><strong>Scenario:</strong> Your CI job runs a review and receives prose findings. A script tries to parse file paths and line numbers out of the text with regular expressions to post inline PR comments; roughly a fifth of the findings are dropped or mis-anchored.</p>
 <p><strong>Question:</strong> What is the correct approach?</p>
@@ -1683,7 +1687,7 @@
 </details>
 
 <details id="pq-q74" data-domain="D3" data-task="3.6">
-<summary>Q74 (CI/CD) — Generated tests nobody wants</summary>
+<summary>Q74 Generated tests nobody wants</summary>
 <div>
 <p><strong>Scenario:</strong> Your CI test-generation step produces tests that assert getters return what was set, mock everything including the unit under test, and ignore the project's fixture helpers entirely. Reviewers delete most of them.</p>
 <p><strong>Question:</strong> What is the most effective change?</p>
@@ -1703,8 +1707,8 @@
 </div>
 </details>
 
-<details id="pq-q75" data-domain="D4" data-task="4.6">
-<summary>Q75 (CI/CD) — Reviewing your own work</summary>
+<details id="pq-q75" data-domain="D4" data-task="4.6" data-also-tasks="3.6">
+<summary>Q75 Reviewing your own work</summary>
 <div>
 <p><strong>Scenario:</strong> Your pipeline generates an implementation and then, in the same session, asks the model to review what it just wrote. The reviews are consistently approving and miss defects that a human reviewer finds minutes later.</p>
 <p><strong>Question:</strong> What is the fix?</p>
@@ -1725,7 +1729,7 @@
 </details>
 
 <details id="pq-q76" data-domain="D3" data-task="3.6">
-<summary>Q76 (CI/CD) — The same comment, five times</summary>
+<summary>Q76 The same comment, five times</summary>
 <div>
 <p><strong>Scenario:</strong> The review runs on every push. A pull request updated six times now carries the same three unresolved findings posted six times each, plus repeated comments on issues the author already fixed.</p>
 <p><strong>Question:</strong> How should re-runs be handled?</p>
@@ -1746,7 +1750,7 @@
 </details>
 
 <details id="pq-q77" data-domain="D3" data-task="3.6">
-<summary>Q77 (CI/CD) — Tests that already exist</summary>
+<summary>Q77 Tests that already exist</summary>
 <div>
 <p><strong>Scenario:</strong> Test generation proposes a null-input case and an empty-list case for a function whose existing suite already covers both, in the same file. Reviewers spend their time discarding duplicates.</p>
 <p><strong>Question:</strong> What is the fix?</p>
@@ -1767,7 +1771,7 @@
 </details>
 
 <details id="pq-q78" data-domain="D4" data-task="4.1">
-<summary>Q78 (CI/CD) — "Be conservative" does not work</summary>
+<summary>Q78 "Be conservative" does not work</summary>
 <div>
 <p><strong>Scenario:</strong> Your comment-accuracy check flags any comment that is not a literal restatement of the code beneath it, producing dozens of false positives per pull request. You have already added "be conservative" and "only report high-confidence findings" to the prompt, with no measurable improvement.</p>
 <p><strong>Question:</strong> What actually improves precision?</p>
@@ -1788,7 +1792,7 @@
 </details>
 
 <details id="pq-q79" data-domain="D4" data-task="4.1">
-<summary>Q79 (CI/CD) — One bad category poisons the rest</summary>
+<summary>Q79 One bad category poisons the rest</summary>
 <div>
 <p><strong>Scenario:</strong> Your review reports five categories. Four are accurate and valued. The fifth, "performance concerns", is wrong roughly 70% of the time. Developers have started dismissing all review comments without reading them, including the accurate ones.</p>
 <p><strong>Question:</strong> What should you do?</p>
@@ -1809,7 +1813,7 @@
 </details>
 
 <details id="pq-q80" data-domain="D4" data-task="4.1">
-<summary>Q80 (CI/CD) — Severity that shifts between runs</summary>
+<summary>Q80 Severity that shifts between runs</summary>
 <div>
 <p><strong>Scenario:</strong> The same class of issue is labelled "critical" in one pull request and "minor" in the next. Your prompt says to assign severity "based on impact". Downstream automation blocks merges on critical findings, so the inconsistency is expensive.</p>
 <p><strong>Question:</strong> How do you get consistent classification?</p>
@@ -1830,7 +1834,7 @@
 </details>
 
 <details id="pq-q81" data-domain="D4" data-task="4.2">
-<summary>Q81 (CI/CD) — Findings in five different shapes</summary>
+<summary>Q81 Findings in five different shapes</summary>
 <div>
 <p><strong>Scenario:</strong> Your review prompt lists in detail what each finding must contain — location, issue, severity, suggested fix. The output still varies: some findings are a single sentence, others three paragraphs, some omit the suggested fix, some bury the location in prose.</p>
 <p><strong>Question:</strong> What is the most effective technique?</p>
@@ -1851,7 +1855,7 @@
 </details>
 
 <details id="pq-q82" data-domain="D4" data-task="4.2">
-<summary>Q82 (CI/CD) — Idiomatic code flagged as a defect</summary>
+<summary>Q82 Idiomatic code flagged as a defect</summary>
 <div>
 <p><strong>Scenario:</strong> The reviewer flags your codebase's deliberate patterns as problems: the repository's standard error-wrapping helper, its intentional use of a mutable builder in hot paths, and its convention of returning early from validators. You cannot enumerate every accepted pattern in advance — new ones appear regularly.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
@@ -1872,7 +1876,7 @@
 </details>
 
 <details id="pq-q83" data-domain="D4" data-task="4.4">
-<summary>Q83 (CI/CD) — Understanding which findings get dismissed</summary>
+<summary>Q83 Understanding which findings get dismissed</summary>
 <div>
 <p><strong>Scenario:</strong> Developers dismiss about 30% of findings. You want to know systematically <em>what kind</em> of code triggers the dismissed ones, so you can fix the prompt rather than guess.</p>
 <p><strong>Question:</strong> What should you add to the structured output?</p>
@@ -1893,7 +1897,7 @@
 </details>
 
 <details id="pq-q84" data-domain="D4" data-task="4.6">
-<summary>Q84 (CI/CD) — Routing review attention</summary>
+<summary>Q84 Routing review attention</summary>
 <div>
 <p><strong>Scenario:</strong> Your review produces around 40 findings per large pull request. Reviewers have time for roughly ten. You want the ten they read to be the ten most likely to be real.</p>
 <p><strong>Question:</strong> What should the review pass produce?</p>
@@ -1914,7 +1918,7 @@
 </details>
 
 <details id="pq-q85" data-domain="D3" data-task="3.5">
-<summary>Q85 (CI/CD) — Iterating towards a correct implementation</summary>
+<summary>Q85 Iterating towards a correct implementation</summary>
 <div>
 <p><strong>Scenario:</strong> You are having Claude implement a date-range parser with awkward requirements: overlapping ranges, open-ended ranges, and time zones. Each round of "that's not quite right, try again" produces a different set of defects.</p>
 <p><strong>Question:</strong> What is the most effective way to iterate?</p>
@@ -1935,7 +1939,7 @@
 </details>
 
 <details id="pq-q86" data-domain="D4" data-task="4.5">
-<summary>Q86 (CI/CD) — Batch submissions under a 30-hour SLA</summary>
+<summary>Q86 Batch submissions under a 30-hour SLA</summary>
 <div>
 <p><strong>Scenario:</strong> A nightly analysis processes documents through the Message Batches API. Your commitment to internal users is that any document submitted is analysed within 30 hours. Batch processing can take up to 24 hours. Once a batch completes, retrieving the results, re-running as a real-time call any document that came back as an error, and publishing the output take up to 2 more hours.</p>
 <p><strong>Question:</strong> How often must you submit batches to guarantee the SLA, resubmission of a failed document included?</p>
@@ -1962,7 +1966,7 @@
 </div>
 
 <details id="pq-q87" data-domain="D4" data-task="4.3">
-<summary>Q87 (Structured Extraction) — What tool use guarantees</summary>
+<summary>Q87 What tool use guarantees</summary>
 <div>
 <p><strong>Scenario:</strong> You moved from asking for JSON in prose to defining an extraction tool with a JSON schema and reading the <code>tool_use</code> response. Parse failures dropped to zero. However, a downstream reconciliation job still rejects about 3% of extractions: line items that do not sum to the stated total, and a shipping address occasionally placed in the billing field.</p>
 <p><strong>Question:</strong> How should you interpret this?</p>
@@ -1983,7 +1987,7 @@
 </details>
 
 <details id="pq-q88" data-domain="D4" data-task="4.3">
-<summary>Q88 (Structured Extraction) — A required field with nothing to fill it</summary>
+<summary>Q88 A required field with nothing to fill it</summary>
 <div>
 <p><strong>Scenario:</strong> Your schema marks <code>company_name</code> as required. About one document in five is a personal receipt with no company on it. Reviewers find plausible-looking company names in those extractions that appear nowhere in the source.</p>
 <p><strong>Question:</strong> What is the fix?</p>
@@ -2004,7 +2008,7 @@
 </details>
 
 <details id="pq-q89" data-domain="D4" data-task="4.3">
-<summary>Q89 (Structured Extraction) — Categories that do not fit</summary>
+<summary>Q89 Categories that do not fit</summary>
 <div>
 <p><strong>Scenario:</strong> Your <code>category</code> enum is <code>["billing", "technical", "account"]</code>. Around 8% of documents concern something else — partnership enquiries, legal notices, press requests — and are currently forced into "account", where they are invisible to downstream routing.</p>
 <p><strong>Question:</strong> How should the schema change?</p>
@@ -2025,7 +2029,7 @@
 </details>
 
 <details id="pq-q90" data-domain="D4" data-task="4.3">
-<summary>Q90 (Structured Extraction) — The document is genuinely ambiguous</summary>
+<summary>Q90 The document is genuinely ambiguous</summary>
 <div>
 <p><strong>Scenario:</strong> A sentiment field with enum <code>["positive", "negative", "neutral"]</code> is applied to customer letters. Reviewers find that letters mixing praise and complaint are labelled inconsistently — sometimes positive, sometimes negative — and the label is later treated as fact.</p>
 <p><strong>Question:</strong> What is the appropriate schema change?</p>
@@ -2045,8 +2049,8 @@
 </div>
 </details>
 
-<details id="pq-q91" data-domain="D2" data-task="2.3">
-<summary>Q91 (Structured Extraction) — A step that must run first</summary>
+<details id="pq-q91" data-domain="D2" data-task="2.3" data-also-tasks="4.3">
+<summary>Q91 A step that must run first</summary>
 <div>
 <p><strong>Scenario:</strong> Your pipeline has an <code>extract_metadata</code> tool that identifies the document type and issue date, and several enrichment tools whose behaviour depends on the document type. The model sometimes calls an enrichment tool first, which then runs with the wrong assumptions.</p>
 <p><strong>Question:</strong> How do you guarantee the ordering?</p>
@@ -2067,7 +2071,7 @@
 </details>
 
 <details id="pq-q92" data-domain="D4" data-task="4.3">
-<summary>Q92 (Structured Extraction) — Dates in four formats</summary>
+<summary>Q92 Dates in four formats</summary>
 <div>
 <p><strong>Scenario:</strong> Source documents write dates as "15/01/2025", "Jan 15, 2025", "2025-01-15" and "the fifteenth of January". Your schema types the field as a string, and the output preserves whichever form appeared in the document. Downstream systems expect ISO 8601.</p>
 <p><strong>Question:</strong> What is the right combination?</p>
@@ -2088,7 +2092,7 @@
 </details>
 
 <details id="pq-q93" data-domain="D4" data-task="4.4">
-<summary>Q93 (Structured Extraction) — A validation failure worth retrying</summary>
+<summary>Q93 A validation failure worth retrying</summary>
 <div>
 <p><strong>Scenario:</strong> Pydantic validation rejects an extraction: <code>invoice_date</code> is "15/01/2025" where the model expects an ISO date, and <code>line_items[2].quantity</code> is the string "two" rather than an integer. Your pipeline currently retries with the original prompt unchanged.</p>
 <p><strong>Question:</strong> What should the retry contain?</p>
@@ -2109,7 +2113,7 @@
 </details>
 
 <details id="pq-q94" data-domain="D4" data-task="4.4">
-<summary>Q94 (Structured Extraction) — A retry that can never succeed</summary>
+<summary>Q94 A retry that can never succeed</summary>
 <div>
 <p><strong>Scenario:</strong> Validation flags a missing <code>purchase_order_number</code>. Investigation shows the purchase order number is not in the invoice at all — it lives in a separate procurement record that is not supplied to the extractor. Your pipeline retries these three times before failing.</p>
 <p><strong>Question:</strong> How should this be handled?</p>
@@ -2130,7 +2134,7 @@
 </details>
 
 <details id="pq-q95" data-domain="D4" data-task="4.4">
-<summary>Q95 (Structured Extraction) — Numbers that do not add up</summary>
+<summary>Q95 Numbers that do not add up</summary>
 <div>
 <p><strong>Scenario:</strong> Some invoices contain arithmetic errors in the source itself: the printed total does not match the sum of the line items. Today the extractor silently reports the printed total, and the discrepancy surfaces weeks later in reconciliation.</p>
 <p><strong>Question:</strong> How should the schema be designed?</p>
@@ -2151,7 +2155,7 @@
 </details>
 
 <details id="pq-q96" data-domain="D4" data-task="4.5">
-<summary>Q96 (Structured Extraction) — Twelve failures out of a hundred</summary>
+<summary>Q96 Twelve failures out of a hundred</summary>
 <div>
 <p><strong>Scenario:</strong> You submitted 100 documents to the Message Batches API. Eighty-eight succeeded; twelve failed because the documents exceeded the context limit.</p>
 <p><strong>Question:</strong> What is the correct recovery?</p>
@@ -2172,7 +2176,7 @@
 </details>
 
 <details id="pq-q97" data-domain="D4" data-task="4.5">
-<summary>Q97 (Structured Extraction) — Before submitting 50,000 documents</summary>
+<summary>Q97 Before submitting 50,000 documents</summary>
 <div>
 <p><strong>Scenario:</strong> You are about to run a 50,000-document backfill through the Batches API. Your prompt and schema have been tested on three documents you happened to have open.</p>
 <p><strong>Question:</strong> What should you do first?</p>
@@ -2193,7 +2197,7 @@
 </details>
 
 <details id="pq-q98" data-domain="D4" data-task="4.2">
-<summary>Q98 (Structured Extraction) — Documents that are laid out differently</summary>
+<summary>Q98 Documents that are laid out differently</summary>
 <div>
 <p><strong>Scenario:</strong> Your research-paper extractor handles papers with a bibliography reliably, but returns null for <code>references</code> on papers using inline citations, and misses methodology details when they are embedded in the results section instead of a dedicated one. The schema and instructions are correct.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
@@ -2214,7 +2218,7 @@
 </details>
 
 <details id="pq-q99" data-domain="D5" data-task="5.1">
-<summary>Q99 (Structured Extraction) — Findings that vanish from the middle</summary>
+<summary>Q99 Findings that vanish from the middle</summary>
 <div>
 <p><strong>Scenario:</strong> You aggregate the analyses of 30 contracts into a single request for a comparative summary. The summary reliably reflects the first four contracts and the last three; clauses from contracts 10 to 22 are frequently omitted, even though they are present in the input.</p>
 <p><strong>Question:</strong> How should the input be organised?</p>
@@ -2235,7 +2239,7 @@
 </details>
 
 <details id="pq-q100" data-domain="D5" data-task="5.5">
-<summary>Q100 (Structured Extraction) — 97% accuracy, one week before automating</summary>
+<summary>Q100 97% accuracy, one week before automating</summary>
 <div>
 <p><strong>Scenario:</strong> Your pipeline reports 97% aggregate accuracy across all documents and fields. Management wants to remove human review from the 97% and keep reviewers only for the rest.</p>
 <p><strong>Question:</strong> What must you verify first?</p>
@@ -2262,7 +2266,7 @@
 </div>
 
 <details id="pq-q101" data-domain="D1" data-task="1.6">
-<summary>Q101 (Cross-cutting) — Adding tests to a codebase you do not know</summary>
+<summary>Q101 Adding tests to a codebase you do not know</summary>
 <div>
 <p><strong>Scenario:</strong> The task is "add comprehensive tests to this legacy codebase". You do not know how many modules exist, which are untested, or how they depend on one another. Each thing you discover changes what should be done next.</p>
 <p><strong>Question:</strong> Which decomposition strategy fits?</p>
@@ -2283,7 +2287,7 @@
 </details>
 
 <details id="pq-q102" data-domain="D1" data-task="1.6">
-<summary>Q102 (Cross-cutting) — A review with known aspects</summary>
+<summary>Q102 A review with known aspects</summary>
 <div>
 <p><strong>Scenario:</strong> Every release, you review the same eight service modules against the same four concerns: security, error handling, logging, and API contract compliance. The scope is stable and known in advance. A single combined prompt produces uneven depth.</p>
 <p><strong>Question:</strong> Which decomposition fits?</p>
@@ -2304,7 +2308,7 @@
 </details>
 
 <details id="pq-q103" data-domain="D2" data-task="2.1">
-<summary>Q103 (Cross-cutting) — One tool that does four things</summary>
+<summary>Q103 One tool that does four things</summary>
 <div>
 <p><strong>Scenario:</strong> Your <code>analyze_document</code> tool is described as "Analyzes a document and returns insights." Callers use it to pull specific data points, to produce summaries, and to check whether a claim is supported by a source. Its output shape varies by call, and downstream code cannot rely on it.</p>
 <p><strong>Question:</strong> What is the appropriate redesign?</p>
@@ -2325,7 +2329,7 @@
 </details>
 
 <details id="pq-q104" data-domain="D2" data-task="2.1">
-<summary>Q104 (Cross-cutting) — Two tools nobody can tell apart</summary>
+<summary>Q104 Two tools nobody can tell apart</summary>
 <div>
 <p><strong>Scenario:</strong> You have <code>analyze_content</code> ("Analyzes content and extracts key information") and <code>analyze_document</code> ("Analyzes documents and extracts information"). In practice the first is used for web search results and the second for PDFs, but the agent picks between them essentially at random.</p>
 <p><strong>Question:</strong> What is the most effective fix?</p>
@@ -2346,7 +2350,7 @@
 </details>
 
 <details id="pq-q105" data-domain="D5" data-task="5.4">
-<summary>Q105 (Cross-cutting) — Recovering a multi-agent run after a crash</summary>
+<summary>Q105 Recovering a multi-agent run after a crash</summary>
 <div>
 <p><strong>Scenario:</strong> A six-hour multi-agent analysis crashes at hour five. Two agents had completed, one was mid-run, three had not started. Restarting from scratch means six more hours.</p>
 <p><strong>Question:</strong> What should the system have been designed to do?</p>
@@ -2367,7 +2371,7 @@
 </details>
 
 <details id="pq-q106" data-domain="D5" data-task="5.4">
-<summary>Q106 (Cross-cutting) — The context fills with discovery output</summary>
+<summary>Q106 The context fills with discovery output</summary>
 <div>
 <p><strong>Scenario:</strong> Two hours into an exploration session, the context is dominated by verbose file listings and search results from the discovery phase. The conclusions you care about are a handful of paragraphs. You need to continue in the same session.</p>
 <p><strong>Question:</strong> What is the appropriate tool?</p>
@@ -2388,7 +2392,7 @@
 </details>
 
 <details id="pq-q107" data-domain="D5" data-task="5.1">
-<summary>Q107 (Cross-cutting) — A downstream agent with no room</summary>
+<summary>Q107 A downstream agent with no room</summary>
 <div>
 <p><strong>Scenario:</strong> Your synthesis agent receives, from three upstream agents, their full reasoning chains and the complete text of every source they consulted. It exhausts its context before finishing and its output degrades in the second half.</p>
 <p><strong>Question:</strong> What should change upstream?</p>
@@ -2409,7 +2413,7 @@
 </details>
 
 <details id="pq-q108" data-domain="D5" data-task="5.6">
-<summary>Q108 (Cross-cutting) — An accurate report nobody can use</summary>
+<summary>Q108 An accurate report nobody can use</summary>
 <div>
 <p><strong>Scenario:</strong> Your synthesis output is factually correct and properly sourced, but readers complain it is unusable. Twelve quarters of revenue figures are described in flowing sentences, a sequence of regulatory events is presented as a bulleted list of fragments, and technical findings are buried in narrative paragraphs.</p>
 <p><strong>Question:</strong> Where is the defect and what is the fix?</p>
@@ -2430,7 +2434,7 @@
 </details>
 
 <details id="pq-q109" data-domain="D5" data-task="5.5">
-<summary>Q109 (Cross-cutting) — Reducing human review safely <strong>(Select the 2 correct answers.)</strong></summary>
+<summary>Q109 Reducing human review safely <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
 <p><strong>Scenario:</strong> Your extraction system currently sends every document to human review. You want to reduce that load without letting error rates rise unnoticed.</p>
 <p><strong>Question:</strong> Which two measures belong in the design?</p>
@@ -2452,7 +2456,7 @@
 </details>
 
 <details id="pq-q110" data-domain="D5" data-task="5.2">
-<summary>Q110 (Cross-cutting) — Reliable escalation triggers <strong>(Select the 2 correct answers.)</strong></summary>
+<summary>Q110 Reliable escalation triggers <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
 <p><strong>Scenario:</strong> You are writing the escalation section of a support agent's system prompt and must choose which signals genuinely warrant handing off to a human.</p>
 <p><strong>Question:</strong> Which two are reliable escalation triggers?</p>
@@ -2474,7 +2478,7 @@
 </details>
 
 <details id="pq-q111" data-domain="D1" data-task="1.3">
-<summary>Q111 (Cross-cutting) — Passing context to a subagent <strong>(Select the 2 correct answers.)</strong></summary>
+<summary>Q111 Passing context to a subagent <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
 <p><strong>Scenario:</strong> Your coordinator delegates to a synthesis subagent that must combine the outputs of a web search agent and a document analysis agent, while preserving source attribution.</p>
 <p><strong>Question:</strong> Which two practices are correct?</p>
@@ -2495,8 +2499,8 @@
 </div>
 </details>
 
-<details id="pq-q112" data-domain="D1" data-task="1.4">
-<summary>Q112 (Cross-cutting) — Guarantees versus best effort <strong>(Select the 2 correct answers.)</strong></summary>
+<details id="pq-q112" data-domain="D1" data-task="1.4" data-also-tasks="1.5">
+<summary>Q112 Guarantees versus best effort <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
 <p><strong>Scenario:</strong> Two requirements must hold every single time: identity must be verified before any refund is processed, and no refund above $500 may be issued by the agent.</p>
 <p><strong>Question:</strong> Which two mechanisms provide a deterministic guarantee?</p>
@@ -2682,6 +2686,8 @@
 </tr>
 </tbody>
 </table>
+
+</main>
 
 <nav class="doc-nav">
   <a class="prev" href="D5_Context_Fiabilite_15pct.html"><span class="label">Précédent</span><span class="title">D5 — Context et reliability</span></a>

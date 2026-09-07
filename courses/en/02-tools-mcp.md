@@ -9,6 +9,8 @@ set, the file a server is declared in. One section per task statement, in the
 guide's own order and under the guide's own wording — so that a question spotted
 on exam day maps to a section here without translation.
 
+<!-- cross-refs:start -->
+
 D0 and D1 are assumed, and both of them defer to this course. D0 named the
 anatomy of a tool — `name`, `description`, `input_schema` — and said twice that
 **which wording makes the model pick the right tool among several similar ones
@@ -24,6 +26,8 @@ The propagation of an error between a subagent and its coordinator is TS 5.3;
 this course owns the **shape** of the error, D5 owns what the coordinator does
 with it. And what makes a description *load* into a Claude Code session — the
 `.claude/agents/` files, `allowedTools`, the settings — is domain 3.
+
+<!-- cross-refs:end -->
 
 ## 2.1 — Design effective tool interfaces with clear descriptions and boundaries
 <!-- ts:2.1 | src:exam guide TS 2.1 (tool descriptions as the primary mechanism LLMs use for tool selection and minimal descriptions leading to unreliable selection among similar tools, the importance of input formats, example queries, edge cases and boundary explanations, ambiguous or overlapping descriptions causing misrouting with the analyze_content against analyze_document example, and the impact of system prompt wording where keyword-sensitive instructions create unintended tool associations; the skills: descriptions that differentiate purpose, expected inputs, outputs and when to use one tool versus a similar alternative, renaming analyze_content to extract_web_results with a web-specific description, splitting a generic analyze_document into extract_data_points, summarize_content and verify_claim_against_source, and reviewing system prompts for keyword-sensitive instructions that might override well-written tool descriptions) ; 09apicomplements L5 (the description as the single most determining factor of tool performance, the 3-4 sentence minimum and the five things it must cover, grouping related operations behind an action parameter, namespacing a tool with its service name, returning signal only, the optional input_examples field including a call with an optional parameter omitted, and the tool name pattern ^[a-zA-Z0-9_-]{1,64}$) ; 02mcp L5 (defining a tool with the FastMCP @mcp.tool decorator, name and description carried by the decorator and per-parameter descriptions by Pydantic Field, the SDK generating the schema from the type hints) -->

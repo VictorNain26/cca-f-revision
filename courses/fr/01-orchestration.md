@@ -6,6 +6,8 @@ Le domaine le plus lourd de l'examen : sept task statements, 27 % de la note. Un
 section par task statement, dans l'ordre du guide et sous le libellé du guide —
 pour qu'une question repérée le jour J renvoie ici sans traduction.
 
+<!-- cross-refs:start -->
+
 D0 est supposé acquis. Ce cours commence là où D0 s'arrête : D0 a nommé
 `stop_reason` et dit ce que vaut chaque valeur ; D1 transforme cette vérification
 en boucle, puis en système d'agents autour d'elle.
@@ -15,6 +17,8 @@ Le guide place les notions voisines ailleurs, et ce cours le respecte.
 d'erreur structurées en TS 2.2 et TS 5.3 ; les fichiers `.claude/agents/` et la
 commande `/agents` relèvent de la configuration Claude Code, testée au domaine 3.
 Chacune reçoit ici une phrase et un renvoi, jamais un second développement.
+
+<!-- cross-refs:end -->
 
 ## 1.1 — Design and implement agentic loops for autonomous task execution
 <!-- ts:1.1 | src:08agentsdk L2 (the five-step cycle, the stop_reason table, several tool_use blocks in one reply and their results returned in one user message, the three named anti-patterns, model-driven vs pre-configured decision tree), L3 (maxTurns and maxBudgetUsd as bounds) ; exam guide TS 1.1 -->

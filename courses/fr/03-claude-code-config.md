@@ -7,6 +7,8 @@ anodin : des fichiers dans un dépôt. Une section par task statement, dans
 l'ordre du guide et sous le libellé du guide — pour qu'une question repérée le
 jour J renvoie ici sans traduction.
 
+<!-- cross-refs:start -->
+
 D0 et D1 sont supposés acquis. D1 a enseigné la mécanique *interne* d'un agent :
 la boucle, les subagents, les hooks comme callbacks du SDK, les sessions. D3 est
 la couche au-dessus — les fichiers et les flags qui configurent un Claude Code en
@@ -21,6 +23,8 @@ TS 5.4, d'où le renvoi vers **D5.4**. Chacune reçoit ici une phrase et un renv
 jamais un second développement. Ce que D1 a explicitement renvoyé à ce cours —
 les définitions de subagents sous `.claude/agents/`, et les hooks comme *endroit
 où poser une règle* plutôt que comme API — atterrit en 3.2.
+
+<!-- cross-refs:end -->
 
 ## 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization
 <!-- ts:3.1 | src:exam guide TS 3.1 (the three levels, user-level not shared by version control, @import, .claude/rules/ as the modular alternative, /memory) ; 06claudecode101 L8 (what CLAUDE.md solves, its contents are appended to the prompt, project versus user, @path references) ; 01claudecodeinaction L2 (CLAUDE.md is guidance and not enforced configuration, every line competes with every other, imports expand inline and do not reduce context, specific and checkable rules, naming the replacement, the emphasis budget, hard rules belong in a hook) ; code.claude.com/docs/en/memory (four-hop import depth, .claude/rules/ layout, what /memory lists and what /context confirms) -->

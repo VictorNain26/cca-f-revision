@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { renderPage } from './page.mjs';
+import { renderPage, renderQuiz } from './page.mjs';
 
 const links = [
   ['index.html', 'Accueil', ''],
@@ -143,4 +143,84 @@ test('renderPage refuse un quiz dont la réponse ne désigne aucune option', () 
     () => renderPage({ course, quizzes: [badQuiz], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav }),
     /hors contrat/,
   );
+});
+
+/* Rattachement des questions à leur section. La règle est prudente à dessein :
+ * deux sections de D0 portent la même task 2.1, et deux questions la portent
+ * aussi — placer sans arbitrer publierait les mêmes id deux fois, ce que
+ * quiz.js compte et affiche. */
+const sectioned = {
+  title: 'D — un cours',
+  lead: '',
+  crossRefs: '',
+  sections: [
+    { id: 's1', heading: 'Une', task: '1.1', html: '<p>A.</p>' },
+    { id: 's2', heading: 'Deux', task: '1.2', html: '<p>B.</p>' },
+  ],
+  toc: [{ id: 's1', heading: 'Une' }, { id: 's2', heading: 'Deux' }],
+};
+const q = (id, task) => ({ ...quiz, id, task, summary: `${id} — titre` });
+
+test('renderPage place chaque question dans la section qui porte sa task', () => {
+  const html = renderPage({ course: sectioned, quizzes: [q('x-q1', '1.2'), q('x-q2', '1.1')], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  const s1 = html.indexOf('id="s1"');
+  const s2 = html.indexOf('id="s2"');
+  assert.ok(s1 < html.indexOf('x-q2') && html.indexOf('x-q2') < s2, 'x-q2 doit être dans la section s1');
+  assert.ok(s2 < html.indexOf('x-q1'), 'x-q1 doit être dans la section s2');
+});
+
+test('renderPage ne place pas une question dont la task désigne deux sections', () => {
+  const ambigu = { ...sectioned, sections: [
+    { id: 's1', heading: 'Une', task: '2.1', html: '<p>A.</p>' },
+    { id: 's2', heading: 'Deux', task: '2.1', html: '<p>B.</p>' },
+  ] };
+  const html = renderPage({ course: ambigu, quizzes: [q('x-q1', '2.1')], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  assert.equal(html.split('id="x-q1"').length - 1, 1, 'la question ne doit être rendue qu’une fois');
+  assert.ok(html.indexOf('x-q1') > html.indexOf('id="s2"'), 'elle doit retomber dans le bloc terminal');
+});
+
+test('renderPage rend toutes les questions, placées ou non', () => {
+  const html = renderPage({ course: sectioned, quizzes: [q('x-q1', '1.1'), q('x-q2', '9.9')], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  assert.match(html, /id="x-q1"/);
+  assert.match(html, /id="x-q2"/);
+});
+
+test('renderPage réémet la ligne « À tester » en lien vers la banque filtrée', () => {
+  const html = renderPage({ course: sectioned, quizzes: [], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  assert.match(html, /<p class="to-test"><a href="Practice_Questions\.html\?task=1\.1"/);
+});
+
+test('renderPage fait remonter le lien de banque d’un niveau sur la page anglaise', () => {
+  const html = renderPage({ course: sectioned, quizzes: [], lang: 'en', slug: 'D0_API_Fundamentals.html', nav });
+  assert.match(html, /href="\.\.\/Practice_Questions\.html\?task=1\.1"/);
+});
+
+test('renderPage rend les renvois inter-cours hors du bandeau, mais visibles', () => {
+  const html = renderPage({ course: { ...sectioned, lead: '<p>Le cadrage.</p>', crossRefs: '<p>D1 renvoie ici.</p>' }, quizzes: [], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  const bandeau = html.slice(html.indexOf('header-bar'), html.indexOf('</div>', html.indexOf('header-bar')));
+  assert.match(bandeau, /Le cadrage\./);
+  assert.doesNotMatch(bandeau, /D1 renvoie ici/);
+  /* Ouvert : replié, le bloc enterrait 8 pointeurs « TS x.y » qui n'existent
+     * nulle part ailleurs dans leur cours. Le défaut à corriger était l'aplat
+     * saturé du bandeau, pas la présence du texte. */
+  assert.match(html, /<details class="cross-refs" open>/);
+});
+
+test('renderPage pose un point d’ancrage de contenu et son lien d’évitement', () => {
+  const html = renderPage({ course: sectioned, quizzes: [], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  assert.match(html, /<a class="skip-link" href="#content">/);
+  assert.match(html, /<main id="content">/);
+});
+
+test('renderQuiz retire la parenthèse que le contexte de la page répète déjà', () => {
+  const html = renderQuiz({ ...quiz, summary: 'Q1 (D5) — Assay settings the summary stops carrying' });
+  assert.match(html, /<summary>Q1 Assay settings the summary stops carrying<\/summary>/);
+});
+
+test('renderQuiz garde le numéro, dont quiz.js fait sa pastille', () => {
+  assert.match(renderQuiz({ ...quiz, summary: 'Q25 (Customer Support) — Handing off' }), /<summary>Q25 /);
+});
+
+test('renderQuiz laisse intact un libellé sans parenthèse', () => {
+  assert.match(renderQuiz({ ...quiz, summary: 'Q7 Un titre nu' }), /<summary>Q7 Un titre nu<\/summary>/);
 });

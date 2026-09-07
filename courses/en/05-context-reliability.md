@@ -14,6 +14,9 @@ One section per task statement, in the guide's own order and under the guide's
 own wording, so that a question met on exam day maps to a section here without
 translation.
 
+
+<!-- cross-refs:start -->
+
 Four courses defer to this one, and the four debts are paid below. **D0** named
 the three failure modes of a full context window — lost-in-the-middle,
 accumulation, progressive summarization — and went no further: the remedies are
@@ -30,6 +33,8 @@ TS 1.2 and 1.3. The hook mechanism — events, `PostToolUse`, `updatedToolOutput
 — is TS 1.5. Sessions, `--resume` and `fork_session` are TS 1.7. The structured
 human handoff is TS 1.4. Each of those gets a sentence and a pointer here, never
 a second development.
+
+<!-- cross-refs:end -->
 
 ## 5.1 — Manage conversation context to preserve critical information across long interactions
 <!-- ts:5.1 | src:exam guide TS 5.1 (the knowledge: progressive summarization condensing numerical values, percentages, dates and customer-stated expectations into vague summaries; the lost-in-the-middle effect, where models process the beginning and end of long inputs reliably but may omit findings from middle sections; how tool results accumulate and consume tokens disproportionately to their relevance, with the 40+ fields per order lookup when only 5 are relevant; the importance of passing complete conversation history in subsequent API requests. The skills: extracting transactional facts — amounts, dates, order numbers, statuses — into a persistent case facts block included in each prompt outside summarized history; extracting and persisting structured issue data into a separate context layer for multi-issue sessions; trimming verbose tool outputs to only relevant fields before they accumulate; placing key findings summaries at the beginning of aggregated inputs and organizing detailed results with explicit section headers; requiring subagents to include metadata — dates, source locations, methodological context — in structured outputs; modifying upstream agents to return structured data — key facts, citations, relevance scores — instead of verbose content and reasoning chains when downstream agents have limited context budgets) ; 08agentsdk L11 (updatedToolOutput replaces a tool's output before Claude sees it, for any tool and in both SDKs — L11 documents that field for normalising heterogeneous formats under TS 1.5, and applying it to trimming is this course's deduction, not the source's: the guide's trimming skill names no mechanism) ; 06claudecode101 L6 (everything that enters the context window: prompts, file reads, tool calls and their results; automatic compaction summarises and can lose details) -->

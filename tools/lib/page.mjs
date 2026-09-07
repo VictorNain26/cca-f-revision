@@ -47,6 +47,10 @@ const STRINGS = {
   fr: {
     toc: 'Table des matières',
     quizHeading: "Questions d'auto-évaluation",
+    sectionQuiz: 'Teste-toi sur cette section',
+    toTest: (task) => `Toutes les questions de la banque sur ${task}`,
+    crossRefs: 'Ce que ce cours possède, ce qu’il renvoie ailleurs',
+    skip: 'Aller au contenu',
     backToTop: 'Retour en haut',
     prevLabel: 'Précédent',
     nextLabel: 'Suivant',
@@ -55,12 +59,52 @@ const STRINGS = {
   en: {
     toc: 'Table of contents',
     quizHeading: 'Self-assessment questions',
+    sectionQuiz: 'Test yourself on this section',
+    toTest: (task) => `All bank questions on ${task}`,
+    crossRefs: 'What this course owns, what it defers elsewhere',
+    skip: 'Skip to content',
     backToTop: 'Back to top',
     prevLabel: 'Previous',
     nextLabel: 'Next',
     footer: (title) => `CCA Revision — ${title} · 2026`,
   },
 };
+
+/* Une question descend dans sa section quand — et seulement quand — une seule
+ * section porte sa task. D0 est le cas qui impose la prudence : deux de ses
+ * sections portent `data-task="2.1"` et deux de ses questions aussi, si bien
+ * qu'un rattachement naïf publierait les mêmes id deux fois. quiz.js compte les
+ * <details> pour son score : un doublon fausserait le total autant que la note.
+ * Les questions non placées ne disparaissent pas, elles retombent dans le bloc
+ * terminal. */
+function placeQuizzes(sections, quizzes) {
+  const owner = new Map();
+  for (const section of sections) {
+    if (!section.task) continue;
+    owner.set(section.task, owner.has(section.task) ? null : section.id);
+  }
+
+  const bySection = new Map();
+  const leftover = [];
+  for (const quiz of quizzes) {
+    const id = owner.get(quiz.task);
+    if (!id) {
+      leftover.push(quiz);
+      continue;
+    }
+    if (!bySection.has(id)) bySection.set(id, []);
+    bySection.get(id).push(quiz);
+  }
+
+  /* Une question perdue en route ne se voit pas sur la page publiée : il y a
+   * simplement un bloc de moins, et le score de quiz.js s'ajuste au total
+   * rendu. Le seul moment où l'écart est visible est ici. */
+  const placed = [...bySection.values()].reduce((n, list) => n + list.length, 0);
+  if (placed + leftover.length !== quizzes.length) {
+    throw new Error(`placeQuizzes a perdu des questions : ${placed} placées + ${leftover.length} en fin de page ≠ ${quizzes.length} chargées`);
+  }
+  return { bySection, leftover };
+}
 
 /* Les lettres d'une question viennent de ses propres options, jamais d'une
  * liste figée : une question à réponses multiples en porte cinq (a-e). Le
@@ -82,6 +126,15 @@ const stripWeight = (title) => (title || '').replace(/\s*\(\d+\s*%\)\s*$/, '').t
 /* Exporté pour tools/lib/practice.mjs : la page des QCM rend les mêmes blocs
  * <details> que les fiches de domaine, et un second rendu qui divergerait de
  * celui-ci rejouerait le défaut de la navbar en onze exemplaires. */
+/* « Q1 (D5) — Assay settings… » : la parenthèse répète ce que la page dit déjà.
+ * Sur une fiche de domaine la question vit désormais dans la section de ce
+ * domaine ; sur la page des QCM elle est groupée sous le titre de son scénario.
+ * Le retrait est fait au rendu et pas dans le JSON : report-duplicates.mjs,
+ * report-length-tell.mjs et l'export Academy lisent ces `summary`.
+ * quiz.js exige que le libellé commence par Qn pour en faire sa pastille — le
+ * numéro est donc conservé, seule la parenthèse et son tiret partent. */
+const trimSummaryTag = (summary) => summary.replace(/^(Q\d+)\s+\([^)]*\)\s*—\s*/, '$1 ');
+
 export function renderQuiz(q) {
   const letters = lettersOf(q);
   const answers = new Set(answerLetters(q.answer));
@@ -95,8 +148,12 @@ export function renderQuiz(q) {
   const answerWord = answers.size > 1 ? 'Answers' : 'Answer';
 
   return [
-    `<details id="${q.id}" data-domain="${q.domain}" data-task="${q.task}">`,
-    `<summary>${q.summary}</summary>`,
+    /* alsoTasks porte la couverture secondaire d'une question qui répond à deux
+     * task statements. La table de couverture la compte déjà ; sans elle ici, le
+     * filtre par task de practice.js afficherait moins de questions que la table
+     * n'en annonce pour la même task. */
+    `<details id="${q.id}" data-domain="${q.domain}" data-task="${q.task}"${q.alsoTasks?.length ? ` data-also-tasks="${q.alsoTasks.join(' ')}"` : ''}>`,
+    `<summary>${trimSummaryTag(q.summary)}</summary>`,
     '<div>',
     `<p><strong>Scenario:</strong> ${q.scenario}</p>`,
     `<p><strong>Question:</strong> ${q.question}</p>`,
@@ -174,20 +231,49 @@ export function renderPage({ course, quizzes, lang, slug, nav }) {
   }
 
   const strings = STRINGS[lang];
+  const { bySection, leftover } = placeQuizzes(course.sections, quizzes);
   const quizSectionNumber = course.toc.length + 1;
   const quizSectionId = `s${quizSectionNumber}`;
 
   const tocItems = [
     ...course.toc.map((s) => `<li><a href="#${s.id}">${s.heading}</a></li>`),
-    `<li><a href="#${quizSectionId}">${strings.quizHeading}</a></li>`,
+    ...(leftover.length ? [`<li><a href="#${quizSectionId}">${strings.quizHeading}</a></li>`] : []),
   ].join('\n');
 
+  /* Fin de section : l'apprenant s'arrête et se teste. C'est la frontière que
+   * le segmenting demande — franchie par un acte de rappel, pas par un résumé,
+   * puisque sur un QCM c'est discriminer qui coûte, pas se remémorer. */
+  const sectionQuizHtml = (section) => {
+    const own = bySection.get(section.id) || [];
+    const toTest = section.task
+      ? `<p class="to-test"><a href="${assetPath('Practice_Questions.html', lang)}?task=${section.task}">${strings.toTest(section.task)}</a></p>`
+      : '';
+    if (!own.length && !toTest) return '';
+    return [
+      '\n\n<div class="section-quiz">',
+      own.length ? `<h3 class="section-quiz-title">${strings.sectionQuiz}</h3>` : '',
+      own.map(renderQuiz).join('\n\n'),
+      toTest,
+      '</div>',
+    ].filter(Boolean).join('\n');
+  };
+
   const sectionsHtml = course.sections
-    .map((s, i) => `<div class="section-header"><h2 id="${s.id}">${i + 1}. ${s.heading}</h2></div>\n\n${s.html}`)
+    .map((s, i) => `<div class="section-header"><h2 id="${s.id}">${i + 1}. ${s.heading}</h2></div>\n\n${s.html}${sectionQuizHtml(s)}`)
     .join('\n\n');
 
-  const quizzesHtml = quizzes.map(renderQuiz).join('\n\n');
-  const quizSectionHtml = `<div class="section-header"><h2 id="${quizSectionId}" class="page-break">${quizSectionNumber}. ${strings.quizHeading}</h2></div>\n\n${quizzesHtml}`;
+  const quizSectionHtml = leftover.length
+    ? `${'\n\n'}<div class="section-header"><h2 id="${quizSectionId}" class="page-break">${quizSectionNumber}. ${strings.quizHeading}</h2></div>\n\n${leftover.map(renderQuiz).join('\n\n')}`
+    : '';
+
+  /* Ouvert par défaut, et c'est une décision mesurée : replié, le bloc enterrait
+   * 8 pointeurs « TS x.y » qui n'existent nulle part ailleurs dans leur cours —
+   * ces paragraphes nomment ce que le cours ne couvre pas, donc rien d'autre ne
+   * les porte, et l'examen note par domaine. Le défaut à corriger était les 323
+   * mots posés en aplat saturé dans le bandeau, pas leur présence. */
+  const crossRefsHtml = course.crossRefs
+    ? `\n<details class="cross-refs" open>\n<summary>${strings.crossRefs}</summary>\n${course.crossRefs}\n</details>\n`
+    : '';
 
   const navbarHtml = buildNavbar({ links: nav.links, lang, slug });
   const langSwitchHtml = buildLangSwitch({ translations: nav.translations, lang, slug });
@@ -209,8 +295,11 @@ export function renderPage({ course, quizzes, lang, slug, nav }) {
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">${strings.skip}</a>
 
 ${navbarHtml}${langSwitchHtml}
+
+<main id="content">
 
 <div class="header-bar">
 <h1>${course.title}</h1>
@@ -222,10 +311,10 @@ ${course.lead ? `${course.lead}\n` : ''}</div>
 ${tocItems}
 </ol>
 </div>
+${crossRefsHtml}
+${sectionsHtml}${quizSectionHtml}
 
-${sectionsHtml}
-
-${quizSectionHtml}
+</main>
 
 <nav class="doc-nav">
 ${docNavHtml}

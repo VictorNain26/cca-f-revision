@@ -9,6 +9,8 @@ jeu d'outils, le fichier où un serveur est déclaré. Une section par task
 statement, dans l'ordre du guide et sous le libellé du guide — pour qu'une
 question repérée le jour J corresponde à une section d'ici sans traduction.
 
+<!-- cross-refs:start -->
+
 D0 et D1 sont supposés acquis, et tous deux renvoient ici. D0 a nommé l'anatomie
 d'un outil — `name`, `description`, `input_schema` — et a dit deux fois que
 **c'est en D2.1 que se développe la question du libellé qui fait choisir au
@@ -26,6 +28,8 @@ coordinateur relève du TS 5.3 ; ce cours possède la **forme** de l'erreur, D5
 possède ce que le coordinateur en fait. Et ce qui fait *charger* une description
 dans une session Claude Code — les fichiers `.claude/agents/`, `allowedTools`,
 les settings — relève du domaine 3.
+
+<!-- cross-refs:end -->
 
 ## 2.1 — Concevoir des interfaces d'outils claires, avec des descriptions et des frontières nettes
 <!-- ts:2.1 | src:exam guide TS 2.1 (tool descriptions as the primary mechanism LLMs use for tool selection and minimal descriptions leading to unreliable selection among similar tools, the importance of input formats, example queries, edge cases and boundary explanations, ambiguous or overlapping descriptions causing misrouting with the analyze_content against analyze_document example, and the impact of system prompt wording where keyword-sensitive instructions create unintended tool associations; the skills: descriptions that differentiate purpose, expected inputs, outputs and when to use one tool versus a similar alternative, renaming analyze_content to extract_web_results with a web-specific description, splitting a generic analyze_document into extract_data_points, summarize_content and verify_claim_against_source, and reviewing system prompts for keyword-sensitive instructions that might override well-written tool descriptions) ; 09apicomplements L5 (the description as the single most determining factor of tool performance, the 3-4 sentence minimum and the five things it must cover, grouping related operations behind an action parameter, namespacing a tool with its service name, returning signal only, the optional input_examples field including a call with an optional parameter omitted, and the tool name pattern ^[a-zA-Z0-9_-]{1,64}$) ; 02mcp L5 (defining a tool with the FastMCP @mcp.tool decorator, name and description carried by the decorator and per-parameter descriptions by Pydantic Field, the SDK generating the schema from the type hints) -->

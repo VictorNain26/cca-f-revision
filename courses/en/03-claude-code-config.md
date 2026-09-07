@@ -7,6 +7,8 @@ deceptively soft: files in a repository. One section per task statement, in the
 guide's own order and under the guide's own wording — so that a question spotted
 on exam day maps to a section here without translation.
 
+<!-- cross-refs:start -->
+
 D0 and D1 are assumed. D1 taught the machinery *inside* an agent: the loop,
 subagents, hooks as SDK callbacks, sessions. D3 is the layer above it — the
 files and flags that configure a running Claude Code, and the working habits
@@ -21,6 +23,8 @@ pointer is **D5.4**. Each of those gets a sentence and a pointer here, never a
 second development. What D1 explicitly deferred to this course — subagent
 definitions under `.claude/agents/`, and hooks as a *place to put a rule* rather
 than as an API — lands in 3.2.
+
+<!-- cross-refs:end -->
 
 ## 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization
 <!-- ts:3.1 | src:exam guide TS 3.1 (the three levels, user-level not shared by version control, @import, .claude/rules/ as the modular alternative, /memory) ; 06claudecode101 L8 (what CLAUDE.md solves, its contents are appended to the prompt, project versus user, @path references) ; 01claudecodeinaction L2 (CLAUDE.md is guidance and not enforced configuration, every line competes with every other, imports expand inline and do not reduce context, specific and checkable rules, naming the replacement, the emphasis budget, hard rules belong in a hook) ; code.claude.com/docs/en/memory (four-hop import depth, .claude/rules/ layout, what /memory lists and what /context confirms) -->

@@ -7,6 +7,8 @@ section per task statement, in the guide's own order and under the guide's own
 wording — so that a question spotted on exam day maps to a section here
 without translation.
 
+<!-- cross-refs:start -->
+
 D0 is assumed. This course starts where D0 stopped: D0 named `stop_reason` and
 said what each value means; D1 turns that check into a loop, then into a system
 of agents around it.
@@ -16,6 +18,8 @@ The guide places neighbouring notions elsewhere, and this course honours that.
 responses in TS 2.2 and TS 5.3; the `.claude/agents/` files and the `/agents`
 command are Claude Code configuration, tested in domain 3. Each of those gets a
 sentence and a pointer here, never a second development.
+
+<!-- cross-refs:end -->
 
 ## 1.1 — Design and implement agentic loops for autonomous task execution
 <!-- ts:1.1 | src:08agentsdk L2 (the five-step cycle, the stop_reason table, several tool_use blocks in one reply and their results returned in one user message, the three named anti-patterns, model-driven vs pre-configured decision tree), L3 (maxTurns and maxBudgetUsd as bounds) ; exam guide TS 1.1 -->

@@ -14,6 +14,7 @@
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Skip to content</a>
 
 <nav class="navbar">
   <a class="home" href="../index.html">CCA-F</a>
@@ -33,12 +34,30 @@
   <a href="../D3_Claude_Code_Config_20pct.html">FR</a>
 </div>
 
+<main id="content">
+
 <div class="header-bar">
 <h1>D3 — Claude Code configuration and workflows (20 %)</h1>
 <p>Twenty per cent of the score, six task statements, and a subject that looks
 deceptively soft: files in a repository. One section per task statement, in the
 guide's own order and under the guide's own wording — so that a question spotted
 on exam day maps to a section here without translation.</p>
+</div>
+
+<div class="toc">
+<strong>Table of contents</strong>
+<ol>
+<li><a href="#s1">3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</a></li>
+<li><a href="#s2">3.2 — Create and configure custom slash commands and skills</a></li>
+<li><a href="#s3">3.3 — Apply path-specific rules for conditional convention loading</a></li>
+<li><a href="#s4">3.4 — Determine when to use plan mode vs direct execution</a></li>
+<li><a href="#s5">3.5 — Apply iterative refinement techniques for progressive improvement</a></li>
+<li><a href="#s6">3.6 — Integrate Claude Code into CI/CD pipelines</a></li>
+</ol>
+</div>
+
+<details class="cross-refs" open>
+<summary>What this course owns, what it defers elsewhere</summary>
 <p>D0 and D1 are assumed. D1 taught the machinery <em>inside</em> an agent: the loop,
 subagents, hooks as SDK callbacks, sessions. D3 is the layer above it — the
 files and flags that configure a running Claude Code, and the working habits
@@ -52,20 +71,7 @@ pointer is <strong>D5.4</strong>. Each of those gets a sentence and a pointer he
 second development. What D1 explicitly deferred to this course — subagent
 definitions under <code>.claude/agents/</code>, and hooks as a <em>place to put a rule</em> rather
 than as an API — lands in 3.2.</p>
-</div>
-
-<div class="toc">
-<strong>Table of contents</strong>
-<ol>
-<li><a href="#s1">3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</a></li>
-<li><a href="#s2">3.2 — Create and configure custom slash commands and skills</a></li>
-<li><a href="#s3">3.3 — Apply path-specific rules for conditional convention loading</a></li>
-<li><a href="#s4">3.4 — Determine when to use plan mode vs direct execution</a></li>
-<li><a href="#s5">3.5 — Apply iterative refinement techniques for progressive improvement</a></li>
-<li><a href="#s6">3.6 — Integrate Claude Code into CI/CD pipelines</a></li>
-<li><a href="#s7">Self-assessment questions</a></li>
-</ol>
-</div>
+</details>
 
 <div class="section-header"><h2 id="s1">1. 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization</h2></div>
 
@@ -183,7 +189,31 @@ terminal: the current documentation splits the job, with <code>/memory</code> li
 opening the files and <code>/context</code> reporting which ones actually loaded into the
 running session.</p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
+<details id="d3-q1" data-domain="D3" data-task="3.1">
+<summary>Q1 A rule the cloud workspaces never receive</summary>
+<div>
+<p><strong>Scenario:</strong> Half the team codes in ephemeral cloud workspaces rebuilt from a base image at every checkout. Payment calls written there go straight to the gateway, while laptops keep routing through <code>PaymentsClient</code> as agreed. The instruction ships in the onboarding dotfile bundle, which every new hire unpacks into <code>~/.claude/CLAUDE.md</code> on their laptop; the base image is built from another recipe and never runs that step.</p>
+<p><strong>Question:</strong> What is the diagnosis and the fix?</p>
+<p data-opt="a">A) The workspaces open their session below the repository root, so the file one level up never loads; start at the root.</p>
+<p data-opt="b">B) The wording reads as a preference rather than an obligation, and a fresh environment has no local habit to fall back on; make it imperative.</p>
+<p data-opt="c">C) It sits at user scope, outside version control; commit it at project scope instead.</p>
+<p data-opt="d">D) The repository never declares it; move the restriction into <code>settings.json</code>.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: the instruction lives at user scope instead of project scope</p>
+<p><strong>Why:</strong> a user-scope file belongs to a home directory and is never distributed with the repository, so it reaches a machine only through whatever copies it there and an environment rebuilt from an image starts without it. Anything the whole team must follow belongs in a committed project file.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Nothing is waiting further up the tree: the file is not in the image at all.</li>
+<li data-opt="b">Wording cannot decide the behavior of a session that never read the text.</li>
+<li data-opt="d">That file governs permissions, hooks and tool access; it is not where standing instructions to the model live.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="../Practice_Questions.html?task=3.1">All bank questions on 3.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s2">2. 3.2 — Create and configure custom slash commands and skills</h2></div>
 
@@ -404,7 +434,53 @@ review checklist has no business in context while you are debugging.</p>
 is not something a developer chooses to run. If the scenario says a person
 invokes the thing, a hook is not the answer.</p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.2&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
+<details id="d3-q3" data-domain="D3" data-task="3.2">
+<summary>Q3 A skill that floods the window it runs in</summary>
+<div>
+<p><strong>Scenario:</strong> Your <code>/orphan-assets</code> skill walks the media bucket and the codebase to list images nothing references. It prints every path it checks on the way, and the work that follows in the same session has visibly lost the thread.</p>
+<p><strong>Question:</strong> What is the right change?</p>
+<p data-opt="a">A) Restrict the skill's <code>allowed-tools</code> to <code>Read</code> and <code>Glob</code>, so the run produces less to read.</p>
+<p data-opt="b">B) Have the skill append each inspected path to <code>reports/orphans.log</code> and print only the total it found.</p>
+<p data-opt="c">C) Run it in a second terminal and paste the verdict back.</p>
+<p data-opt="d">D) Declare <code>context: fork</code> in the skill's frontmatter, so only the verdict returns.</p>
+<hr>
+<p class="correct" data-answer="d">Answer: run the skill in a forked context</p>
+<p><strong>Why:</strong> the path-by-path trace is worth producing, it simply does not belong in the conversation. A forked context runs the walk inside an isolated subagent and hands back the conclusion alone.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Tool permissions decide what the skill may do, not how much it narrates.</li>
+<li data-opt="b">The listing still crosses the session on its way to disk.</li>
+<li data-opt="c">Isolation by hand, unrepeatable, and nothing carries it to the next person.</li>
+</ul>
+</div>
+</details>
+
+<details id="d3-q6" data-domain="D3" data-task="3.2">
+<summary>Q6 Packaging a workflow the whole team reuses <strong>(Select the 2 correct answers.)</strong></summary>
+<div>
+<p><strong>Scenario:</strong> Your team runs the same accessibility audit over and over. It has to reach everyone, keep its verbose trace out of the working session, and run both at a developer's terminal and from the pipeline.</p>
+<p><strong>Question:</strong> Which two moves deliver that?</p>
+<p data-opt="a">A) Commit it as <code>.claude/skills/a11y-audit/SKILL.md</code> with <code>context: fork</code> in its frontmatter.</p>
+<p data-opt="b">B) Keep it as a personal <code>~/.claude/skills/a11y-audit/SKILL.md</code> so you can iterate without disturbing anyone.</p>
+<p data-opt="c">C) Invoke it by name at the terminal, and headless from the pipeline through <code>claude -p</code>.</p>
+<p data-opt="d">D) Paste the audit steps into <code>~/.claude/CLAUDE.md</code> so every session carries them.</p>
+<p data-opt="e">E) Fire it from a <code>PostToolUse</code> hook after each write, so nobody has to remember it.</p>
+<hr>
+<p class="correct" data-answer="a c">Answers: commit the forked skill with the repository, and invoke it by name locally or headless from the pipeline</p>
+<p><strong>Why:</strong> a committed skill meets all three requirements at once — versioned, so everyone gets it at clone time; forked, so its trace stays out of the session; and reachable from both sides, by name at the terminal and headless in the pipeline, where <code>--output-format json</code> hands the next step something it can act on.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">User scope is private and outside version control, which is the one requirement it cannot meet.</li>
+<li data-opt="d">User scope again, and that file carries standing instructions rather than an invocable workflow.</li>
+<li data-opt="e">A hook reacts to a tool event; it does not package a workflow somebody chooses to run.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="../Practice_Questions.html?task=3.2">All bank questions on 3.2</a></p>
+</div>
 
 <div class="section-header"><h2 id="s3">3. 3.3 — Apply path-specific rules for conditional convention loading</h2></div>
 
@@ -497,7 +573,31 @@ it does not guarantee the outcome. If the requirement is a gate, it is a hook or
 a CI check — and the two are complements, not alternatives: the rule gets it
 right most of the time, the gate catches the rest.</p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.3&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
+<details id="d3-q2" data-domain="D3" data-task="3.3">
+<summary>Q2 Standards for files that sit in every product folder</summary>
+<div>
+<p><strong>Scenario:</strong> Every product team keeps its own infrastructure under <code>infra/&lt;product&gt;/</code>, so the Terraform files matching <code>infra/**/*.tf</code> are scattered across a dozen folders. Each resource must pin its provider version and carry a <code>cost_center</code> tag, and you want that applied whenever one of those files is edited, without anyone invoking anything.</p>
+<p><strong>Question:</strong> Which setup delivers that?</p>
+<p data-opt="a">A) A <code>PostToolUse</code> hook that fires after each write and appends the tagging standards to the session.</p>
+<p data-opt="b">B) A <code>.claude/rules/terraform.md</code> whose frontmatter <code>paths</code> glob covers those files.</p>
+<p data-opt="c">C) A <code>tflint</code> policy in CI that fails the build whenever a resource is untagged or its provider is unpinned.</p>
+<p data-opt="d">D) The standards written up in <code>docs/infrastructure-standards.md</code>, the place engineers already look.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: a path-scoped rule file whose glob follows the file type across the tree</p>
+<p><strong>Why:</strong> the glob matches on the file being edited, wherever it sits, and the body loads only while such a file is in play — which is what a convention attached to a file type rather than to a directory needs.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">A hook runs a command on a tool event, once the write has already happened; it is not a channel for standards meant to shape the writing.</li>
+<li data-opt="c">Rejection after the fact, not guidance during: the loop becomes a red build somebody has to go back and fix.</li>
+<li data-opt="d">A document no session opens shapes nothing that gets written.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="../Practice_Questions.html?task=3.3">All bank questions on 3.3</a></p>
+</div>
 
 <div class="section-header"><h2 id="s4">4. 3.4 — Determine when to use plan mode vs direct execution</h2></div>
 
@@ -588,7 +688,31 @@ a scenario carries two tickets, answering plan mode for both costs you the
 settled one: a failing test that states the expected value has already written
 down the answer that planning would go looking for.</p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.4&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
+<details id="d3-q7" data-domain="D3" data-task="3.4">
+<summary>Q7 A stale scale factor and an unsettled ingest path</summary>
+<div>
+<p><strong>Scenario:</strong> Two tickets open the same morning on a smart-metering platform. The first: a failing regression test pins <code>toKilowattHours()</code>, which still applies the scale the meters used before the current firmware shipped; the test states the value it expects, and the scale is a single constant, <code>METER_SCALE</code>. The second: retire the nightly polling job and have meters publish readings as they take them, which means settling where backpressure belongs, what becomes of readings buffered through a network outage, and how both paths run side by side while the fleet upgrades over months.</p>
+<p><strong>Question:</strong> Which mode fits which ticket?</p>
+<p data-opt="a">A) Plan mode for both, since a change that reaches customer meters should be designed before it is written.</p>
+<p data-opt="b">B) Plan mode for the scale factor so the firmware assumption gets recorded, and direct execution for the ingest change, revising the design as problems surface.</p>
+<p data-opt="c">C) Direct execution for the scale factor, plan mode for the ingest change.</p>
+<p data-opt="d">D) Direct execution for both, one meter model at a time.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: run the scale factor directly, plan the ingest change</p>
+<p><strong>Why:</strong> deliberation pays where approaches compete, boundaries are unsettled, and one early decision propagates across many files. The ingest change carries three open questions before a line is written; the scale factor carries a failing test that already states the answer.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Spends deliberation on a ticket whose expected value is already written down in the test.</li>
+<li data-opt="b">Reverses both readings at once, deliberating over the settled ticket and improvising the unsettled one.</li>
+<li data-opt="d">Incremental delivery still commits to a backpressure design nobody has chosen, and a fleet halfway through an upgrade is the worst place to discover that.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="../Practice_Questions.html?task=3.4">All bank questions on 3.4</a></p>
+</div>
 
 <div class="section-header"><h2 id="s5">5. 3.5 — Apply iterative refinement techniques for progressive improvement</h2></div>
 
@@ -687,7 +811,31 @@ choosing — you find out at the end which of the five changes was wrong.</p>
 of the others, so the second one dismantles the first. The criterion is
 interdependence, never the number of problems.</p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.5&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
+<details id="d3-q8" data-domain="D3" data-task="3.5">
+<summary>Q8 Redaction that lands differently every time</summary>
+<div>
+<p><strong>Scenario:</strong> You ask for support transcripts to be "stripped of anything personal" before they reach the analytics store. One pass masks the order number and the next leaves it; one pass swaps the customer's first name for a token and the next deletes the whole sentence. Two rewrites of the written instruction have not converged.</p>
+<p><strong>Question:</strong> What is the most effective next move?</p>
+<p data-opt="a">A) Point the prompt at the company's data-classification policy and tell it to apply the categories defined there.</p>
+<p data-opt="b">B) Add a check that rejects any output still containing a long digit sequence, and re-run the ones it rejects.</p>
+<p data-opt="c">C) Have a second instance grade each redaction.</p>
+<p data-opt="d">D) Supply two or three excerpts paired with their redacted form.</p>
+<hr>
+<p class="correct" data-answer="d">Answer: worked excerpt pairs, before and after</p>
+<p><strong>Why:</strong> an example settles what prose left open by showing the result rather than describing it again, and a handful of pairs cover far more of the boundary than another paragraph of definition.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">A classification policy names categories; it never says what to do with a sentence that happens to contain one.</li>
+<li data-opt="b">Catches one shape of leak and says nothing about the rest, and the re-run repeats the same ambiguous request.</li>
+<li data-opt="c">The grader inherits the same undefined standard, so it flags by the same guesswork.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="../Practice_Questions.html?task=3.5">All bank questions on 3.5</a></p>
+</div>
 
 <div class="section-header"><h2 id="s6">6. 3.6 — Integrate Claude Code into CI/CD pipelines</h2></div>
 
@@ -793,75 +941,11 @@ effective one — the reasoning that wrote the code is still in the window.
 split a large review into per-file and cross-file passes, is developed in
 D4.6.</strong></p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;3.6&quot;</code>.</p>
 
-<div class="section-header"><h2 id="s7" class="page-break">7. Self-assessment questions</h2></div>
-
-<details id="d3-q1" data-domain="D3" data-task="3.1">
-<summary>Q1 (D3) — A rule the cloud workspaces never receive</summary>
-<div>
-<p><strong>Scenario:</strong> Half the team codes in ephemeral cloud workspaces rebuilt from a base image at every checkout. Payment calls written there go straight to the gateway, while laptops keep routing through <code>PaymentsClient</code> as agreed. The instruction ships in the onboarding dotfile bundle, which every new hire unpacks into <code>~/.claude/CLAUDE.md</code> on their laptop; the base image is built from another recipe and never runs that step.</p>
-<p><strong>Question:</strong> What is the diagnosis and the fix?</p>
-<p data-opt="a">A) The workspaces open their session below the repository root, so the file one level up never loads; start at the root.</p>
-<p data-opt="b">B) The wording reads as a preference rather than an obligation, and a fresh environment has no local habit to fall back on; make it imperative.</p>
-<p data-opt="c">C) It sits at user scope, outside version control; commit it at project scope instead.</p>
-<p data-opt="d">D) The repository never declares it; move the restriction into <code>settings.json</code>.</p>
-<hr>
-<p class="correct" data-answer="c">Answer: the instruction lives at user scope instead of project scope</p>
-<p><strong>Why:</strong> a user-scope file belongs to a home directory and is never distributed with the repository, so it reaches a machine only through whatever copies it there and an environment rebuilt from an image starts without it. Anything the whole team must follow belongs in a committed project file.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Nothing is waiting further up the tree: the file is not in the image at all.</li>
-<li data-opt="b">Wording cannot decide the behavior of a session that never read the text.</li>
-<li data-opt="d">That file governs permissions, hooks and tool access; it is not where standing instructions to the model live.</li>
-</ul>
-</div>
-</details>
-
-<details id="d3-q2" data-domain="D3" data-task="3.3">
-<summary>Q2 (D3) — Standards for files that sit in every product folder</summary>
-<div>
-<p><strong>Scenario:</strong> Every product team keeps its own infrastructure under <code>infra/&lt;product&gt;/</code>, so the Terraform files matching <code>infra/**/*.tf</code> are scattered across a dozen folders. Each resource must pin its provider version and carry a <code>cost_center</code> tag, and you want that applied whenever one of those files is edited, without anyone invoking anything.</p>
-<p><strong>Question:</strong> Which setup delivers that?</p>
-<p data-opt="a">A) A <code>PostToolUse</code> hook that fires after each write and appends the tagging standards to the session.</p>
-<p data-opt="b">B) A <code>.claude/rules/terraform.md</code> whose frontmatter <code>paths</code> glob covers those files.</p>
-<p data-opt="c">C) A <code>tflint</code> policy in CI that fails the build whenever a resource is untagged or its provider is unpinned.</p>
-<p data-opt="d">D) The standards written up in <code>docs/infrastructure-standards.md</code>, the place engineers already look.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: a path-scoped rule file whose glob follows the file type across the tree</p>
-<p><strong>Why:</strong> the glob matches on the file being edited, wherever it sits, and the body loads only while such a file is in play — which is what a convention attached to a file type rather than to a directory needs.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">A hook runs a command on a tool event, once the write has already happened; it is not a channel for standards meant to shape the writing.</li>
-<li data-opt="c">Rejection after the fact, not guidance during: the loop becomes a red build somebody has to go back and fix.</li>
-<li data-opt="d">A document no session opens shapes nothing that gets written.</li>
-</ul>
-</div>
-</details>
-
-<details id="d3-q3" data-domain="D3" data-task="3.2">
-<summary>Q3 (D3) — A skill that floods the window it runs in</summary>
-<div>
-<p><strong>Scenario:</strong> Your <code>/orphan-assets</code> skill walks the media bucket and the codebase to list images nothing references. It prints every path it checks on the way, and the work that follows in the same session has visibly lost the thread.</p>
-<p><strong>Question:</strong> What is the right change?</p>
-<p data-opt="a">A) Restrict the skill's <code>allowed-tools</code> to <code>Read</code> and <code>Glob</code>, so the run produces less to read.</p>
-<p data-opt="b">B) Have the skill append each inspected path to <code>reports/orphans.log</code> and print only the total it found.</p>
-<p data-opt="c">C) Run it in a second terminal and paste the verdict back.</p>
-<p data-opt="d">D) Declare <code>context: fork</code> in the skill's frontmatter, so only the verdict returns.</p>
-<hr>
-<p class="correct" data-answer="d">Answer: run the skill in a forked context</p>
-<p><strong>Why:</strong> the path-by-path trace is worth producing, it simply does not belong in the conversation. A forked context runs the walk inside an isolated subagent and hands back the conclusion alone.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Tool permissions decide what the skill may do, not how much it narrates.</li>
-<li data-opt="b">The listing still crosses the session on its way to disk.</li>
-<li data-opt="c">Isolation by hand, unrepeatable, and nothing carries it to the next person.</li>
-</ul>
-</div>
-</details>
-
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
 <details id="d3-q4" data-domain="D3" data-task="3.6">
-<summary>Q4 (D3) — A nightly job the runner has to kill</summary>
+<summary>Q4 A nightly job the runner has to kill</summary>
 <div>
 <p><strong>Scenario:</strong> A nightly job runs <code>claude "Summarize the changes merged today"</code> and the runner kills it at the step timeout. The log shows Claude Code sitting at an interactive prompt.</p>
 <p><strong>Question:</strong> What makes the command usable in an unattended job?</p>
@@ -882,7 +966,7 @@ D4.6.</strong></p>
 </details>
 
 <details id="d3-q5" data-domain="D3" data-task="3.6">
-<summary>Q5 (D3) — The flag-retirement job cannot read its own input</summary>
+<summary>Q5 The flag-retirement job cannot read its own input</summary>
 <div>
 <p><strong>Scenario:</strong> A weekly job runs <code>claude -p</code> to list the feature flags that are safe to remove, and <code>retire_flags.mjs</code> expects records carrying <code>flag</code>, <code>owner</code> and <code>last_seen</code>. Some runs come back as a bulleted list, some as a paragraph, and the field names move between runs, so the job fails more often than it succeeds.</p>
 <p><strong>Question:</strong> What is the correct fix?</p>
@@ -901,70 +985,10 @@ D4.6.</strong></p>
 </ul>
 </div>
 </details>
-
-<details id="d3-q6" data-domain="D3" data-task="3.2">
-<summary>Q6 (D3) — Packaging a workflow the whole team reuses <strong>(Select the 2 correct answers.)</strong></summary>
-<div>
-<p><strong>Scenario:</strong> Your team runs the same accessibility audit over and over. It has to reach everyone, keep its verbose trace out of the working session, and run both at a developer's terminal and from the pipeline.</p>
-<p><strong>Question:</strong> Which two moves deliver that?</p>
-<p data-opt="a">A) Commit it as <code>.claude/skills/a11y-audit/SKILL.md</code> with <code>context: fork</code> in its frontmatter.</p>
-<p data-opt="b">B) Keep it as a personal <code>~/.claude/skills/a11y-audit/SKILL.md</code> so you can iterate without disturbing anyone.</p>
-<p data-opt="c">C) Invoke it by name at the terminal, and headless from the pipeline through <code>claude -p</code>.</p>
-<p data-opt="d">D) Paste the audit steps into <code>~/.claude/CLAUDE.md</code> so every session carries them.</p>
-<p data-opt="e">E) Fire it from a <code>PostToolUse</code> hook after each write, so nobody has to remember it.</p>
-<hr>
-<p class="correct" data-answer="a c">Answers: commit the forked skill with the repository, and invoke it by name locally or headless from the pipeline</p>
-<p><strong>Why:</strong> a committed skill meets all three requirements at once — versioned, so everyone gets it at clone time; forked, so its trace stays out of the session; and reachable from both sides, by name at the terminal and headless in the pipeline, where <code>--output-format json</code> hands the next step something it can act on.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">User scope is private and outside version control, which is the one requirement it cannot meet.</li>
-<li data-opt="d">User scope again, and that file carries standing instructions rather than an invocable workflow.</li>
-<li data-opt="e">A hook reacts to a tool event; it does not package a workflow somebody chooses to run.</li>
-</ul>
+<p class="to-test"><a href="../Practice_Questions.html?task=3.6">All bank questions on 3.6</a></p>
 </div>
-</details>
 
-<details id="d3-q7" data-domain="D3" data-task="3.4">
-<summary>Q7 (D3) — A stale scale factor and an unsettled ingest path</summary>
-<div>
-<p><strong>Scenario:</strong> Two tickets open the same morning on a smart-metering platform. The first: a failing regression test pins <code>toKilowattHours()</code>, which still applies the scale the meters used before the current firmware shipped; the test states the value it expects, and the scale is a single constant, <code>METER_SCALE</code>. The second: retire the nightly polling job and have meters publish readings as they take them, which means settling where backpressure belongs, what becomes of readings buffered through a network outage, and how both paths run side by side while the fleet upgrades over months.</p>
-<p><strong>Question:</strong> Which mode fits which ticket?</p>
-<p data-opt="a">A) Plan mode for both, since a change that reaches customer meters should be designed before it is written.</p>
-<p data-opt="b">B) Plan mode for the scale factor so the firmware assumption gets recorded, and direct execution for the ingest change, revising the design as problems surface.</p>
-<p data-opt="c">C) Direct execution for the scale factor, plan mode for the ingest change.</p>
-<p data-opt="d">D) Direct execution for both, one meter model at a time.</p>
-<hr>
-<p class="correct" data-answer="c">Answer: run the scale factor directly, plan the ingest change</p>
-<p><strong>Why:</strong> deliberation pays where approaches compete, boundaries are unsettled, and one early decision propagates across many files. The ingest change carries three open questions before a line is written; the scale factor carries a failing test that already states the answer.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Spends deliberation on a ticket whose expected value is already written down in the test.</li>
-<li data-opt="b">Reverses both readings at once, deliberating over the settled ticket and improvising the unsettled one.</li>
-<li data-opt="d">Incremental delivery still commits to a backpressure design nobody has chosen, and a fleet halfway through an upgrade is the worst place to discover that.</li>
-</ul>
-</div>
-</details>
-
-<details id="d3-q8" data-domain="D3" data-task="3.5">
-<summary>Q8 (D3) — Redaction that lands differently every time</summary>
-<div>
-<p><strong>Scenario:</strong> You ask for support transcripts to be "stripped of anything personal" before they reach the analytics store. One pass masks the order number and the next leaves it; one pass swaps the customer's first name for a token and the next deletes the whole sentence. Two rewrites of the written instruction have not converged.</p>
-<p><strong>Question:</strong> What is the most effective next move?</p>
-<p data-opt="a">A) Point the prompt at the company's data-classification policy and tell it to apply the categories defined there.</p>
-<p data-opt="b">B) Add a check that rejects any output still containing a long digit sequence, and re-run the ones it rejects.</p>
-<p data-opt="c">C) Have a second instance grade each redaction.</p>
-<p data-opt="d">D) Supply two or three excerpts paired with their redacted form.</p>
-<hr>
-<p class="correct" data-answer="d">Answer: worked excerpt pairs, before and after</p>
-<p><strong>Why:</strong> an example settles what prose left open by showing the result rather than describing it again, and a handful of pairs cover far more of the boundary than another paragraph of definition.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">A classification policy names categories; it never says what to do with a sentence that happens to contain one.</li>
-<li data-opt="b">Catches one shape of leak and says nothing about the rest, and the re-run repeats the same ambiguous request.</li>
-<li data-opt="c">The grader inherits the same undefined standard, so it flags by the same guesswork.</li>
-</ul>
-</div>
-</details>
+</main>
 
 <nav class="doc-nav">
   <a class="prev" href="../D2_Tool_Design_MCP_18pct.html"><span class="label">Previous</span><span class="title">D2 — Tool design et MCP</span></a>

@@ -37,6 +37,15 @@ function slugify(title) {
 // Cache paresseux : ancres disponibles dans un fichier cible, identifié par
 // son chemin relatif au dépôt (id="" pour le HTML, titres slugifiés pour le
 // Markdown).
+/* Une chaîne de requête n'est pas un chemin : Practice_Questions.html?task=5.1
+ * désigne le même fichier, filtré par practice.js. Sans ce découpage, le
+ * contrôle cherchait « Practice_Questions.html?task=5.1 » sur le disque et
+ * déclarait 35 cibles absentes. */
+function splitHref(href) {
+  const [path_, fragment] = href.split('#');
+  return [path_.split('?')[0], fragment];
+}
+
 const anchorsCache = new Map();
 function anchorsOf(relPath) {
   if (anchorsCache.has(relPath)) return anchorsCache.get(relPath);
@@ -58,7 +67,7 @@ for (const page of pages) {
   const src = fs.readFileSync(path.join(ROOT, page), 'utf8');
   for (const [, href] of src.matchAll(/href="([^"]+)"/g)) {
     if (/^(https?:|mailto:|#$)/.test(href)) continue;
-    const [file, fragment] = href.split('#');
+    const [file, fragment] = splitHref(href);
     if (file && !fs.existsSync(path.join(ROOT, decodeURIComponent(file)))) {
       console.log(`${page} — cible absente : ${href}`);
       broken++;
@@ -78,7 +87,7 @@ for (const mdFile of mdFiles) {
   lines.forEach((line, index) => {
     for (const [, href] of line.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {
       if (/^(https?:|mailto:|#$)/.test(href)) continue;
-      const [file, fragment] = href.split('#');
+      const [file, fragment] = splitHref(href);
       const targetRel = file ? path.normalize(path.join(dir, decodeURIComponent(file))) : mdFile;
       if (file && !fs.existsSync(path.join(ROOT, targetRel))) {
         console.log(`${mdFile}:${index + 1} — cible absente : ${href}`);

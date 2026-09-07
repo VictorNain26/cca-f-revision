@@ -210,11 +210,15 @@ export function renderPracticePage({ markdown, quizzes, nav }) {
 <script src="theme.js" defer></script>
 <script src="toc.js" defer></script>
 <script src="site.js" defer></script>
+<script src="practice.js" defer></script>
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Aller au contenu</a>
 
 ${renderNav(links, slug)}
+
+<main id="content">
 
 <div class="header-bar">
 <h1>${h1}</h1>
@@ -231,6 +235,8 @@ ${tocItems}
 </div>
 
 ${sectionsHtml}
+
+</main>
 
 <nav class="doc-nav">
 ${docNavHtml}

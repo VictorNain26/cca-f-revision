@@ -8,6 +8,8 @@ prompt, un schéma et un pipeline. Une section par task statement, dans l'ordre
 du guide et sous le libellé du guide — pour qu'une question repérée le jour J
 corresponde à une section d'ici sans traduction.
 
+<!-- cross-refs:start -->
+
 D0 est supposé acquis. Il a nommé l'anatomie d'un outil — `name`, `description`,
 `input_schema` —, le bloc `tool_use` et `stop_reason`. Il s'est arrêté là
 délibérément et a renvoyé ici, deux fois : **`tool_choice` et l'usage d'un JSON
@@ -20,6 +22,8 @@ design, testé en TS 2.1 et 2.5 ; la boucle agentique qui transforme un bloc
 `tool_use` en conversation est le TS 1.1 de D1 ; faire tourner un relecteur dans
 un pipeline est le TS 3.6 de D3, qui applique ce que 4.6 explique. Chacune
 reçoit ici une phrase et un renvoi, jamais un second développement.
+
+<!-- cross-refs:end -->
 
 ## 4.1 — Design prompts with explicit criteria to improve precision and reduce false positives
 <!-- ts:4.1 | src:exam guide TS 4.1 (explicit criteria over vague instructions and its comment-versus-code example, why "be conservative" and "only report high-confidence findings" fail against specific categorical criteria, a high false positive rate in one category undermining confidence in the accurate ones; the skills: criteria that say what to report and what to skip rather than confidence-based filtering, temporarily disabling a high false-positive category while its prompt is improved, explicit severity criteria with a concrete code example per level) ; 05claudeapi L25 (replacing a vague request with a direct statement of the task) ; L26 (being specific: listing the guidelines the output must satisfy instead of leaving them to interpretation) -->

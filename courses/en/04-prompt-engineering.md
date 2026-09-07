@@ -8,6 +8,8 @@ a schema and a pipeline. One section per task statement, in the guide's own orde
 and under the guide's own wording — so that a question spotted on exam day maps
 to a section here without translation.
 
+<!-- cross-refs:start -->
+
 D0 is assumed. It named the anatomy of a tool — `name`, `description`,
 `input_schema` — the `tool_use` block, and `stop_reason`. It deliberately stopped
 there and pointed here, twice: **`tool_choice` and the use of a JSON schema to
@@ -20,6 +22,8 @@ tool design, tested in TS 2.1 and 2.5; the agentic loop that turns one
 `tool_use` block into a conversation is D1's TS 1.1; running a reviewer inside a
 pipeline is D3's TS 3.6, which applies what 4.6 explains. Each of those gets a
 sentence and a pointer here, never a second development.
+
+<!-- cross-refs:end -->
 
 ## 4.1 — Design prompts with explicit criteria to improve precision and reduce false positives
 <!-- ts:4.1 | src:exam guide TS 4.1 (explicit criteria over vague instructions and its comment-versus-code example, why "be conservative" and "only report high-confidence findings" fail against specific categorical criteria, a high false positive rate in one category undermining confidence in the accurate ones; the skills: criteria that say what to report and what to skip rather than confidence-based filtering, temporarily disabling a high false-positive category while its prompt is improved, explicit severity criteria with a concrete code example per level) ; 05claudeapi L25 (replacing a vague request with a direct statement of the task) ; L26 (being specific: listing the guidelines the output must satisfy instead of leaving them to interpretation) -->

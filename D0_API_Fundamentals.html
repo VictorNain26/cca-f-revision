@@ -14,6 +14,7 @@
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Aller au contenu</a>
 
 <nav class="navbar">
   <a class="home" href="index.html">CCA-F</a>
@@ -32,6 +33,8 @@
 <div class="lang-switch">
   <a href="en/D0_API_Fundamentals.html">EN</a>
 </div>
+
+<main id="content">
 
 <div class="header-bar">
 <h1>D0 — Fondamentaux de l'API</h1>
@@ -192,7 +195,31 @@ explicitement son contexte à un subagent lancé — il n'hérite de rien.</p>
 soient encore là. Rien n'expire côté serveur, parce que rien n'y est stocké ;
 reconstruire l'historique est le travail de l'appelant, à chaque requête.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.3&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d0-q3" data-domain="D0" data-task="1.3">
+<summary>Q3 A stateless API and a vanished tool_result</summary>
+<div>
+<p><strong>Scenario:</strong> A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.</p>
+<p><strong>Question:</strong> What is the most likely cause?</p>
+<p data-opt="a">A) The API keeps no state, and the caller did not resend the earlier <code>tool_result</code> blocks.</p>
+<p data-opt="b">B) A <code>tool_result</code> block expires server-side soon after it is submitted, so later requests miss it.</p>
+<p data-opt="c">C) The <code>max_tokens</code> value is too low to hold the <code>tool_result</code>, so the oldest blocks drop first.</p>
+<p data-opt="d">D) A <code>session_id</code> parameter is missing, so the server cannot attach this request to the earlier turn.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: the API is stateless and the history was not resent</p>
+<p><strong>Why:</strong> nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">Nothing expires server-side, because nothing is stored there.</li>
+<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send; and no block is dropped for you, because none is kept for you.</li>
+<li data-opt="d">The Messages API has no such parameter.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.3">Toutes les questions de la banque sur 1.3</a></p>
+</div>
 
 <div class="section-header"><h2 id="s3">3. Les blocs de contenu</h2></div>
 
@@ -260,7 +287,10 @@ les arguments. Voilà l'anatomie, et elle s'arrête là. <strong>Savoir quelle f
 fait choisir au modèle le bon outil parmi plusieurs voisins relève de la conception
 d'outils, développée en D2.1</strong> ; <strong>se servir d'un schéma pour forcer une charge
 utile conforme est la sortie structurée, développée en D4.3.</strong></p>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;2.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<p class="to-test"><a href="Practice_Questions.html?task=2.1">Toutes les questions de la banque sur 2.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s4">4. Le champ <code>stop_reason</code></h2></div>
 
@@ -341,7 +371,31 @@ c'est cette paire qui pilote la boucle, et c'est tout ce que teste TS 1.1.
 <strong>Transformer cette vérification en boucle — appeler, inspecter <code>stop_reason</code>,
 exécuter, ajouter, rappeler — est la boucle agentique, développée en D1.1.</strong> D0
 s'arrête à nommer le signal.</p>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d0-q1" data-domain="D0" data-task="1.1">
+<summary>Q1 A stop_reason your display code ignores</summary>
+<div>
+<p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
+<p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
+<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> caps the size of the request being sent, not the length of the output.</p>
+<p data-opt="b">B) The token budget ran out mid-generation; only <code>"end_turn"</code> means the response is complete.</p>
+<p data-opt="c">C) The model refused to continue for safety reasons, so nothing should be shown and the attempt should be escalated for human review instead.</p>
+<p data-opt="d">D) A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
+<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer. Scope note: among stop reasons, the exam guide names only the pair that drives the agentic loop, and that loop is what the task this sheet prepares tests. <code>"max_tokens"</code>, <code>"refusal"</code> and <code>"pause_turn"</code> come from the API reference — D0 prerequisite material, not extra exam surface.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
+<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause. Nothing was refused here, so withholding the draft and escalating would stall a run that only needs continuing.</li>
+<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget. Nothing is paused waiting to resume, so an identical resend would simply regenerate the same truncated draft.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.1">Toutes les questions de la banque sur 1.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s5">5. Les system prompts</h2></div>
 
@@ -379,7 +433,10 @@ est développé en D2.1.</strong></p>
 </div>
 <p>Une note pratique : l'API n'accepte pas <code>system=None</code>, donc une fonction de chat
 réutilisable ne doit ajouter la clé que si un prompt a réellement été fourni.</p>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;2.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<p class="to-test"><a href="Practice_Questions.html?task=2.1">Toutes les questions de la banque sur 2.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s6">6. La fenêtre de contexte</h2></div>
 
@@ -438,33 +495,15 @@ ordonner l'entrée selon la position sont développés en D5.1.</strong> Le retr
 chunking ne sont pas la réponse attendue par le guide — il les met hors
 périmètre, et ce corpus aussi.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<p class="to-test"><a href="Practice_Questions.html?task=5.1">Toutes les questions de la banque sur 5.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s7" class="page-break">7. Questions d'auto-évaluation</h2></div>
 
-<details id="d0-q1" data-domain="D0" data-task="1.1">
-<summary>Q1 (D0) — A stop_reason your display code ignores</summary>
-<div>
-<p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
-<p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
-<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> caps the size of the request being sent, not the length of the output.</p>
-<p data-opt="b">B) The token budget ran out mid-generation; only <code>"end_turn"</code> means the response is complete.</p>
-<p data-opt="c">C) The model refused to continue for safety reasons, so nothing should be shown and the attempt should be escalated for human review instead.</p>
-<p data-opt="d">D) A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
-<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer. Scope note: among stop reasons, the exam guide names only the pair that drives the agentic loop, and that loop is what the task this sheet prepares tests. <code>"max_tokens"</code>, <code>"refusal"</code> and <code>"pause_turn"</code> come from the API reference — D0 prerequisite material, not extra exam surface.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
-<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause. Nothing was refused here, so withholding the draft and escalating would stall a run that only needs continuing.</li>
-<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget. Nothing is paused waiting to resume, so an identical resend would simply regenerate the same truncated draft.</li>
-</ul>
-</div>
-</details>
-
 <details id="d0-q2" data-domain="D0" data-task="2.1">
-<summary>Q2 (D0) — Which part of a tool definition decides the routing</summary>
+<summary>Q2 Which part of a tool definition decides the routing</summary>
 <div>
 <p><strong>Scenario:</strong> An HR assistant exposes <code>search_policy_doc</code> ("Retrieves policy content") and <code>search_payroll_record</code> ("Retrieves payroll data"). Both accept employee identifiers of a similar shape, and the model routinely picks the wrong one.</p>
 <p><strong>Question:</strong> Which part of a tool definition drives that choice?</p>
@@ -484,29 +523,8 @@ périmètre, et ce corpus aussi.</p>
 </div>
 </details>
 
-<details id="d0-q3" data-domain="D0" data-task="1.3">
-<summary>Q3 (D0) — A stateless API and a vanished tool_result</summary>
-<div>
-<p><strong>Scenario:</strong> A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.</p>
-<p><strong>Question:</strong> What is the most likely cause?</p>
-<p data-opt="a">A) The API keeps no state, and the caller did not resend the earlier <code>tool_result</code> blocks.</p>
-<p data-opt="b">B) A <code>tool_result</code> block expires server-side soon after it is submitted, so later requests miss it.</p>
-<p data-opt="c">C) The <code>max_tokens</code> value is too low to hold the <code>tool_result</code>, so the oldest blocks drop first.</p>
-<p data-opt="d">D) A <code>session_id</code> parameter is missing, so the server cannot attach this request to the earlier turn.</p>
-<hr>
-<p class="correct" data-answer="a">Answer: the API is stateless and the history was not resent</p>
-<p><strong>Why:</strong> nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">Nothing expires server-side, because nothing is stored there.</li>
-<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send; and no block is dropped for you, because none is kept for you.</li>
-<li data-opt="d">The Messages API has no such parameter.</li>
-</ul>
-</div>
-</details>
-
 <details id="d0-q4" data-domain="D0" data-task="2.1">
-<summary>Q4 (D0) — A standing rule that drags a tool onto every turn</summary>
+<summary>Q4 A standing rule that drags a tool onto every turn</summary>
 <div>
 <p><strong>Scenario:</strong> A greenhouse operations assistant opens its system prompt with "Every answer must reflect the current sensor readings." Logs show <code>read_sensors</code> firing on each turn, including when a grower asks how a cultivar name should be spelled in the planting log. Each tool definition spells out its inputs and where its job ends.</p>
 <p><strong>Question:</strong> What stops the needless calls?</p>
@@ -527,7 +545,7 @@ périmètre, et ce corpus aussi.</p>
 </details>
 
 <details id="d0-q5" data-domain="D0" data-task="2.3">
-<summary>Q5 (D0) — A triage loop that never writes its answer</summary>
+<summary>Q5 A triage loop that never writes its answer</summary>
 <div>
 <p><strong>Scenario:</strong> A ticket-triage client runs its own loop: send the request, run whatever tool comes back, append the result, send again. To stop the assistant from chatting while work remains, the client sets <code>tool_choice</code> to the value that guarantees a call — and it sets it on every request of the loop. Runs now end only when the client's iteration cap trips, and no written answer ever arrives.</p>
 <p><strong>Question:</strong> Why does the run never reach one?</p>
@@ -548,7 +566,7 @@ périmètre, et ce corpus aussi.</p>
 </details>
 
 <details id="d0-q6" data-domain="D0" data-task="4.3">
-<summary>Q6 (D0) — A mandatory field the source cannot fill</summary>
+<summary>Q6 A mandatory field the source cannot fill</summary>
 <div>
 <p><strong>Scenario:</strong> An invoice extraction tool lists <code>discount_pct</code> among its <code>required</code> properties, yet plenty of invoices grant no discount. Reviewers keep finding discount figures that appear nowhere on the invoice.</p>
 <p><strong>Question:</strong> What is happening, and what removes the cause?</p>
@@ -567,6 +585,8 @@ périmètre, et ce corpus aussi.</p>
 </ul>
 </div>
 </details>
+
+</main>
 
 <nav class="doc-nav">
   <a class="prev" href="index.html"><span class="label">Précédent</span><span class="title">Accueil</span></a>
