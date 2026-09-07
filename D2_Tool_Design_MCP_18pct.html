@@ -451,9 +451,9 @@ finale.</p>
 </code></pre>
 <h3>Récupération locale, et ce qui franchit la frontière</h3>
 <p>Le guide demande une <strong>récupération locale des erreurs à l'intérieur des
-subagents</strong> : un subagent traite lui-même ses échecs transient et ne propage au
-coordinateur que ce qu'il ne peut pas résoudre localement, <strong>accompagné de ses
-résultats partiels et de ce qu'il a tenté</strong>.</p>
+subagents</strong> : un subagent traite lui-même ses échecs transitoires et ne propage
+au coordinateur que ce qu'il ne peut pas résoudre localement, <strong>accompagné de
+ses résultats partiels et de ce qu'il a tenté</strong>.</p>
 <pre><code class="language-json">{
   &quot;status&quot;: &quot;partial&quot;,
   &quot;completed&quot;: [&quot;order_lookup&quot;, &quot;customer_profile&quot;],
@@ -500,9 +500,9 @@ protocole, les catégories sont les vôtres.</p>
 Un <code>ValueError</code> Python remonté par le SDK devient un message, et un message sans
 catégorie est un <code>&quot;Operation failed&quot;</code> avec plus de mots. Attrapez-le, classez-le,
 et retournez la charge utile structurée.</p>
-<p><strong>Propager au coordinateur chaque échec transient.</strong> Cela convertit un retry que
-le subagent pouvait faire en silence en un aller-retour, et le coordinateur a
-moins de contexte pour décider que le subagent qui a passé l'appel.</p>
+<p><strong>Propager au coordinateur chaque échec transitoire.</strong> Cela convertit un retry
+que le subagent pouvait faire en silence en un aller-retour, et le coordinateur
+a moins de contexte pour décider que le subagent qui a passé l'appel.</p>
 </div>
 
 <div class="section-quiz">
@@ -992,10 +992,10 @@ N'importe qui peut écrire un serveur, et les fournisseurs de services en publie
 souvent d'officiels : l'intégration standard que vous vous apprêtez à écrire
 existe probablement, maintenue, avec ses schémas déjà éprouvés.</p>
 <div class="anti-pattern">
-<p><strong>Écrire un serveur Jira sur mesure parce que celui de la communauté manque un
-champ.</strong> Vous avez adopté une charge de maintenance pour un delta. Le cadrage de
-l'examen lui-même est que les serveurs sur mesure sont pour ce qui est
-réellement spécifique à l'équipe.</p>
+<p><strong>Écrire un serveur Jira sur mesure parce qu'il manque un champ à celui de la
+communauté.</strong> Vous avez adopté une charge de maintenance pour un delta. Le
+cadrage de l'examen lui-même est que les serveurs sur mesure sont pour ce qui
+est réellement spécifique à l'équipe.</p>
 <p><strong>Dupliquer une capacité intégrée dans un serveur MCP.</strong> Si <code>Grep</code> répond déjà
 au besoin, un serveur qui fait du grep est une deuxième manière de faire une
 seule chose. Il vous vaut en prime le problème de sélection de 2.3.</p>

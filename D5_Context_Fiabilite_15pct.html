@@ -907,14 +907,14 @@ agents.</p>
 terminée et que l'analyse a été interrompue, et reprend sans relancer le travail
 déjà fait. Le manifeste porte l'état du workflow ; le fichier de chaque agent
 porte ses découvertes, sa couverture et ses lacunes.</p>
-<p>C'est un mécanisme différent du scratchpad, et les confondre est une erreur bon
-marché : un scratchpad contrecarre la <em>dégradation</em> à l'intérieur de la session
-d'un agent, un manifeste survit à un <em>crash</em> à l'échelle d'un workflow. La
-documentation du SDK pointe dans le même sens pour les sessions en général, où
-capturer les résultats dont vous avez besoin comme état applicatif et les passer
-dans le prompt d'une session neuve est plus robuste que de reprendre une session
-dont les résultats d'outils ont vieilli. La reprise de session elle-même,
-<code>--resume</code> et <code>fork_session</code>, relève du TS 1.7 et vit en D1.</p>
+<p>C'est un mécanisme différent du scratchpad, et les confondre est une erreur
+vite commise : un scratchpad contrecarre la <em>dégradation</em> à l'intérieur de la
+session d'un agent, un manifeste survit à un <em>crash</em> à l'échelle d'un workflow.
+La documentation du SDK pointe dans le même sens pour les sessions en général,
+où capturer les résultats dont vous avez besoin comme état applicatif et les
+passer dans le prompt d'une session neuve est plus robuste que de reprendre une
+session dont les résultats d'outils ont vieilli. La reprise de session
+elle-même, <code>--resume</code> et <code>fork_session</code>, relève du TS 1.7 et vit en D1.</p>
 <div class="key-concept">
 <p><strong>Quatre mécanismes, quatre rôles différents.</strong> La délégation empêche la sortie
 verbeuse d'entrer dans le contexte principal. Un scratchpad ramène des
@@ -1251,7 +1251,8 @@ par deux côtés : sur quoi ceci repose-t-il, et que lui manque-t-il.</p>
 <p>Le dernier skill porte sur le format de sortie, et c'est celui qui prend les
 gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
 agent de synthèse reçoit du matériau hétérogène et est tenté de tout couler dans
-une seule forme, de la prose en général, parce que la prose est le défaut.</p>
+une seule forme, de la prose en général, parce que la prose est le format par
+défaut.</p>
 <table>
 <thead>
 <tr>

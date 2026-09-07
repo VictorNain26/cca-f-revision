@@ -364,9 +364,9 @@ finale.
 ### Récupération locale, et ce qui franchit la frontière
 
 Le guide demande une **récupération locale des erreurs à l'intérieur des
-subagents** : un subagent traite lui-même ses échecs transient et ne propage au
-coordinateur que ce qu'il ne peut pas résoudre localement, **accompagné de ses
-résultats partiels et de ce qu'il a tenté**.
+subagents** : un subagent traite lui-même ses échecs transitoires et ne propage
+au coordinateur que ce qu'il ne peut pas résoudre localement, **accompagné de
+ses résultats partiels et de ce qu'il a tenté**.
 
 ```json
 {
@@ -421,9 +421,9 @@ Un `ValueError` Python remonté par le SDK devient un message, et un message san
 catégorie est un `"Operation failed"` avec plus de mots. Attrapez-le, classez-le,
 et retournez la charge utile structurée.
 
-**Propager au coordinateur chaque échec transient.** Cela convertit un retry que
-le subagent pouvait faire en silence en un aller-retour, et le coordinateur a
-moins de contexte pour décider que le subagent qui a passé l'appel.
+**Propager au coordinateur chaque échec transitoire.** Cela convertit un retry
+que le subagent pouvait faire en silence en un aller-retour, et le coordinateur
+a moins de contexte pour décider que le subagent qui a passé l'appel.
 :::
 
 **À tester** — les questions de la banque étiquetées `data-task="2.2"`.
@@ -814,10 +814,10 @@ souvent d'officiels : l'intégration standard que vous vous apprêtez à écrire
 existe probablement, maintenue, avec ses schémas déjà éprouvés.
 
 ::: anti-pattern
-**Écrire un serveur Jira sur mesure parce que celui de la communauté manque un
-champ.** Vous avez adopté une charge de maintenance pour un delta. Le cadrage de
-l'examen lui-même est que les serveurs sur mesure sont pour ce qui est
-réellement spécifique à l'équipe.
+**Écrire un serveur Jira sur mesure parce qu'il manque un champ à celui de la
+communauté.** Vous avez adopté une charge de maintenance pour un delta. Le
+cadrage de l'examen lui-même est que les serveurs sur mesure sont pour ce qui
+est réellement spécifique à l'équipe.
 
 **Dupliquer une capacité intégrée dans un serveur MCP.** Si `Grep` répond déjà
 au besoin, un serveur qui fait du grep est une deuxième manière de faire une

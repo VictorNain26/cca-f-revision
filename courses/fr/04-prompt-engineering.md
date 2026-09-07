@@ -376,7 +376,7 @@ désormais un mécanisme dédié de sorties JSON (`output_config.format`, et
 `messages.parse()` avec un modèle Pydantic dans le SDK Python) qui contraint le
 texte de la réponse, plus `strict: true` sur un outil, qui contraint les
 arguments d'outil par un échantillonnage contraint par grammaire plutôt que par
-adhérence. Même but, surfaces plus récentes, absentes du guide.
+le respect de la consigne. Même but, surfaces plus récentes, absentes du guide.
 
 Sur cette voie stricte, la plateforme n'accepte qu'un sous-ensemble de JSON
 Schema, et ce qu'il faut en rapporter au tool use ordinaire est le mode de
@@ -739,7 +739,7 @@ passe plutôt que d'élargir le contexte.
 
 | Passe | Périmètre | Ce qu'elle trouve |
 |---|---|---|
-| Per-file | Un fichier à la fois | Bugs locaux, problèmes de sécurité, qualité |
+| Par fichier | Un fichier à la fois | Bugs locaux, problèmes de sécurité, qualité |
 | Intégration | Signatures et sites d'appel sur l'ensemble modifié | Types incohérents aux frontières de modules, dépendances circulaires, flux de données cassés |
 
 ```bash
@@ -787,7 +787,7 @@ déjà le verdict.
 Trois symptômes, trois réponses. Du code généré relu comme propre par la session
 qui l'a écrit → une seconde instance qui n'a pas vu la génération. Des
 signalements contradictoires d'un fichier à l'autre dans une grande revue →
-découper en passes per-file plus une passe d'intégration ; nommer la cause
+découper en passes par fichier plus une passe d'intégration ; nommer la cause
 « dilution de l'attention », pas « manque de contexte ». Trop de signalements
 pour que des humains les trient → une confidence auto-reportée par signalement,
 utilisée pour router.
@@ -798,9 +798,10 @@ capacité, en confondant ce qui peut être tenu et la régularité avec laquelle
 c'est lu. Demander à la même session de « relire son travail de façon critique »
 ou y activer l'extended thinking restent tous deux à l'intérieur de la trace qui
 a causé le biais. Le guide écarte précisément ces deux-là par leur nom. Trois
-passes complètes avec vote de consensus sonne rigoureux et jette tout vrai bug
-qu'une seule passe a vu. Et demander aux développeurs de découper leurs pull
-requests déplace le travail sur des personnes sans changer le système.
+passes complètes avec vote de consensus ont l'air rigoureuses et jettent tout
+vrai bug qu'une seule passe a vu. Et demander aux développeurs de découper
+leurs pull requests déplace le travail sur des personnes sans changer le
+système.
 :::
 
 ::: anti-pattern

@@ -121,9 +121,10 @@ dernier embauché n'a jamais reçue vit au niveau user. Le correctif est de la
 déplacer au niveau projet et de la committer.</p>
 <p>Les distracteurs nomment des choses réelles et n'expliquent rien. Une version
 différente de Claude Code ne supprimerait pas une instruction ciblée. Un
-CLAUDE.md devenu trop long dégrade l'adhérence <em>pour toute l'équipe</em>, pas pour
-un seul poste. Faire recopier le fichier à la main par chacun reproduit
-manuellement ce que le commit fait déjà, et redivergera au premier changement.</p>
+CLAUDE.md devenu trop long dégrade le respect des consignes <em>pour toute
+l'équipe</em>, pas pour un seul poste. Faire recopier le fichier à la main par
+chacun reproduit manuellement ce que le commit fait déjà, et redivergera au
+premier changement.</p>
 </div>
 <h3>Garder le fichier modulaire</h3>
 <p>Deux mécanismes, et le guide nomme les deux.</p>
@@ -585,8 +586,8 @@ globs ; seul le déclencheur diffère.</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Se servir du scoping par chemin pour faire appliquer quelque chose.</strong> Une
-règle qui se charge reste une règle que Claude lit, avec les propriétés
-d'adhérence de n'importe quelle instruction. « Toute ressource Terraform doit
+règle qui se charge reste une règle que Claude lit, avec le même degré de
+respect que n'importe quelle instruction. « Toute ressource Terraform doit
 porter un tag <code>cost_center</code> » comme règle scopée par chemin oriente l'écriture ;
 elle ne garantit pas le résultat. Si l'exigence est un verrou, c'est un hook ou
 un contrôle en CI. Les deux sont complémentaires, pas alternatifs : la règle
@@ -667,7 +668,7 @@ décisions</strong>.</p>
 </tr>
 </tbody>
 </table>
-<p>Le plan mode gagne son coût pour une raison : itérer sur un plan est bien moins
+<p>Le plan mode vaut son coût pour une raison : itérer sur un plan est bien moins
 cher que laisser une exécution avoir lieu puis nettoyer derrière. L'endroit où
 corriger le tir est avant qu'une ligne soit écrite. Et quand le plan revient,
 lisez-le au lieu de le parcourir : un plan non lu est une approbation que vous
@@ -887,7 +888,7 @@ première. Le critère est l'interdépendance, jamais le nombre de problèmes.</
 
 <div class="section-header"><h2 id="s6">6. 3.6 — Integrate Claude Code into CI/CD pipelines</h2></div>
 
-<p>Claude Code est interactif par défaut. Invoqué dans une pipeline sans personne
+<p>Claude Code est interactif par défaut. Invoqué dans un pipeline sans personne
 pour répondre à une invite, il attend, et le runner finit par le tuer au timeout
 de l'étape. Tout ce task statement découle de là.</p>
 <h3><code>-p</code>, et la forme de la sortie</h3>
@@ -929,7 +930,7 @@ secrets du dépôt, jamais du fichier de workflow.</p>
 <h3>Ce que l'instance CI sait</h3>
 <p>Un Claude Code invoqué en CI n'a pas d'historique de session et personne à qui
 demander. La réponse du guide à cela est <strong>CLAUDE.md</strong> : le fichier projet
-versionné est le mécanisme qui porte à l'instance qui tourne dans la pipeline
+versionné est le mécanisme qui porte à l'instance qui tourne dans le pipeline
 les standards de test, les conventions de fixtures et les critères de revue.
 Documentez quelles fixtures existent et ce qui fait qu'un test vaut la peine
 d'être écrit, et la génération de tests cesse de produire des tests de faible
@@ -970,7 +971,7 @@ les nouveaux ne dupliquent pas des scénarios déjà couverts.</li>
 </ul>
 <div class="exam-tip">
 <p>Quatre associations tranchent la plupart des questions CI. Un job qui se bloque
-en attente de saisie → <code>-p</code>. Une pipeline qui doit parser des constats →
+en attente de saisie → <code>-p</code>. Un pipeline qui doit parser des constats →
 <code>--output-format json</code> avec <code>--json-schema</code>. Une instance CI qui ignore les
 conventions de test du projet → le CLAUDE.md versionné les lui porte. Relire du
 code que Claude vient d'écrire → une instance indépendante.</p>

@@ -60,9 +60,10 @@ déplacer au niveau projet et de la committer.
 
 Les distracteurs nomment des choses réelles et n'expliquent rien. Une version
 différente de Claude Code ne supprimerait pas une instruction ciblée. Un
-CLAUDE.md devenu trop long dégrade l'adhérence *pour toute l'équipe*, pas pour
-un seul poste. Faire recopier le fichier à la main par chacun reproduit
-manuellement ce que le commit fait déjà, et redivergera au premier changement.
+CLAUDE.md devenu trop long dégrade le respect des consignes *pour toute
+l'équipe*, pas pour un seul poste. Faire recopier le fichier à la main par
+chacun reproduit manuellement ce que le commit fait déjà, et redivergera au
+premier changement.
 :::
 
 ### Garder le fichier modulaire
@@ -423,8 +424,8 @@ globs ; seul le déclencheur diffère.
 
 ::: anti-pattern
 **Se servir du scoping par chemin pour faire appliquer quelque chose.** Une
-règle qui se charge reste une règle que Claude lit, avec les propriétés
-d'adhérence de n'importe quelle instruction. « Toute ressource Terraform doit
+règle qui se charge reste une règle que Claude lit, avec le même degré de
+respect que n'importe quelle instruction. « Toute ressource Terraform doit
 porter un tag `cost_center` » comme règle scopée par chemin oriente l'écriture ;
 elle ne garantit pas le résultat. Si l'exigence est un verrou, c'est un hook ou
 un contrôle en CI. Les deux sont complémentaires, pas alternatifs : la règle
@@ -460,7 +461,7 @@ décisions**.
 | « Une stack trace claire », « une seule fonction » | Direct | Le périmètre est déjà établi |
 | « Ajouter une validation de date » | Direct | Changement compris, rien à arbitrer |
 
-Le plan mode gagne son coût pour une raison : itérer sur un plan est bien moins
+Le plan mode vaut son coût pour une raison : itérer sur un plan est bien moins
 cher que laisser une exécution avoir lieu puis nettoyer derrière. L'endroit où
 corriger le tir est avant qu'une ligne soit écrite. Et quand le plan revient,
 lisez-le au lieu de le parcourir : un plan non lu est une approbation que vous
@@ -653,7 +654,7 @@ première. Le critère est l'interdépendance, jamais le nombre de problèmes.
 ## 3.6 — Integrate Claude Code into CI/CD pipelines
 <!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->
 
-Claude Code est interactif par défaut. Invoqué dans une pipeline sans personne
+Claude Code est interactif par défaut. Invoqué dans un pipeline sans personne
 pour répondre à une invite, il attend, et le runner finit par le tuer au timeout
 de l'étape. Tout ce task statement découle de là.
 
@@ -703,7 +704,7 @@ secrets du dépôt, jamais du fichier de workflow.
 
 Un Claude Code invoqué en CI n'a pas d'historique de session et personne à qui
 demander. La réponse du guide à cela est **CLAUDE.md** : le fichier projet
-versionné est le mécanisme qui porte à l'instance qui tourne dans la pipeline
+versionné est le mécanisme qui porte à l'instance qui tourne dans le pipeline
 les standards de test, les conventions de fixtures et les critères de revue.
 Documentez quelles fixtures existent et ce qui fait qu'un test vaut la peine
 d'être écrit, et la génération de tests cesse de produire des tests de faible
@@ -751,7 +752,7 @@ compétences du guide :
 
 ::: exam-tip
 Quatre associations tranchent la plupart des questions CI. Un job qui se bloque
-en attente de saisie → `-p`. Une pipeline qui doit parser des constats →
+en attente de saisie → `-p`. Un pipeline qui doit parser des constats →
 `--output-format json` avec `--json-schema`. Une instance CI qui ignore les
 conventions de test du projet → le CLAUDE.md versionné les lui porte. Relire du
 code que Claude vient d'écrire → une instance indépendante.
