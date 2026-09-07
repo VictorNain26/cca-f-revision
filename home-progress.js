@@ -112,4 +112,91 @@
       : `Classement par rentabilité : commence par <strong>${rows[0].code}</strong>. ` +
         'Une question non ouverte compte comme non acquise — un domaine à moitié fait reste à moitié à réviser.') +
     '</p>';
+
+  /* ---------- « À revoir » : la règle 4 de la méthode, rendue exécutable ----------
+     Exam_Strategy.html affiche « revois chaque domaine tous les 2-3 jours et
+     mélange-les », et rien sur le site ne le supportait : une question posée
+     juste après sa section teste la récence, pas le rappel différé.
+     Ce bloc ne crée pas l'espacement, il le rend visible. Un lecteur qui fait
+     tout en un week-end verra une file vide le jour 1 et pleine le jour 3 ;
+     le plafond et l'entrelacement évitent le mur, rien de plus. */
+  const DAY = 86400000;
+  const DUE_AFTER = { correct: 3 * DAY, wrong: 1 * DAY };
+  const MAX_DUE = 10;
+
+  const PAGE_LABEL = Object.fromEntries([
+    ...DOMAINS.map((d) => [d.key, d.code]),
+    ['D0_API_Fundamentals', 'D0'],
+    ['Practice_Questions', 'QCM'],
+  ]);
+
+  /* « d5-q1 » → « Q1 », « pq-q34 » → « Q34 ». L'accueil n'a pas le texte des
+     questions : le numéro et le domaine sont tout ce qu'on peut nommer sans
+     dupliquer le corpus. Un id qui ne suit pas la forme est affiché tel quel. */
+  const questionLabel = (qid) => {
+    const m = qid.match(/-q(\d+)$/i);
+    return m ? `Q${m[1]}` : qid;
+  };
+
+  const dueList = () => {
+    const now = Date.now();
+    const perPage = [];
+
+    for (const page of Object.keys(PAGE_LABEL)) {
+      const answers = state[page];
+      if (!answers) continue;
+      const due = Object.entries(answers)
+        .filter(([, a]) => a && typeof a.ts === 'number'
+          && now - a.ts >= (a.correct ? DUE_AFTER.correct : DUE_AFTER.wrong))
+        /* Une question ratée après avoir été juste passe devant : elle mesure
+           une instabilité, ce que la seule ancienneté ne voit pas. */
+        .sort((a, b) => {
+          const unstable = (x) => ((x[1].n || 1) > 1 && !x[1].correct ? 0 : 1);
+          return unstable(a) - unstable(b) || a[1].ts - b[1].ts;
+        })
+        .map(([qid, a]) => ({ page, qid, wrong: !a.correct }));
+      if (due.length) perPage.push(due);
+    }
+    if (!perPage.length) return [];
+
+    /* Tour de rôle entre les pages plutôt qu'un tri global : c'est
+       l'entrelacement de la règle 4, et il est reproductible là où un mélange
+       aléatoire changerait la liste à chaque rechargement. */
+    const out = [];
+    for (let i = 0; out.length < MAX_DUE; i++) {
+      let placed = false;
+      for (const list of perPage) {
+        if (i >= list.length) continue;
+        out.push(list[i]);
+        placed = true;
+        if (out.length === MAX_DUE) break;
+      }
+      if (!placed) break;
+    }
+    return out;
+  };
+
+  const renderDue = () => {
+    const anchor = document.getElementById('cca-profil');
+    if (!anchor) return;
+    const items = dueList();
+    if (!items.length) return;
+
+    const box = document.createElement('div');
+    box.className = 'a-revoir';
+    box.innerHTML =
+      `<h3 class="a-revoir-title">À revoir — ${items.length} question${items.length > 1 ? 's' : ''}</h3>` +
+      '<p class="a-revoir-hint">Revues au moins un jour après ta réponse, mélangées entre domaines. ' +
+      'Une seconde réponse fausse fait baisser ton profil ci-dessus : c\'est normal, il compte la dernière.</p>' +
+      '<ul class="a-revoir-list">' +
+      items.map((it) =>
+        `<li class="a-revoir-item${it.wrong ? ' is-wrong' : ''}">` +
+        `<a href="${it.page}.html?replay=${encodeURIComponent(it.qid)}#${it.qid}">` +
+        `<span class="a-revoir-dom">${PAGE_LABEL[it.page]}</span> ${questionLabel(it.qid)}</a></li>`
+      ).join('') +
+      '</ul>';
+    anchor.insertAdjacentElement('afterend', box);
+  };
+
+  renderDue();
 })();

@@ -26,6 +26,7 @@
       reset: 'Réinitialiser',
       resetShort: 'Reset',
       confirmReset: 'Effacer ton score sur cette page ?',
+      replay: 'Rejouer cette question',
     },
     en: {
       reveal: 'Show the full answer',
@@ -36,6 +37,7 @@
       reset: 'Reset',
       resetShort: 'Reset',
       confirmReset: 'Clear your score on this page?',
+      replay: 'Retry this question',
     },
   };
   const T = UI[(document.documentElement.lang || 'fr').slice(0, 2).toLowerCase()] || UI.fr;
@@ -174,7 +176,15 @@
     const persist = (picked, isCorrect) => {
       const state = loadState();
       const key = pageKey();
-      (state[key] ??= {})[qid] = { picked, correct: isCorrect, multi: correct.multi, ts: Date.now() };
+      /* n compte les passages. Une question ratée APRÈS avoir été juste remonte
+       * en tête de la file de révision : c'est un proxy de l'instabilité, pas
+       * une mesure de la confiance — l'hypercorrection de Metcalfe demanderait
+       * une confiance déclarée, que ce corpus ne collecte pas. */
+      const before = state[key]?.[qid];
+      (state[key] ??= {})[qid] = {
+        picked, correct: isCorrect, multi: correct.multi, ts: Date.now(),
+        n: (before?.n || 0) + 1,
+      };
       saveState(state);
       renderProgressWidget();
     };
@@ -326,6 +336,7 @@
     // Restaurer l'état si déjà répondu
     const prev = (loadState()[pageKey()] || {})[qid];
     if (!prev) return;
+    queueMicrotask(() => addReplayButton(detailsEl, qid));
 
     const ulCur = detailsEl.querySelector('.choices');
     if (ulCur) {
@@ -435,13 +446,70 @@
     }
   };
 
+  /* Une question déjà répondue le restait définitivement : `is-answered` n'est
+   * jamais retiré, et le seul reset effaçait la page entière. Un lien de
+   * révision arrivait donc sur une réponse affichée, c'est-à-dire sur zéro
+   * rappel. `?replay=<qid>` efface la seule réponse visée, avant que
+   * processQuiz ne la restaure. */
+  const consumeReplay = () => {
+    const qid = new URLSearchParams(window.location.search).get('replay');
+    if (!qid || !/^[a-z0-9-]{1,64}$/i.test(qid)) return null;
+
+    const state = loadState();
+    const page = state[pageKey()];
+    if (page && qid in page) {
+      delete page[qid];
+      saveState(state);
+    }
+    /* Le paramètre disparaît de la barre d'adresse : rechargé, il effacerait
+     * une réponse que le lecteur vient de donner. Le fragment reste : sans
+     * JavaScript, il amène quand même le lecteur sur la question. */
+    history.replaceState(null, '', window.location.pathname + window.location.hash);
+    return qid;
+  };
+
+  /* `behavior: 'instant'` et non 'auto' : 'auto' reprend le scroll-behavior de
+   * la feuille, qui vaut smooth, et le défilement doux se faisait annuler avant
+   * d'aboutir (mesuré : scrollY restait à 0). 'instant' est aussi le comportement
+   * que veut prefers-reduced-motion. Le saut attend une frame parce qu'ouvrir le
+   * <details> déplace tout ce qui le suit. L'offset sous la navbar vient du
+   * scroll-padding-top de la feuille, pas d'un calcul refait ici. */
+  const focusReplayed = (qid) => {
+    const el = document.getElementById(qid);
+    if (!el) return;
+    if (el.tagName === 'DETAILS') el.open = true;
+    /* Après `load`, pas à DOMContentLoaded : la restauration de défilement du
+     * navigateur intervient plus tard et écrasait le saut (mesuré : scrollY
+     * revenait à 0). La frame supplémentaire laisse la mise en page se poser,
+     * puisque ouvrir le <details> déplace tout ce qui le suit. */
+    const jump = () => requestAnimationFrame(() =>
+      el.scrollIntoView({ block: 'start', behavior: 'instant' }));
+    if (document.readyState === 'complete') jump();
+    else window.addEventListener('load', jump, { once: true });
+  };
+
+  const addReplayButton = (detailsEl, qid) => {
+    const ul = detailsEl.querySelector('.choices');
+    if (!ul || !ul.classList.contains('is-answered') || detailsEl.querySelector('.quiz-replay')) return;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'quiz-replay';
+    btn.textContent = T.replay;
+    btn.addEventListener('click', () => {
+      window.location.href = `${window.location.pathname}?replay=${encodeURIComponent(qid)}#${qid}`;
+    });
+    ul.insertAdjacentElement('afterend', btn);
+  };
+
   // ---------- Init ----------
   const init = () => {
+    const replayed = consumeReplay();
     document.querySelectorAll('details').forEach((d, i) => {
       if (isQuiz(d)) processQuiz(d, i);
     });
     decorateTablesForMobile();
     renderProgressWidget();
+    if (replayed) focusReplayed(replayed);
   };
 
   if (document.readyState === 'loading') {
