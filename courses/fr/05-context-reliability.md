@@ -764,14 +764,14 @@ terminée et que l'analyse a été interrompue, et reprend sans relancer le trav
 déjà fait. Le manifeste porte l'état du workflow ; le fichier de chaque agent
 porte ses découvertes, sa couverture et ses lacunes.
 
-C'est un mécanisme différent du scratchpad, et les confondre est une erreur bon
-marché : un scratchpad contrecarre la *dégradation* à l'intérieur de la session
-d'un agent, un manifeste survit à un *crash* à l'échelle d'un workflow. La
-documentation du SDK pointe dans le même sens pour les sessions en général, où
-capturer les résultats dont vous avez besoin comme état applicatif et les passer
-dans le prompt d'une session neuve est plus robuste que de reprendre une session
-dont les résultats d'outils ont vieilli. La reprise de session elle-même,
-`--resume` et `fork_session`, relève du TS 1.7 et vit en D1.
+C'est un mécanisme différent du scratchpad, et les confondre est une erreur
+vite commise : un scratchpad contrecarre la *dégradation* à l'intérieur de la
+session d'un agent, un manifeste survit à un *crash* à l'échelle d'un workflow.
+La documentation du SDK pointe dans le même sens pour les sessions en général,
+où capturer les résultats dont vous avez besoin comme état applicatif et les
+passer dans le prompt d'une session neuve est plus robuste que de reprendre une
+session dont les résultats d'outils ont vieilli. La reprise de session
+elle-même, `--resume` et `fork_session`, relève du TS 1.7 et vit en D1.
 
 ::: key-concept
 **Quatre mécanismes, quatre rôles différents.** La délégation empêche la sortie
@@ -1102,7 +1102,8 @@ par deux côtés : sur quoi ceci repose-t-il, et que lui manque-t-il.
 Le dernier skill porte sur le format de sortie, et c'est celui qui prend les
 gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
 agent de synthèse reçoit du matériau hétérogène et est tenté de tout couler dans
-une seule forme, de la prose en général, parce que la prose est le défaut.
+une seule forme, de la prose en général, parce que la prose est le format par
+défaut.
 
 | Type de contenu | Rendu en | Pourquoi |
 |---|---|---|
