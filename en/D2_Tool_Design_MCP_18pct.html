@@ -236,7 +236,7 @@ on each parameter, and the SDK builds the schema from the type hints around them
 <div class="section-quiz">
 <h3 class="section-quiz-title">Test yourself on this section</h3>
 <details id="d2-q1" data-domain="D2" data-task="2.1">
-<summary>Q1 Two tool descriptions that read alike</summary>
+<summary>Q1 (Logistics) — Two tool descriptions that read alike</summary>
 <div>
 <p><strong>Scenario:</strong> a delivery assistant routes "where is my parcel" requests to <code>find_package</code> 38% of the time, when they belong to <code>find_shipment</code>. <code>find_shipment</code> is described as "finds a shipment and returns its details", <code>find_package</code> as "finds a package and returns its details" — although <code>find_package</code> only returns warehouse scan events.</p>
 <p><strong>Question:</strong> what is the right fix?</p>
@@ -483,7 +483,7 @@ less context to decide with than the subagent that made the call.</p>
 <div class="section-quiz">
 <h3 class="section-quiz-title">Test yourself on this section</h3>
 <details id="d2-q3" data-domain="D2" data-task="2.2">
-<summary>Q3 One error payload for two different outcomes</summary>
+<summary>Q3 (Field Service) — One error payload for two different outcomes</summary>
 <div>
 <p><strong>Scenario:</strong> the <code>search_parts</code> tool answers <code>{"isError": true, "content": [{"type": "text", "text": "Operation failed"}]}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.</p>
 <p><strong>Question:</strong> why does this design block the agent?</p>
@@ -504,7 +504,7 @@ less context to decide with than the subagent that made the call.</p>
 </details>
 
 <details id="d2-q5" data-domain="D2" data-task="2.2">
-<summary>Q5 What an actionable error response carries <strong>(Select the 2 correct answers.)</strong></summary>
+<summary>Q5 (Scheduling) — What an actionable error response carries <strong>(Select the 2 correct answers.)</strong></summary>
 <div>
 <p><strong>Scenario:</strong> you are designing the error responses of the <code>book_appointment</code> MCP tool so the agent can decide what to do next.</p>
 <p><strong>Question:</strong> which statements are accurate?</p>
@@ -703,7 +703,7 @@ was written before anything in it was verified.</p>
 <div class="section-quiz">
 <h3 class="section-quiz-title">Test yourself on this section</h3>
 <details id="d2-q2" data-domain="D2" data-task="2.3">
-<summary>Q2 A subagent holding a tool that runs anything</summary>
+<summary>Q2 (Data Platform) — A subagent holding a tool that runs anything</summary>
 <div>
 <p><strong>Scenario:</strong> a reporting subagent owns <code>execute_sql</code>, which accepts any statement against the warehouse. Traces show it browsing <code>information_schema</code> and joining raw event tables instead of reading the curated reporting views.</p>
 <p><strong>Question:</strong> what is the right fix?</p>
@@ -724,7 +724,7 @@ was written before anything in it was verified.</p>
 </details>
 
 <details id="d2-q4" data-domain="D2" data-task="2.3">
-<summary>Q4 A screening step that must never be skipped</summary>
+<summary>Q4 (Compliance) — A screening step that must never be skipped</summary>
 <div>
 <p><strong>Scenario:</strong> a compliance assistant must call <code>screen_sanctions</code> on the counterparty before it produces anything else on that turn.</p>
 <p><strong>Question:</strong> which <code>tool_choice</code> value guarantees it?</p>
@@ -962,7 +962,7 @@ selection problem of 2.3, for free.</p>
 <div class="section-quiz">
 <h3 class="section-quiz-title">Test yourself on this section</h3>
 <details id="d2-q6" data-domain="D2" data-task="2.4">
-<summary>Q6 A personal server in the shared config</summary>
+<summary>Q6 (Data Platform) — A personal server in the shared config</summary>
 <div>
 <p><strong>Scenario:</strong> a pull request adds a <code>vault-notes</code> entry to the repository's tracked <code>.mcp.json</code>. Its <code>command</code> field launches <code>note-indexer</code> from the author's home directory and points at <code>~/Notes/</code>, a folder that exists on that laptop alone. The author's rationale: one file, one place to look.</p>
 <p><strong>Question:</strong> what should the reviewer ask for?</p>
@@ -1105,7 +1105,7 @@ documented fallback exists, buys nothing.</p>
 <div class="section-quiz">
 <h3 class="section-quiz-title">Test yourself on this section</h3>
 <details id="d2-q7" data-domain="D2" data-task="2.5">
-<summary>Q7 One step among twenty-three identical ones</summary>
+<summary>Q7 (Site Reliability) — One step among twenty-three identical ones</summary>
 <div>
 <p><strong>Scenario:</strong> the agent must assign step 14 of <code>runbooks/db-failover.yaml</code>, whose <code>steps</code> list carries the line <code>owner: unassigned</code> 23 times. <code>Edit</code> refuses the change: the anchor is not unique.</p>
 <p><strong>Question:</strong> what is the correct fallback?</p>

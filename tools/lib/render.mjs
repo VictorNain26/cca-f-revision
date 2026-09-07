@@ -70,25 +70,36 @@ function tightenListItems(tokens) {
  *
  * La ligne est retirée du corps ici parce que page.mjs la réémet en lien vers la
  * banque filtrée : la laisser en place la publierait deux fois, dont une en
- * texte mort. Le <strong> d'ouverture est exigé pour ne pas confondre la ligne
- * avec une prose qui citerait l'attribut au fil du texte. */
+ * texte mort.
+ *
+ * La forme reconnue est étroite à dessein — paragraphe isolé, ouvert par un
+ * <strong>, refermé par le tag et rien d'autre qu'une ponctuation. Un simple
+ * « contient un data-task » aurait supprimé sans trace un paragraphe de prose
+ * qui citerait l'attribut, et le contrôle de fidélité ne l'aurait pas vu
+ * puisqu'il compare la page à ce même rendu. Le libellé lui-même n'est pas lu :
+ * il change avec la langue du corpus, la structure non. */
 function takeToTestTask(tokens) {
+  let task;
   for (let i = 0; i < tokens.length; i += 1) {
     if (tokens[i].type !== 'inline') continue;
     if (tokens[i - 1]?.type !== 'paragraph_open' || tokens[i + 1]?.type !== 'paragraph_close') continue;
+    if (tokens[i - 1].hidden) continue;
 
-    /* markdown-it ouvre l'inline par un token text vide : c'est le premier
-     * enfant porteur qui doit être le <strong> du libellé. */
-    const children = tokens[i].children || [];
-    const first = children.find((c) => c.type !== 'text' || c.content !== '');
-    if (first?.type !== 'strong_open') continue;
-    const tag = children.find((c) => c.type === 'code_inline' && TASK_TAG.test(c.content));
-    if (!tag) continue;
+    const children = (tokens[i].children || []).filter((c) => c.type !== 'text' || c.content.trim() !== '');
+    if (children[0]?.type !== 'strong_open') continue;
 
+    const last = children[children.length - 1];
+    const tag = last?.type === 'code_inline' ? last
+      : (last?.type === 'text' && /^[.。!?]$/.test(last.content.trim()) ? children[children.length - 2] : undefined);
+    if (tag?.type !== 'code_inline' || !TASK_TAG.test(tag.content)) continue;
+
+    /* On continue après la première : une section qui en porterait deux
+     * publierait la seconde en texte mort avec son attribut brut. */
+    task ??= TASK_TAG.exec(tag.content)[1];
     tokens.splice(i - 1, 3);
-    return TASK_TAG.exec(tag.content)[1];
+    i -= 1;
   }
-  return undefined;
+  return task;
 }
 
 /* Sort du chapeau les paragraphes de renvois entre cours : jusqu'à 60 % d'un

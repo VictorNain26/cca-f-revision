@@ -132,4 +132,12 @@
   }, { rootMargin: '-78px 0px -72% 0px', threshold: 0 });
 
   for (const h of headings) spy.observe(h);
+  /* Au-delà de 1320 px le rail redevient un repère de navigation statique et le
+   * backdrop n'est plus rendu : un panneau resté ouvert garderait role="dialog",
+   * aria-modal et son piège de focus sur un élément que plus rien ne permet de
+   * fermer à la souris. Le passage de seuil doit donc le refermer. */
+  window.matchMedia?.('(min-width: 1320px)')?.addEventListener?.('change', (e) => {
+    if (e.matches && isOpen()) closeSheet({ returnFocus: false });
+  });
+
 })();

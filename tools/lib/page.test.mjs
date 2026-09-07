@@ -212,15 +212,28 @@ test('renderPage pose un point d’ancrage de contenu et son lien d’évitement
   assert.match(html, /<main id="content">/);
 });
 
-test('renderQuiz retire la parenthèse que le contexte de la page répète déjà', () => {
-  const html = renderQuiz({ ...quiz, summary: 'Q1 (D5) — Assay settings the summary stops carrying' });
-  assert.match(html, /<summary>Q1 Assay settings the summary stops carrying<\/summary>/);
-});
-
 test('renderQuiz garde le numéro, dont quiz.js fait sa pastille', () => {
-  assert.match(renderQuiz({ ...quiz, summary: 'Q25 (Customer Support) — Handing off' }), /<summary>Q25 /);
+  const html = renderQuiz({ ...quiz, summary: 'Q25 (Customer Support) — Handing off' }, { stripScenario: true });
+  assert.match(html, /<summary>Q25 Handing off<\/summary>/);
 });
 
 test('renderQuiz laisse intact un libellé sans parenthèse', () => {
   assert.match(renderQuiz({ ...quiz, summary: 'Q7 Un titre nu' }), /<summary>Q7 Un titre nu<\/summary>/);
+});
+
+test('renderQuiz retire la parenthèse quand elle répète le domaine de la page', () => {
+  const html = renderQuiz({ ...quiz, domain: 'D5', summary: 'Q1 (D5) — Assay settings' });
+  assert.match(html, /<summary>Q1 Assay settings<\/summary>/);
+});
+
+/* Les sept questions de D2 nomment un scénario que la page D2 n'affiche nulle
+ * part : le retrait aveugle leur faisait perdre le cadre de l'énoncé. */
+test('renderQuiz garde la parenthèse quand elle ne répète pas le domaine', () => {
+  const html = renderQuiz({ ...quiz, domain: 'D2', summary: 'Q1 (Logistics) — Two descriptions alike' });
+  assert.match(html, /<summary>Q1 \(Logistics\) — Two descriptions alike<\/summary>/);
+});
+
+test('renderQuiz retire le scénario quand la page le porte déjà en titre', () => {
+  const html = renderQuiz({ ...quiz, domain: 'D1', summary: 'Q1 (Customer Support) — Deterministic tool ordering' }, { stripScenario: true });
+  assert.match(html, /<summary>Q1 Deterministic tool ordering<\/summary>/);
 });

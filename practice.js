@@ -37,29 +37,64 @@
     banner = null;
   };
 
-  /* Un titre dont toutes les questions sont masquées n'annonce plus rien : on le
-   * masque avec elles, ainsi que le paragraphe d'intro qui le suit. */
-  const hideEmptyHeadings = () => {
-    for (const heading of document.querySelectorAll('main h2[id], main h3')) {
-      let node = heading.nextElementSibling;
-      let visible = false;
-      const trailing = [];
-      while (node && !/^H[23]$/.test(node.tagName)) {
-        if (node.matches('details[data-task]')) {
-          if (!node.hidden) visible = true;
-        } else {
-          trailing.push(node);
-        }
-        node = node.nextElementSibling;
+  /* Un groupe dont toutes les questions sont masquées n'annonce plus rien : son
+   * titre et sa prose de contexte partent avec elles.
+   *
+   * Le regroupement se fait par frontière et non par « le titre puis ses frères
+   * jusqu'au prochain titre » : sur cette page un h2 est enveloppé dans
+   * <div class="section-header"> (tools/lib/practice.mjs), si bien qu'un
+   * terminateur qui ne connaît que H2/H3 ne voit jamais de h2 — les en-têtes de
+   * scénario restaient affichés au-dessus de zéro question, et le dernier h3 de
+   * la page avalait tout ce qui suit, table de couverture comprise.
+   *
+   * Un groupe qui ne porte aucune question n'est jamais masqué : la section
+   * « Couverture » n'en a pas et doit rester lisible sous n'importe quel filtre. */
+  const isH2 = (el) => el.matches('.section-header');
+  const isH3 = (el) => el.tagName === 'H3';
+
+  const hideEmptyGroups = (root, isBoundary) => {
+    let group = null;
+    const groups = [];
+    for (const node of root.children) {
+      if (isBoundary(node)) {
+        group = { boundary: node, body: [] };
+        groups.push(group);
+        continue;
       }
-      const owns = heading.parentElement.querySelector('details[data-task]');
-      if (!owns && !trailing.some((n) => n.querySelector?.('details[data-task]'))) continue;
-      if (visible) continue;
-      for (const el of [heading, ...trailing]) {
+      group?.body.push(node);
+    }
+
+    for (const { boundary, body } of groups) {
+      const owned = [boundary, ...body].flatMap((n) => [
+        ...(n.matches('details[data-task]') ? [n] : []),
+        ...n.querySelectorAll('details[data-task]'),
+      ]);
+      if (!owned.length || owned.some((d) => !d.hidden)) continue;
+      for (const el of [boundary, ...body]) {
+        if (el.hidden) continue;
         el.hidden = true;
         el.dataset.filterHidden = '1';
       }
     }
+  };
+
+  /* Le rail de sommaire est construit par toc.js depuis les h2 de la page, avant
+   * que le filtre ne masque quoi que ce soit : sans ce nettoyage il garde des
+   * entrées qui ne mènent plus nulle part. */
+  const hideEmptyTocEntries = () => {
+    for (const link of document.querySelectorAll('.toc-rail a[href^="#"], .toc a[href^="#"]')) {
+      const target = document.getElementById(decodeURIComponent(link.getAttribute('href').slice(1)));
+      if (!target?.closest('[data-filter-hidden]') && !target?.hasAttribute('data-filter-hidden')) continue;
+      link.closest('li') ? (link.closest('li').hidden = true) : (link.hidden = true);
+      (link.closest('li') || link).dataset.filterHidden = '1';
+    }
+  };
+
+  const hideEmptyHeadings = () => {
+    const root = document.querySelector('main') || document.body;
+    hideEmptyGroups(root, isH3);
+    hideEmptyGroups(root, isH2);
+    hideEmptyTocEntries();
   };
 
   const apply = () => {

@@ -122,3 +122,24 @@ test('renderCourse sort ::: cross-refs du chapeau, pour que le bandeau ne le por
 test('renderCourse rend crossRefs vide quand le cours n’en a pas', () => {
   assert.equal(renderCourse('# T\n\nLe cadrage.\n\n## S\n\nA.\n').crossRefs, '');
 });
+
+/* Le filtre ne doit reconnaître que la ligne de rattachement, pas n'importe
+ * quelle prose qui cite l'attribut : la supprimer perdrait du contenu sans
+ * qu'aucun contrôle puisse le voir, puisqu'ils comparent la page à ce rendu. */
+test('renderCourse ne supprime pas un paragraphe qui cite data-task au fil du texte', () => {
+  const md = '## S\n\n**Note :** le rendu pose `data-task="1.1"` sur chaque question, ce qui sert au filtre.\n';
+  const { sections } = renderCourse(md);
+  assert.match(sections[0].html, /Note/);
+  assert.equal(sections[0].task, undefined);
+});
+
+test('renderCourse retire aussi une seconde ligne « À tester », qui serait publiée en texte mort', () => {
+  const md = '## S\n\nA.\n\n**To test** — tagged `data-task="1.1"`.\n\n**To test** — tagged `data-task="1.2"`.\n';
+  const { sections } = renderCourse(md);
+  assert.equal(sections[0].task, '1.1');
+  assert.doesNotMatch(sections[0].html, /data-task/);
+});
+
+test('renderCourse accepte la ligne sans ponctuation finale', () => {
+  assert.equal(renderCourse('## S\n\n**To test** — tagged `data-task="3.4"`\n').sections[0].task, '3.4');
+});

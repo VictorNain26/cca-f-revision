@@ -123,7 +123,7 @@ function renderBody(body, quizzes, byNumber) {
         problems.push(`courses/practice/page.md — <!-- questions:${from}-${to} --> réclame Q${n}, absente de courses/quizzes/PQ.json`);
         continue;
       }
-      block.push(renderQuiz(q));
+      block.push(renderQuiz(q, { stripScenario: true }));
     }
     parts.push(block.join('\n\n'));
   }

@@ -96,12 +96,13 @@ function placeQuizzes(sections, quizzes) {
     bySection.get(id).push(quiz);
   }
 
-  /* Une question perdue en route ne se voit pas sur la page publiée : il y a
-   * simplement un bloc de moins, et le score de quiz.js s'ajuste au total
-   * rendu. Le seul moment où l'écart est visible est ici. */
-  const placed = [...bySection.values()].reduce((n, list) => n + list.length, 0);
-  if (placed + leftover.length !== quizzes.length) {
-    throw new Error(`placeQuizzes a perdu des questions : ${placed} placées + ${leftover.length} en fin de page ≠ ${quizzes.length} chargées`);
+  /* Le risque n'est pas de perdre une question — chaque quiz est poussé dans
+   * exactement une branche — mais d'en publier une DEUX fois : deux <details> de
+   * même id cassent l'ancre, et quiz.js compte les blocs pour son score, donc un
+   * doublon fausse le total autant que la note. C'est cela qu'on mesure. */
+  const rendered = [...[...bySection.values()].flat(), ...leftover].map((q) => q.id);
+  if (new Set(rendered).size !== quizzes.length) {
+    throw new Error(`placeQuizzes : ${new Set(rendered).size} id distinct(s) rendu(s) pour ${quizzes.length} question(s) chargée(s)`);
   }
   return { bySection, leftover };
 }
@@ -126,16 +127,30 @@ const stripWeight = (title) => (title || '').replace(/\s*\(\d+\s*%\)\s*$/, '').t
 /* Exporté pour tools/lib/practice.mjs : la page des QCM rend les mêmes blocs
  * <details> que les fiches de domaine, et un second rendu qui divergerait de
  * celui-ci rejouerait le défaut de la navbar en onze exemplaires. */
-/* « Q1 (D5) — Assay settings… » : la parenthèse répète ce que la page dit déjà.
- * Sur une fiche de domaine la question vit désormais dans la section de ce
- * domaine ; sur la page des QCM elle est groupée sous le titre de son scénario.
+/* « Q1 (D5) — Assay settings… » : sur une fiche de domaine la parenthèse répète
+ * le code du domaine, que la page annonce déjà dans son titre et sa navbar.
+ *
+ * Elle ne le répète pas toujours : les sept questions de D2 portent un nom de
+ * scénario — Logistics, Field Service, Site Reliability — que la page D2
+ * n'affiche nulle part, et les effacer perdrait le cadre de la question. D'où la
+ * comparaison au domaine plutôt qu'un retrait aveugle de toute parenthèse.
+ *
+ * La page des QCM est le cas inverse : la parenthèse y nomme le scénario, et
+ * chaque question vit déjà sous le titre de ce scénario. C'est ce que demande
+ * stripScenario.
+ *
  * Le retrait est fait au rendu et pas dans le JSON : report-duplicates.mjs,
  * report-length-tell.mjs et l'export Academy lisent ces `summary`.
  * quiz.js exige que le libellé commence par Qn pour en faire sa pastille — le
  * numéro est donc conservé, seule la parenthèse et son tiret partent. */
-const trimSummaryTag = (summary) => summary.replace(/^(Q\d+)\s+\([^)]*\)\s*—\s*/, '$1 ');
+function trimSummaryTag(summary, domain, stripScenario) {
+  const m = summary.match(/^(Q\d+)\s+\(([^)]*)\)\s*—\s*/);
+  if (!m) return summary;
+  if (!stripScenario && m[2] !== domain) return summary;
+  return `${m[1]} ${summary.slice(m[0].length)}`;
+}
 
-export function renderQuiz(q) {
+export function renderQuiz(q, { stripScenario = false } = {}) {
   const letters = lettersOf(q);
   const answers = new Set(answerLetters(q.answer));
   const options = letters
@@ -153,7 +168,7 @@ export function renderQuiz(q) {
      * filtre par task de practice.js afficherait moins de questions que la table
      * n'en annonce pour la même task. */
     `<details id="${q.id}" data-domain="${q.domain}" data-task="${q.task}"${q.alsoTasks?.length ? ` data-also-tasks="${q.alsoTasks.join(' ')}"` : ''}>`,
-    `<summary>${trimSummaryTag(q.summary)}</summary>`,
+    `<summary>${trimSummaryTag(q.summary, q.domain, stripScenario)}</summary>`,
     '<div>',
     `<p><strong>Scenario:</strong> ${q.scenario}</p>`,
     `<p><strong>Question:</strong> ${q.question}</p>`,

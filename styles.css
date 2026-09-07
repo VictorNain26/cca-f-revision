@@ -1965,3 +1965,40 @@ details.cross-refs > ul { padding-left: 24px; }
 
   .skip-link { display: none; }
 }
+
+/* =============================================================
+   BANDEAU DE FILTRE PAR TASK STATEMENT (Practice_Questions)
+   Posé par practice.js quand l'URL porte ?task=x.y — c'est-à-dire
+   quand on arrive depuis la ligne « À tester » d'une fiche de cours.
+   Il doit dire ce qui est masqué, sinon la page paraît amputée.
+   ============================================================= */
+.task-filter {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin: 0 0 22px;
+  padding: 12px 18px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 10pt;
+  color: var(--ink-soft);
+}
+.task-filter > span { font-weight: 600; }
+
+.task-filter-clear {
+  margin-left: auto;
+  padding: 5px 14px;
+  font-family: inherit;
+  font-size: 9.5pt;
+  color: var(--bg-card);
+  background: var(--primary-dark);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.task-filter-clear:hover { background: var(--ink); }
+
+@media print { .task-filter { display: none; } }
