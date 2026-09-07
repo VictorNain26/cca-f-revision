@@ -297,7 +297,7 @@ Notez ce que la bonne version fait au-delà d'être longue. Elle emploie un
 **format structuré qui sépare le contenu des métadonnées**. URL source, nom du
 document, numéro de page et date de collecte vivent dans leurs propres champs,
 pas fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport
-final, et le guide le nomme parmi les skills de ce task statement.
+final, et le guide le nomme parmi les compétences de ce task statement.
 
 ::: key-concept
 **Rien n'est hérité : la chaîne du prompt est tout le canal.** Un subagent qui
@@ -353,7 +353,7 @@ relire » produit des prompts de délégation qui listent des fichiers. Une
 description vague produit des délégations vagues.
 
 Deux autres leviers de conception. Le premier vient du cours Subagents ; le
-second est le quatrième skill que le guide liste sous ce task statement :
+second est la quatrième compétence que le guide liste sous ce task statement :
 
 - **Définissez un format de sortie dans le system prompt.** Il donne au subagent
   une liste à remplir, donc il sait quand il a fini ; sans lui, les subagents

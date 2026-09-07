@@ -78,10 +78,10 @@ produit deux fois la même réponse.
 
 ### Des critères de severity qui classent de la même façon
 
-Le troisième skill du guide porte sur la severity, et il demande deux choses :
-des critères explicites pour chaque niveau, **et un exemple de code concret par
-niveau**. La définition seule laisse « medium » au goût de chacun ; l'exemple
-travaillé le fixe.
+La troisième compétence du guide porte sur la severity, et elle demande deux
+choses : des critères explicites pour chaque niveau, **et un exemple de code
+concret par niveau**. La définition seule laisse « medium » au goût de chacun ;
+l'exemple travaillé le fixe.
 
 ```text
 CRITICAL — échoue à l'exécution pour les utilisateurs.
@@ -347,7 +347,7 @@ réponse conforme.
 | `enum` + `"other"` + détail | `"enum": [..., "other"]` plus un champ de texte libre | Un enum fermé produit une catégorie fausse plutôt que l'aveu qu'aucune ne convient |
 | `"unclear"` | Une valeur d'enum à part entière | Permet au modèle de dire que le document ne tranche pas |
 
-Le dernier skill du guide sur ce task statement est facile à sauter et peu
+La dernière compétence du guide sur ce task statement est facile à sauter et peu
 coûteux à appliquer : **les règles de normalisation de format vont dans le
 prompt, à côté du schéma strict.** Le schéma dit qu'un champ est une chaîne ;
 seul le prompt peut dire laquelle.
@@ -522,11 +522,10 @@ une réponse non conforme. `stop_reason: "max_tokens"` signifie que la sortie a
 été coupée en cours de génération ; le retry est alors un budget plus grand, pas
 un meilleur prompt. L'ensemble complet des valeurs de `stop_reason` appartient à
 D0.
-
-Le dernier étage du pattern, et un skill du guide : faire produire au modèle une
-confidence par champ, router les extractions à faible confiance vers une
-relecture humaine, et mesurer la précision par type de document et par champ.
-Une précision globale acceptable peut masquer un type de document raté
+Le dernier étage du pattern, et une compétence du guide : faire produire au
+modèle une confidence par champ, router les extractions à faible confiance vers
+une relecture humaine, et mesurer la précision par type de document et par
+champ. Une précision globale acceptable peut masquer un type de document raté
 systématiquement.
 :::
 
@@ -762,7 +761,7 @@ indifférenciée fait le plus mal.
 
 ### La confidence, auto-reportée
 
-Le troisième skill est une passe de vérification où le modèle reporte une
+La troisième compétence est une passe de vérification où le modèle reporte une
 confidence à côté de chaque signalement. La valeur n'est pas le nombre lui-même
 mais le routage qu'il permet : les signalements à forte confidence vont
 directement au développeur, ceux à faible confidence vers une vérification
