@@ -1780,10 +1780,25 @@ footer,
    selon la largeur d'écran, une valeur fixe ne suit pas ce changement de hauteur.
    ============================================================= */
 :root { --progress-h: 0px; }
+/* Sous 1320 px le FAB du sommaire occupe le coin bas-droit, celui du bouton de
+   retour en haut. Mesuré à 390 px : ils se recouvraient entièrement, même bande
+   verticale, x 256-359 contre 315-359, si bien que le « ↑ » masquait la fin du
+   libellé « Sommaire ». Le retour en haut s'empile donc au-dessus du FAB.
+   Le décalage vaut la hauteur du FAB (35 px) plus son propre bas et un écart. */
+@media (max-width: 1319px) {
+  .back-to-top { bottom: 122px; right: 16px; }
+}
+
 @media (max-width: 720px) {
-  .back-to-top { bottom: 20px; right: 16px; }
-  body.has-progress .back-to-top { bottom: calc(var(--progress-h) + 16px); }
+  body.has-progress .back-to-top { bottom: calc(var(--progress-h) + 70px); }
   body.has-progress .toc-fab { bottom: calc(var(--progress-h) + 24px); }
+
+  /* Sous 720 px le widget occupe presque toute la largeur : mesuré à 89 px de
+     haut pour 359 px de large sur un écran de 390, alors que le body n'en
+     réservait que 50. La fin de chaque page passait sous le panneau, sans
+     moyen de la lire. Au-dessus, le widget vit dans la marge et ne recouvre
+     pas la colonne de texte. */
+  body.has-progress { padding-bottom: calc(var(--progress-h) + 24px); }
 }
 
 
