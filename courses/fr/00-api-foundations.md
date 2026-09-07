@@ -63,7 +63,7 @@ ce point d'entrée, et elle change le poids que le modèle leur accorde.
 :::
 
 Les identifiants exacts de modèles ne sont pas matière d'examen. `temperature`
-non plus — le guide ne la nomme jamais et aucun task statement n'en dépend ; la
+non plus. Le guide ne la nomme jamais et aucun task statement n'en dépend ; la
 ligne est là pour que vous reconnaissiez le champ dans un corps de requête qu'on
 vous présente, pas pour l'apprendre par cœur.
 
@@ -86,8 +86,8 @@ Une conversation alterne entre les deux : tour user, tour assistant, tour user.
 **L'API ne stocke rien.** Chaque requête est indépendante et ne garde aucune
 mémoire des précédentes. Demandez « Qu'est-ce que l'informatique quantique ? »,
 obtenez une réponse, puis envoyez « Écris une autre phrase » sans rien d'autre :
-le modèle n'a aucune idée de ce qu'on lui demande de prolonger — il écrira une
-phrase sur tout autre chose.
+le modèle n'a aucune idée de ce qu'on lui demande de prolonger, donc il écrit
+une phrase sur tout autre chose.
 
 La conversation multi-tours est donc un travail que vous faites, pas un service
 que l'API rend : envoyer le premier message user, ajouter la réponse de Claude à
@@ -110,7 +110,7 @@ Tout ce qui doit encore être visible au cinquième tour doit se trouver dans le
 tableau que vous envoyez au cinquième tour. C'est la règle derrière la plupart
 des bugs « le modèle a oublié », et elle vaut pour les résultats d'outils
 exactement comme pour le texte. C'est la même règle qui impose de passer
-explicitement son contexte à un subagent lancé — il n'hérite de rien.
+explicitement son contexte à un subagent lancé, puisqu'il n'hérite de rien.
 :::
 
 ::: anti-pattern
@@ -125,7 +125,7 @@ reconstruire l'historique est le travail de l'appelant, à chaque requête.
 <!-- src:05claudeapi L35, L36, L38 ; exam guide TS 1.1 (tool results appended to history) -->
 <!-- owns:content-blocks -->
 
-Le `content` d'une réponse n'est jamais une simple chaîne — c'est une **liste de
+Le `content` d'une réponse n'est jamais une simple chaîne mais une **liste de
 blocs**, chacun avec son type. Lire une réponse comme du texte ne marche que
 parce que vous avez indexé cette liste : `message.content[0].text` est le texte
 du premier bloc, pas celui du message. Les deux sens ne sont pas symétriques :
@@ -138,9 +138,9 @@ blocs.
 | `tool_use` | de l'assistant | Le nom de l'outil et les arguments choisis par le modèle |
 | `tool_result` | de vous, dans un message `user` | La sortie de l'outil que vous avez exécuté |
 
-Une seule réponse d'assistant porte couramment plusieurs blocs à la fois — un
-bloc texte qui explique ce que le modèle s'apprête à faire, plus un bloc
-`tool_use` qui le demande. Un bloc `tool_result` porte trois champs :
+Une seule réponse d'assistant porte couramment plusieurs blocs à la fois, par
+exemple un bloc texte qui explique ce que le modèle s'apprête à faire plus un
+bloc `tool_use` qui le demande. Un bloc `tool_result` porte trois champs :
 `tool_use_id`, qui correspond à l'id du bloc `tool_use` auquel il répond ;
 `content`, la sortie de la fonction sérialisée en chaîne ; et `is_error`, un
 booléen. Il repart dans un message `user`, accompagné de l'historique complet.
@@ -182,7 +182,7 @@ utile conforme est la sortie structurée, développée en D4.3.**
 <!-- src:05claudeapi L3, L38 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
 <!-- owns:stop-reason -->
 
-Quand le modèle s'arrête, la réponse dit pourquoi dans `stop_reason` — et c'est
+Quand le modèle s'arrête, la réponse dit pourquoi dans `stop_reason`, et c'est
 ce champ, pas la présence d'un bloc texte, qui vous dit si une réponse est
 terminée.
 
@@ -216,13 +216,13 @@ et les modèles antérieurs ont besoin de l'en-tête
 }
 ```
 
-Cette réponse porte du texte *et* une demande d'outil — c'est précisément
+Cette réponse porte du texte *et* une demande d'outil, et c'est précisément
 pourquoi la présence de texte ne peut pas servir de signal de fin.
 
 ::: exam-tip
 `end_turn` est la seule valeur qui signifie *terminé*. Une réponse avec
 `stop_reason: "max_tokens"` porte un bloc texte comme n'importe quelle autre,
-mais elle a été coupée en pleine phrase — un code d'affichage qui teste la
+mais elle a été coupée en pleine phrase. Un code d'affichage qui teste la
 présence de texte au lieu de lire `stop_reason` présentera un brouillon tronqué
 comme un texte fini. C'est le distracteur classique sur ce champ.
 :::
@@ -233,8 +233,8 @@ en envoyant des blocs `tool_result`. `pause_turn` concerne un outil **serveur** 
 court d'itérations, et vous la poursuivez en renvoyant le contenu de l'assistant
 tel quel.
 
-Le guide ne vous demande jamais que de distinguer `tool_use` de `end_turn` —
-c'est cette paire qui pilote la boucle, et c'est tout ce que teste TS 1.1.
+Le guide ne vous demande jamais que de distinguer `tool_use` de `end_turn`.
+C'est cette paire qui pilote la boucle, et c'est tout ce que teste TS 1.1.
 **Transformer cette vérification en boucle — appeler, inspecter `stop_reason`,
 exécuter, ajouter, rappeler — est la boucle agentique, développée en D1.1.** D0
 s'arrête à nommer le signal.
@@ -250,8 +250,8 @@ ce n'est pas quelque chose à quoi le modèle répond. Il façonne *comment* Cla
 répond, pas *ce qu'*il répond.
 
 Prenez l'exemple d'un tuteur de maths. Sans system prompt, « Comment résoudre
-5x + 2 = 3 pour x ? » donne aussitôt une solution complète pas à pas — correcte,
-et inutile pour enseigner. Avec :
+5x + 2 = 3 pour x ? » donne aussitôt une solution complète pas à pas, ce qui est
+correct et inutile pour enseigner. Avec :
 
 ```
 Tu es un tuteur de maths patient.
@@ -266,7 +266,7 @@ qui a changé le comportement.
 Voilà à quoi sert un system prompt : assigner un rôle, et le modèle répond comme
 quelqu'un dans ce rôle le ferait ; énoncer des contraintes durables, et elles
 tiennent à tous les tours sans être répétées. Elles tiennent parce que vous les
-renvoyez à chaque requête, pas parce que l'API s'en souvient — et vous les payez
+renvoyez à chaque requête, pas parce que l'API s'en souvient, et vous les payez
 à chaque fois.
 
 ::: anti-pattern
@@ -277,11 +277,11 @@ entre en concurrence avec les tours qui l'entourent au lieu de les surplomber.
 
 ::: exam-tip
 Une instruction system porte plus loin que n'importe quelle formulation à
-l'échelle d'un tour — assez loin pour qu'un seul mot-clé absolu prenne le pas sur
+l'échelle d'un tour, assez loin pour qu'un seul mot-clé absolu prenne le pas sur
 des descriptions d'outils par ailleurs bien écrites. « Vérifie toujours
-l'identité du client » fera appeler l'outil le plus proche sémantiquement à chaque
-tour. **Comment cette instruction prend le pas, et comment la formuler autrement,
-est développé en D2.1.**
+l'identité du client » fera appeler l'outil le plus proche sémantiquement à
+chaque tour. **Comment cette instruction prend le pas, et comment la formuler
+autrement, est développé en D2.1.**
 :::
 
 Une note pratique : l'API n'accepte pas `system=None`, donc une fonction de chat
@@ -293,11 +293,11 @@ réutilisable ne doit ajouter la clé que si un prompt a réellement été fourn
 <!-- src:05claudeapi L6, L36 ; exam guide appendix (Context window management), TS 5.1 -->
 <!-- owns:context-window -->
 
-Mettez bout à bout les deux faits précédents. L'API ne garde aucun état, donc
-chaque requête embarque l'historique entier ; et chaque requête a un budget de
-tokens fini. L'historique n'est donc pas gratuit — c'est un coût récurrent qui
-croît avec la conversation, de façon monotone, sauf si vous y faites quelque
-chose.
+La fenêtre de contexte est le budget de tokens fini dans lequel chaque requête
+doit tenir, et les deux faits précédents le retournent contre vous : l'API ne
+garde aucun état, donc chaque requête embarque l'historique entier. L'historique
+n'est donc pas gratuit. C'est un coût récurrent qui croît de façon monotone avec
+la conversation, sauf si vous y faites quelque chose.
 
 Ce qui s'accumule, à chaque requête :
 
@@ -310,7 +310,7 @@ Ce qui s'accumule, à chaque requête :
 
 Les résultats d'outils sont la part qu'on sous-estime. Un outil qui retourne un
 gros enregistrement met cet enregistrement dans l'historique pour tout le reste
-de l'exécution, et vous le payez à chaque tour suivant — pas une seule fois.
+de l'exécution, et vous le payez à chaque tour suivant, pas une seule fois.
 
 ```
 lookup_order → 42 champs retournés, 5 utiles pour l'éligibilité au retour
@@ -329,10 +329,10 @@ et la **progressive summarization**, où comprimer l'historique pour faire de la
 place sacrifie d'abord les nombres, les dates et les détails précis.
 
 ::: exam-tip
-Reconnaissez ici les trois modes de défaillance ; les remèdes ne sont pas ceux de
-D0. **Élaguer les sorties d'outils verbeuses, extraire des faits structurés et
-ordonner l'entrée selon la position sont développés en D5.1.** Le retrieval et le
-chunking ne sont pas la réponse attendue par le guide — il les met hors
+Reconnaissez ici les trois modes de défaillance ; les remèdes ne sont pas ceux
+de D0. **Élaguer les sorties d'outils verbeuses, extraire des faits structurés
+et ordonner l'entrée selon la position sont développés en D5.1.** Le retrieval
+et le chunking ne sont pas la réponse attendue par le guide. Il les met hors
 périmètre, et ce corpus aussi.
 :::
 

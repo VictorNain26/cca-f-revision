@@ -14,6 +14,7 @@
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Aller au contenu</a>
 
 <nav class="navbar">
   <a class="home" href="index.html">CCA-F</a>
@@ -33,19 +34,13 @@
   <a href="en/D1_Architecture_Orchestration_27pct.html">EN</a>
 </div>
 
+<main id="content" tabindex="-1">
+
 <div class="header-bar">
 <h1>D1 — Architecture et orchestration des agents (27 %)</h1>
 <p>Le domaine le plus lourd de l'examen : sept task statements, 27 % de la note. Une
 section par task statement, dans l'ordre du guide et sous le libellé du guide —
 pour qu'une question repérée le jour J renvoie ici sans traduction.</p>
-<p>D0 est supposé acquis. Ce cours commence là où D0 s'arrête : D0 a nommé
-<code>stop_reason</code> et dit ce que vaut chaque valeur ; D1 transforme cette vérification
-en boucle, puis en système d'agents autour d'elle.</p>
-<p>Le guide place les notions voisines ailleurs, et ce cours le respecte.
-<code>tool_choice</code> et les JSON Schemas sont testés en TS 2.3 et TS 4.3 ; les réponses
-d'erreur structurées en TS 2.2 et TS 5.3 ; les fichiers <code>.claude/agents/</code> et la
-commande <code>/agents</code> relèvent de la configuration Claude Code, testée au domaine 3.
-Chacune reçoit ici une phrase et un renvoi, jamais un second développement.</p>
 </div>
 
 <div class="toc">
@@ -58,9 +53,20 @@ Chacune reçoit ici une phrase et un renvoi, jamais un second développement.</p
 <li><a href="#s5">1.5 — Apply Agent SDK hooks for tool call interception and data normalization</a></li>
 <li><a href="#s6">1.6 — Design task decomposition strategies for complex workflows</a></li>
 <li><a href="#s7">1.7 — Manage session state, resumption, and forking</a></li>
-<li><a href="#s8">Questions d'auto-évaluation</a></li>
 </ol>
 </div>
+
+<details class="cross-refs" open>
+<summary>Ce que ce cours possède, ce qu’il renvoie ailleurs</summary>
+<p>D0 est supposé acquis. Ce cours commence là où D0 s'arrête : D0 a nommé
+<code>stop_reason</code> et dit ce que vaut chaque valeur ; D1 transforme cette vérification
+en boucle, puis en système d'agents autour d'elle.</p>
+<p>Le guide place les notions voisines ailleurs, et ce cours le respecte.
+<code>tool_choice</code> et les JSON Schemas sont testés en TS 2.3 et TS 4.3 ; les réponses
+d'erreur structurées en TS 2.2 et TS 5.3 ; les fichiers <code>.claude/agents/</code> et la
+commande <code>/agents</code> relèvent de la configuration Claude Code, testée au domaine 3.
+Chacune reçoit ici une phrase et un renvoi, jamais un second développement.</p>
+</details>
 
 <div class="section-header"><h2 id="s1">1. 1.1 — Design and implement agentic loops for autonomous task execution</h2></div>
 
@@ -121,11 +127,11 @@ choix d'outil se fait à la lumière de ce que le dernier a retourné. Une boucl
 qui exécute les outils sans jamais ajouter leurs résultats repose éternellement
 la même question.</p>
 <h3>Plusieurs appels dans une même réponse</h3>
-<p>Une même réponse peut aussi porter <strong>plusieurs</strong> blocs <code>tool_use</code> — deux
-recherches que le modèle veut mener ensemble, par exemple. Exécutez-les toutes,
-puis renvoyez chaque <code>tool_result</code> dans un <em>seul</em> message <code>user</code>, un bloc par
-appel. C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à
-la fois, développé en 1.3.</p>
+<p>Une même réponse peut aussi porter <strong>plusieurs</strong> blocs <code>tool_use</code>, par exemple
+deux recherches que le modèle veut mener ensemble. Exécutez-les toutes, puis
+renvoyez chaque <code>tool_result</code> dans un <em>seul</em> message <code>user</code>, un bloc par appel.
+C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à la
+fois, développé en 1.3.</p>
 <div class="key-concept">
 <p>La boucle est <strong>model-driven</strong> : Claude lit le contexte accumulé et décide quel
 outil vient ensuite. C'est ce qui sépare un agent d'un workflow. Un
@@ -141,10 +147,11 @@ distracteurs de ce task statement :</p>
 <ul>
 <li><strong>Parser le texte de l'assistant</strong> à la recherche de « task completed » ou
 « I'm done ». Le langage naturel n'est pas un signal ; Claude peut écrire
-« done » alors qu'un bloc <code>tool_use</code> est encore en attente dans la même réponse.</li>
+« done » alors qu'un bloc <code>tool_use</code> est encore en attente dans la même
+réponse.</li>
 <li><strong>Utiliser un plafond d'itérations arbitraire</strong> (<code>max_iterations = 5</code>) comme
 mécanisme d'arrêt principal. Un plafond est un garde-fou contre un agent qui
-s'emballe, pas un constat sur l'achèvement du travail — il interrompt des
+s'emballe, pas un constat sur l'achèvement du travail, et il interrompt des
 exécutions légitimes.</li>
 <li><strong>Vérifier la présence de texte</strong> comme indicateur de complétion. Texte et
 <code>tool_use</code> voyagent dans la même réponse ; la présence de l'un ne dit rien de
@@ -165,16 +172,41 @@ alternative plausible dans la liste d'options — parsing de texte, plafond
 d'itérations, test de présence d'un bloc de texte — est l'un des trois
 anti-patterns ci-dessus, déguisé.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d1-q4" data-domain="D1" data-task="1.1">
+<summary>Q4 Who decides the next tool call</summary>
+<div>
+<p><strong>Scenario:</strong> A migration agent needs to run <code>read_schema</code>, then <code>plan_changes</code>, then <code>apply_migration</code> for each table. To keep the process predictable, the orchestrator pre-computes this exact call sequence before the first request and feeds each tool result into the next hardcoded step, never letting the model's own response decide what happens next. When a table turns out to need an extra validation step the sequence doesn't account for, the agent has no way to trigger it.</p>
+<p><strong>Question:</strong> What should change about how the loop is driven?</p>
+<p data-opt="a">A) Keep the fixed sequence, but add a fourth hardcoded step for validation, since the gap that appeared today is now a known case.</p>
+<p data-opt="b">B) Let the model choose the next action each turn from the latest <code>tool_result</code>, and stop when it stops requesting tools.</p>
+<p data-opt="c">C) Run all three tools on every turn regardless of need, so the missing step is always covered and no table can slip through, accepting the wasted work as the price of completeness.</p>
+<p data-opt="d">D) Keep the fixed sequence, but let the orchestrator retry a failed step before moving to the next one.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: hand control back to the model, turn by turn</p>
+<p><strong>Why:</strong> a sequence fixed in advance by the orchestrator is a hardcoded decision tree — it can only be as flexible as whoever wrote it anticipated. An agentic loop is model-driven: the model reads each tool result and decides the next action itself, the loop continues for as long as it keeps requesting tools, and it ends when the model signals it is done. That is what lets it insert a step nobody hardcoded.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Fixes this one gap but leaves the orchestrator guessing every future case in advance — the same limitation returns with the next table that needs something different.</li>
+<li data-opt="c">Running every tool regardless of need does not add judgment, it just hides the missing decision behind unconditional execution — and the completeness it buys is an illusion, since it still only covers steps that were written down.</li>
+<li data-opt="d">A retry addresses a step failing, not a step nobody planned for.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.1">Toutes les questions de la banque sur 1.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s2">2. 1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns</h2></div>
 
-<p>Avant l'architecture, la décision. Un subagent tourne dans sa propre fenêtre de
-contexte, fait son travail et ne renvoie qu'un résumé ; les lectures, recherches
-et appels d'outils intermédiaires sont jetés avec lui. Ce compromis tient en une
-question : <strong>le travail intermédiaire intéresse-t-il l'appelant ?</strong> Si seule la
-réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main
-dans le thread principal.</p>
+<p>Déléguer à un subagent est une décision qui vient avant toute architecture. Un
+subagent tourne dans sa propre fenêtre de contexte, fait son travail et ne
+renvoie qu'un résumé ; les lectures, recherches et appels d'outils
+intermédiaires sont jetés avec lui. Ce compromis tient en une question : <strong>le
+travail intermédiaire intéresse-t-il l'appelant ?</strong> Si seule la réponse compte,
+déléguez. S'il faut voir et réagir à chaque étape, gardez la main dans le thread
+principal.</p>
 <h3>La forme hub-and-spoke</h3>
 <p>Quand une tâche est vraiment trop large pour un seul agent — un rapport de
 recherche qui demande recherche web, analyse documentaire et synthèse — on
@@ -234,18 +266,20 @@ de qualité posée au-dessus de la boucle d'exécution de 1.1, et c'est le remè
 que le guide nomme contre une couverture incomplète.</p>
 <div class="key-concept">
 <p>Les subagents démarrent d'un <strong>contexte isolé</strong> : ils n'héritent pas de
-l'historique de conversation du coordinateur et ne partagent aucune mémoire d'une
-invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le
-hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.</p>
+l'historique de conversation du coordinateur et ne partagent aucune mémoire
+d'une invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt
+que le hub écrit pour lui, et la mécanique de ce passage est en TS 1.3,
+ci-dessous.</p>
 </div>
 <h3>Une décomposition trop étroite</h3>
 <p>Le risque que le guide nomme explicitement est une <strong>décomposition trop étroite
-par le coordinateur</strong>. Chargé d'un rapport sur « AI impact on creative
-industries », un coordinateur le découpe en « AI in digital art », « AI in
-graphic design » et « AI in photography ». Chaque subagent exécute correctement
-son brief. Le rapport ne couvre que l'art visuel ; la musique, la littérature et
-le cinéma sont simplement absents. Rien n'a échoué en aval — l'assignation était
-déjà incomplète.</p>
+par le coordinateur</strong>, et il se voit dans le rapport plutôt que dans les
+journaux. Un coordinateur à qui l'on demande un panorama de l'IA générative dans
+les industries créatives assigne « l'IA dans l'art visuel », « l'IA dans la
+génération d'images », « l'IA en photographie ». Chaque subagent exécute
+correctement sa consigne. Le rapport ne couvre que l'art visuel ; la musique, la
+littérature et le cinéma sont simplement absents. Rien n'a échoué en aval.
+L'assignation était déjà incomplète.</p>
 <div class="exam-tip">
 <p>Quand chaque subagent a fait ce qu'on lui demandait et que le rapport final rate
 encore des pans entiers du sujet, le défaut est la <strong>décomposition du
@@ -274,15 +308,40 @@ résultats partiels et annote la sortie finale de ce qui est resté non couvert.
 <strong>La forme de ces réponses d'erreur — catégories, caractère réessayable, échec
 métier contre échec de permission — relève de la conception des erreurs
 structurées, développée en D2.2.</strong></p>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.2&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d1-q2" data-domain="D1" data-task="1.2">
+<summary>Q2 Forty pages about one of five areas</summary>
+<div>
+<p><strong>Scenario:</strong> A coordinator was asked for a pre-launch risk brief on a payments feature. The request names five areas to cover: regulatory exposure, fraud, support load, vendor dependencies, data residency. It mentions chargebacks once, as an example under fraud. Six workers ran over two rounds and each returned a well-formed section; the brief that came back is forty pages, all of them about chargebacks. The coordinator's plan is still in the log, and it opens by restating the job as chargeback exposure.</p>
+<p><strong>Question:</strong> Which change keeps this from recurring?</p>
+<p data-opt="a">A) Gate the delivery step: hold the brief back until every area named in the request has a section of its own, and send the job round again whenever one of them is missing.</p>
+<p data-opt="b">B) Split the work into five independent runs, one per area, and have the requester stitch the five briefs together afterwards.</p>
+<p data-opt="c">C) Have the coordinator derive one assignment per area named in the request, before it delegates.</p>
+<p data-opt="d">D) Raise the worker count so each round covers more ground.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: derive the assignments from the areas the request names, ahead of any delegation</p>
+<p><strong>Why:</strong> the plan in the log names the defect — a five-part request became a one-part job before any worker started. Coverage that was never assigned cannot be recovered by anything downstream, so the fix has to sit ahead of the delegation.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">The gate proves the brief incomplete only once six workers have been paid for, and it hands the job back to the same planning step that read five areas as one — so the next round can return just as narrow.</li>
+<li data-opt="b">Guarantees the coverage by removing the coordinator from the job. Whatever sits across two areas is lost, and the requester now does the merging on every request.</li>
+<li data-opt="d">Capacity was never the constraint. Six workers already produced forty pages; more of them widen nothing while every assignment points at the same area.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.2">Toutes les questions de la banque sur 1.2</a></p>
+</div>
 
 <div class="section-header"><h2 id="s3">3. 1.3 — Configure subagent invocation, context passing, and spawning</h2></div>
 
-<p>Le mécanisme est un outil. Un coordinateur lance un subagent en appelant
-l'<strong>outil <code>Task</code></strong>, et son <code>allowedTools</code> doit inclure <code>&quot;Task&quot;</code> pour que ces
-invocations soient auto-approuvées. Omettez-le et l'appel retombe dans le flux de
-permission : en mode par défaut, sans callback <code>canUseTool</code> pour y répondre, il
-est refusé. Le coordinateur ne délègue pas, quoi que dise son prompt.</p>
+<p>Le mécanisme de lancement est un outil : un coordinateur lance un subagent en
+appelant l'<strong>outil <code>Task</code></strong>, et son <code>allowedTools</code> doit inclure <code>&quot;Task&quot;</code> pour
+que ces invocations soient auto-approuvées. Omettez-le et l'appel retombe dans
+le flux de permission : en mode par défaut, sans callback <code>canUseTool</code> pour y
+répondre, il est refusé. Le coordinateur ne délègue pas, quoi que dise son
+prompt.</p>
 <div class="exam-tip">
 <p>Les versions récentes du SDK ont renommé cet outil de <code>Task</code> en <code>Agent</code>, et le
 code actuel émet <code>Agent</code> dans les blocs <code>tool_use</code>. Le guide d'examen v1.0 dit
@@ -316,9 +375,9 @@ ce domaine :</p>
 </tbody>
 </table>
 <p>La conséquence est décisive : <strong>le seul contenu qui passe du parent au subagent
-est la chaîne de prompt de l'appel qui le lance.</strong> Chemins de fichiers, messages
-d'erreur, résultats de recherche antérieurs, décisions déjà prises — s'ils ne
-sont pas dans cette chaîne, le subagent ne les a pas.</p>
+est la chaîne de prompt de l'appel qui le lance.</strong> Si les chemins de fichiers,
+les messages d'erreur, les résultats de recherche antérieurs ou les décisions
+déjà prises ne sont pas dans cette chaîne, le subagent ne les a pas.</p>
 <pre><code class="language-text">Mauvais  Task: « Analyse le document. »
          → quel document ? aucun résultat antérieur, aucun format de sortie attendu.
 
@@ -331,10 +390,18 @@ Bon      Task: « Analyse le document ci-dessous et renvoie le tableau des claus
               FORMAT DE SORTIE : une ligne par clause — clause_type, text, page. »
 </code></pre>
 <p>Notez ce que la bonne version fait au-delà d'être longue. Elle emploie un
-<strong>format structuré qui sépare le contenu des métadonnées</strong> — URL source, nom du
-document, numéro de page, date de collecte vivent dans leurs propres champs, pas
-fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,
-et le guide le nomme parmi les skills de ce task statement.</p>
+<strong>format structuré qui sépare le contenu des métadonnées</strong>. URL source, nom du
+document, numéro de page et date de collecte vivent dans leurs propres champs,
+pas fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport
+final, et le guide le nomme parmi les skills de ce task statement.</p>
+<div class="key-concept">
+<p><strong>Rien n'est hérité : la chaîne du prompt est tout le canal.</strong> Un subagent qui
+renvoie une réponse maigre ou à côté a été mal briefé, pas sous-doté. Cela trie
+les options d'un seul geste : agrandir sa fenêtre de contexte, lui passer le
+transcript du parent, ou le laisser lire le travail d'un autre subagent traitent
+tous l'isolation comme un défaut à contourner, alors qu'elle est le mécanisme
+lui-même. Tout ce dont le subagent a besoin entre dans le prompt de lancement.</p>
+</div>
 <h3>Parallélisme : une réponse, plusieurs appels</h3>
 <p>Le parallélisme vient d'<strong>une réponse, plusieurs appels</strong>. Un coordinateur qui
 émet trois appels <code>Task</code> dans une seule réponse obtient trois subagents qui
@@ -410,9 +477,9 @@ procédures.</strong> « Le rapport doit couvrir au moins cinq secteurs avec des
 datées » laisse le subagent libre de s'adapter ; un script pas-à-pas non.</li>
 </ul>
 <h3>Restreindre les outils d'un subagent</h3>
-<p>Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les
-connaissances de ce task statement. Un subagent de recherche en lecture seule
-reçoit <code>Read</code>, <code>Grep</code>, <code>Glob</code> ; un relecteur y ajoute <code>Bash</code> pour lancer
+<p>Les restrictions d'outils relèvent aussi d'ici, puisque le guide les liste parmi
+les connaissances de ce task statement. Un subagent de recherche en lecture
+seule reçoit <code>Read</code>, <code>Grep</code>, <code>Glob</code> ; un relecteur y ajoute <code>Bash</code> pour lancer
 <code>git diff</code> ; seul un agent dont le métier est de modifier du code reçoit <code>Edit</code>
 et <code>Write</code>. Un outil que vous laissez de côté n'est pas du tout dans la session
 du subagent : ni prompt de permission, ni erreur, l'agent travaille simplement
@@ -423,12 +490,14 @@ outils, développée en D2.3.</strong></p>
 <p>Trois gestes qui ressemblent à des correctifs et n'en sont pas :</p>
 <ul>
 <li><strong>Agrandir la fenêtre de contexte du subagent</strong> quand il a rendu une réponse
-maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change rien.</li>
-<li><strong>Lancer sur des tours successifs</strong> en appelant cela du parallélisme. Des tours
-consécutifs, c'est de l'exécution séquentielle avec des allers-retours en plus.</li>
-<li><strong>Compter sur l'héritage</strong> — « le subagent verra ce que le coordinateur a
-trouvé ». L'isolation est la propriété qui définit un subagent, pas une
-limitation à contourner.</li>
+maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change
+rien.</li>
+<li><strong>Lancer sur des tours successifs</strong> en appelant cela du parallélisme. Des
+tours consécutifs, c'est de l'exécution séquentielle avec des allers-retours
+en plus.</li>
+<li><strong>Compter sur l'héritage</strong>, sur l'idée que « le subagent verra ce que le
+coordinateur a trouvé ». L'isolation est la propriété qui définit un subagent,
+pas une limitation à contourner.</li>
 </ul>
 </div>
 <p><strong>Forker une session pour donner à deux subagents une base d'analyse commune
@@ -436,18 +505,43 @@ relève de la gestion des sessions, développée en 1.7 ci-dessous.</strong> <st
 subagents comme fichiers markdown sous <code>.claude/agents/</code>, et la commande
 <code>/agents</code> qui les crée, relève de la configuration Claude Code, développée au
 domaine 3.</strong></p>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.3&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d1-q7" data-domain="D1" data-task="1.3">
+<summary>Q7 Delegating a contract review <strong>(Select the 2 correct answers.)</strong></summary>
+<div>
+<p><strong>Scenario:</strong> A coordinator has a clause-extraction subagent read two vendor contracts while a pricing subagent prepares a quote, and both outputs must land in one report.</p>
+<p><strong>Question:</strong> Which two moves are correct?</p>
+<p data-opt="a">A) Put the contract text, the clause types wanted, and the output schema into the delegation prompt itself.</p>
+<p data-opt="b">B) Emit both delegations in one coordinator response so the subagents run at the same time.</p>
+<p data-opt="c">C) Count on each subagent inheriting the coordinator's conversation history.</p>
+<p data-opt="d">D) Let the clause subagent hand its output straight to the pricing subagent, saving a hop.</p>
+<p data-opt="e">E) Give both subagents the coordinator's whole tool set so neither is ever blocked.</p>
+<hr>
+<p class="correct" data-answer="a b">Answers: carry the needed context in the delegation prompt, and issue both delegations in one response</p>
+<p><strong>Why:</strong> a subagent starts from an isolated context, so whatever it needs — source text, target clause types, output shape — travels in the prompt. Parallelism comes from several delegations inside one coordinator response; spread over consecutive turns they just run one after another.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="c">Nothing is inherited: an isolated context is the defining property of a subagent.</li>
+<li data-opt="d">Every exchange goes through the hub, which keeps the run observable and error handling uniform.</li>
+<li data-opt="e">A wider tool set degrades selection reliability; each spoke gets only the tools its role needs.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.3">Toutes les questions de la banque sur 1.3</a></p>
+</div>
 
 <div class="section-header"><h2 id="s4">4. 1.4 — Implement multi-step workflows with enforcement and handoff patterns</h2></div>
 
-<p>Certains ordonnancements doivent tenir à chaque fois. Vérifier l'identité du
-client avant de traiter un remboursement ; contrôler les interactions
-médicamenteuses avant de délivrer. Vous pouvez l'écrire dans le system prompt —
-et une instruction de prompt est une demande que le modèle honore généralement.
-La formulation du guide est nette : <strong>quand une conformité déterministe est
-requise, les instructions de prompt seules ont un taux d'échec non nul.</strong> Sur des
-milliers d'interactions, ce reliquat, ce sont des remboursements versés au
-mauvais client.</p>
+<p>Certains ordonnancements dans un workflow doivent tenir à chaque fois qu'il
+s'exécute : vérifier l'identité du client avant de traiter un remboursement ;
+contrôler les interactions médicamenteuses avant de délivrer. Vous pouvez
+l'écrire dans le system prompt, et une instruction de prompt est une demande que
+le modèle honore généralement. La formulation du guide est nette : <strong>quand une
+conformité déterministe est requise, les instructions de prompt seules ont un
+taux d'échec non nul.</strong> Sur des milliers d'interactions, ce reliquat, ce sont
+des remboursements versés au mauvais client.</p>
 <h3>Le gate de prérequis</h3>
 <p>Le <strong>programmatic enforcement</strong> referme cet écart en rendant la violation
 impossible par le code plutôt qu'improbable par la prose. Sa forme concrète est
@@ -471,6 +565,16 @@ un identifiant vérifié. Pas « a peu de chances de » — ne peut pas. La cha�
 raison compte autant que le blocage : le modèle la lit, donc il réessaie la bonne
 chose au lieu de réessayer à l'aveugle. <strong>L'API des hooks elle-même — événements,
 matchers, champs de décision — est en TS 1.5, ci-dessous.</strong></p>
+<div class="key-concept">
+<p><strong>La conformité déterministe est une propriété du code, pas de la formulation.</strong>
+Les mauvaises réponses sont ici le plus souvent de vraies améliorations : une
+consigne plus ferme, des exemples few-shot montrant le bon ordre, un audit qui
+rattrape les violations après coup. Les deux premières abaissent le taux d'échec
+et laissent un reste ; la troisième signale la brèche après l'action qu'elle
+devait empêcher. Quand le scénario nomme une conséquence financière, légale ou
+de sécurité, seul un mécanisme qui rend la violation impossible satisfait
+l'exigence.</p>
+</div>
 <h3>La demande à plusieurs objets</h3>
 <p>Un second pattern de ce task statement est la <strong>demande multi-sujets</strong>. Un client
 écrit : « Je veux un remboursement sur la commande #1234 <em>et</em> l'adresse de
@@ -501,18 +605,20 @@ Le résumé doit donc se tenir seul :</p>
 guide nomme. Un handoff qui suppose que l'humain lira la conversation est un
 handoff raté.</p>
 <div class="anti-pattern">
-<p>Les distracteurs des questions d'enforcement sont les mesures qui font réellement
-baisser le taux d'échec sans jamais atteindre zéro :</p>
+<p>Les distracteurs des questions d'enforcement sont les mesures qui font
+réellement baisser le taux d'échec sans jamais atteindre zéro :</p>
 <ul>
-<li>Renforcer le system prompt — « la vérification est obligatoire ».</li>
-<li>Ajouter des few-shot examples montrant l'outil de vérification appelé en premier.</li>
+<li>Renforcer le system prompt pour y dire « la vérification est obligatoire ».</li>
+<li>Ajouter des few-shot examples montrant l'outil de vérification appelé en
+premier.</li>
 <li>Auditer les transactions après coup pour repérer les violations.</li>
 <li>Déployer un classifieur de routage qui n'active que le sous-ensemble d'outils
 pertinent.</li>
 </ul>
 <p>Les trois premiers font baisser le taux ; la question demandait une garantie, et
 un audit trouve la violation une fois l'argent parti. Le quatrième traite les
-outils <em>disponibles</em>, pas l'ordre dans lequel ils sont appelés — un autre problème.</p>
+outils <em>disponibles</em>, pas l'ordre dans lequel ils sont appelés, ce qui est un
+autre problème.</p>
 </div>
 <div class="exam-tip">
 <p>La règle à emporter : <strong>conséquences financières, légales ou de sécurité →
@@ -523,7 +629,31 @@ irréversible, aucune dose de prompt engineering n'est la réponse.</p>
 <p><strong>Quand escalader — les critères, le respect d'une préférence explicite du
 client, la détection d'un trou dans la politique — relève de la décision
 d'escalade, développée en D5.2.</strong></p>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.4&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d1-q1" data-domain="D1" data-task="1.4">
+<summary>Q1 A dose released before the interaction check</summary>
+<div>
+<p><strong>Scenario:</strong> A pharmacy agent fills prescription requests through MCP tools (<code>check_interactions</code>, <code>dispense</code>, <code>page_pharmacist</code>). Reviewers pulled last month's transcripts and found doses released to patients whose interaction check never ran: in those requests the agent took the allergy list pasted into the ticket at face value and went straight to <code>dispense</code>.</p>
+<p><strong>Question:</strong> Which change makes the skipped check impossible?</p>
+<p data-opt="a">A) Have the agent write out the sequence it intends to follow before its first call, so a skipped step shows up in the transcript.</p>
+<p data-opt="b">B) Cache interaction results per patient so the check costs almost nothing and the agent has no reason to route around it.</p>
+<p data-opt="c">C) Refuse <code>dispense</code> in code until <code>check_interactions</code> has returned for that patient.</p>
+<p data-opt="d">D) Add a hook that rejects malformed prescription identifiers before the outgoing call leaves the agent.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: refuse the downstream call in code until the upstream check has returned</p>
+<p><strong>Why:</strong> an ordering that guards a patient-safety boundary needs a guarantee, not a tendency. A prerequisite evaluated in code cannot be argued out of by a convincing-looking allergy list sitting in the ticket.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">A stated plan is still the model's own output, nothing holds it to what it wrote, and the transcript gets read after the dose is out.</li>
+<li data-opt="b">Cost was never the obstacle — the agent skipped a step it believed it already had the answer to.</li>
+<li data-opt="d">Enforces a property of the arguments, not the fact that anything ran first. A well-formed identifier says nothing about the check.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.4">Toutes les questions de la banque sur 1.4</a></p>
+</div>
 
 <div class="section-header"><h2 id="s5">5. 1.5 — Apply Agent SDK hooks for tool call interception and data normalization</h2></div>
 
@@ -629,12 +759,13 @@ niveau plus bas :</p>
 </div>
 <div class="anti-pattern">
 <p>Recourir à <code>PostToolUse</code> pour empêcher quelque chose. Il se déclenche après
-l'exécution de l'outil — le remboursement est versé, les lignes sont supprimées.
-Bloquer, c'est <code>PreToolUse</code>.</p>
+l'exécution de l'outil, quand le remboursement est déjà versé et les lignes
+déjà supprimées. Bloquer, c'est <code>PreToolUse</code>.</p>
 <p>L'erreur miroir est un blocage <code>PreToolUse</code> employé pour corriger un problème de
 <em>lecture</em>. Si un outil renvoie un champ surchargé que le modèle interprète mal,
 bloquer l'appel en aval supprime aussi les appels corrects ; le correctif est de
-réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le modèle.</p>
+réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le
+modèle.</p>
 </div>
 <div class="exam-tip">
 <p>Deux questions séparent proprement les deux hooks. <em>Faut-il que quelque chose
@@ -644,7 +775,52 @@ mécanisme au mauvais endroit de la boucle.</p>
 </div>
 <p><strong>Les hooks de Claude Code au niveau configuration, déclarés dans les settings
 plutôt que dans du code SDK, sont développés au domaine 3.</strong></p>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.5&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d1-q6" data-domain="D1" data-task="1.5">
+<summary>Q6 Five hundred rows, and then a signature</summary>
+<div>
+<p><strong>Scenario:</strong> A retention agent trims expired records through <code>purge_records</code>. Policy lets it delete up to 500 rows in one call; a larger purge needs a data steward's sign-off. The rule is written in the system prompt, and last week a single call removed 40,000 rows from an audit table.</p>
+<p><strong>Question:</strong> What makes the ceiling hold?</p>
+<p data-opt="a">A) Give the agent a <code>request_signoff</code> tool, with a description telling it when a purge has grown too large to run alone.</p>
+<p data-opt="b">B) A hook that blocks the outgoing call when the row count passes the ceiling.</p>
+<p data-opt="c">C) State the ceiling in the tool's own description, so the limit travels with the tool wherever it is used.</p>
+<p data-opt="d">D) Have the agent announce the row count it is about to delete before it issues the call.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: intercept the outgoing call and stop it above the ceiling</p>
+<p><strong>Why:</strong> a ceiling that must hold every time belongs in code that sees the actual argument. The hook runs before the tool does, so an oversized purge never reaches the database, and a deletion is not something an apology can undo.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Offers a way out that the agent still has to choose, and the incident was precisely a case where it did not.</li>
+<li data-opt="c">Moves the rule closer to the call site without changing its nature: it stays text the model reads, not a condition anything evaluates.</li>
+<li data-opt="d">An announcement is a claim about an intent, made by the same run that is about to ignore it.</li>
+</ul>
+</div>
+</details>
+
+<details id="d1-q8" data-domain="D1" data-task="1.5">
+<summary>Q8 One integer, three meanings</summary>
+<div>
+<p><strong>Scenario:</strong> A storefront agent checks availability through <code>check_stock</code> before it confirms an order through <code>place_order</code>. The <code>available</code> field carries three meanings in one integer: a positive number is units on hand, <code>-1</code> marks an item the supplier ships on request, and <code>0</code> marks a SKU the warehouse does not track. The agent treats anything that is not positive as sold out, and it has spent a month declining orders that could have been filled.</p>
+<p><strong>Question:</strong> Where does the fix belong?</p>
+<p data-opt="a">A) Ask the inventory team to retire the overloaded integer and publish an explicit status field, since one number carrying three meanings will mislead every consumer of that API and not only this agent.</p>
+<p data-opt="b">B) A <code>PreToolUse</code> hook on <code>place_order</code> that blocks the confirmation whenever the availability figure behind it was not positive.</p>
+<p data-opt="c">C) Log every non-positive figure and review the pattern each week.</p>
+<p data-opt="d">D) A hook that rewrites the figure into an explicit state before the model reads the result.</p>
+<hr>
+<p class="correct" data-answer="d">Answer: map the integer onto an explicit state in a hook, before the model reads the result</p>
+<p><strong>Why:</strong> the three readings are a fixed table, so applying them is a transformation and not a judgment call. A <code>PostToolUse</code> hook runs it on every result on the way back, which is the last moment at which the ambiguous integer can be kept out of what the model reads.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">The right thing to fix and the wrong thing to wait for: the field belongs to another team, every existing consumer has to move with it, and orders keep being declined until that lands.</li>
+<li data-opt="b">Hardens the misreading rather than removing it. The confirmations it would block are precisely the ones that should go through, and the agent is still reading the same integer.</li>
+<li data-opt="c">Counts the symptom every week and changes nothing about what the model reads. The mapping is already known, which is what makes measurement the wrong instrument.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.5">Toutes les questions de la banque sur 1.5</a></p>
+</div>
 
 <div class="section-header"><h2 id="s6">6. 1.6 — Design task decomposition strategies for complex workflows</h2></div>
 
@@ -683,19 +859,19 @@ d'avance, parce qu'elles sont précisément ce que vous allez découvrir :</p>
 4. Surprise : une dépendance vers une API externe non mockée
 5. Adapter le plan                    → construire le mock, puis écrire les tests
 </code></pre>
-<p>Cartographier la structure, identifier les zones à fort impact, produire un plan
-priorisé qui s'adapte à mesure que les dépendances apparaissent — c'est la
-formulation du guide, et l'étape 4 est tout l'enjeu : le plan a changé à cause de
-ce que l'étape 1 a trouvé.</p>
+<p>La formulation du guide est : cartographier la structure, identifier les zones à
+fort impact, produire un plan priorisé qui s'adapte à mesure que les dépendances
+apparaissent. L'étape 4 est tout l'enjeu : le plan a changé à cause de ce que
+l'étape 1 a trouvé.</p>
 <div class="anti-pattern">
 <p>Trois mauvais appariements, et ce sont exactement les distracteurs :</p>
 <ul>
-<li>Un <strong>pipeline fixe sur un périmètre inconnu</strong> — il exige la liste des étapes
-avant de commencer, ce qui est précisément ce dont vous ne disposez pas.</li>
-<li>Une <strong>revue multi-passes proposée pour une investigation ouverte</strong> — elle est
-conçue pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.</li>
-<li>Un <strong>prompt exhaustif unique</strong> censé tout couvrir d'un coup — il suppose que
-vous connaissez déjà le périmètre.</li>
+<li>Un <strong>pipeline fixe sur un périmètre inconnu</strong> exige la liste des étapes avant
+de commencer, ce qui est précisément ce dont vous ne disposez pas.</li>
+<li>Une <strong>revue multi-passes proposée pour une investigation ouverte</strong> est conçue
+pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.</li>
+<li>Un <strong>prompt exhaustif unique</strong> censé tout couvrir d'un coup suppose que vous
+connaissez déjà le périmètre.</li>
 </ul>
 <p>Et le quatrième, plus discret : la décomposition adaptative sur des cibles
 figées. Elle n'apporte rien dès lors que les cibles ne varient jamais, et elle
@@ -707,7 +883,31 @@ avant le premier appel ?</strong> Oui → prompt chaining. Non → décompositio
 Des formules comme « les mêmes six adaptateurs, chaque trimestre » pointent d'un
 côté ; « personne ne sait combien d'étages il comporte » pointe de l'autre.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.6&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d1-q3" data-domain="D1" data-task="1.6">
+<summary>Q3 Two backlog items, two decomposition strategies</summary>
+<div>
+<p><strong>Scenario:</strong> Each quarter you audit the same six connector adapters against the same three concerns: retry policy, secret handling, schema versioning. Separately, you must make an undocumented ingestion pipeline observable; nobody knows how many stages it has or which already emit metrics.</p>
+<p><strong>Question:</strong> Which strategy fits each item?</p>
+<p data-opt="a">A) Prompt chaining for the audit, dynamic adaptive decomposition for the observability work.</p>
+<p data-opt="b">B) Dynamic adaptive decomposition for the audit, prompt chaining for the observability work.</p>
+<p data-opt="c">C) Prompt chaining for both, because a fixed pipeline is always more reproducible.</p>
+<p data-opt="d">D) Dynamic adaptive decomposition for both, because letting the model replan is always safer.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: prompt chaining for the audit, adaptive decomposition for the pipeline</p>
+<p><strong>Why:</strong> the criterion is whether the scope is known before you start. The audit repeats a fixed set of targets, so a chained sequence of focused passes gives even depth and comparable results. The observability work is open-ended: each stage you uncover changes what to look at next.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">Inverts the criterion: the fixed sequence lands on the item whose steps nobody knows, the adaptive one on the item that never varies.</li>
+<li data-opt="c">A fixed pipeline presupposes knowing the stages and their order, precisely the unknown here.</li>
+<li data-opt="d">Adaptivity buys nothing once targets are frozen, and it makes successive audits harder to compare.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=1.6">Toutes les questions de la banque sur 1.6</a></p>
+</div>
 
 <div class="section-header"><h2 id="s7">7. 1.7 — Manage session state, resumption, and forking</h2></div>
 
@@ -753,10 +953,10 @@ async for message in query(
 </code></pre>
 <h3>Deux faits sur le fork</h3>
 <p>Deux faits sur le fork sur lesquels les questions se jouent. Il se combine
-toujours à la reprise — on forke <em>une session existante</em>, jamais à partir de
-rien. Et il branche l'<strong>historique de conversation, pas le système de fichiers</strong> :
-deux agents forkés qui modifient des fichiers dans le même répertoire modifient
-les mêmes fichiers.</p>
+toujours à la reprise, puisqu'on forke <em>une session existante</em>, jamais à partir
+de rien. Et il branche l'<strong>historique de conversation, pas le système de
+fichiers</strong> : deux agents forkés qui modifient des fichiers dans le même
+répertoire modifient les mêmes fichiers.</p>
 <h3>Choisir entre les trois</h3>
 <p>Choisir entre les trois est la compétence que le guide teste :</p>
 <table>
@@ -792,11 +992,22 @@ Une session reprise transporte des réponses enregistrées qui décrivent un sys
 qui n'existe plus, et l'agent raisonne dessus comme si elles étaient à jour. Un
 résumé écrit emporte les conclusions qui ont survécu et laisse derrière les
 payloads morts.</p>
+<div class="key-concept">
+<p><strong>Une session est un relevé de ce qui a été lu, pas l'état de ce qui est sur le
+disque.</strong> Chacun des trois choix se joue sur ce qui reste vrai de ce relevé. La
+reprise convient tant que le relevé est <em>en grande partie</em> valide, et c'est le
+fait de nommer les fichiers qui ont changé qui la rend ciblée plutôt que
+hasardeuse. Un fork branche l'historique de conversation et non le système de
+fichiers, et c'est pourquoi il compare deux approches et jamais deux versions
+d'un fichier. Une session neuve accompagnée d'un résumé écrit garde vos
+conclusions et laisse derrière elle les lectures périmées.</p>
+</div>
 <div class="anti-pattern">
-<p>Trois gestes que les distracteurs proposent à la place des trois réponses ci-dessus :</p>
+<p>Trois gestes que les distracteurs proposent à la place des trois réponses
+ci-dessus :</p>
 <ul>
 <li><strong>Reprendre sans dire ce qui a changé.</strong> L'agent garde une image fausse des
-fichiers et raisonne sur des résultats d'outils morts — précisément l'échec que
+fichiers et raisonne sur des résultats d'outils morts, précisément l'échec que
 la reprise devait éviter.</li>
 <li><strong>Tout ré-explorer de zéro</strong> alors que seuls trois fichiers ont bougé. C'est
 jeter du travail encore valide.</li>
@@ -813,96 +1024,11 @@ approches à comparer → <code>fork_session</code>. Notez aussi que le guide é
 le concept — reprendre une investigation <em>nommée</em> à travers plusieurs sessions de
 travail — qui est testé, pas la syntaxe.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;1.7&quot;</code>.</p>
 
-<div class="section-header"><h2 id="s8" class="page-break">8. Questions d'auto-évaluation</h2></div>
-
-<details id="d1-q1" data-domain="D1" data-task="1.4">
-<summary>Q1 (D1) — A dose released before the interaction check</summary>
-<div>
-<p><strong>Scenario:</strong> A pharmacy agent fills prescription requests through MCP tools (<code>check_interactions</code>, <code>dispense</code>, <code>page_pharmacist</code>). Reviewers pulled last month's transcripts and found doses released to patients whose interaction check never ran: in those requests the agent took the allergy list pasted into the ticket at face value and went straight to <code>dispense</code>.</p>
-<p><strong>Question:</strong> Which change makes the skipped check impossible?</p>
-<p data-opt="a">A) Have the agent write out the sequence it intends to follow before its first call, so a skipped step shows up in the transcript.</p>
-<p data-opt="b">B) Cache interaction results per patient so the check costs almost nothing and the agent has no reason to route around it.</p>
-<p data-opt="c">C) Refuse <code>dispense</code> in code until <code>check_interactions</code> has returned for that patient.</p>
-<p data-opt="d">D) Add a hook that rejects malformed prescription identifiers before the outgoing call leaves the agent.</p>
-<hr>
-<p class="correct" data-answer="c">Answer: refuse the downstream call in code until the upstream check has returned</p>
-<p><strong>Why:</strong> an ordering that guards a patient-safety boundary needs a guarantee, not a tendency. A prerequisite evaluated in code cannot be argued out of by a convincing-looking allergy list sitting in the ticket.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">A stated plan is still the model's own output, nothing holds it to what it wrote, and the transcript gets read after the dose is out.</li>
-<li data-opt="b">Cost was never the obstacle — the agent skipped a step it believed it already had the answer to.</li>
-<li data-opt="d">Enforces a property of the arguments, not the fact that anything ran first. A well-formed identifier says nothing about the check.</li>
-</ul>
-</div>
-</details>
-
-<details id="d1-q2" data-domain="D1" data-task="1.2">
-<summary>Q2 (D1) — Forty pages about one of five areas</summary>
-<div>
-<p><strong>Scenario:</strong> A coordinator was asked for a pre-launch risk brief on a payments feature. The request names five areas to cover: regulatory exposure, fraud, support load, vendor dependencies, data residency. It mentions chargebacks once, as an example under fraud. Six workers ran over two rounds and each returned a well-formed section; the brief that came back is forty pages, all of them about chargebacks. The coordinator's plan is still in the log, and it opens by restating the job as chargeback exposure.</p>
-<p><strong>Question:</strong> Which change keeps this from recurring?</p>
-<p data-opt="a">A) Gate the delivery step: hold the brief back until every area named in the request has a section of its own, and send the job round again whenever one of them is missing.</p>
-<p data-opt="b">B) Split the work into five independent runs, one per area, and have the requester stitch the five briefs together afterwards.</p>
-<p data-opt="c">C) Have the coordinator derive one assignment per area named in the request, before it delegates.</p>
-<p data-opt="d">D) Raise the worker count so each round covers more ground.</p>
-<hr>
-<p class="correct" data-answer="c">Answer: derive the assignments from the areas the request names, ahead of any delegation</p>
-<p><strong>Why:</strong> the plan in the log names the defect — a five-part request became a one-part job before any worker started. Coverage that was never assigned cannot be recovered by anything downstream, so the fix has to sit ahead of the delegation.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">The gate proves the brief incomplete only once six workers have been paid for, and it hands the job back to the same planning step that read five areas as one — so the next round can return just as narrow.</li>
-<li data-opt="b">Guarantees the coverage by removing the coordinator from the job. Whatever sits across two areas is lost, and the requester now does the merging on every request.</li>
-<li data-opt="d">Capacity was never the constraint. Six workers already produced forty pages; more of them widen nothing while every assignment points at the same area.</li>
-</ul>
-</div>
-</details>
-
-<details id="d1-q3" data-domain="D1" data-task="1.6">
-<summary>Q3 (D1) — Two backlog items, two decomposition strategies</summary>
-<div>
-<p><strong>Scenario:</strong> Each quarter you audit the same six connector adapters against the same three concerns: retry policy, secret handling, schema versioning. Separately, you must make an undocumented ingestion pipeline observable; nobody knows how many stages it has or which already emit metrics.</p>
-<p><strong>Question:</strong> Which strategy fits each item?</p>
-<p data-opt="a">A) Prompt chaining for the audit, dynamic adaptive decomposition for the observability work.</p>
-<p data-opt="b">B) Dynamic adaptive decomposition for the audit, prompt chaining for the observability work.</p>
-<p data-opt="c">C) Prompt chaining for both, because a fixed pipeline is always more reproducible.</p>
-<p data-opt="d">D) Dynamic adaptive decomposition for both, because letting the model replan is always safer.</p>
-<hr>
-<p class="correct" data-answer="a">Answer: prompt chaining for the audit, adaptive decomposition for the pipeline</p>
-<p><strong>Why:</strong> the criterion is whether the scope is known before you start. The audit repeats a fixed set of targets, so a chained sequence of focused passes gives even depth and comparable results. The observability work is open-ended: each stage you uncover changes what to look at next.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">Inverts the criterion: the fixed sequence lands on the item whose steps nobody knows, the adaptive one on the item that never varies.</li>
-<li data-opt="c">A fixed pipeline presupposes knowing the stages and their order, precisely the unknown here.</li>
-<li data-opt="d">Adaptivity buys nothing once targets are frozen, and it makes successive audits harder to compare.</li>
-</ul>
-</div>
-</details>
-
-<details id="d1-q4" data-domain="D1" data-task="1.1">
-<summary>Q4 (D1) — Who decides the next tool call</summary>
-<div>
-<p><strong>Scenario:</strong> A migration agent needs to run <code>read_schema</code>, then <code>plan_changes</code>, then <code>apply_migration</code> for each table. To keep the process predictable, the orchestrator pre-computes this exact call sequence before the first request and feeds each tool result into the next hardcoded step, never letting the model's own response decide what happens next. When a table turns out to need an extra validation step the sequence doesn't account for, the agent has no way to trigger it.</p>
-<p><strong>Question:</strong> What should change about how the loop is driven?</p>
-<p data-opt="a">A) Keep the fixed sequence, but add a fourth hardcoded step for validation, since the gap that appeared today is now a known case.</p>
-<p data-opt="b">B) Let the model choose the next action each turn from the latest <code>tool_result</code>, and stop when it stops requesting tools.</p>
-<p data-opt="c">C) Run all three tools on every turn regardless of need, so the missing step is always covered and no table can slip through, accepting the wasted work as the price of completeness.</p>
-<p data-opt="d">D) Keep the fixed sequence, but let the orchestrator retry a failed step before moving to the next one.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: hand control back to the model, turn by turn</p>
-<p><strong>Why:</strong> a sequence fixed in advance by the orchestrator is a hardcoded decision tree — it can only be as flexible as whoever wrote it anticipated. An agentic loop is model-driven: the model reads each tool result and decides the next action itself, the loop continues for as long as it keeps requesting tools, and it ends when the model signals it is done. That is what lets it insert a step nobody hardcoded.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Fixes this one gap but leaves the orchestrator guessing every future case in advance — the same limitation returns with the next table that needs something different.</li>
-<li data-opt="c">Running every tool regardless of need does not add judgment, it just hides the missing decision behind unconditional execution — and the completeness it buys is an illusion, since it still only covers steps that were written down.</li>
-<li data-opt="d">A retry addresses a step failing, not a step nobody planned for.</li>
-</ul>
-</div>
-</details>
-
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
 <details id="d1-q5" data-domain="D1" data-task="1.7">
-<summary>Q5 (D1) — The vendor retired the version you probed</summary>
+<summary>Q5 The vendor retired the version you probed</summary>
 <div>
 <p><strong>Scenario:</strong> A session named <code>fx-integration</code> spent a long afternoon probing a currency vendor's sandbox: sample payloads, error shapes, throttling behavior. The vendor has since shipped v3 and retired v2, so every recorded response describes an endpoint that now answers 410. What that session concluded about the vendor's pagination model and its throttling window still holds.</p>
 <p><strong>Question:</strong> How do you take the integration work forward?</p>
@@ -921,70 +1047,10 @@ travail — qui est testé, pas la syntaxe.</p>
 </ul>
 </div>
 </details>
-
-<details id="d1-q6" data-domain="D1" data-task="1.5">
-<summary>Q6 (D1) — Five hundred rows, and then a signature</summary>
-<div>
-<p><strong>Scenario:</strong> A retention agent trims expired records through <code>purge_records</code>. Policy lets it delete up to 500 rows in one call; a larger purge needs a data steward's sign-off. The rule is written in the system prompt, and last week a single call removed 40,000 rows from an audit table.</p>
-<p><strong>Question:</strong> What makes the ceiling hold?</p>
-<p data-opt="a">A) Give the agent a <code>request_signoff</code> tool, with a description telling it when a purge has grown too large to run alone.</p>
-<p data-opt="b">B) A hook that blocks the outgoing call when the row count passes the ceiling.</p>
-<p data-opt="c">C) State the ceiling in the tool's own description, so the limit travels with the tool wherever it is used.</p>
-<p data-opt="d">D) Have the agent announce the row count it is about to delete before it issues the call.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: intercept the outgoing call and stop it above the ceiling</p>
-<p><strong>Why:</strong> a ceiling that must hold every time belongs in code that sees the actual argument. The hook runs before the tool does, so an oversized purge never reaches the database, and a deletion is not something an apology can undo.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Offers a way out that the agent still has to choose, and the incident was precisely a case where it did not.</li>
-<li data-opt="c">Moves the rule closer to the call site without changing its nature: it stays text the model reads, not a condition anything evaluates.</li>
-<li data-opt="d">An announcement is a claim about an intent, made by the same run that is about to ignore it.</li>
-</ul>
+<p class="to-test"><a href="Practice_Questions.html?task=1.7">Toutes les questions de la banque sur 1.7</a></p>
 </div>
-</details>
 
-<details id="d1-q7" data-domain="D1" data-task="1.3">
-<summary>Q7 (D1) — Delegating a contract review <strong>(Select the 2 correct answers.)</strong></summary>
-<div>
-<p><strong>Scenario:</strong> A coordinator has a clause-extraction subagent read two vendor contracts while a pricing subagent prepares a quote, and both outputs must land in one report.</p>
-<p><strong>Question:</strong> Which two moves are correct?</p>
-<p data-opt="a">A) Put the contract text, the clause types wanted, and the output schema into the delegation prompt itself.</p>
-<p data-opt="b">B) Emit both delegations in one coordinator response so the subagents run at the same time.</p>
-<p data-opt="c">C) Count on each subagent inheriting the coordinator's conversation history.</p>
-<p data-opt="d">D) Let the clause subagent hand its output straight to the pricing subagent, saving a hop.</p>
-<p data-opt="e">E) Give both subagents the coordinator's whole tool set so neither is ever blocked.</p>
-<hr>
-<p class="correct" data-answer="a b">Answers: carry the needed context in the delegation prompt, and issue both delegations in one response</p>
-<p><strong>Why:</strong> a subagent starts from an isolated context, so whatever it needs — source text, target clause types, output shape — travels in the prompt. Parallelism comes from several delegations inside one coordinator response; spread over consecutive turns they just run one after another.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="c">Nothing is inherited: an isolated context is the defining property of a subagent.</li>
-<li data-opt="d">Every exchange goes through the hub, which keeps the run observable and error handling uniform.</li>
-<li data-opt="e">A wider tool set degrades selection reliability; each spoke gets only the tools its role needs.</li>
-</ul>
-</div>
-</details>
-
-<details id="d1-q8" data-domain="D1" data-task="1.5">
-<summary>Q8 (D1) — One integer, three meanings</summary>
-<div>
-<p><strong>Scenario:</strong> A storefront agent checks availability through <code>check_stock</code> before it confirms an order through <code>place_order</code>. The <code>available</code> field carries three meanings in one integer: a positive number is units on hand, <code>-1</code> marks an item the supplier ships on request, and <code>0</code> marks a SKU the warehouse does not track. The agent treats anything that is not positive as sold out, and it has spent a month declining orders that could have been filled.</p>
-<p><strong>Question:</strong> Where does the fix belong?</p>
-<p data-opt="a">A) Ask the inventory team to retire the overloaded integer and publish an explicit status field, since one number carrying three meanings will mislead every consumer of that API and not only this agent.</p>
-<p data-opt="b">B) A <code>PreToolUse</code> hook on <code>place_order</code> that blocks the confirmation whenever the availability figure behind it was not positive.</p>
-<p data-opt="c">C) Log every non-positive figure and review the pattern each week.</p>
-<p data-opt="d">D) A hook that rewrites the figure into an explicit state before the model reads the result.</p>
-<hr>
-<p class="correct" data-answer="d">Answer: map the integer onto an explicit state in a hook, before the model reads the result</p>
-<p><strong>Why:</strong> the three readings are a fixed table, so applying them is a transformation and not a judgment call. A <code>PostToolUse</code> hook runs it on every result on the way back, which is the last moment at which the ambiguous integer can be kept out of what the model reads.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">The right thing to fix and the wrong thing to wait for: the field belongs to another team, every existing consumer has to move with it, and orders keep being declined until that lands.</li>
-<li data-opt="b">Hardens the misreading rather than removing it. The confirmations it would block are precisely the ones that should go through, and the agent is still reading the same integer.</li>
-<li data-opt="c">Counts the symptom every week and changes nothing about what the model reads. The mapping is already known, which is what makes measurement the wrong instrument.</li>
-</ul>
-</div>
-</details>
+</main>
 
 <nav class="doc-nav">
   <a class="prev" href="D0_API_Fundamentals.html"><span class="label">Précédent</span><span class="title">D0 — Fondamentaux de l'API</span></a>

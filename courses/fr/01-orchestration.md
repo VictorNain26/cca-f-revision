@@ -6,6 +6,8 @@ Le domaine le plus lourd de l'examen : sept task statements, 27 % de la note. Un
 section par task statement, dans l'ordre du guide et sous le libellé du guide —
 pour qu'une question repérée le jour J renvoie ici sans traduction.
 
+<!-- cross-refs:start -->
+
 D0 est supposé acquis. Ce cours commence là où D0 s'arrête : D0 a nommé
 `stop_reason` et dit ce que vaut chaque valeur ; D1 transforme cette vérification
 en boucle, puis en système d'agents autour d'elle.
@@ -15,6 +17,8 @@ Le guide place les notions voisines ailleurs, et ce cours le respecte.
 d'erreur structurées en TS 2.2 et TS 5.3 ; les fichiers `.claude/agents/` et la
 commande `/agents` relèvent de la configuration Claude Code, testée au domaine 3.
 Chacune reçoit ici une phrase et un renvoi, jamais un second développement.
+
+<!-- cross-refs:end -->
 
 ## 1.1 — Design and implement agentic loops for autonomous task execution
 <!-- ts:1.1 | src:08agentsdk L2 (the five-step cycle, the stop_reason table, several tool_use blocks in one reply and their results returned in one user message, the three named anti-patterns, model-driven vs pre-configured decision tree), L3 (maxTurns and maxBudgetUsd as bounds) ; exam guide TS 1.1 -->
@@ -75,11 +79,11 @@ la même question.
 
 ### Plusieurs appels dans une même réponse
 
-Une même réponse peut aussi porter **plusieurs** blocs `tool_use` — deux
-recherches que le modèle veut mener ensemble, par exemple. Exécutez-les toutes,
-puis renvoyez chaque `tool_result` dans un *seul* message `user`, un bloc par
-appel. C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à
-la fois, développé en 1.3.
+Une même réponse peut aussi porter **plusieurs** blocs `tool_use`, par exemple
+deux recherches que le modèle veut mener ensemble. Exécutez-les toutes, puis
+renvoyez chaque `tool_result` dans un *seul* message `user`, un bloc par appel.
+C'est le mécanisme par lequel un coordinateur lance plusieurs subagents à la
+fois, développé en 1.3.
 
 ::: key-concept
 La boucle est **model-driven** : Claude lit le contexte accumulé et décide quel
@@ -97,10 +101,11 @@ distracteurs de ce task statement :
 
 - **Parser le texte de l'assistant** à la recherche de « task completed » ou
   « I'm done ». Le langage naturel n'est pas un signal ; Claude peut écrire
-  « done » alors qu'un bloc `tool_use` est encore en attente dans la même réponse.
+  « done » alors qu'un bloc `tool_use` est encore en attente dans la même
+  réponse.
 - **Utiliser un plafond d'itérations arbitraire** (`max_iterations = 5`) comme
   mécanisme d'arrêt principal. Un plafond est un garde-fou contre un agent qui
-  s'emballe, pas un constat sur l'achèvement du travail — il interrompt des
+  s'emballe, pas un constat sur l'achèvement du travail, et il interrompt des
   exécutions légitimes.
 - **Vérifier la présence de texte** comme indicateur de complétion. Texte et
   `tool_use` voyagent dans la même réponse ; la présence de l'un ne dit rien de
@@ -129,12 +134,13 @@ anti-patterns ci-dessus, déguisé.
 ## 1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns
 <!-- ts:1.2 | src:08agentsdk L4 (hub-and-spoke as a design choice, the coordinator's role, the narrow-decomposition risk), L14 (iterative refinement, scope partitioning, local recovery before propagation) ; 03subagents L1 (context isolation, the summary that comes back), L4 (the decision rule: does the intermediate work matter to the caller) ; exam guide TS 1.2 -->
 
-Avant l'architecture, la décision. Un subagent tourne dans sa propre fenêtre de
-contexte, fait son travail et ne renvoie qu'un résumé ; les lectures, recherches
-et appels d'outils intermédiaires sont jetés avec lui. Ce compromis tient en une
-question : **le travail intermédiaire intéresse-t-il l'appelant ?** Si seule la
-réponse compte, déléguez. S'il faut voir et réagir à chaque étape, gardez la main
-dans le thread principal.
+Déléguer à un subagent est une décision qui vient avant toute architecture. Un
+subagent tourne dans sa propre fenêtre de contexte, fait son travail et ne
+renvoie qu'un résumé ; les lectures, recherches et appels d'outils
+intermédiaires sont jetés avec lui. Ce compromis tient en une question : **le
+travail intermédiaire intéresse-t-il l'appelant ?** Si seule la réponse compte,
+déléguez. S'il faut voir et réagir à chaque étape, gardez la main dans le thread
+principal.
 
 ### La forme hub-and-spoke
 
@@ -187,20 +193,22 @@ que le guide nomme contre une couverture incomplète.
 
 ::: key-concept
 Les subagents démarrent d'un **contexte isolé** : ils n'héritent pas de
-l'historique de conversation du coordinateur et ne partagent aucune mémoire d'une
-invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt que le
-hub écrit pour lui — la mécanique est en TS 1.3, ci-dessous.
+l'historique de conversation du coordinateur et ne partagent aucune mémoire
+d'une invocation à l'autre. Tout ce dont un spoke a besoin voyage dans le prompt
+que le hub écrit pour lui, et la mécanique de ce passage est en TS 1.3,
+ci-dessous.
 :::
 
 ### Une décomposition trop étroite
 
 Le risque que le guide nomme explicitement est une **décomposition trop étroite
-par le coordinateur**. Chargé d'un rapport sur « AI impact on creative
-industries », un coordinateur le découpe en « AI in digital art », « AI in
-graphic design » et « AI in photography ». Chaque subagent exécute correctement
-son brief. Le rapport ne couvre que l'art visuel ; la musique, la littérature et
-le cinéma sont simplement absents. Rien n'a échoué en aval — l'assignation était
-déjà incomplète.
+par le coordinateur**, et il se voit dans le rapport plutôt que dans les
+journaux. Un coordinateur à qui l'on demande un panorama de l'IA générative dans
+les industries créatives assigne « l'IA dans l'art visuel », « l'IA dans la
+génération d'images », « l'IA en photographie ». Chaque subagent exécute
+correctement sa consigne. Le rapport ne couvre que l'art visuel ; la musique, la
+littérature et le cinéma sont simplement absents. Rien n'a échoué en aval.
+L'assignation était déjà incomplète.
 
 ::: exam-tip
 Quand chaque subagent a fait ce qu'on lui demandait et que le rapport final rate
@@ -241,11 +249,12 @@ structurées, développée en D2.2.**
 <!-- ts:1.3 | src:08agentsdk L2 (parallel spawning: several calls emitted in one response, not one per turn), L4 (the receives/does-not-receive table, what it implies for context passing and attribution metadata), L5 (AgentDefinition fields, the tool-restriction table, Agent in allowedTools for auto-approval), L13 (default permission mode: without a canUseTool callback an unapproved call is refused), L15 §1 (the Task → Agent rename, and what the exam expects) ; 03subagents L2 (the config fields), L3 (the description's double role, output format as a stopping point, limiting tool access) ; exam guide TS 1.3 -->
 <!-- owns:subagent-isolation -->
 
-Le mécanisme est un outil. Un coordinateur lance un subagent en appelant
-l'**outil `Task`**, et son `allowedTools` doit inclure `"Task"` pour que ces
-invocations soient auto-approuvées. Omettez-le et l'appel retombe dans le flux de
-permission : en mode par défaut, sans callback `canUseTool` pour y répondre, il
-est refusé. Le coordinateur ne délègue pas, quoi que dise son prompt.
+Le mécanisme de lancement est un outil : un coordinateur lance un subagent en
+appelant l'**outil `Task`**, et son `allowedTools` doit inclure `"Task"` pour
+que ces invocations soient auto-approuvées. Omettez-le et l'appel retombe dans
+le flux de permission : en mode par défaut, sans callback `canUseTool` pour y
+répondre, il est refusé. Le coordinateur ne délègue pas, quoi que dise son
+prompt.
 
 ::: exam-tip
 Les versions récentes du SDK ont renommé cet outil de `Task` en `Agent`, et le
@@ -267,9 +276,9 @@ ce domaine :
 | Ses définitions d'outils — héritées, ou le sous-ensemble qu'on lui a donné | Le moindre souvenir d'une invocation précédente de lui-même |
 
 La conséquence est décisive : **le seul contenu qui passe du parent au subagent
-est la chaîne de prompt de l'appel qui le lance.** Chemins de fichiers, messages
-d'erreur, résultats de recherche antérieurs, décisions déjà prises — s'ils ne
-sont pas dans cette chaîne, le subagent ne les a pas.
+est la chaîne de prompt de l'appel qui le lance.** Si les chemins de fichiers,
+les messages d'erreur, les résultats de recherche antérieurs ou les décisions
+déjà prises ne sont pas dans cette chaîne, le subagent ne les a pas.
 
 ```text
 Mauvais  Task: « Analyse le document. »
@@ -285,10 +294,19 @@ Bon      Task: « Analyse le document ci-dessous et renvoie le tableau des claus
 ```
 
 Notez ce que la bonne version fait au-delà d'être longue. Elle emploie un
-**format structuré qui sépare le contenu des métadonnées** — URL source, nom du
-document, numéro de page, date de collecte vivent dans leurs propres champs, pas
-fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport final,
-et le guide le nomme parmi les skills de ce task statement.
+**format structuré qui sépare le contenu des métadonnées**. URL source, nom du
+document, numéro de page et date de collecte vivent dans leurs propres champs,
+pas fondus dans la prose. C'est ce qui préserve l'attribution jusqu'au rapport
+final, et le guide le nomme parmi les skills de ce task statement.
+
+::: key-concept
+**Rien n'est hérité : la chaîne du prompt est tout le canal.** Un subagent qui
+renvoie une réponse maigre ou à côté a été mal briefé, pas sous-doté. Cela trie
+les options d'un seul geste : agrandir sa fenêtre de contexte, lui passer le
+transcript du parent, ou le laisser lire le travail d'un autre subagent traitent
+tous l'isolation comme un défaut à contourner, alors qu'elle est le mécanisme
+lui-même. Tout ce dont le subagent a besoin entre dans le prompt de lancement.
+:::
 
 ### Parallélisme : une réponse, plusieurs appels
 
@@ -351,9 +369,9 @@ second est le quatrième skill que le guide liste sous ce task statement :
 
 ### Restreindre les outils d'un subagent
 
-Les restrictions d'outils relèvent aussi d'ici — le guide les liste parmi les
-connaissances de ce task statement. Un subagent de recherche en lecture seule
-reçoit `Read`, `Grep`, `Glob` ; un relecteur y ajoute `Bash` pour lancer
+Les restrictions d'outils relèvent aussi d'ici, puisque le guide les liste parmi
+les connaissances de ce task statement. Un subagent de recherche en lecture
+seule reçoit `Read`, `Grep`, `Glob` ; un relecteur y ajoute `Bash` pour lancer
 `git diff` ; seul un agent dont le métier est de modifier du code reçoit `Edit`
 et `Write`. Un outil que vous laissez de côté n'est pas du tout dans la session
 du subagent : ni prompt de permission, ni erreur, l'agent travaille simplement
@@ -365,12 +383,14 @@ outils, développée en D2.3.**
 Trois gestes qui ressemblent à des correctifs et n'en sont pas :
 
 - **Agrandir la fenêtre de contexte du subagent** quand il a rendu une réponse
-  maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change rien.
-- **Lancer sur des tours successifs** en appelant cela du parallélisme. Des tours
-  consécutifs, c'est de l'exécution séquentielle avec des allers-retours en plus.
-- **Compter sur l'héritage** — « le subagent verra ce que le coordinateur a
-  trouvé ». L'isolation est la propriété qui définit un subagent, pas une
-  limitation à contourner.
+  maigre. On ne lui a rien transmis ; la taille d'une fenêtre vide n'y change
+  rien.
+- **Lancer sur des tours successifs** en appelant cela du parallélisme. Des
+  tours consécutifs, c'est de l'exécution séquentielle avec des allers-retours
+  en plus.
+- **Compter sur l'héritage**, sur l'idée que « le subagent verra ce que le
+  coordinateur a trouvé ». L'isolation est la propriété qui définit un subagent,
+  pas une limitation à contourner.
 :::
 
 **Forker une session pour donner à deux subagents une base d'analyse commune
@@ -384,14 +404,14 @@ domaine 3.**
 ## 1.4 — Implement multi-step workflows with enforcement and handoff patterns
 <!-- ts:1.4 | src:08agentsdk L10 (why a hook rather than an instruction, the get_customer / process_refund gate), L14 (structured human handoff, decomposing a multi-concern request) ; exam guide TS 1.4 -->
 
-Certains ordonnancements doivent tenir à chaque fois. Vérifier l'identité du
-client avant de traiter un remboursement ; contrôler les interactions
-médicamenteuses avant de délivrer. Vous pouvez l'écrire dans le system prompt —
-et une instruction de prompt est une demande que le modèle honore généralement.
-La formulation du guide est nette : **quand une conformité déterministe est
-requise, les instructions de prompt seules ont un taux d'échec non nul.** Sur des
-milliers d'interactions, ce reliquat, ce sont des remboursements versés au
-mauvais client.
+Certains ordonnancements dans un workflow doivent tenir à chaque fois qu'il
+s'exécute : vérifier l'identité du client avant de traiter un remboursement ;
+contrôler les interactions médicamenteuses avant de délivrer. Vous pouvez
+l'écrire dans le system prompt, et une instruction de prompt est une demande que
+le modèle honore généralement. La formulation du guide est nette : **quand une
+conformité déterministe est requise, les instructions de prompt seules ont un
+taux d'échec non nul.** Sur des milliers d'interactions, ce reliquat, ce sont
+des remboursements versés au mauvais client.
 
 ### Le gate de prérequis
 
@@ -420,6 +440,17 @@ un identifiant vérifié. Pas « a peu de chances de » — ne peut pas. La cha�
 raison compte autant que le blocage : le modèle la lit, donc il réessaie la bonne
 chose au lieu de réessayer à l'aveugle. **L'API des hooks elle-même — événements,
 matchers, champs de décision — est en TS 1.5, ci-dessous.**
+
+::: key-concept
+**La conformité déterministe est une propriété du code, pas de la formulation.**
+Les mauvaises réponses sont ici le plus souvent de vraies améliorations : une
+consigne plus ferme, des exemples few-shot montrant le bon ordre, un audit qui
+rattrape les violations après coup. Les deux premières abaissent le taux d'échec
+et laissent un reste ; la troisième signale la brèche après l'action qu'elle
+devait empêcher. Quand le scénario nomme une conséquence financière, légale ou
+de sécurité, seul un mécanisme qui rend la violation impossible satisfait
+l'exigence.
+:::
 
 ### La demande à plusieurs objets
 
@@ -458,18 +489,20 @@ guide nomme. Un handoff qui suppose que l'humain lira la conversation est un
 handoff raté.
 
 ::: anti-pattern
-Les distracteurs des questions d'enforcement sont les mesures qui font réellement
-baisser le taux d'échec sans jamais atteindre zéro :
+Les distracteurs des questions d'enforcement sont les mesures qui font
+réellement baisser le taux d'échec sans jamais atteindre zéro :
 
-- Renforcer le system prompt — « la vérification est obligatoire ».
-- Ajouter des few-shot examples montrant l'outil de vérification appelé en premier.
+- Renforcer le system prompt pour y dire « la vérification est obligatoire ».
+- Ajouter des few-shot examples montrant l'outil de vérification appelé en
+  premier.
 - Auditer les transactions après coup pour repérer les violations.
 - Déployer un classifieur de routage qui n'active que le sous-ensemble d'outils
   pertinent.
 
 Les trois premiers font baisser le taux ; la question demandait une garantie, et
 un audit trouve la violation une fois l'argent parti. Le quatrième traite les
-outils *disponibles*, pas l'ordre dans lequel ils sont appelés — un autre problème.
+outils *disponibles*, pas l'ordre dans lequel ils sont appelés, ce qui est un
+autre problème.
 :::
 
 ::: exam-tip
@@ -568,13 +601,14 @@ niveau plus bas :
 
 ::: anti-pattern
 Recourir à `PostToolUse` pour empêcher quelque chose. Il se déclenche après
-l'exécution de l'outil — le remboursement est versé, les lignes sont supprimées.
-Bloquer, c'est `PreToolUse`.
+l'exécution de l'outil, quand le remboursement est déjà versé et les lignes
+déjà supprimées. Bloquer, c'est `PreToolUse`.
 
 L'erreur miroir est un blocage `PreToolUse` employé pour corriger un problème de
 *lecture*. Si un outil renvoie un champ surchargé que le modèle interprète mal,
 bloquer l'appel en aval supprime aussi les appels corrects ; le correctif est de
-réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le modèle.
+réécrire le résultat au retour, pour que l'ambiguïté n'atteigne jamais le
+modèle.
 :::
 
 ::: exam-tip
@@ -639,20 +673,20 @@ d'avance, parce qu'elles sont précisément ce que vous allez découvrir :
 5. Adapter le plan                    → construire le mock, puis écrire les tests
 ```
 
-Cartographier la structure, identifier les zones à fort impact, produire un plan
-priorisé qui s'adapte à mesure que les dépendances apparaissent — c'est la
-formulation du guide, et l'étape 4 est tout l'enjeu : le plan a changé à cause de
-ce que l'étape 1 a trouvé.
+La formulation du guide est : cartographier la structure, identifier les zones à
+fort impact, produire un plan priorisé qui s'adapte à mesure que les dépendances
+apparaissent. L'étape 4 est tout l'enjeu : le plan a changé à cause de ce que
+l'étape 1 a trouvé.
 
 ::: anti-pattern
 Trois mauvais appariements, et ce sont exactement les distracteurs :
 
-- Un **pipeline fixe sur un périmètre inconnu** — il exige la liste des étapes
-  avant de commencer, ce qui est précisément ce dont vous ne disposez pas.
-- Une **revue multi-passes proposée pour une investigation ouverte** — elle est
-  conçue pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.
-- Un **prompt exhaustif unique** censé tout couvrir d'un coup — il suppose que
-  vous connaissez déjà le périmètre.
+- Un **pipeline fixe sur un périmètre inconnu** exige la liste des étapes avant
+  de commencer, ce qui est précisément ce dont vous ne disposez pas.
+- Une **revue multi-passes proposée pour une investigation ouverte** est conçue
+  pour un ensemble de cibles borné et énumérable, comme les fichiers d'une PR.
+- Un **prompt exhaustif unique** censé tout couvrir d'un coup suppose que vous
+  connaissez déjà le périmètre.
 
 Et le quatrième, plus discret : la décomposition adaptative sur des cibles
 figées. Elle n'apporte rien dès lors que les cibles ne varient jamais, et elle
@@ -702,10 +736,10 @@ async for message in query(
 ### Deux faits sur le fork
 
 Deux faits sur le fork sur lesquels les questions se jouent. Il se combine
-toujours à la reprise — on forke *une session existante*, jamais à partir de
-rien. Et il branche l'**historique de conversation, pas le système de fichiers** :
-deux agents forkés qui modifient des fichiers dans le même répertoire modifient
-les mêmes fichiers.
+toujours à la reprise, puisqu'on forke *une session existante*, jamais à partir
+de rien. Et il branche l'**historique de conversation, pas le système de
+fichiers** : deux agents forkés qui modifient des fichiers dans le même
+répertoire modifient les mêmes fichiers.
 
 ### Choisir entre les trois
 
@@ -726,11 +760,23 @@ qui n'existe plus, et l'agent raisonne dessus comme si elles étaient à jour. U
 résumé écrit emporte les conclusions qui ont survécu et laisse derrière les
 payloads morts.
 
+::: key-concept
+**Une session est un relevé de ce qui a été lu, pas l'état de ce qui est sur le
+disque.** Chacun des trois choix se joue sur ce qui reste vrai de ce relevé. La
+reprise convient tant que le relevé est *en grande partie* valide, et c'est le
+fait de nommer les fichiers qui ont changé qui la rend ciblée plutôt que
+hasardeuse. Un fork branche l'historique de conversation et non le système de
+fichiers, et c'est pourquoi il compare deux approches et jamais deux versions
+d'un fichier. Une session neuve accompagnée d'un résumé écrit garde vos
+conclusions et laisse derrière elle les lectures périmées.
+:::
+
 ::: anti-pattern
-Trois gestes que les distracteurs proposent à la place des trois réponses ci-dessus :
+Trois gestes que les distracteurs proposent à la place des trois réponses
+ci-dessus :
 
 - **Reprendre sans dire ce qui a changé.** L'agent garde une image fausse des
-  fichiers et raisonne sur des résultats d'outils morts — précisément l'échec que
+  fichiers et raisonne sur des résultats d'outils morts, précisément l'échec que
   la reprise devait éviter.
 - **Tout ré-explorer de zéro** alors que seuls trois fichiers ont bougé. C'est
   jeter du travail encore valide.

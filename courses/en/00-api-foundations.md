@@ -60,8 +60,8 @@ instructions in as a first `user` message is the most common shape error on
 this endpoint, and it changes how the model weighs them.
 :::
 
-Exact model identifiers are not exam material. `temperature` is not either —
-the guide never names it, and no task statement turns on it; the row is here so
+Exact model identifiers are not exam material. `temperature` is not either.
+The guide never names it, and no task statement turns on it; the row is here so
 you recognize the field in a request body you are handed, not to be memorized.
 
 **To test** — the self-assessment questions of this page.
@@ -83,7 +83,7 @@ A conversation alternates between the two: user turn, assistant turn, user turn.
 **The API stores nothing.** Every request is independent and carries no memory
 of the ones before it. Ask "What is quantum computing?", get an answer, then
 send "Write another sentence" on its own, and the model has no idea what it is
-being asked to extend — it will write a sentence about something else entirely.
+being asked to extend, so it writes a sentence about something else entirely.
 
 Multi-turn conversation is therefore work you do, not a service the API renders:
 send the first user message, append Claude's reply to your list as an
@@ -105,7 +105,8 @@ sentence" mean anything on the third.
 Everything that must still be visible on turn five has to be in the array you
 send on turn five. This is the rule behind most "the model forgot" bugs, and it
 applies to tool results exactly as it applies to text. The same rule is why a
-spawned subagent has to be handed its context explicitly — it inherits nothing.
+spawned subagent has to be handed its context explicitly, since it inherits
+nothing.
 :::
 
 ::: anti-pattern
@@ -120,10 +121,10 @@ rebuilding the history is the caller's job, on every single request.
 <!-- src:05claudeapi L35, L36, L38 ; exam guide TS 1.1 (tool results appended to history) -->
 <!-- owns:content-blocks -->
 
-A reply's `content` is never a bare string — it is a **list of blocks**, each
-with its own type. Reading a reply as text works only because you indexed into
-that list: `message.content[0].text` is the first block's text, not the message.
-The two directions are not symmetrical: a request accepts either form, a plain
+A reply's `content` is never a bare string but a **list of blocks**, each with
+its own type. Reading a reply as text works only because you indexed into that
+list: `message.content[0].text` is the first block's text, not the message. The
+two directions are not symmetrical: a request accepts either form, a plain
 string or a list of blocks.
 
 | Block type | Direction | Carries |
@@ -132,11 +133,11 @@ string or a list of blocks.
 | `tool_use` | from the assistant | The tool name and the arguments the model chose |
 | `tool_result` | from you, in a `user` message | The output of the tool you ran |
 
-A single assistant reply routinely holds several blocks at once — a text block
-explaining what it is about to do, plus a `tool_use` block requesting it. A
-`tool_result` block carries three fields: `tool_use_id`, matching the id of the
-`tool_use` block it answers; `content`, the function output serialized as a
-string; and `is_error`, a boolean. It travels back inside a `user` message,
+A single assistant reply routinely holds several blocks at once, for instance a
+text block explaining what it is about to do plus a `tool_use` block requesting
+it. A `tool_result` block carries three fields: `tool_use_id`, matching the id
+of the `tool_use` block it answers; `content`, the function output serialized as
+a string; and `is_error`, a boolean. It travels back inside a `user` message,
 alongside the complete history.
 
 ```json
@@ -176,7 +177,7 @@ developed in D4.3.**
 <!-- src:05claudeapi L3, L38 ; Anthropic docs, Stop reasons and fallback (seven values, stop_details null except refusal, pause_turn default limit of 10 iterations, model_context_window_exceeded beta header) ; exam guide TS 1.1 -->
 <!-- owns:stop-reason -->
 
-When the model stops, the response says why in `stop_reason` — and that field,
+When the model stops, the response says why in `stop_reason`, and that field,
 not the presence of a text block, is what tells you whether a reply is finished.
 
 | Value | What ended generation |
@@ -208,13 +209,13 @@ and newer models return it without a beta header, and earlier models need the
 }
 ```
 
-That response carries text *and* a tool request — which is exactly why the
+That response carries text *and* a tool request, which is exactly why the
 presence of text cannot serve as a completion signal.
 
 ::: exam-tip
 `end_turn` is the only value that means *complete*. A response with
 `stop_reason: "max_tokens"` holds a text block like any other, but it was cut
-off mid-sentence — display code that checks for text instead of checking
+off mid-sentence. Display code that checks for text instead of checking
 `stop_reason` will present a truncated draft as a finished one. That is the
 classic distractor on this field.
 :::
@@ -224,7 +225,7 @@ waiting on **your** tool always says `tool_use`, and you continue it by sending
 `tool_result` blocks. `pause_turn` concerns a **server** tool that ran out of
 iterations, and you continue it by sending the assistant content back unchanged.
 
-The guide only ever asks you to tell `tool_use` from `end_turn` — that pair
+The guide only ever asks you to tell `tool_use` from `end_turn`. That pair
 drives the loop, and it is all TS 1.1 tests. **Turning the check into a loop —
 call, inspect `stop_reason`, execute, append, call again — is the agentic loop,
 developed in D1.1.** D0 stops at naming the signal.
@@ -240,8 +241,8 @@ not something the model answers. It shapes *how* Claude responds, not *what* it
 responds.
 
 Take a maths tutor. Without a system prompt, "How do I solve 5x + 2 = 3 for x?"
-gets a complete step-by-step solution immediately — correct, and useless for
-teaching. With:
+gets a complete step-by-step solution immediately, which is correct and useless
+for teaching. With:
 
 ```
 You are a patient math tutor.
@@ -256,7 +257,7 @@ behaviour.
 That is what a system prompt is for: assign a role, and the model answers the
 way someone in that role would; state durable constraints, and they hold across
 every turn without being restated. They hold because you resend them every
-request, not because the API remembers them — and you pay for them every time.
+request, not because the API remembers them, and you pay for them every time.
 
 ::: anti-pattern
 Putting the system prompt in as the first `user` message. It then reads as
@@ -265,7 +266,7 @@ the turns around it instead of sitting above them.
 :::
 
 ::: exam-tip
-A system instruction carries further than any per-turn wording — far enough that
+A system instruction carries further than any per-turn wording, far enough that
 a single absolute keyword can override tool descriptions that are otherwise
 well written. "Always verify the customer's identity" will drag the
 nearest-matching tool onto every turn. **How that overriding works, and how to
@@ -281,10 +282,11 @@ helper has to add the key only when a prompt was actually given.
 <!-- src:05claudeapi L6, L36 ; exam guide appendix (Context window management), TS 5.1 -->
 <!-- owns:context-window -->
 
-Put the two previous facts together. The API keeps no state, so every request
-ships the entire history; and every request has a finite token budget. The
-history is therefore not free — it is a recurring cost that grows with the
-conversation, monotonically, unless you do something about it.
+The context window is the finite token budget every request must fit into, and
+the two previous facts set it against you: the API keeps no state, so every
+request ships the entire history. The history is therefore not free. It is a
+recurring cost that grows monotonically with the conversation, unless you do
+something about it.
 
 What accumulates, per request:
 
@@ -297,7 +299,7 @@ What accumulates, per request:
 
 Tool results are the part people underestimate. A tool that returns a large
 record puts that record into the history for the rest of the run, and you pay
-for it on every subsequent turn — not once.
+for it on every subsequent turn, not once.
 
 ```
 lookup_order → 42 fields returned, 5 useful for return eligibility
@@ -319,7 +321,7 @@ specifics first.
 Recognize the three failure modes here; the fixes are not D0's. **Trimming
 verbose tool outputs, extracting structured facts, and ordering input by
 position are developed in D5.1.** Retrieval and chunking are not the answer the
-guide asks for — it puts them out of scope, and so does this corpus.
+guide asks for. It puts them out of scope, and so does this corpus.
 :::
 
 **To test** — bank questions tagged `data-task="5.1"`.

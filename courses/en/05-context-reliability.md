@@ -5,7 +5,7 @@
 Fifteen per cent of the score, six task statements, and the domain that asks a
 different question from the four before it. D1 to D4 ask how to build the
 thing: the loop, the tools, the configuration, the prompt. D5 asks what is
-still true after the thing has been running for two hours — which numbers
+still true after the thing has been running for two hours: which numbers
 survived the summariser, which subagent's failure the coordinator ever heard
 about, which claim in the final report can still be traced to the page it came
 from.
@@ -13,6 +13,9 @@ from.
 One section per task statement, in the guide's own order and under the guide's
 own wording, so that a question met on exam day maps to a section here without
 translation.
+
+
+<!-- cross-refs:start -->
 
 Four courses defer to this one, and the four debts are paid below. **D0** named
 the three failure modes of a full context window — lost-in-the-middle,
@@ -31,6 +34,8 @@ TS 1.2 and 1.3. The hook mechanism — events, `PostToolUse`, `updatedToolOutput
 human handoff is TS 1.4. Each of those gets a sentence and a pointer here, never
 a second development.
 
+<!-- cross-refs:end -->
+
 ## 5.1 — Manage conversation context to preserve critical information across long interactions
 <!-- ts:5.1 | src:exam guide TS 5.1 (the knowledge: progressive summarization condensing numerical values, percentages, dates and customer-stated expectations into vague summaries; the lost-in-the-middle effect, where models process the beginning and end of long inputs reliably but may omit findings from middle sections; how tool results accumulate and consume tokens disproportionately to their relevance, with the 40+ fields per order lookup when only 5 are relevant; the importance of passing complete conversation history in subsequent API requests. The skills: extracting transactional facts — amounts, dates, order numbers, statuses — into a persistent case facts block included in each prompt outside summarized history; extracting and persisting structured issue data into a separate context layer for multi-issue sessions; trimming verbose tool outputs to only relevant fields before they accumulate; placing key findings summaries at the beginning of aggregated inputs and organizing detailed results with explicit section headers; requiring subagents to include metadata — dates, source locations, methodological context — in structured outputs; modifying upstream agents to return structured data — key facts, citations, relevance scores — instead of verbose content and reasoning chains when downstream agents have limited context budgets) ; 08agentsdk L11 (updatedToolOutput replaces a tool's output before Claude sees it, for any tool and in both SDKs — L11 documents that field for normalising heterogeneous formats under TS 1.5, and applying it to trimming is this course's deduction, not the source's: the guide's trimming skill names no mechanism) ; 06claudecode101 L6 (everything that enters the context window: prompts, file reads, tool calls and their results; automatic compaction summarises and can lose details) -->
 
@@ -41,7 +46,7 @@ Nothing failed. The summariser did exactly what summarisers do: it kept the
 shape of the conversation and dropped the specifics.
 
 That is the first of the guide's three named risks, and the three are worth
-holding as a set because each has its own remedy — and answering with the wrong
+holding as a set because each has its own remedy, and answering with the wrong
 remedy is how this task statement is failed.
 
 | Failure mode | What it destroys | The remedy this task statement asks for |
@@ -50,7 +55,7 @@ remedy is how this task statement is failed.
 | **Lost in the middle** | Findings buried in the middle of a long input — the beginning and the end are read reliably | Key findings at the top, explicit section headers over the detail |
 | **Tool result accumulation** | Nothing, but it consumes tokens out of all proportion to relevance | Trim the output to the relevant fields before it enters the context |
 
-D0 owns the anatomy behind that table — why every request resends the whole
+D0 owns the anatomy behind that table: why every request resends the whole
 history, and why a tool result is a recurring cost rather than a one-off. One
 of the guide's knowledge points for this task statement belongs to that anatomy
 and is worth restating in one line: **complete conversation history must be
@@ -116,7 +121,7 @@ written back into.
 ### Trimming tool output before it accumulates
 
 The guide's own figure: an order lookup returns **40+ fields when 5 are
-relevant** to the task at hand. Those 40 fields are not merely present once —
+relevant** to the task at hand. Those 40 fields are not merely present once;
 they are resent on every subsequent request for the rest of the session.
 
 ```text
@@ -128,7 +133,7 @@ lookup_order(ORD-67890) →
 
 The skill is to trim **before** the result enters the context, which means
 between the tool returning and the model reading. **The guide names no mechanism
-for it** — it states the skill and stops. One mechanism sits exactly in that
+for it**: it states the skill and stops. One mechanism sits exactly in that
 window: a `PostToolUse` hook, whose `updatedToolOutput` replaces a tool's output
 before Claude sees it. The SDK documents that field for a different job —
 normalising heterogeneous formats, which is TS 1.5 — and nothing about it is
@@ -233,7 +238,7 @@ The distractors on the first one are all attempts to make summarisation behave.
 **Moving to a model with a larger context window** pushes the limit back without
 protecting anything: a long enough conversation reaches the new limit too, and
 the same compression destroys the same facts. **Compacting less often** is the
-same evasion phrased as frequency — it changes when the numbers are destroyed,
+same evasion phrased as frequency: it changes when the numbers are destroyed,
 not whether. **Asking the summariser to keep every number and date** is the most
 tempting because it names the right symptom, and it is a request rather than a
 guarantee.
@@ -278,9 +283,9 @@ is precise and the near-misses are what the distractors are made of.
 **A policy gap is not the same thing as a complex case.** The guide's own
 example: the customer asks for a competitor's price to be matched, and the
 pricing policy addresses only price adjustments on your own site. The request is
-not difficult — matching a price is one tool call. It is *undecided*. Nothing in
-the policy authorises it and nothing forbids it, so granting it would be the
-agent inventing commercial policy. That is the trigger, and "the case was
+not difficult, since matching a price is one tool call. It is *undecided*.
+Nothing in the policy authorises it and nothing forbids it, so granting it would
+be the agent inventing commercial policy. That is the trigger, and "the case was
 complex" is not.
 
 **Multiple matches are an ambiguity, not an escalation.** Three companies share
@@ -299,6 +304,17 @@ checks exist to prevent.
 Self-reported confidence returns in 5.5 as part of the *correct* answer, in a
 different form and for a different job. The distinction is set out there, and it
 is worth reading the two sections against each other once.
+
+::: key-concept
+**Three triggers, and an ambiguity is not one of them.** The guide accepts a
+customer asking for a human, a policy gap or exception, and an inability to make
+real progress: all three are checkable without asking the model. Tone and
+self-rated confidence are rejected because they estimate how hard a case is, and
+difficulty was never a trigger; the price-match example is one tool call, and it
+escalates because the policy has not settled the question. A lookup that returns
+several matches is the case to keep separate: it calls for a discriminating
+identifier, not for a human.
+:::
 
 ### The three behaviours, and the one that is tested
 
@@ -359,7 +375,7 @@ Why:      the policy covers our own price adjustments only. Silence is not
 ```
 
 The criteria carry the rule; the examples carry its application to the cases
-where the rule is ambiguous — which is the whole reason a criterion needed
+where the rule is ambiguous, which is the whole reason a criterion needed
 examples. Criteria alone leave "is this a policy gap?" to be re-decided each
 turn. Examples alone generalise from three cases to a policy nobody wrote.
 
@@ -373,7 +389,7 @@ The scenario tells you which trigger fired; the wording of the customer's
 message is the whole question.
 
 "I want a manager" → escalate now, and *not* "investigate first, then escalate
-if needed" — that answer sounds diligent and it makes a customer who has already
+if needed". That answer sounds diligent and it makes a customer who has already
 asked wait through an investigation they did not want. "This is outrageous" →
 acknowledge, resolve, escalate on reiteration. "The policy does not address
 this" → escalate, and not "apply the closest analogous rule". "Three customers
@@ -463,13 +479,13 @@ will hide behind a shared phrase like "no data":
 The two are opposite in meaning and identical in appearance once both are
 reported as "no data". Reporting them the same way is how a coordinator
 concludes that an engineer holds no certification when the badge system merely
-failed to answer — a wrong finding, produced with full confidence, from an
+failed to answer: a wrong finding, produced with full confidence, from an
 error that was never surfaced.
 
 ### Recover locally, propagate what you cannot resolve
 
 The guide's division of labour: **subagents implement local recovery for
-transient failures, and propagate only what they cannot resolve** — with what
+transient failures, and propagate only what they cannot resolve**, with what
 was attempted and any partial results attached.
 
 ```python
@@ -501,7 +517,7 @@ async def search_topic(query: str):
 ```
 
 Two halves, and the exam tests the boundary between them. Retrying a transient
-network error inside the subagent is right — a coordinator does not need to
+network error inside the subagent is right; a coordinator does not need to
 arbitrate a blip. Retrying with exponential backoff and *then* reporting
 `"search unavailable"` is the anti-pattern wearing good engineering: the
 recovery was fine, the report destroyed everything the coordinator needed.
@@ -587,7 +603,7 @@ That sentence is the diagnostic. The guide describes the symptom precisely:
 **inconsistent answers, and references to "typical patterns" rather than the
 specific classes discovered earlier**. The model has stopped answering from the
 codebase and started answering from the general case, because the specifics are
-no longer usable in its context. No instruction fixes that — you cannot ask an
+no longer usable in its context. No instruction fixes that. You cannot ask an
 agent to remember something it no longer holds.
 
 ### Scratchpad files
@@ -644,7 +660,7 @@ because the handoff is where that dependency breaks.
 **And summarise between phases.** The skill is easy to skip and the guide states
 it explicitly: before spawning the subagents of the next phase, summarise the
 key findings of the current one and **inject that summary into their initial
-context**. A subagent inherits nothing (TS 1.3) — no parent history, no earlier
+context**. A subagent inherits nothing (TS 1.3): no parent history, no earlier
 phase's findings. Without the injected summary, phase two rediscovers what phase
 one already knew, or worse, contradicts it without knowing.
 
@@ -704,9 +720,9 @@ its coverage and its gaps.
 This is a different mechanism from a scratchpad, and confusing them is a cheap
 mistake: a scratchpad counteracts *degradation* inside one agent's session, a
 manifest survives a *crash* across a workflow. The SDK documentation points the
-same way for sessions in general — capturing the results you need as application
-state and passing them into a fresh session's prompt is more robust than
-resuming a session whose tool results have gone stale. Session resumption
+same way for sessions in general, where capturing the results you need as
+application state and passing them into a fresh session's prompt is more robust
+than resuming a session whose tool results have gone stale. Session resumption
 itself, `--resume` and `fork_session`, is TS 1.7 and lives in D1.
 
 ::: key-concept
@@ -727,7 +743,7 @@ removes the degradation by discarding the investigation, and the same long
 session reproduces it because nothing was persisted. **Raising `max_tokens`**
 confuses two budgets: that parameter bounds the length of the generated answer,
 not what the agent still holds on input. **Telling the agent to focus on the
-real code and cite its sources** describes the symptom back to it — no
+real code and cite its sources** describes the symptom back to it, and no
 instruction restores information that is no longer usable.
 :::
 
@@ -754,7 +770,7 @@ Dig into the number and scanned invoices run at 60 %, while the VAT number field
 is wrong 40 % of the time.
 
 Nothing about the 97 % is false. It is an average over a population, and an
-average conceals structure by construction — which is the guide's first
+average conceals structure by construction, which is the guide's first
 knowledge point and the trap the whole task statement is built on.
 
 This task statement asks two separate questions, and mixing them up is how its
@@ -789,9 +805,9 @@ measurement arrives through customer complaints.
 **Stratified random sampling** is what keeps the measurement honest once
 automation is running. A sample is drawn **within each segment** rather than
 across the population, because a plain random sample of a population dominated
-by digital PDFs will contain almost no handwritten forms — the very segment that
+by digital PDFs will contain almost no handwritten forms, the very segment that
 fails. The guide gives it two jobs: measuring the **error rate in
-high-confidence extractions**, and **detecting novel error patterns** — the
+high-confidence extractions**, and **detecting novel error patterns**, the
 failures no existing rule catches, which by definition cannot be found by
 looking where you already know to look.
 
@@ -845,9 +861,9 @@ grader over it is the same workflow. The stratification and the per-field
 calibration above come from the guide.
 
 Two things get priority in the review queue, and the guide names both: **low
-model confidence**, and **ambiguous or contradictory source documents** — two
-totals that disagree, an illegible date, a struck-through field. The second does
-not depend on the model's opinion at all; it is a property of the input.
+model confidence**, and **ambiguous or contradictory source documents**, meaning
+two totals that disagree, an illegible date, a struck-through field. The second
+does not depend on the model's opinion at all; it is a property of the input.
 
 ::: key-concept
 **The two faces of confidence, and why they are not a contradiction.** In 5.2, a
@@ -874,9 +890,9 @@ customer, and biased, since only visible errors come back.
 Against routing: **one confidence score per document**, which is the aggregate
 problem again; **the model rating its own certainty from 1 to 10**, which is the
 uncalibrated version and matches no known error rate; **sampling a fixed share
-at random and reviewing those** — a use confusion, since stratified sampling
-measures an error rate and detects new patterns, it does not allocate scarce
-capacity to where the risk is.
+at random and reviewing those**, which is a use confusion, since stratified
+sampling measures an error rate and detects new patterns, and does not allocate
+scarce capacity to where the risk is.
 :::
 
 ::: anti-pattern
@@ -931,6 +947,17 @@ Two design points make this survive the pipeline:
   that launched it, so a format that separates content from metadata — source
   URL, document name, page number, publication date — has to be demanded there
   or it will not happen.
+
+::: key-concept
+**Provenance is preserved, never restored.** The URL, the date and the
+methodology exist only in the step that read the source, so every remedy that
+acts after the compression asks an agent to reconstruct what it never received:
+a final pass that "adds citations", a synthesis agent told to attach sources
+itself. That is why the requirement lands on the subagent's prompt and on the
+synthesis agent's obligation to carry the mapping through. In a scenario, find
+the step where the attribution still existed; the wrong answers all act
+downstream of it.
+:::
 
 ### Conflicting values: annotate, do not choose
 
@@ -1008,8 +1035,8 @@ what is this based on, and what is it missing.
 
 The last skill is about the output format, and it is the one that catches people
 because nothing upstream is broken when it fires. A synthesis agent receives
-heterogeneous material and is tempted to pour all of it into one shape —
-usually prose, because prose is the default.
+heterogeneous material and is tempted to pour all of it into one shape, usually
+prose, because prose is the default.
 
 | Content type | Rendered as | Why |
 |---|---|---|
@@ -1021,14 +1048,14 @@ Twelve quarterly figures inside a paragraph are correct, sourced, and unusable.
 
 ::: exam-tip
 When a scenario complains that a synthesis report is **hard to use** although
-the content is accurate and well-sourced, do not look upstream — the subagents
+the content is accurate and well-sourced, do not look upstream: the subagents
 did their job. The defect is the uniform rendering at the synthesis step, and
 the fix is to instruct the synthesis agent to render each content type in its
 own form.
 
 When the complaint is that **claims cannot be traced**, look at the summarization
 step in the middle, and require structured claim-source mappings that downstream
-agents preserve — not a final pass asking the synthesis agent to "add citations",
+agents preserve, not a final pass asking the synthesis agent to "add citations",
 which is asking it to reconstruct URLs it no longer has.
 
 On conflicting statistics, three wrong answers recur: **keeping the more recent

@@ -8,6 +8,8 @@ prompt, un schéma et un pipeline. Une section par task statement, dans l'ordre
 du guide et sous le libellé du guide — pour qu'une question repérée le jour J
 corresponde à une section d'ici sans traduction.
 
+<!-- cross-refs:start -->
+
 D0 est supposé acquis. Il a nommé l'anatomie d'un outil — `name`, `description`,
 `input_schema` —, le bloc `tool_use` et `stop_reason`. Il s'est arrêté là
 délibérément et a renvoyé ici, deux fois : **`tool_choice` et l'usage d'un JSON
@@ -21,6 +23,8 @@ design, testé en TS 2.1 et 2.5 ; la boucle agentique qui transforme un bloc
 un pipeline est le TS 3.6 de D3, qui applique ce que 4.6 explique. Chacune
 reçoit ici une phrase et un renvoi, jamais un second développement.
 
+<!-- cross-refs:end -->
+
 ## 4.1 — Design prompts with explicit criteria to improve precision and reduce false positives
 <!-- ts:4.1 | src:exam guide TS 4.1 (explicit criteria over vague instructions and its comment-versus-code example, why "be conservative" and "only report high-confidence findings" fail against specific categorical criteria, a high false positive rate in one category undermining confidence in the accurate ones; the skills: criteria that say what to report and what to skip rather than confidence-based filtering, temporarily disabling a high false-positive category while its prompt is improved, explicit severity criteria with a concrete code example per level) ; 05claudeapi L25 (replacing a vague request with a direct statement of the task) ; L26 (being specific: listing the guidelines the output must satisfy instead of leaving them to interpretation) -->
 
@@ -30,10 +34,10 @@ changé, c'est que « être prudent sur les migrations risquées » n'a aucun se
 fixe : chaque exécution réinvente le seuil.
 
 Le remède que nomme le guide n'est pas un meilleur adjectif. Ce sont des
-**critères catégoriels explicites** : des conditions nommées, chacune
-vérifiable à la main. L'exemple du guide lui-même est la paire à mémoriser —
-« flag comments only when claimed behavior contradicts actual code behavior »,
-contre « check that comments are accurate ».
+**critères catégoriels explicites** : des conditions nommées, chacune vérifiable
+à la main. L'exemple du guide lui-même est la paire à mémoriser : « flag
+comments only when claimed behavior contradicts actual code behavior », contre
+« check that comments are accurate ».
 
 ```text
 # Vague — la version qui produit un verdict différent à chaque exécution
@@ -137,10 +141,10 @@ vous ne pouvez pas trancher vous-même à partir de la règle, le modèle non pl
 ## 4.2 — Apply few-shot prompting to improve output consistency and quality
 <!-- ts:4.2 | src:exam guide TS 4.2 (few-shot examples as the most effective technique when detailed instructions alone still produce inconsistent output, their role in demonstrating ambiguous-case handling, generalisation to novel patterns rather than matching pre-specified cases, hallucination reduction in extraction with informal measurements and varied document structures; the skills: 2-4 targeted examples showing why one action was chosen over plausible alternatives, examples demonstrating the location/issue/severity/suggested-fix output format, examples distinguishing acceptable code patterns from genuine issues, examples covering inline citations versus bibliographies, examples addressing empty or null extraction of required fields) ; 05claudeapi L28 (one-shot and multi-shot prompting, examples for corner cases and complex output formats, sample_input and ideal_output wrapped in XML tags, and explaining why an example output is good rather than only showing it) ; L27 (XML tags as delimiters for interpolated content, descriptive tag names over generic ones) -->
 
-4.1 a réglé ce qu'il faut signaler. Il ne règle pas une seconde défaillance :
-les critères sont écrits, ils sont détaillés, et la sortie revient malgré tout
-sous une forme différente à chaque exécution — ou revient vide sur le cas que
-personne n'avait pensé à énumérer.
+Les critères explicites règlent ce qu'il faut signaler, et ils laissent une
+seconde défaillance intacte : les critères sont écrits, ils sont détaillés, et
+la sortie revient malgré tout sous une forme différente à chaque exécution, ou
+revient vide sur le cas que personne n'avait pensé à énumérer.
 
 La réponse du guide est sans ambiguïté, et c'est la formule à reconnaître dans
 une option : **les few-shot examples sont la technique la plus efficace pour une
@@ -148,7 +152,7 @@ sortie cohérente et actionnable quand des instructions détaillées produisent
 encore des résultats inconsistants.** Un exemple, c'est du one-shot prompting ;
 plusieurs, du multi-shot.
 
-Deux à quatre, c'est le compte du guide lui-même, et les exemples sont ciblés —
+Deux à quatre, c'est le compte du guide lui-même, et les exemples sont ciblés :
 ils montrent les cas **ambigus**, pas les faciles. Chacun porte le raisonnement
 qui explique pourquoi cette action a été choisie plutôt qu'une alternative
 plausible, parce que c'est le raisonnement qui se transfère.
@@ -257,7 +261,7 @@ ramène au point de départ.
 Demandez du JSON en prose et vous obtenez du JSON la plupart du temps : une
 virgule en trop ici, un bloc de code entouré de backticks là, un champ renommé
 au troisième document. La réponse du guide est un mécanisme plutôt qu'une
-formulation, et il l'énonce sans nuance — **le tool use avec des JSON Schemas
+formulation, et il l'énonce sans nuance : **le tool use avec des JSON Schemas
 est l'approche la plus fiable pour une sortie structurée garantie conforme au
 schéma, et il élimine les erreurs de syntaxe JSON.**
 
@@ -290,7 +294,7 @@ remplir.
 ```
 
 La réponse porte `stop_reason: "tool_use"` et un bloc `tool_use` dont l'`input`
-*est* votre enregistrement — aucune prose à parser, aucune passe de réparation :
+*est* votre enregistrement. Aucune prose à parser, aucune passe de réparation :
 
 ```json
 { "type": "tool_use", "id": "toolu_01A", "name": "extract_invoice",
@@ -317,18 +321,18 @@ quand un pipeline reçoit factures, bons de commande et bons de livraison par la
 même porte : vous avez un schéma pour chacun, vous ne pouvez pas dire à l'avance
 lequel s'applique, et ce que vous ne pouvez pas vous permettre est une réponse
 conversationnelle au lieu d'un appel. **Un outil forcé par son nom** est la
-réponse quand l'ordre compte — `extract_metadata` doit tourner en premier, et
+réponse quand l'ordre compte : `extract_metadata` doit tourner en premier, et
 les étapes d'enrichissement viennent aux tours suivants.
 
 ::: key-concept
 Un comportement de terrain qui découle du fait de forcer l'appel : sous `any` ou
 sous un outil forcé, le modèle ne produit pas d'explication en langage naturel
 avant l'appel. Si vous voulez à la fois le raisonnement et l'appel, restez en
-`auto` et demandez l'outil dans le prompt — « use the `extract_invoice` tool in
+`auto` et demandez l'outil dans le prompt : « use the `extract_invoice` tool in
 your response ».
 
-Seconde contrainte, même famille : avec l'extended thinking activé
-manuellement, seuls `auto` et `none` sont supportés.
+Seconde contrainte, même famille : avec l'extended thinking activé manuellement,
+seuls `auto` et `none` sont supportés.
 :::
 
 ### Concevoir le schéma pour qu'il n'invite pas à l'invention
@@ -361,25 +365,25 @@ Normaliser avant de remplir le schéma :
 `tool_choice`. Si une option nomme `output_config.format` ou
 `client.messages.parse()`, ce n'est pas la réponse attendue à cet examen. Le
 même verdict frappe le préremplissage du message assistant couplé à une stop
-sequence : le cours API l'enseigne comme voie vers la sortie structurée, et
-la liste hors-scope de ce corpus l'écarte au motif de ce task statement — cette
-section est la promesse que cette entrée engage. Il est de surcroît
-incompatible avec le mécanisme plus récent décrit ci-dessous : les deux ne se
-combinent donc jamais en pratique non plus.
+sequence : le cours API l'enseigne comme voie vers la sortie structurée, et la
+liste hors-scope de ce corpus l'écarte au motif de ce task statement. Cette
+section est la promesse que cette entrée engage. Il est de surcroît incompatible
+avec le mécanisme plus récent décrit ci-dessous : les deux ne se combinent donc
+jamais en pratique non plus.
 
 Nuance de terrain, pour ne pas être surpris en production : la plateforme porte
 désormais un mécanisme dédié de sorties JSON (`output_config.format`, et
 `messages.parse()` avec un modèle Pydantic dans le SDK Python) qui contraint le
 texte de la réponse, plus `strict: true` sur un outil, qui contraint les
 arguments d'outil par un échantillonnage contraint par grammaire plutôt que par
-adhérence. Même but, surfaces plus récentes, absentes du guide.
+le respect de la consigne. Même but, surfaces plus récentes, absentes du guide.
 
 Sur cette voie stricte, la plateforme n'accepte qu'un sous-ensemble de JSON
 Schema, et ce qu'il faut en rapporter au tool use ordinaire est le mode de
 défaillance : des contraintes comme `minimum`, `maxLength` et `pattern` sont
 retirées en silence plutôt que refusées. Une borne que vous avez écrite n'est
 pas une borne appliquée. Si un nombre doit rester dans un intervalle, c'est
-votre code qui le vérifie — et c'est 4.4.
+votre code qui le vérifie, et c'est 4.4.
 :::
 
 ::: exam-tip
@@ -390,12 +394,12 @@ extraction doit tourner avant les étapes d'enrichissement » → forcer l'outil
 son nom.
 
 Les distracteurs sont constants d'une question à l'autre. `tool_choice: "auto"`
-laisse le modèle libre de répondre en prose : l'extraction cesse d'être garantie
-— c'est la mauvaise réponse la plus proche, celle qu'il faut guetter. Décrire le
-schéma dans le prompt et demander du JSON réintroduit exactement les erreurs de
-syntaxe que le mécanisme supprime. Réparer la sortie à l'expression régulière
-après coup traite le symptôme et déplace la fragilité dans votre code. Et
-augmenter `max_tokens` répond à un problème de forme par de la longueur.
+laisse le modèle libre de répondre en prose : l'extraction cesse d'être
+garantie. C'est la mauvaise réponse la plus proche, celle qu'il faut guetter.
+Décrire le schéma dans le prompt et demander du JSON réintroduit exactement les
+erreurs de syntaxe que le mécanisme supprime. Réparer la sortie à l'expression
+régulière après coup traite le symptôme et déplace la fragilité dans votre code.
+Et augmenter `max_tokens` répond à un problème de forme par de la longueur.
 :::
 
 ::: anti-pattern
@@ -414,19 +418,20 @@ propreté s'achète avec des valeurs inventées, ce qui est le défaut le plus c
 ## 4.4 — Implement validation, retry, and feedback loops for extraction quality
 <!-- ts:4.4 | src:exam guide TS 4.4 (retry with error feedback, appending the specific validation errors to the prompt on retry; the limits of retry when the information is simply absent from the source; detected_pattern fields for systematic analysis of dismissal patterns; semantic validation errors against the schema syntax errors eliminated by tool use; the skills: follow-up requests carrying the original document, the failed extraction and the specific validation errors, telling an ineffective retry from a resolvable one, adding detected_pattern to structured findings, and extracting calculated_total beside stated_total with a conflict_detected boolean) ; 09apicomplements L4 (the four-step validation-retry loop, format errors resolvable by retry versus information absent from the source, a refusal returning HTTP 200 with stop_reason "refusal", and field-level confidence routing low-confidence extractions to human review) ; 05claudeapi L36 (a tool_result block carries tool_use_id, content and is_error, and travels in a user message) ; exam guide appendix (Pydantic: schema validation, semantic validation errors, validation-retry loops) -->
 
-4.3 s'est terminé sur la phrase dont ce task statement part : la charge utile
-est conforme et les valeurs sont fausses. `total` vaut 150 alors que les lignes
-totalisent 145 ; un nom de fournisseur se trouve dans le champ client. Rien dans
-le schéma ne peut le voir, parce que rien dans le schéma ne connaît
-l'arithmétique.
+La charge utile est conforme et les valeurs sont fausses. Forcer un appel par un
+JSON Schema garantit la forme de l'enregistrement et rien de ce qu'il contient :
+`total` vaut 150 alors que les lignes totalisent 145 ; un nom de fournisseur se
+trouve dans le champ client. Rien dans le schéma ne peut le voir, parce que rien
+dans le schéma ne connaît l'arithmétique.
 
 Le mécanisme est une boucle, et le guide en teste les quatre étapes :
 
 1. Le modèle produit une extraction.
 
-2. Votre code la valide — JSON Schema pour la structure, puis règles métier pour le
-   sens. Pydantic est l'outil que l'annexe nomme, et il fait les deux : types et
-   champs requis dans le modèle, règles inter-champs dans un validateur.
+2. Votre code la valide, d'abord avec JSON Schema pour la structure, puis avec des
+   règles métier pour le sens. Pydantic est l'outil que l'annexe nomme, et il fait
+   les deux : types et champs requis dans le modèle, règles inter-champs dans un
+   validateur.
 
 3. En cas d'échec, vous envoyez une requête de suivi portant **trois choses** : le
    document d'origine, l'extraction ratée, et l'erreur de validation
@@ -476,8 +481,8 @@ question sur le **document source**, jamais sur le nombre de tentatives.
 La colonne de gauche partage une propriété : le modèle avait l'information et
 l'a mal mise en forme. Lui renvoyer l'erreur exacte suffit. La colonne de droite
 partage la propriété inverse, et un retry n'y peut produire qu'une invention
-plus assurée. La réponse est un champ nullable et un `null` — la règle de
-conception de 4.3, revenue en décision opérationnelle.
+plus assurée. La réponse est un champ nullable et un `null`, qui est la règle de
+conception de 4.3 revenue en décision opérationnelle.
 
 ### Deux champs qui rendent le pipeline auto-diagnostique
 
@@ -497,8 +502,8 @@ silence. Le conflit survit jusque dans votre code, où un humain peut arbitrer.
 enregistre quelle construction a déclenché chaque signalement transforme les
 rejets en données : quand les développeurs rejettent des signalements, vous
 pouvez grouper les rejets par pattern et voir qu'une construction produit
-l'essentiel du bruit — précisément la catégorie que 4.1 vous dit de désactiver
-et de réécrire.
+l'essentiel du bruit, précisément la catégorie que 4.1 vous dit de désactiver et
+de réécrire.
 
 ```json
 {"location": "src/auth/login.ts:42",
@@ -511,7 +516,7 @@ et de réécrire.
 ::: key-concept
 Deux signaux d'échec que votre code de validation ne doit pas confondre avec une
 mauvaise extraction. `stop_reason: "refusal"` signifie que le modèle a refusé
-pour des raisons de sécurité — et cela revient avec un **HTTP 200**, si bien
+pour des raisons de sécurité, et cela revient avec un **HTTP 200**, si bien
 qu'un code qui ne vérifie que le statut traite un refus comme un succès et parse
 une réponse non conforme. `stop_reason: "max_tokens"` signifie que la sortie a
 été coupée en cours de génération ; le retry est alors un budget plus grand, pas
@@ -593,8 +598,8 @@ POST /v1/messages/batches
 ```
 
 `custom_id` n'est pas décoratif. Comme les résultats ne sont pas ordonnés, c'est
-le seul moyen fiable de dire quelle réponse appartient à quel document — et
-c'est aussi ce qui rend possible la resoumission sélective.
+le seul moyen fiable de dire quelle réponse appartient à quel document, et c'est
+aussi ce qui rend possible la resoumission sélective.
 
 ### Quelle charge va où
 
@@ -614,8 +619,8 @@ Le critère tient en une question : **est-ce que quelqu'un attend ?** Les
 des outils et envoyer un historique multi-tours, mais rien n'exécute un outil au
 milieu d'une requête de batch pour en rendre le résultat au modèle pour un tour
 de plus. Toute étape dont la conception exige que le modèle demande un fichier,
-le reçoive et continue n'y entre pas — et aucun polling n'y change rien, parce
-que la limite est structurelle et non temporelle.
+le reçoive et continue n'y entre pas. Aucun polling n'y change rien, parce que
+la limite est structurelle et non temporelle.
 
 C'est le fait derrière toute une famille de questions : une boucle agentique
 relève de l'API synchrone, et le TS 1.1 de D1 est l'endroit où cette boucle est
@@ -632,7 +637,7 @@ avant d'être envoyée.
 Six heures est le plafond, pas la réponse. Un lot soumis pile à la sixième heure
 et traité à la limite consomme tout le budget, sans rien laisser pour un
 document échoué qu'il faut resoumettre. **L'exemple du guide lui-même répond des
-fenêtres de 4 heures pour un SLA de 30 heures** — le plafond moins une marge.
+fenêtres de 4 heures pour un SLA de 30 heures**, le plafond moins une marge.
 
 Remarquez quel nombre est entré dans ce calcul. La plupart des lots finissent en
 moins d'une heure, et cette observation n'a pas sa place dans l'arithmétique :
@@ -662,14 +667,14 @@ les autres.
 
 - **Affiner le prompt sur un échantillon d'abord.** Faire un dry run d'une requête
   représentative par l'API Messages synchrone, obtenir la bonne extraction, et
-  seulement ensuite soumettre les mille — sinon vous découvrez un défaut de prompt
+  seulement ensuite soumettre les mille ; sinon vous découvrez un défaut de prompt
   après avoir payé pour chaque document du lot.
 
 
 Deux nombres opérationnels à retenir : un lot porte jusqu'à 100 000 requêtes ou
 256 Mo, la première limite atteinte s'appliquant, et les résultats restent
 récupérables 29 jours. Et une courte liste de paramètres qu'un lot refuse, tous
-pour la même raison — ce sont des réglages propres au synchrone :
+pour la même raison, puisque ce sont des réglages propres au synchrone :
 `stream: true` (les résultats reviennent sous forme de fichiers), `speed`,
 `store` et `previous_thread_event_id`, `cache_hint` et `context_hint`, et
 `max_tokens: 0`.
@@ -705,13 +710,24 @@ instruction d'auto-relecture ou que l'extended thinking.** Demander au modèle
 d'être critique envers lui-même, ou lui donner plus de place pour délibérer,
 opèrent tous deux à l'intérieur de la trace qui a produit le biais.
 
+::: key-concept
+**Une autre instance, pas une meilleure consigne.** Les correctifs que le guide
+écarte restent tous à l'intérieur du transcript qui a produit le code : demander
+à la même session de relire son travail de façon critique, ou lui donner de
+l'extended thinking pour délibérer davantage. Les deux ajoutent de l'effort à un
+lecteur qui détient déjà le raisonnement qu'il faudrait mettre en question. Le
+remède est architectural : lisez donc chaque option pour savoir *quelle instance
+reçoit l'artefact*, pas pour savoir avec quelle insistance on lui demande de
+regarder.
+:::
+
 « Indépendante » a un sens opérationnel : une session distincte, ou un subagent,
 qui reçoit l'artefact et les critères et **pas** la conversation qui les a
-produits. Dans Claude Code, c'est un subagent relecteur — sa propre fenêtre de
-contexte, des outils en lecture seule, versionné dans le dépôt pour que l'équipe
-partage un seul relecteur. Le TS 3.6 de D3 met la même instance dans un
-pipeline ; ce qui relève d'ici, c'est pourquoi l'instance doit en être une
-autre.
+produits. Dans Claude Code, c'est un subagent relecteur, qui tourne dans sa
+propre fenêtre de contexte, restreint à des outils en lecture seule, et
+versionné dans le dépôt pour que l'équipe partage un seul relecteur. Le TS 3.6
+de D3 met la même instance dans un pipeline ; ce qui relève d'ici, c'est
+pourquoi l'instance doit en être une autre.
 
 ### Découper une revue trop grande pour une seule passe
 
@@ -723,7 +739,7 @@ passe plutôt que d'élargir le contexte.
 
 | Passe | Périmètre | Ce qu'elle trouve |
 |---|---|---|
-| Per-file | Un fichier à la fois | Bugs locaux, problèmes de sécurité, qualité |
+| Par fichier | Un fichier à la fois | Bugs locaux, problèmes de sécurité, qualité |
 | Intégration | Signatures et sites d'appel sur l'ensemble modifié | Types incohérents aux frontières de modules, dépendances circulaires, flux de données cassés |
 
 ```bash
@@ -761,17 +777,17 @@ lue.
 ```
 
 Deux précautions gardent cela honnête. Une confidence reportée depuis
-l'intérieur du contexte de génération hérite de l'angle mort de ce contexte — la
-passe de vérification vaut d'être exécutée dans l'instance indépendante. Et un
-nombre auto-reporté est un signal de routage, pas une mesure : ce qui en fait
-une mesure, c'est de le comparer à des signalements dont vous connaissez déjà le
-verdict.
+l'intérieur du contexte de génération hérite de l'angle mort de ce contexte,
+donc la passe de vérification vaut d'être exécutée dans l'instance indépendante.
+Et un nombre auto-reporté est un signal de routage, pas une mesure : ce qui en
+fait une mesure, c'est de le comparer à des signalements dont vous connaissez
+déjà le verdict.
 
 ::: exam-tip
 Trois symptômes, trois réponses. Du code généré relu comme propre par la session
 qui l'a écrit → une seconde instance qui n'a pas vu la génération. Des
 signalements contradictoires d'un fichier à l'autre dans une grande revue →
-découper en passes per-file plus une passe d'intégration ; nommer la cause
+découper en passes par fichier plus une passe d'intégration ; nommer la cause
 « dilution de l'attention », pas « manque de contexte ». Trop de signalements
 pour que des humains les trient → une confidence auto-reportée par signalement,
 utilisée pour router.
@@ -781,10 +797,11 @@ un modèle à fenêtre de contexte plus large répond à la dilution par de la
 capacité, en confondant ce qui peut être tenu et la régularité avec laquelle
 c'est lu. Demander à la même session de « relire son travail de façon critique »
 ou y activer l'extended thinking restent tous deux à l'intérieur de la trace qui
-a causé le biais — le guide écarte précisément ces deux-là par leur nom. Trois
-passes complètes avec vote de consensus sonne rigoureux et jette tout vrai bug
-qu'une seule passe a vu. Et demander aux développeurs de découper leurs pull
-requests déplace le travail sur des personnes sans changer le système.
+a causé le biais. Le guide écarte précisément ces deux-là par leur nom. Trois
+passes complètes avec vote de consensus ont l'air rigoureuses et jettent tout
+vrai bug qu'une seule passe a vu. Et demander aux développeurs de découper
+leurs pull requests déplace le travail sur des personnes sans changer le
+système.
 :::
 
 ::: anti-pattern

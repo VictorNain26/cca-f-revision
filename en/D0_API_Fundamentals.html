@@ -14,6 +14,7 @@
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Skip to content</a>
 
 <nav class="navbar">
   <a class="home" href="../index.html">CCA-F</a>
@@ -32,6 +33,8 @@
 <div class="lang-switch">
   <a href="../D0_API_Fundamentals.html">FR</a>
 </div>
+
+<main id="content" tabindex="-1">
 
 <div class="header-bar">
 <h1>D0 — API foundations</h1>
@@ -132,8 +135,8 @@ body, never inside a message.</p>
 instructions in as a first <code>user</code> message is the most common shape error on
 this endpoint, and it changes how the model weighs them.</p>
 </div>
-<p>Exact model identifiers are not exam material. <code>temperature</code> is not either —
-the guide never names it, and no task statement turns on it; the row is here so
+<p>Exact model identifiers are not exam material. <code>temperature</code> is not either.
+The guide never names it, and no task statement turns on it; the row is here so
 you recognize the field in a request body you are handed, not to be memorized.</p>
 <p><strong>To test</strong> — the self-assessment questions of this page.</p>
 
@@ -163,7 +166,7 @@ are two roles:</p>
 <p><strong>The API stores nothing.</strong> Every request is independent and carries no memory
 of the ones before it. Ask &quot;What is quantum computing?&quot;, get an answer, then
 send &quot;Write another sentence&quot; on its own, and the model has no idea what it is
-being asked to extend — it will write a sentence about something else entirely.</p>
+being asked to extend, so it writes a sentence about something else entirely.</p>
 <p>Multi-turn conversation is therefore work you do, not a service the API renders:
 send the first user message, append Claude's reply to your list as an
 <code>assistant</code> message, append the follow-up as a <code>user</code> message, and send the
@@ -180,21 +183,46 @@ sentence&quot; mean anything on the third.</p>
 <p>Everything that must still be visible on turn five has to be in the array you
 send on turn five. This is the rule behind most &quot;the model forgot&quot; bugs, and it
 applies to tool results exactly as it applies to text. The same rule is why a
-spawned subagent has to be handed its context explicitly — it inherits nothing.</p>
+spawned subagent has to be handed its context explicitly, since it inherits
+nothing.</p>
 </div>
 <div class="anti-pattern">
 <p>Sending only the latest message and expecting the earlier turns to still be
 there. Nothing expires server-side, because nothing is stored server-side;
 rebuilding the history is the caller's job, on every single request.</p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;1.3&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
+<details id="d0-q3" data-domain="D0" data-task="1.3">
+<summary>Q3 A stateless API and a vanished tool_result</summary>
+<div>
+<p><strong>Scenario:</strong> A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.</p>
+<p><strong>Question:</strong> What is the most likely cause?</p>
+<p data-opt="a">A) The API keeps no state, and the caller did not resend the earlier <code>tool_result</code> blocks.</p>
+<p data-opt="b">B) A <code>tool_result</code> block expires server-side soon after it is submitted, so later requests miss it.</p>
+<p data-opt="c">C) The <code>max_tokens</code> value is too low to hold the <code>tool_result</code>, so the oldest blocks drop first.</p>
+<p data-opt="d">D) A <code>session_id</code> parameter is missing, so the server cannot attach this request to the earlier turn.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: the API is stateless and the history was not resent</p>
+<p><strong>Why:</strong> nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">Nothing expires server-side, because nothing is stored there.</li>
+<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send; and no block is dropped for you, because none is kept for you.</li>
+<li data-opt="d">The Messages API has no such parameter.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="../Practice_Questions.html?task=1.3">All bank questions on 1.3</a></p>
+</div>
 
 <div class="section-header"><h2 id="s3">3. Content blocks</h2></div>
 
-<p>A reply's <code>content</code> is never a bare string — it is a <strong>list of blocks</strong>, each
-with its own type. Reading a reply as text works only because you indexed into
-that list: <code>message.content[0].text</code> is the first block's text, not the message.
-The two directions are not symmetrical: a request accepts either form, a plain
+<p>A reply's <code>content</code> is never a bare string but a <strong>list of blocks</strong>, each with
+its own type. Reading a reply as text works only because you indexed into that
+list: <code>message.content[0].text</code> is the first block's text, not the message. The
+two directions are not symmetrical: a request accepts either form, a plain
 string or a list of blocks.</p>
 <table>
 <thead>
@@ -222,11 +250,11 @@ string or a list of blocks.</p>
 </tr>
 </tbody>
 </table>
-<p>A single assistant reply routinely holds several blocks at once — a text block
-explaining what it is about to do, plus a <code>tool_use</code> block requesting it. A
-<code>tool_result</code> block carries three fields: <code>tool_use_id</code>, matching the id of the
-<code>tool_use</code> block it answers; <code>content</code>, the function output serialized as a
-string; and <code>is_error</code>, a boolean. It travels back inside a <code>user</code> message,
+<p>A single assistant reply routinely holds several blocks at once, for instance a
+text block explaining what it is about to do plus a <code>tool_use</code> block requesting
+it. A <code>tool_result</code> block carries three fields: <code>tool_use_id</code>, matching the id
+of the <code>tool_use</code> block it answers; <code>content</code>, the function output serialized as
+a string; and <code>is_error</code>, a boolean. It travels back inside a <code>user</code> message,
 alongside the complete history.</p>
 <pre><code class="language-json">{ &quot;role&quot;: &quot;assistant&quot;, &quot;content&quot;: [
     { &quot;type&quot;: &quot;text&quot;, &quot;text&quot;: &quot;Let me look that order up.&quot; },
@@ -254,11 +282,12 @@ arguments. That is the anatomy, and it stops there. <strong>Which wording makes 
 model pick the right tool among several similar ones is tool design, developed
 in D2.1</strong>; <strong>using a schema to force a conforming payload is structured output,
 developed in D4.3.</strong></p>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;2.1&quot;</code>.</p>
+
+<p class="to-test"><a href="../Practice_Questions.html?task=2.1">All bank questions on 2.1</a></p>
 
 <div class="section-header"><h2 id="s4">4. <code>stop_reason</code></h2></div>
 
-<p>When the model stops, the response says why in <code>stop_reason</code> — and that field,
+<p>When the model stops, the response says why in <code>stop_reason</code>, and that field,
 not the presence of a text block, is what tells you whether a reply is finished.</p>
 <table>
 <thead>
@@ -314,12 +343,12 @@ and newer models return it without a beta header, and earlier models need the
   &quot;stop_details&quot;: null
 }
 </code></pre>
-<p>That response carries text <em>and</em> a tool request — which is exactly why the
+<p>That response carries text <em>and</em> a tool request, which is exactly why the
 presence of text cannot serve as a completion signal.</p>
 <div class="exam-tip">
 <p><code>end_turn</code> is the only value that means <em>complete</em>. A response with
 <code>stop_reason: &quot;max_tokens&quot;</code> holds a text block like any other, but it was cut
-off mid-sentence — display code that checks for text instead of checking
+off mid-sentence. Display code that checks for text instead of checking
 <code>stop_reason</code> will present a truncated draft as a finished one. That is the
 classic distractor on this field.</p>
 </div>
@@ -327,11 +356,35 @@ classic distractor on this field.</p>
 waiting on <strong>your</strong> tool always says <code>tool_use</code>, and you continue it by sending
 <code>tool_result</code> blocks. <code>pause_turn</code> concerns a <strong>server</strong> tool that ran out of
 iterations, and you continue it by sending the assistant content back unchanged.</p>
-<p>The guide only ever asks you to tell <code>tool_use</code> from <code>end_turn</code> — that pair
+<p>The guide only ever asks you to tell <code>tool_use</code> from <code>end_turn</code>. That pair
 drives the loop, and it is all TS 1.1 tests. <strong>Turning the check into a loop —
 call, inspect <code>stop_reason</code>, execute, append, call again — is the agentic loop,
 developed in D1.1.</strong> D0 stops at naming the signal.</p>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;1.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Test yourself on this section</h3>
+<details id="d0-q1" data-domain="D0" data-task="1.1">
+<summary>Q1 A stop_reason your display code ignores</summary>
+<div>
+<p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
+<p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
+<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> caps the size of the request being sent, not the length of the output.</p>
+<p data-opt="b">B) The token budget ran out mid-generation; only <code>"end_turn"</code> means the response is complete.</p>
+<p data-opt="c">C) The model refused to continue for safety reasons, so nothing should be shown and the attempt should be escalated for human review instead.</p>
+<p data-opt="d">D) A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
+<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer. Scope note: among stop reasons, the exam guide names only the pair that drives the agentic loop, and that loop is what the task this sheet prepares tests. <code>"max_tokens"</code>, <code>"refusal"</code> and <code>"pause_turn"</code> come from the API reference — D0 prerequisite material, not extra exam surface.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
+<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause. Nothing was refused here, so withholding the draft and escalating would stall a run that only needs continuing.</li>
+<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget. Nothing is paused waiting to resume, so an identical resend would simply regenerate the same truncated draft.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="../Practice_Questions.html?task=1.1">All bank questions on 1.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s5">5. System prompts</h2></div>
 
@@ -340,8 +393,8 @@ sits <strong>outside</strong> the conversation: it is not a turn, it has no role
 not something the model answers. It shapes <em>how</em> Claude responds, not <em>what</em> it
 responds.</p>
 <p>Take a maths tutor. Without a system prompt, &quot;How do I solve 5x + 2 = 3 for x?&quot;
-gets a complete step-by-step solution immediately — correct, and useless for
-teaching. With:</p>
+gets a complete step-by-step solution immediately, which is correct and useless
+for teaching. With:</p>
 <pre><code>You are a patient math tutor.
 Do not directly answer a student's questions.
 Guide them to a solution step by step.
@@ -352,14 +405,14 @@ behaviour.</p>
 <p>That is what a system prompt is for: assign a role, and the model answers the
 way someone in that role would; state durable constraints, and they hold across
 every turn without being restated. They hold because you resend them every
-request, not because the API remembers them — and you pay for them every time.</p>
+request, not because the API remembers them, and you pay for them every time.</p>
 <div class="anti-pattern">
 <p>Putting the system prompt in as the first <code>user</code> message. It then reads as
 conversational context rather than a standing instruction, and it competes with
 the turns around it instead of sitting above them.</p>
 </div>
 <div class="exam-tip">
-<p>A system instruction carries further than any per-turn wording — far enough that
+<p>A system instruction carries further than any per-turn wording, far enough that
 a single absolute keyword can override tool descriptions that are otherwise
 well written. &quot;Always verify the customer's identity&quot; will drag the
 nearest-matching tool onto every turn. <strong>How that overriding works, and how to
@@ -367,14 +420,16 @@ word around it, is developed in D2.1.</strong></p>
 </div>
 <p>One practical note: the API does not accept <code>system=None</code>, so a reusable chat
 helper has to add the key only when a prompt was actually given.</p>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;2.1&quot;</code>.</p>
+
+<p class="to-test"><a href="../Practice_Questions.html?task=2.1">All bank questions on 2.1</a></p>
 
 <div class="section-header"><h2 id="s6">6. The context window</h2></div>
 
-<p>Put the two previous facts together. The API keeps no state, so every request
-ships the entire history; and every request has a finite token budget. The
-history is therefore not free — it is a recurring cost that grows with the
-conversation, monotonically, unless you do something about it.</p>
+<p>The context window is the finite token budget every request must fit into, and
+the two previous facts set it against you: the API keeps no state, so every
+request ships the entire history. The history is therefore not free. It is a
+recurring cost that grows monotonically with the conversation, unless you do
+something about it.</p>
 <p>What accumulates, per request:</p>
 <table>
 <thead>
@@ -404,7 +459,7 @@ conversation, monotonically, unless you do something about it.</p>
 </table>
 <p>Tool results are the part people underestimate. A tool that returns a large
 record puts that record into the history for the rest of the run, and you pay
-for it on every subsequent turn — not once.</p>
+for it on every subsequent turn, not once.</p>
 <pre><code>lookup_order → 42 fields returned, 5 useful for return eligibility
   order_id, status, total, items, return_eligible          ← useful
   warehouse_route, carrier_scac, pick_wave, audit_flags,
@@ -422,35 +477,15 @@ specifics first.</p>
 <p>Recognize the three failure modes here; the fixes are not D0's. <strong>Trimming
 verbose tool outputs, extracting structured facts, and ordering input by
 position are developed in D5.1.</strong> Retrieval and chunking are not the answer the
-guide asks for — it puts them out of scope, and so does this corpus.</p>
+guide asks for. It puts them out of scope, and so does this corpus.</p>
 </div>
-<p><strong>To test</strong> — bank questions tagged <code>data-task=&quot;5.1&quot;</code>.</p>
+
+<p class="to-test"><a href="../Practice_Questions.html?task=5.1">All bank questions on 5.1</a></p>
 
 <div class="section-header"><h2 id="s7" class="page-break">7. Self-assessment questions</h2></div>
 
-<details id="d0-q1" data-domain="D0" data-task="1.1">
-<summary>Q1 (D0) — A stop_reason your display code ignores</summary>
-<div>
-<p><strong>Scenario:</strong> A drafting agent produces long documents. Your display code shows the API response to the user whenever <code>content</code> holds a text block. On one long document the response cuts off mid-sentence, yet the code still presents it as the finished draft. Inspecting the response, <code>stop_reason</code> is <code>"max_tokens"</code>.</p>
-<p><strong>Question:</strong> What does that value mean, and what should the display code check before treating a response as final?</p>
-<p data-opt="a">A) The response is complete; <code>"max_tokens"</code> caps the size of the request being sent, not the length of the output.</p>
-<p data-opt="b">B) The token budget ran out mid-generation; only <code>"end_turn"</code> means the response is complete.</p>
-<p data-opt="c">C) The model refused to continue for safety reasons, so nothing should be shown and the attempt should be escalated for human review instead.</p>
-<p data-opt="d">D) A server-side tool call was interrupted mid-turn, so resending the same request unchanged lets the paused turn pick up where it left off.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: "max_tokens" means truncated output, not completion</p>
-<p><strong>Why:</strong> <code>stop_reason</code> distinguishes several reasons generation stopped, and only <code>"end_turn"</code> marks a natural, complete stopping point. <code>"max_tokens"</code> means the output budget ran out mid-generation — the presence of a text block in <code>content</code> says nothing about whether that text is the whole answer. Scope note: among stop reasons, the exam guide names only the pair that drives the agentic loop, and that loop is what the task this sheet prepares tests. <code>"max_tokens"</code>, <code>"refusal"</code> and <code>"pause_turn"</code> come from the API reference — D0 prerequisite material, not extra exam surface.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Reverses cause and effect: the output token budget is exactly why this value was returned.</li>
-<li data-opt="c">Describes <code>"refusal"</code>, a distinct value with a distinct cause. Nothing was refused here, so withholding the draft and escalating would stall a run that only needs continuing.</li>
-<li data-opt="d">Describes <code>"pause_turn"</code>, which concerns an interrupted server tool, not an exhausted token budget. Nothing is paused waiting to resume, so an identical resend would simply regenerate the same truncated draft.</li>
-</ul>
-</div>
-</details>
-
 <details id="d0-q2" data-domain="D0" data-task="2.1">
-<summary>Q2 (D0) — Which part of a tool definition decides the routing</summary>
+<summary>Q2 Which part of a tool definition decides the routing</summary>
 <div>
 <p><strong>Scenario:</strong> An HR assistant exposes <code>search_policy_doc</code> ("Retrieves policy content") and <code>search_payroll_record</code> ("Retrieves payroll data"). Both accept employee identifiers of a similar shape, and the model routinely picks the wrong one.</p>
 <p><strong>Question:</strong> Which part of a tool definition drives that choice?</p>
@@ -470,29 +505,8 @@ guide asks for — it puts them out of scope, and so does this corpus.</p>
 </div>
 </details>
 
-<details id="d0-q3" data-domain="D0" data-task="1.3">
-<summary>Q3 (D0) — A stateless API and a vanished tool_result</summary>
-<div>
-<p><strong>Scenario:</strong> A build pipeline drives Claude across several requests. From one request to the next, a <code>tool_result</code> produced earlier is no longer visible to the model.</p>
-<p><strong>Question:</strong> What is the most likely cause?</p>
-<p data-opt="a">A) The API keeps no state, and the caller did not resend the earlier <code>tool_result</code> blocks.</p>
-<p data-opt="b">B) A <code>tool_result</code> block expires server-side soon after it is submitted, so later requests miss it.</p>
-<p data-opt="c">C) The <code>max_tokens</code> value is too low to hold the <code>tool_result</code>, so the oldest blocks drop first.</p>
-<p data-opt="d">D) A <code>session_id</code> parameter is missing, so the server cannot attach this request to the earlier turn.</p>
-<hr>
-<p class="correct" data-answer="a">Answer: the API is stateless and the history was not resent</p>
-<p><strong>Why:</strong> nothing carries over between requests. Every call must ship the complete <code>messages</code> array, tool results included; rebuilding that history is the caller's job. The same rule is what forces you to pass context explicitly to a spawned subagent.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">Nothing expires server-side, because nothing is stored there.</li>
-<li data-opt="c">That budget bounds the <em>output</em> length, not the size of the history you send; and no block is dropped for you, because none is kept for you.</li>
-<li data-opt="d">The Messages API has no such parameter.</li>
-</ul>
-</div>
-</details>
-
 <details id="d0-q4" data-domain="D0" data-task="2.1">
-<summary>Q4 (D0) — A standing rule that drags a tool onto every turn</summary>
+<summary>Q4 A standing rule that drags a tool onto every turn</summary>
 <div>
 <p><strong>Scenario:</strong> A greenhouse operations assistant opens its system prompt with "Every answer must reflect the current sensor readings." Logs show <code>read_sensors</code> firing on each turn, including when a grower asks how a cultivar name should be spelled in the planting log. Each tool definition spells out its inputs and where its job ends.</p>
 <p><strong>Question:</strong> What stops the needless calls?</p>
@@ -513,7 +527,7 @@ guide asks for — it puts them out of scope, and so does this corpus.</p>
 </details>
 
 <details id="d0-q5" data-domain="D0" data-task="2.3">
-<summary>Q5 (D0) — A triage loop that never writes its answer</summary>
+<summary>Q5 A triage loop that never writes its answer</summary>
 <div>
 <p><strong>Scenario:</strong> A ticket-triage client runs its own loop: send the request, run whatever tool comes back, append the result, send again. To stop the assistant from chatting while work remains, the client sets <code>tool_choice</code> to the value that guarantees a call — and it sets it on every request of the loop. Runs now end only when the client's iteration cap trips, and no written answer ever arrives.</p>
 <p><strong>Question:</strong> Why does the run never reach one?</p>
@@ -534,7 +548,7 @@ guide asks for — it puts them out of scope, and so does this corpus.</p>
 </details>
 
 <details id="d0-q6" data-domain="D0" data-task="4.3">
-<summary>Q6 (D0) — A mandatory field the source cannot fill</summary>
+<summary>Q6 A mandatory field the source cannot fill</summary>
 <div>
 <p><strong>Scenario:</strong> An invoice extraction tool lists <code>discount_pct</code> among its <code>required</code> properties, yet plenty of invoices grant no discount. Reviewers keep finding discount figures that appear nowhere on the invoice.</p>
 <p><strong>Question:</strong> What is happening, and what removes the cause?</p>
@@ -553,6 +567,11 @@ guide asks for — it puts them out of scope, and so does this corpus.</p>
 </ul>
 </div>
 </details>
+
+<p class="to-test"><a href="../Practice_Questions.html?task=2.3">All bank questions on 2.3</a></p>
+<p class="to-test"><a href="../Practice_Questions.html?task=4.3">All bank questions on 4.3</a></p>
+
+</main>
 
 <nav class="doc-nav">
   <a class="prev" href="../index.html"><span class="label">Previous</span><span class="title">Accueil</span></a>

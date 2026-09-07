@@ -5,7 +5,7 @@
 Quinze pour cent du score, six task statements, et le domaine qui pose une
 question différente des quatre précédents. D1 à D4 demandent comment construire
 la chose : la boucle, les outils, la configuration, le prompt. D5 demande ce qui
-est encore vrai après deux heures de fonctionnement — quels chiffres ont survécu
+est encore vrai après deux heures de fonctionnement : quels chiffres ont survécu
 au résumeur, de quel échec de subagent le coordinateur a seulement entendu
 parler, quelle affirmation du rapport final se laisse encore remonter jusqu'à la
 page dont elle vient.
@@ -13,6 +13,9 @@ page dont elle vient.
 Une section par task statement, dans l'ordre du guide et sous le libellé du
 guide, pour qu'une question rencontrée le jour J corresponde à une section d'ici
 sans traduction.
+
+
+<!-- cross-refs:start -->
 
 Quatre cours renvoient à celui-ci, et les quatre dettes sont réglées
 ci-dessous. **D0** a nommé les trois modes de défaillance d'une fenêtre de
@@ -33,6 +36,8 @@ et `fork_session` relèvent du TS 1.7. La passation structurée à un humain rel
 du TS 1.4. Chacune reçoit ici une phrase et un renvoi, jamais un second
 développement.
 
+<!-- cross-refs:end -->
+
 ## 5.1 — Manage conversation context to preserve critical information across long interactions
 <!-- ts:5.1 | src:exam guide TS 5.1 (the knowledge: progressive summarization condensing numerical values, percentages, dates and customer-stated expectations into vague summaries; the lost-in-the-middle effect, where models process the beginning and end of long inputs reliably but may omit findings from middle sections; how tool results accumulate and consume tokens disproportionately to their relevance, with the 40+ fields per order lookup when only 5 are relevant; the importance of passing complete conversation history in subsequent API requests. The skills: extracting transactional facts — amounts, dates, order numbers, statuses — into a persistent case facts block included in each prompt outside summarized history; extracting and persisting structured issue data into a separate context layer for multi-issue sessions; trimming verbose tool outputs to only relevant fields before they accumulate; placing key findings summaries at the beginning of aggregated inputs and organizing detailed results with explicit section headers; requiring subagents to include metadata — dates, source locations, methodological context — in structured outputs; modifying upstream agents to return structured data — key facts, citations, relevance scores — instead of verbose content and reasoning chains when downstream agents have limited context budgets) ; 08agentsdk L11 (updatedToolOutput replaces a tool's output before Claude sees it, for any tool and in both SDKs — L11 documents that field for normalising heterogeneous formats under TS 1.5, and applying it to trimming is this course's deduction, not the source's: the guide's trimming skill names no mechanism) ; 06claudecode101 L6 (everything that enters the context window: prompts, file reads, tool calls and their results; automatic compaction summarises and can lose details) -->
 
@@ -44,7 +49,7 @@ que font les résumeurs : il a gardé la forme de la conversation et laissé tom
 les détails précis.
 
 C'est le premier des trois risques que le guide nomme, et les trois méritent
-d'être tenus comme un ensemble parce que chacun a sa parade — et répondre avec la
+d'être tenus comme un ensemble parce que chacun a sa parade, et répondre avec la
 mauvaise parade est la façon dont on rate ce task statement.
 
 | Mode de défaillance | Ce qu'il détruit | La parade que ce task statement demande |
@@ -53,11 +58,11 @@ mauvaise parade est la façon dont on rate ce task statement.
 | **Lost in the middle** | Les découvertes enfouies au milieu d'une entrée longue — le début et la fin sont lus de façon fiable | Les découvertes clés en tête, des en-têtes de section explicites sur le détail |
 | **Accumulation des résultats d'outils** | Rien, mais elle consomme des tokens sans commune mesure avec sa pertinence | Réduire la sortie aux champs pertinents avant qu'elle n'entre dans le contexte |
 
-D0 possède l'anatomie derrière ce tableau — pourquoi chaque requête renvoie tout
+D0 possède l'anatomie derrière ce tableau : pourquoi chaque requête renvoie tout
 l'historique, et pourquoi un résultat d'outil est un coût récurrent et non
 ponctuel. L'un des points de connaissance du guide pour ce task statement relève
-de cette anatomie et mérite d'être redit en une ligne : **l'historique complet de
-la conversation doit être passé dans chaque requête API suivante**, parce que
+de cette anatomie et mérite d'être redit en une ligne : **l'historique complet
+de la conversation doit être passé dans chaque requête API suivante**, parce que
 l'API ne stocke rien entre les appels et qu'un historique tronqué est un modèle
 qui a réellement oublié.
 
@@ -121,10 +126,10 @@ laquelle leurs résultats sont réécrits.
 
 ### Réduire la sortie des outils avant qu'elle ne s'accumule
 
-Le chiffre du guide lui-même : une consultation de commande retourne **plus de 40
-champs quand 5 sont pertinents** pour la tâche en cours. Ces 40 champs ne sont pas
-seulement présents une fois — ils sont renvoyés à chaque requête suivante pour
-tout le reste de la session.
+Le chiffre du guide lui-même : une consultation de commande retourne **plus de
+40 champs quand 5 sont pertinents** pour la tâche en cours. Ces 40 champs ne
+sont pas seulement présents une fois ; ils sont renvoyés à chaque requête
+suivante pour tout le reste de la session.
 
 ```text
 lookup_order(ORD-67890) →
@@ -135,13 +140,13 @@ lookup_order(ORD-67890) →
 
 Le skill consiste à réduire **avant** que le résultat n'entre dans le contexte,
 c'est-à-dire entre le retour de l'outil et la lecture du modèle. **Le guide ne
-nomme aucun mécanisme pour cela** — il énonce le skill et s'arrête là. Un
+nomme aucun mécanisme pour cela** : il énonce le skill et s'arrête là. Un
 mécanisme se tient exactement dans cette fenêtre : un hook `PostToolUse`, dont
 l'`updatedToolOutput` remplace la sortie d'un outil avant que Claude ne la voie.
 La documentation du SDK présente ce champ pour un autre usage — normaliser des
-formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est propre
-à la normalisation, donc il sert aussi celui-ci. La déduction est celle de ce
-cours ; le champ et son moment d'exécution sont ceux de la documentation.
+formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est
+propre à la normalisation, donc il sert aussi celui-ci. La déduction est celle
+de ce cours ; le champ et son moment d'exécution sont ceux de la documentation.
 
 ```python
 async def trim_order_lookup(input_data, tool_use_id, context):
@@ -246,10 +251,10 @@ Les distracteurs du premier cas sont tous des tentatives de faire bien se tenir
 la compression. **Passer à un modèle à fenêtre de contexte plus large** repousse
 la limite sans rien protéger : une conversation assez longue atteint aussi la
 nouvelle limite, et la même compression détruit les mêmes faits. **Compacter
-moins souvent** est la même esquive formulée côté fréquence — cela change quand
-les nombres sont détruits, pas si. **Demander au résumeur de garder chaque nombre
-et chaque date** est le plus tentant parce qu'il nomme le bon symptôme, et c'est
-une demande plutôt qu'une garantie.
+moins souvent** est la même esquive formulée côté fréquence : cela change quand
+les nombres sont détruits, pas si. **Demander au résumeur de garder chaque
+nombre et chaque date** est le plus tentant parce qu'il nomme le bon symptôme,
+et c'est une demande plutôt qu'une garantie.
 :::
 
 ::: anti-pattern
@@ -289,14 +294,14 @@ testée — sur les signaux autorisés à la déplacer.
 Deux de ces quatre méritent leur propre phrase, parce que le libellé du guide est
 précis et que les quasi-réponses sont la matière des distracteurs.
 
-**Une lacune de politique n'est pas la même chose qu'un cas complexe.** L'exemple
-du guide lui-même : le client demande l'alignement sur le prix d'un concurrent, et
-la politique tarifaire ne traite que les ajustements de prix sur votre propre
-site. La demande n'est pas difficile — aligner un prix, c'est un appel d'outil.
-Elle est *non tranchée*. Rien dans la politique ne l'autorise et rien ne
-l'interdit, donc l'accorder serait l'agent en train d'inventer la politique
-commerciale. C'est cela, le déclencheur, et « le cas était complexe » ne l'est
-pas.
+**Une lacune de politique n'est pas la même chose qu'un cas complexe.**
+L'exemple du guide lui-même : le client demande l'alignement sur le prix d'un
+concurrent, et la politique tarifaire ne traite que les ajustements de prix sur
+votre propre site. La demande n'est pas difficile, puisque aligner un prix,
+c'est un appel d'outil. Elle est *non tranchée*. Rien dans la politique ne
+l'autorise et rien ne l'interdit, donc l'accorder serait l'agent en train
+d'inventer la politique commerciale. C'est cela, le déclencheur, et « le cas
+était complexe » ne l'est pas.
 
 **Plusieurs correspondances sont une ambiguïté, pas une escalade.** Trois
 sociétés partagent un nom commercial ; la parade est de demander un numéro de
@@ -315,6 +320,18 @@ pour empêcher.
 La confiance auto-déclarée revient en 5.5 comme une partie de la *bonne* réponse,
 sous une autre forme et pour un autre usage. La distinction y est posée, et il
 vaut la peine de lire les deux sections l'une contre l'autre une fois.
+
+::: key-concept
+**Trois déclencheurs, et une ambiguïté n'en fait pas partie.** Le guide accepte
+qu'un client demande un humain, qu'il y ait une lacune ou une exception dans la
+politique, et l'incapacité à progresser réellement : les trois sont vérifiables
+sans interroger le modèle. Le ton et la confiance auto-déclarée sont rejetés
+parce qu'ils estiment la difficulté d'un cas, et la difficulté n'a jamais été un
+déclencheur ; l'exemple de l'alignement de prix tient en un appel d'outil, et il
+escalade parce que la politique n'a rien tranché. Une consultation qui retourne
+plusieurs correspondances est le cas à garder à part : elle appelle un
+identifiant discriminant, pas un humain.
+:::
 
 ### Les trois comportements, et celui qui est testé
 
@@ -379,10 +396,10 @@ Pourquoi : la politique ne couvre que nos propres ajustements de prix. Le silenc
 ```
 
 Les critères portent la règle ; les exemples portent son application aux cas où
-la règle est ambiguë — ce qui est toute la raison pour laquelle un critère avait
+la règle est ambiguë, ce qui est toute la raison pour laquelle un critère avait
 besoin d'exemples. Les critères seuls laissent « est-ce une lacune de
-politique ? » à trancher de nouveau à chaque tour. Les exemples seuls généralisent de trois
-cas vers une politique que personne n'a écrite.
+politique ? » à trancher de nouveau à chaque tour. Les exemples seuls
+généralisent de trois cas vers une politique que personne n'a écrite.
 
 Quand l'agent escalade effectivement en cours de traitement, ce qu'il remet à
 l'humain — identité du client, cause racine, montant, action recommandée, dans un
@@ -390,21 +407,21 @@ résumé qui tient sans le transcript — est la **passation structurée**, test
 TS 1.4 et développée en D1.4.
 
 ::: exam-tip
-Le scénario vous dit quel déclencheur s'est allumé ; la formulation du message du
-client est toute la question.
+Le scénario vous dit quel déclencheur s'est allumé ; la formulation du message
+du client est toute la question.
 
-« Je veux un responsable » → escalader maintenant, et *pas* « investiguer d'abord,
-puis escalader si besoin » — cette réponse a l'air consciencieuse et elle fait
-attendre, à travers une investigation qu'il n'a pas voulue, un client qui a déjà
-demandé. « C'est scandaleux » → reconnaître, résoudre, escalader sur réitération.
-« La politique ne traite pas ce cas » → escalader, et non « appliquer la règle
-analogue la plus proche ». « Trois clients correspondent » → demander un autre
-identifiant, et non « prendre le plus probable ».
+« Je veux un responsable » → escalader maintenant, et *pas* « investiguer
+d'abord, puis escalader si besoin ». Cette réponse a l'air consciencieuse et
+elle fait attendre, à travers une investigation qu'il n'a pas voulue, un client
+qui a déjà demandé. « C'est scandaleux » → reconnaître, résoudre, escalader sur
+réitération. « La politique ne traite pas ce cas » → escalader, et non
+« appliquer la règle analogue la plus proche ». « Trois clients correspondent »
+→ demander un autre identifiant, et non « prendre le plus probable ».
 
 Les mauvaises réponses récurrentes sont celles qui sonnent comme de la mesure :
 un score de sentiment, un seuil de confiance auto-déclarée, un classifieur
-entraîné qui exigerait des données d'escalade étiquetées dont personne ne dispose.
-Chacune remplace une règle énoncée par une règle inférée.
+entraîné qui exigerait des données d'escalade étiquetées dont personne ne
+dispose. Chacune remplace une règle énoncée par une règle inférée.
 :::
 
 ::: anti-pattern
@@ -491,17 +508,17 @@ cachera derrière une formule commune comme « pas de données » :
 | `0 results` pour une requête qui a bien tourné | **Résultat vide valide** — la question a reçu une réponse, et la réponse est « aucun » | L'accepter comme une découverte, et l'enregistrer comme couverture |
 
 Les deux sont opposées par le sens et identiques d'apparence dès lors que les
-deux sont rapportées comme « pas de données ». Les rapporter de la même façon est
-la manière dont un coordinateur conclut qu'un ingénieur n'a aucune certification
-alors que le système de badges a simplement omis de répondre — une découverte
-fausse, produite avec pleine confiance, à partir d'une erreur qui n'a jamais été
-remontée.
+deux sont rapportées comme « pas de données ». Les rapporter de la même façon
+est la manière dont un coordinateur conclut qu'un ingénieur n'a aucune
+certification alors que le système de badges a simplement omis de répondre : une
+découverte fausse, produite avec pleine confiance, à partir d'une erreur qui n'a
+jamais été remontée.
 
 ### Récupérer localement, propager ce que vous ne pouvez pas résoudre
 
 Le partage des rôles du guide : **les subagents implémentent la récupération
 locale des échecs transitoires, et ne propagent que ce qu'ils ne peuvent pas
-résoudre** — avec ce qui a été tenté et les résultats partiels éventuels
+résoudre**, avec ce qui a été tenté et les résultats partiels éventuels
 attachés.
 
 ```python
@@ -533,11 +550,11 @@ async def search_topic(query: str):
 ```
 
 Deux moitiés, et l'examen teste la frontière entre elles. Réessayer une erreur
-réseau transitoire à l'intérieur du subagent est juste — un coordinateur n'a pas
+réseau transitoire à l'intérieur du subagent est juste ; un coordinateur n'a pas
 besoin d'arbitrer un hoquet. Réessayer avec un backoff exponentiel *puis*
-rapporter `"search unavailable"` est l'anti-pattern déguisé en bonne ingénierie :
-la récupération était bonne, le rapport a détruit tout ce dont le coordinateur
-avait besoin.
+rapporter `"search unavailable"` est l'anti-pattern déguisé en bonne
+ingénierie : la récupération était bonne, le rapport a détruit tout ce dont le
+coordinateur avait besoin.
 
 Une conséquence à connaître, parce qu'elle met en échec tout le dispositif : une
 erreur d'API qui interrompt un subagent — une limite de débit, par exemple —
@@ -622,13 +639,13 @@ Deux heures après le début d'un audit d'un module d'inventaire legacy, on dema
 jobs de réconciliation suivent en général le pattern observateur » — alors qu'il a
 lu `StockLedgerSync` et tracé ses trois appelants une heure plus tôt.
 
-Cette phrase est le diagnostic. Le guide décrit le symptôme avec précision : **des
-réponses incohérentes, et des références à des « patterns typiques » plutôt qu'aux
-classes précises découvertes plus tôt**. Le modèle a cessé de répondre depuis la
-codebase et s'est mis à répondre depuis le cas général, parce que les éléments
-précis ne sont plus exploitables dans son contexte. Aucune instruction ne corrige
-cela — on ne peut pas demander à un agent de se souvenir de ce qu'il ne détient
-plus.
+Cette phrase est le diagnostic. Le guide décrit le symptôme avec précision :
+**des réponses incohérentes, et des références à des « patterns typiques »
+plutôt qu'aux classes précises découvertes plus tôt**. Le modèle a cessé de
+répondre depuis la codebase et s'est mis à répondre depuis le cas général, parce
+que les éléments précis ne sont plus exploitables dans son contexte. Aucune
+instruction ne corrige cela. On ne peut pas demander à un agent de se souvenir
+de ce qu'il ne détient plus.
 
 ### Les fichiers scratchpad
 
@@ -687,10 +704,10 @@ dépendance casse.
 **Et résumez entre les phases.** Le skill est facile à sauter et le guide
 l'énonce explicitement : avant de lancer les subagents de la phase suivante,
 résumer les découvertes clés de la phase en cours et **injecter ce résumé dans
-leur contexte initial**. Un subagent n'hérite de rien (TS 1.3) — ni de
-l'historique du parent, ni des découvertes de la phase précédente. Sans le résumé
-injecté, la phase deux redécouvre ce que la phase un savait déjà, ou pire, la
-contredit sans le savoir.
+leur contexte initial**. Un subagent n'hérite de rien (TS 1.3) : ni de
+l'historique du parent, ni des découvertes de la phase précédente. Sans le
+résumé injecté, la phase deux redécouvre ce que la phase un savait déjà, ou
+pire, la contredit sans le savoir.
 
 ### `/compact`, et ce qu'il ne promet pas
 
@@ -747,14 +764,14 @@ terminée et que l'analyse a été interrompue, et reprend sans relancer le trav
 déjà fait. Le manifeste porte l'état du workflow ; le fichier de chaque agent
 porte ses découvertes, sa couverture et ses lacunes.
 
-C'est un mécanisme différent du scratchpad, et les confondre est une erreur bon
-marché : un scratchpad contrecarre la *dégradation* à l'intérieur de la session d'un
-agent, un manifeste survit à un *crash* à l'échelle d'un workflow. La
-documentation du SDK pointe dans le même sens pour les sessions en général —
-capturer les résultats dont vous avez besoin comme état applicatif et les passer
-dans le prompt d'une session neuve est plus robuste que de reprendre une session
-dont les résultats d'outils ont vieilli. La reprise de session elle-même,
-`--resume` et `fork_session`, relève du TS 1.7 et vit en D1.
+C'est un mécanisme différent du scratchpad, et les confondre est une erreur
+vite commise : un scratchpad contrecarre la *dégradation* à l'intérieur de la
+session d'un agent, un manifeste survit à un *crash* à l'échelle d'un workflow.
+La documentation du SDK pointe dans le même sens pour les sessions en général,
+où capturer les résultats dont vous avez besoin comme état applicatif et les
+passer dans le prompt d'une session neuve est plus robuste que de reprendre une
+session dont les résultats d'outils ont vieilli. La reprise de session
+elle-même, `--resume` et `fork_session`, relève du TS 1.7 et vit en D1.
 
 ::: key-concept
 **Quatre mécanismes, quatre rôles différents.** La délégation empêche la sortie
@@ -770,13 +787,14 @@ réponses sont les trois autres.
 formule signature de la dégradation du contexte, et la réponse est un scratchpad
 qu'il relit, la délégation de la découverte verbeuse, ou les deux.
 
-Les distracteurs visent chacun le symptôme. **Redémarrer dans une session propre**
-supprime la dégradation en jetant l'investigation, et la même session longue la
-reproduit puisque rien n'a été rendu persistant. **Augmenter `max_tokens`**
-confond deux budgets : ce paramètre borne la longueur de la réponse générée, pas
-ce que l'agent détient encore en entrée. **Dire à l'agent de se concentrer sur le
-code réel et de citer ses sources** lui décrit le symptôme — aucune instruction ne
-restaure une information qui n'est plus exploitable.
+Les distracteurs visent chacun le symptôme. **Redémarrer dans une session
+propre** supprime la dégradation en jetant l'investigation, et la même session
+longue la reproduit puisque rien n'a été rendu persistant. **Augmenter
+`max_tokens`** confond deux budgets : ce paramètre borne la longueur de la
+réponse générée, pas ce que l'agent détient encore en entrée. **Dire à l'agent
+de se concentrer sur le code réel et de citer ses sources** lui décrit le
+symptôme, et aucune instruction ne restaure une information qui n'est plus
+exploitable.
 :::
 
 ::: anti-pattern
@@ -802,7 +820,7 @@ confiance. Creusez le chiffre : les factures scannées sont à 60 %, tandis que 
 champ du numéro de TVA est faux 40 % du temps.
 
 Rien dans ces 97 % n'est faux. C'est une moyenne sur une population, et une
-moyenne masque la structure par construction — ce qui est le premier point de
+moyenne masque la structure par construction, ce qui est le premier point de
 connaissance du guide et le piège sur lequel tout ce task statement est bâti.
 
 Ce task statement pose deux questions séparées, et les confondre est la façon dont
@@ -838,14 +856,14 @@ d'automatiser**, pas après. Automatiser d'abord et mesurer ensuite, c'est faire
 arriver la mesure par les réclamations clients.
 
 L'**échantillonnage aléatoire stratifié** est ce qui garde la mesure honnête une
-fois l'automatisation en marche. L'échantillon est tiré **à l'intérieur de chaque
-segment** plutôt que sur la population entière, parce qu'un tirage aléatoire
-simple dans une population dominée par les PDF natifs ne contiendra presque aucun
-formulaire manuscrit — précisément le segment qui échoue. Le guide lui donne deux
-rôles : mesurer le **taux d'erreur des extractions à haute confiance**, et
-**détecter les patterns d'erreur nouveaux** — ceux qu'aucune règle existante
-n'attrape, et qui par définition ne peuvent pas être trouvés en regardant là où
-l'on sait déjà regarder.
+fois l'automatisation en marche. L'échantillon est tiré **à l'intérieur de
+chaque segment** plutôt que sur la population entière, parce qu'un tirage
+aléatoire simple dans une population dominée par les PDF natifs ne contiendra
+presque aucun formulaire manuscrit, précisément le segment qui échoue. Le guide
+lui donne deux rôles : mesurer le **taux d'erreur des extractions à haute
+confiance**, et **détecter les patterns d'erreur nouveaux**, ceux qu'aucune
+règle existante n'attrape, et qui par définition ne peuvent pas être trouvés en
+regardant là où l'on sait déjà regarder.
 
 ```text
 Volume quotidien 9 000 → tirer 40 dans chaque strate, pas 200 sur l'ensemble
@@ -898,9 +916,9 @@ la calibration par champ ci-dessus viennent du guide.
 
 Deux choses passent en priorité dans la file de relecture, et le guide nomme les
 deux : la **faible confiance du modèle**, et les **documents sources ambigus ou
-contradictoires** — deux totaux qui divergent, une date illisible, un champ
-raturé. La seconde ne dépend pas du tout de l'avis du modèle ; c'est une propriété
-de l'entrée.
+contradictoires**, c'est-à-dire deux totaux qui divergent, une date illisible,
+un champ raturé. La seconde ne dépend pas du tout de l'avis du modèle ; c'est
+une propriété de l'entrée.
 
 ::: key-concept
 **Les deux visages de la confiance, et pourquoi ce n'est pas une contradiction.**
@@ -916,22 +934,23 @@ deux elle propose.
 
 ::: exam-tip
 « 97 % au global » dans un scénario est l'indice, et la réponse est toujours :
-ventiler par type de document et par champ, et confirmer la constance dans chaque
-segment *avant* de réduire la relecture.
+ventiler par type de document et par champ, et confirmer la constance dans
+chaque segment *avant* de réduire la relecture.
 
 Les distracteurs se rangent en deux familles. Contre la mesure : **comparer les
 trimestres jusqu'à ce que l'agrégat paraisse stable** — quatre trimestres d'un
-agrégat ne révèlent aucune structure ; **ne relire que les types de documents qui
-ont déjà produit des réclamations** — un signal tardif, puisque l'erreur est
+agrégat ne révèlent aucune structure ; **ne relire que les types de documents
+qui ont déjà produit des réclamations** — un signal tardif, puisque l'erreur est
 arrivée chez le client, et biaisé, puisque seules les erreurs visibles
 reviennent.
 
-Contre le routage : **un score de confiance par document**, qui est de nouveau le
-problème de l'agrégat ; **le modèle qui note sa propre certitude de 1 à 10**, qui
-est la version non calibrée et ne correspond à aucun taux d'erreur connu ;
-**échantillonner une part fixe au hasard et relire celle-là** — une confusion
-d'usage, puisque l'échantillonnage stratifié mesure un taux d'erreur et détecte
-des patterns nouveaux, il n'alloue pas une capacité rare là où est le risque.
+Contre le routage : **un score de confiance par document**, qui est de nouveau
+le problème de l'agrégat ; **le modèle qui note sa propre certitude de 1 à 10**,
+qui est la version non calibrée et ne correspond à aucun taux d'erreur connu ;
+**échantillonner une part fixe au hasard et relire celle-là**, ce qui est une
+confusion d'usage, puisque l'échantillonnage stratifié mesure un taux d'erreur
+et détecte des patterns nouveaux, et n'alloue pas une capacité rare là où est le
+risque.
 :::
 
 ::: anti-pattern
@@ -990,6 +1009,17 @@ Deux points de conception font que cela survit au pipeline :
   source, nom du document, numéro de page, date de publication — doit y être exigé,
   sans quoi il n'arrivera pas.
 
+
+::: key-concept
+**La provenance se préserve, elle ne se restaure jamais.** L'URL, la date et la
+méthodologie n'existent que dans l'étape qui a lu la source, si bien que tout
+remède agissant après la compression demande à un agent de reconstruire ce qu'il
+n'a jamais reçu : une passe finale qui « ajoute les citations », un agent de
+synthèse chargé d'attacher les sources lui-même. C'est pourquoi l'exigence
+retombe sur le prompt du subagent et sur l'obligation de l'agent de synthèse de
+faire passer les mappings. Dans un scénario, trouvez l'étape où l'attribution
+existait encore ; les mauvaises réponses agissent toutes en aval de celle-ci.
+:::
 
 ### Valeurs contradictoires : annoter, ne pas choisir
 
@@ -1069,10 +1099,11 @@ par deux côtés : sur quoi ceci repose-t-il, et que lui manque-t-il.
 
 ### Rendre chaque type de contenu dans sa forme propre
 
-Le dernier skill porte sur le format de sortie, et c'est celui qui prend les gens
-de court parce que rien en amont n'est cassé quand il se déclenche. Un agent de
-synthèse reçoit du matériau hétérogène et est tenté de tout couler dans une seule
-forme — de la prose en général, parce que la prose est le défaut.
+Le dernier skill porte sur le format de sortie, et c'est celui qui prend les
+gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
+agent de synthèse reçoit du matériau hétérogène et est tenté de tout couler dans
+une seule forme, de la prose en général, parce que la prose est le format par
+défaut.
 
 | Type de contenu | Rendu en | Pourquoi |
 |---|---|---|
@@ -1086,21 +1117,21 @@ et inexploitables.
 ::: exam-tip
 Quand un scénario reproche à un rapport de synthèse d'être **difficile à
 exploiter** alors que le contenu est exact et bien sourcé, ne cherchez pas en
-amont — les subagents ont fait leur travail. Le défaut est le rendu uniforme à
-l'étape de synthèse, et la correction consiste à instruire l'agent de synthèse de
-rendre chaque type de contenu dans sa forme propre.
+amont : les subagents ont fait leur travail. Le défaut est le rendu uniforme à
+l'étape de synthèse, et la correction consiste à instruire l'agent de synthèse
+de rendre chaque type de contenu dans sa forme propre.
 
 Quand le reproche est que les **affirmations ne peuvent pas être tracées**,
 regardez l'étape de résumé au milieu, et exigez des mappings affirmation-source
-structurés que les agents en aval préservent — pas une passe finale demandant à
-l'agent de synthèse d'« ajouter les citations », ce qui revient à lui demander de
-reconstituer des URL qu'il n'a plus.
+structurés que les agents en aval préservent, pas une passe finale demandant à
+l'agent de synthèse d'« ajouter les citations », ce qui revient à lui demander
+de reconstituer des URL qu'il n'a plus.
 
 Sur les statistiques contradictoires, trois mauvaises réponses reviennent :
 **garder le chiffre le plus récent** (la récence est un départage arbitraire qui
 supprime une preuve valide), **faire la moyenne des deux** (fabriquer un nombre
-qu'aucune source ne rapporte), et **écarter la statistique** (appauvrir le rapport
-au lieu de qualifier l'incertitude).
+qu'aucune source ne rapporte), et **écarter la statistique** (appauvrir le
+rapport au lieu de qualifier l'incertitude).
 :::
 
 ::: anti-pattern

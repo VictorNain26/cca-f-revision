@@ -7,6 +7,8 @@ section per task statement, in the guide's own order and under the guide's own
 wording — so that a question spotted on exam day maps to a section here
 without translation.
 
+<!-- cross-refs:start -->
+
 D0 is assumed. This course starts where D0 stopped: D0 named `stop_reason` and
 said what each value means; D1 turns that check into a loop, then into a system
 of agents around it.
@@ -16,6 +18,8 @@ The guide places neighbouring notions elsewhere, and this course honours that.
 responses in TS 2.2 and TS 5.3; the `.claude/agents/` files and the `/agents`
 command are Claude Code configuration, tested in domain 3. Each of those gets a
 sentence and a pointer here, never a second development.
+
+<!-- cross-refs:end -->
 
 ## 1.1 — Design and implement agentic loops for autonomous task execution
 <!-- ts:1.1 | src:08agentsdk L2 (the five-step cycle, the stop_reason table, several tool_use blocks in one reply and their results returned in one user message, the three named anti-patterns, model-driven vs pre-configured decision tree), L3 (maxTurns and maxBudgetUsd as bounds) ; exam guide TS 1.1 -->
@@ -69,8 +73,8 @@ asks the same question forever.
 
 ### Several calls in one reply
 
-One reply can also carry **several** `tool_use` blocks at once — two lookups the
-model wants done together, for instance. Run them all, then send every
+One reply can also carry **several** `tool_use` blocks at once, for instance two
+lookups the model wants done together. Run them all, then send every
 `tool_result` back in a *single* `user` message, one block per call. That is the
 same mechanism a coordinator uses to start several subagents at once, developed
 in 1.3.
@@ -94,7 +98,8 @@ distractors on this task statement:
   still pending in the same reply.
 - **Using an arbitrary iteration cap** (`max_iterations = 5`) as the primary
   stopping mechanism. A cap is a guardrail against a runaway agent, not a
-  statement about whether the work is finished — it cuts legitimate runs short.
+  statement about whether the work is finished, and it cuts legitimate runs
+  short.
 - **Checking for text content** as a completion indicator. Text and `tool_use`
   travel in the same reply; the presence of one says nothing about the other.
 :::
@@ -120,12 +125,12 @@ above, dressed up.
 ## 1.2 — Orchestrate multi-agent systems with coordinator-subagent patterns
 <!-- ts:1.2 | src:08agentsdk L4 (hub-and-spoke as a design choice, the coordinator's role, the narrow-decomposition risk), L14 (iterative refinement, scope partitioning, local recovery before propagation) ; 03subagents L1 (context isolation, the summary that comes back), L4 (the decision rule: does the intermediate work matter to the caller) ; exam guide TS 1.2 -->
 
-Before the architecture, the decision. A subagent runs in its own context
-window, does its work, and returns only a summary; the intermediate reads,
-searches and tool calls are discarded with it. That trade has one question:
-**does the intermediate work matter to the caller?** If you only need the
-answer, delegate. If you need to see and react to each step, keep it in the
-main thread.
+Delegating to a subagent is a decision that comes before any architecture. A
+subagent runs in its own context window, does its work, and returns only a
+summary; the intermediate reads, searches and tool calls are discarded with it.
+That trade has one question: **does the intermediate work matter to the
+caller?** If you only need the answer, delegate. If you need to see and react to
+each step, keep it in the main thread.
 
 ### The hub-and-spoke shape
 
@@ -179,7 +184,7 @@ named remedy for incomplete coverage.
 Subagents start from an **isolated context**: they do not inherit the
 coordinator's conversation history, and they share no memory between
 invocations. Everything a spoke needs travels in the prompt the hub writes for
-it — the mechanics are TS 1.3, below.
+it, and the mechanics of that passing are TS 1.3, below.
 :::
 
 ### Decomposition that is too narrow
@@ -189,7 +194,7 @@ coordinator**. Asked for a brief on "AI impact on creative industries", a
 coordinator splits it into "AI in digital art", "AI in graphic design" and "AI
 in photography". Each subagent executes its brief correctly. The report covers
 visual art only; music, literature and film are simply absent. Nothing failed
-downstream — the assignment was already incomplete.
+downstream. The assignment was already incomplete.
 
 ::: exam-tip
 When every subagent did what it was asked and the final report still misses
@@ -228,7 +233,7 @@ error payloads — categories, retryability, business versus permission failures
 <!-- ts:1.3 | src:08agentsdk L2 (parallel spawning: several calls emitted in one response, not one per turn), L4 (the receives/does-not-receive table, what it implies for context passing and attribution metadata), L5 (AgentDefinition fields, the tool-restriction table, Agent in allowedTools for auto-approval), L13 (default permission mode: without a canUseTool callback an unapproved call is refused), L15 §1 (the Task → Agent rename, and what the exam expects) ; 03subagents L2 (the config fields), L3 (the description's double role, output format as a stopping point, limiting tool access) ; exam guide TS 1.3 -->
 <!-- owns:subagent-isolation -->
 
-The mechanism is a tool. A coordinator spawns a subagent by calling the
+The spawning mechanism is a tool: a coordinator spawns a subagent by calling the
 **`Task` tool**, and its `allowedTools` must include `"Task"` for those
 invocations to be auto-approved. Leave it out and the call falls back to the
 permission flow: under the default mode, with no `canUseTool` callback to answer
@@ -254,9 +259,9 @@ this domain:
 | Its tool definitions — inherited, or the subset it was given | Any memory of a previous invocation of itself |
 
 The consequence is decisive: **the only content that crosses from parent to
-subagent is the prompt string of the spawning call.** File paths, error
-messages, prior search results, decisions already taken — if they are not in
-that string, the subagent does not have them.
+subagent is the prompt string of the spawning call.** If file paths, error
+messages, prior search results or decisions already taken are not in that
+string, the subagent does not have them.
 
 ```text
 Bad   Task: "Analyse the document."
@@ -271,11 +276,21 @@ Good  Task: "Analyse the document below and return the clause table.
              OUTPUT FORMAT: one row per clause — clause_type, text, page."
 ```
 
-Note what the good version does beyond being long. It uses a **structured
-format that separates content from metadata** — source URL, document name, page
-number, retrieval date live in their own fields, not woven into prose. That is
-what preserves attribution all the way to the final report, and the guide names
-it as a skill of this task statement.
+Note what the good version does beyond being long. It uses a **structured format
+that separates content from metadata**. Source URL, document name, page number
+and retrieval date live in their own fields, not woven into prose. That is what
+preserves attribution all the way to the final report, and the guide names it as
+a skill of this task statement.
+
+::: key-concept
+**Nothing is inherited: the prompt string is the whole channel.** A subagent
+that returns a thin or off-target answer was under-briefed, not
+under-resourced. That sorts the options in one move: enlarging its context
+window, handing it the parent's transcript, or letting it read another
+subagent's work all treat isolation as a defect to be worked around, when it is
+the mechanism itself. Whatever the subagent needs goes into the spawning
+prompt.
+:::
 
 ### Parallelism: one reply, several calls
 
@@ -334,7 +349,7 @@ is the fourth skill the guide lists under this task statement:
 
 ### Restricting a subagent's tools
 
-Tool restrictions belong here too — the guide lists them among this task
+Tool restrictions belong here too, since the guide lists them among this task
 statement's knowledge. A read-only research subagent gets `Read`, `Grep`,
 `Glob`; a reviewer adds `Bash` to run `git diff`; only an agent whose job is to
 change code gets `Edit` and `Write`. A tool you leave out is not in the
@@ -349,9 +364,9 @@ Three moves that look like fixes and are not:
   Nothing was passed to it; the size of an empty window changes nothing.
 - **Spawning across successive turns** and calling it parallel. Consecutive
   turns are sequential execution with extra round-trips.
-- **Counting on inheritance** — "the subagent will see what the coordinator
-  found". Isolation is the defining property of a subagent, not a limitation to
-  work around.
+- **Counting on inheritance**, on the idea that "the subagent will see what the
+  coordinator found". Isolation is the defining property of a subagent, not a
+  limitation to work around.
 :::
 
 **Forking a session to give two subagents a shared analysis baseline is session
@@ -364,13 +379,13 @@ Code configuration, developed in domain 3.**
 ## 1.4 — Implement multi-step workflows with enforcement and handoff patterns
 <!-- ts:1.4 | src:08agentsdk L10 (why a hook rather than an instruction, the get_customer / process_refund gate), L14 (structured human handoff, decomposing a multi-concern request) ; exam guide TS 1.4 -->
 
-Some orderings must hold every time. Verify the customer's identity before
-processing a refund; check drug interactions before dispensing. You can write
-that in the system prompt — and a prompt instruction is a request the model
-usually honours. The guide's formulation is blunt: **when deterministic
-compliance is required, prompt instructions alone have a non-zero failure
-rate.** Over thousands of interactions, that remainder is refunds paid to the
-wrong customer.
+Some orderings in a workflow must hold every single time it runs: verify the
+customer's identity before processing a refund; check drug interactions before
+dispensing. You can write that in the system prompt, and a prompt instruction is
+a request the model usually honours. The guide's formulation is blunt: **when
+deterministic compliance is required, prompt instructions alone have a non-zero
+failure rate.** Over thousands of interactions, that remainder is refunds paid
+to the wrong customer.
 
 ### The prerequisite gate
 
@@ -397,6 +412,16 @@ async def require_verified_customer(input_data, tool_use_id, context):
 Not "is unlikely to" — cannot. The reason string matters as much as the block:
 the model reads it, so it retries the right thing instead of retrying blindly.
 **The hook API itself — events, matchers, decision fields — is TS 1.5, below.**
+
+::: key-concept
+**Deterministic compliance is a property of code, not of wording.** The wrong
+answers here are usually genuine improvements: a firmer instruction, few-shot
+examples showing the right order, an audit that catches violations afterwards.
+The first two lower the failure rate and leave a remainder; the third reports
+the breach after the action it was meant to stop. When the scenario names a
+financial, legal or safety consequence, only a mechanism that makes the
+violation impossible clears the requirement.
+:::
 
 ### The multi-concern request
 
@@ -438,15 +463,15 @@ handoff.
 The distractors on enforcement questions are the measures that genuinely lower
 the failure rate without ever reaching zero:
 
-- Strengthening the system prompt — "verification is mandatory".
+- Strengthening the system prompt to say "verification is mandatory".
 - Adding few-shot examples showing the verification tool called first.
 - Auditing transactions afterwards to catch violations.
 - Deploying a routing classifier that only enables the relevant tool subset.
 
 The first three lower the rate; the question asked for a guarantee, and an
 audit finds the violation after the money is gone. The fourth addresses which
-tools are *available*, not the order in which they are called — a different
-problem.
+tools are *available*, not the order in which they are called, which is a
+different problem.
 :::
 
 ::: exam-tip
@@ -542,8 +567,9 @@ The choice between a hook and a prompt instruction is the same choice as in
 :::
 
 ::: anti-pattern
-Reaching for `PostToolUse` to stop something. It fires after the tool has run —
-the refund is paid, the rows are deleted. Blocking is `PreToolUse`.
+Reaching for `PostToolUse` to stop something. It fires after the tool has run,
+by which point the refund is paid and the rows are deleted. Blocking is
+`PreToolUse`.
 
 The mirror error is a `PreToolUse` block used to fix a *reading* problem. If a
 tool returns an overloaded field the model misinterprets, blocking the
@@ -612,19 +638,19 @@ you are about to discover:
 5. Adapt the plan                   → build the mock, then write the tests
 ```
 
-Map structure, identify high-impact areas, produce a prioritized plan that
-adapts as dependencies surface — that is the guide's wording, and step 4 is the
-whole point: the plan changed because of what step 1 found.
+The guide's wording is: map structure, identify high-impact areas, produce a
+prioritized plan that adapts as dependencies surface. Step 4 is the whole point:
+the plan changed because of what step 1 found.
 
 ::: anti-pattern
 Three mismatches, and they are exactly the distractors:
 
-- A **fixed pipeline on unknown scope** — it demands the list of steps before
-  you start, which is precisely what you do not have.
-- A **multi-pass review offered for an open-ended investigation** — it is built
-  for a bounded, enumerable set of targets like the files of a PR.
-- A **single exhaustive prompt** meant to cover everything at once — it assumes
-  you already know the scope.
+- A **fixed pipeline on unknown scope** demands the list of steps before you
+  start, which is precisely what you do not have.
+- A **multi-pass review offered for an open-ended investigation** is built for a
+  bounded, enumerable set of targets like the files of a PR.
+- A **single exhaustive prompt** meant to cover everything at once assumes you
+  already know the scope.
 
 And the fourth, quieter one: adaptive decomposition on frozen targets. It buys
 nothing once the targets never vary, and it makes successive runs harder to
@@ -673,7 +699,7 @@ async for message in query(
 ### Two facts about forking
 
 Two facts about forking that questions turn on. It always combines with
-resumption — you fork *an existing session*, never out of nothing. And it
+resumption, since you fork *an existing session*, never out of nothing. And it
 branches the **conversation history, not the filesystem**: two forked agents
 editing files in the same directory are editing the same files.
 
@@ -695,11 +721,21 @@ recorded responses that describe a system that no longer exists, and the agent
 reasons on them as if they were current. A written summary carries the
 conclusions that survived and leaves the dead payloads behind.
 
+::: key-concept
+**A session is a record of what was read, not the state of what is on disk.**
+Every choice among the three turns on how much of that record is still true.
+Resumption fits while the record is *mostly* valid, and naming the files that
+changed is what makes it targeted rather than a gamble. A fork branches the
+conversation history and not the filesystem, which is why it compares two
+approaches and never two versions of a file. A fresh session with a written
+summary keeps your conclusions and leaves the expired readings behind.
+:::
+
 ::: anti-pattern
 Three moves the distractors put in place of the three answers above:
 
 - **Resuming without saying what changed.** The agent keeps a false picture of
-  the files and reasons on dead tool results — the very failure resumption was
+  the files and reasons on dead tool results, the very failure resumption was
   supposed to avoid.
 - **Re-exploring everything from scratch** when only three files moved. It
   throws away work that is still valid.

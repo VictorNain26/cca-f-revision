@@ -8,6 +8,8 @@ a schema and a pipeline. One section per task statement, in the guide's own orde
 and under the guide's own wording — so that a question spotted on exam day maps
 to a section here without translation.
 
+<!-- cross-refs:start -->
+
 D0 is assumed. It named the anatomy of a tool — `name`, `description`,
 `input_schema` — the `tool_use` block, and `stop_reason`. It deliberately stopped
 there and pointed here, twice: **`tool_choice` and the use of a JSON schema to
@@ -21,6 +23,8 @@ tool design, tested in TS 2.1 and 2.5; the agentic loop that turns one
 pipeline is D3's TS 3.6, which applies what 4.6 explains. Each of those gets a
 sentence and a pointer here, never a second development.
 
+<!-- cross-refs:end -->
+
 ## 4.1 — Design prompts with explicit criteria to improve precision and reduce false positives
 <!-- ts:4.1 | src:exam guide TS 4.1 (explicit criteria over vague instructions and its comment-versus-code example, why "be conservative" and "only report high-confidence findings" fail against specific categorical criteria, a high false positive rate in one category undermining confidence in the accurate ones; the skills: criteria that say what to report and what to skip rather than confidence-based filtering, temporarily disabling a high false-positive category while its prompt is improved, explicit severity criteria with a concrete code example per level) ; 05claudeapi L25 (replacing a vague request with a direct statement of the task) ; L26 (being specific: listing the guidelines the output must satisfy instead of leaving them to interpretation) -->
 
@@ -31,7 +35,7 @@ every run reinvents the threshold.
 
 The remedy the guide names is not a better adjective. It is **explicit
 categorical criteria**: named conditions, each one something you could check by
-hand. The guide's own example is the pair to memorise — "flag comments only when
+hand. The guide's own example is the pair to memorise: "flag comments only when
 claimed behavior contradicts actual code behavior", against "check that comments
 are accurate".
 
@@ -132,16 +136,17 @@ verdict yourself from the rule, neither can the model.
 ## 4.2 — Apply few-shot prompting to improve output consistency and quality
 <!-- ts:4.2 | src:exam guide TS 4.2 (few-shot examples as the most effective technique when detailed instructions alone still produce inconsistent output, their role in demonstrating ambiguous-case handling, generalisation to novel patterns rather than matching pre-specified cases, hallucination reduction in extraction with informal measurements and varied document structures; the skills: 2-4 targeted examples showing why one action was chosen over plausible alternatives, examples demonstrating the location/issue/severity/suggested-fix output format, examples distinguishing acceptable code patterns from genuine issues, examples covering inline citations versus bibliographies, examples addressing empty or null extraction of required fields) ; 05claudeapi L28 (one-shot and multi-shot prompting, examples for corner cases and complex output formats, sample_input and ideal_output wrapped in XML tags, and explaining why an example output is good rather than only showing it) ; L27 (XML tags as delimiters for interpolated content, descriptive tag names over generic ones) -->
 
-4.1 fixed what to report. It does not fix a second failure: the criteria are
-written, they are detailed, and the output still comes back in a different shape
-every run — or comes back empty on the case nobody thought to list.
+Explicit criteria fix what to report, and they leave a second failure untouched:
+the criteria are written, they are detailed, and the output still comes back in
+a different shape every run, or comes back empty on the case nobody thought to
+list.
 
 The guide's answer is unambiguous, and it is the phrase to recognise in an
 option: **few-shot examples are the most effective technique for consistently
 formatted, actionable output when detailed instructions alone produce
 inconsistent results.** One example is one-shot prompting; several is multi-shot.
 
-Two to four is the guide's own count, and the examples are targeted — they show
+Two to four is the guide's own count, and the examples are targeted: they show
 the **ambiguous** cases, not the easy ones. Each carries the reasoning for why
 that action was chosen over a plausible alternative, because the reasoning is
 what transfers.
@@ -244,7 +249,7 @@ started.
 
 Ask for JSON in prose and you get JSON most of the time: a trailing comma here,
 a fenced code block there, a field renamed on the third document. The guide's
-answer is a mechanism rather than a phrasing, and it states it without hedging —
+answer is a mechanism rather than a phrasing, and it states it without hedging:
 **tool use with JSON schemas is the most reliable approach for guaranteed
 schema-compliant structured output, and it eliminates JSON syntax errors.**
 
@@ -276,7 +281,7 @@ be a schema the model must fill.
 ```
 
 The reply carries `stop_reason: "tool_use"` and a `tool_use` block whose `input`
-*is* your record — no parsing of prose, no repair pass:
+*is* your record. No parsing of prose, no repair pass:
 
 ```json
 { "type": "tool_use", "id": "toolu_01A", "name": "extract_invoice",
@@ -302,14 +307,14 @@ how they are examined. **`any`** is the answer when a pipeline receives invoices
 purchase orders and delivery notes through the same door: you have a schema for
 each, you cannot say in advance which applies, and what you cannot afford is a
 conversational reply instead of a call. **A forced named tool** is the answer
-when order matters — `extract_metadata` must run first, and the enrichment steps
+when order matters: `extract_metadata` must run first, and the enrichment steps
 come in later turns.
 
 ::: key-concept
 Field behaviour that follows from forcing a call: under `any` or a forced tool,
 the model does not produce a natural-language explanation before the call. If you
 want both the reasoning and the call, stay on `auto` and ask for the tool in the
-prompt — "use the `extract_invoice` tool in your response".
+prompt: "use the `extract_invoice` tool in your response".
 
 Second constraint, same family: with manually enabled extended thinking, only
 `auto` and `none` are supported.
@@ -346,9 +351,9 @@ Normalise before you fill the schema:
 `client.messages.parse()`, it is not the expected answer on this exam. The same
 verdict falls on message prefilling paired with a stop sequence: the API course
 teaches it as a route to structured output, and this corpus's out-of-scope list
-sets it aside on the strength of this task statement — this section is the
-promise that entry makes. It is also incompatible with the newer mechanism below, so
-the two are never combined in practice either.
+sets it aside on the strength of this task statement. This section is the
+promise that entry makes. It is also incompatible with the newer mechanism
+below, so the two are never combined in practice either.
 
 Field nuance, so you are not surprised in production: the platform now carries a
 dedicated JSON-outputs mechanism (`output_config.format`, and `messages.parse()`
@@ -361,7 +366,7 @@ On that strict path the platform accepts only a subset of JSON Schema, and the
 part worth carrying back to ordinary tool use is the failure mode: constraints
 like `minimum`, `maxLength` and `pattern` are dropped silently rather than
 rejected. A bound you wrote is not a bound that was enforced. If a number has to
-stay in range, your code checks it — which is 4.4.
+stay in range, your code checks it, which is 4.4.
 :::
 
 ::: exam-tip
@@ -371,7 +376,7 @@ exist" → `tool_choice: {"type": "any"}`. "This extraction must run before the
 enrichment steps" → force it by name.
 
 The distractors are consistent across questions. `tool_choice: "auto"` leaves the
-model free to answer in prose, so the extraction stops being guaranteed — it is
+model free to answer in prose, so the extraction stops being guaranteed. It is
 the closest wrong answer and the one to read for. Describing the schema in the
 prompt and asking for JSON reintroduces exactly the syntax errors the mechanism
 removes. Repairing the output with a regular expression afterwards treats the
@@ -394,17 +399,19 @@ bought with invented values, which is the more expensive defect.
 ## 4.4 — Implement validation, retry, and feedback loops for extraction quality
 <!-- ts:4.4 | src:exam guide TS 4.4 (retry with error feedback, appending the specific validation errors to the prompt on retry; the limits of retry when the information is simply absent from the source; detected_pattern fields for systematic analysis of dismissal patterns; semantic validation errors against the schema syntax errors eliminated by tool use; the skills: follow-up requests carrying the original document, the failed extraction and the specific validation errors, telling an ineffective retry from a resolvable one, adding detected_pattern to structured findings, and extracting calculated_total beside stated_total with a conflict_detected boolean) ; 09apicomplements L4 (the four-step validation-retry loop, format errors resolvable by retry versus information absent from the source, a refusal returning HTTP 200 with stop_reason "refusal", and field-level confidence routing low-confidence extractions to human review) ; 05claudeapi L36 (a tool_result block carries tool_use_id, content and is_error, and travels in a user message) ; exam guide appendix (Pydantic: schema validation, semantic validation errors, validation-retry loops) -->
 
-4.3 ended on the sentence this task statement starts from: the payload conforms
-and the values are wrong. `total` reads 150 while the line items sum to 145; a
-supplier name sits in the customer field. Nothing in the schema can see it,
-because nothing in the schema knows arithmetic.
+The payload conforms and the values are wrong. Forcing a call through a JSON
+schema guarantees the shape of the record and nothing about what is in it:
+`total` reads 150 while the line items sum to 145; a supplier name sits in the
+customer field. Nothing in the schema can see it, because nothing in the schema
+knows arithmetic.
 
 The mechanism is a loop, and the guide tests its four steps:
 
 1. The model produces an extraction.
-2. Your code validates it — JSON Schema for structure, then business rules for
-   meaning. Pydantic is the appendix's named tool, and it does both: types and
-   required fields in the model, cross-field rules in a validator.
+2. Your code validates it, first with JSON Schema for structure, then with
+   business rules for meaning. Pydantic is the appendix's named tool, and it
+   does both: types and required fields in the model, cross-field rules in a
+   validator.
 3. On failure, you send a follow-up request carrying **three things**: the
    original document, the failed extraction, and the **specific** validation
    error.
@@ -451,8 +458,8 @@ about the **source document**, never about the number of attempts.
 The left column shares one property: the model had the information and shaped it
 badly. Feeding back the exact error is enough. The right column shares the
 opposite one, and a retry there can only produce a more confident invention. The
-answer is a nullable field and a `null` — 4.3's design rule, arriving as an
-operational decision.
+answer is a nullable field and a `null`, which is 4.3's design rule arriving as
+an operational decision.
 
 ### Two fields that make the pipeline self-diagnosing
 
@@ -471,7 +478,7 @@ survives into your code, where a human can arbitrate.
 **`detected_pattern` on every finding.** A code-review pipeline that records
 which construct triggered each finding turns dismissals into data: when
 developers reject findings, you can group the rejections by pattern and see that
-one construct produces most of the noise — which is precisely the category 4.1
+one construct produces most of the noise, which is precisely the category 4.1
 tells you to disable and rewrite.
 
 ```json
@@ -484,7 +491,7 @@ tells you to disable and rewrite.
 
 ::: key-concept
 Two failure signals your validation code should not confuse with a bad
-extraction. `stop_reason: "refusal"` means the model declined on safety grounds —
+extraction. `stop_reason: "refusal"` means the model declined on safety grounds,
 and it comes back with **HTTP 200**, so code that only checks the status treats a
 refusal as a success and parses a non-conforming reply. `stop_reason:
 "max_tokens"` means the output was cut off mid-generation; the retry there is a
@@ -563,7 +570,7 @@ POST /v1/messages/batches
 ```
 
 `custom_id` is not decoration. Because results are unordered, it is the only
-reliable way to say which response belongs to which document — which is also what
+reliable way to say which response belongs to which document, which is also what
 makes selective resubmission possible.
 
 ### Which workload goes where
@@ -584,7 +591,7 @@ promote a blocking workflow into a batch.
 a multi-turn history, but nothing executes a tool in the middle of a batch
 request and hands the result back to the model for another turn. Any step whose
 design requires the model to ask for a file, receive it, and continue does not
-fit — and no amount of polling changes that, because the limitation is structural
+fit. No amount of polling changes that, because the limitation is structural
 rather than temporal.
 
 That is the fact behind an entire family of questions: an agentic loop belongs to
@@ -600,7 +607,7 @@ at most `30 − 24 = 6` hours in the queue before it is sent.
 Six hours is the ceiling, not the answer. A batch submitted exactly at the six
 hour mark and processed at the cap consumes the entire budget, leaving nothing
 for a document that failed and must be resubmitted. **The guide's own example
-answers 4-hour windows for a 30-hour SLA** — the ceiling minus a margin.
+answers 4-hour windows for a 30-hour SLA**, the ceiling minus a margin.
 
 Note which number entered that calculation. Most batches finish in under an
 hour, and that observation has no place in the arithmetic: you size on the
@@ -626,13 +633,13 @@ only `succeeded` is billed. One failed request does not affect the others.
   again; a server error can be retried as it stands.
 - **Refine the prompt on a sample first.** Dry-run one representative request
   through the synchronous Messages API, get the extraction right, and only then
-  submit the thousand — otherwise you discover a prompt defect after paying for
+  submit the thousand; otherwise you discover a prompt defect after paying for
   every document in the batch.
 
 Two operational numbers worth carrying: a batch holds up to 100 000 requests or
 256 MB, whichever comes first, and results stay retrievable for 29 days. And a
-short list of parameters a batch refuses, each for the same reason — they are
-synchronous-only settings: `stream: true` (results come back as files),
+short list of parameters a batch refuses, each for the same reason, since they
+are synchronous-only settings: `stream: true` (results come back as files),
 `speed`, `store` and `previous_thread_event_id`, `cache_hint` and
 `context_hint`, and `max_tokens: 0`.
 
@@ -664,12 +671,22 @@ context, catches subtle issues better than a self-review instruction or extended
 thinking.** Telling the model to be critical of itself, or giving it more room to
 deliberate, both operate inside the transcript that produced the bias.
 
+::: key-concept
+**A different instance, not a better instruction.** The fixes the guide rules
+out all stay inside the transcript that produced the code: instructing the same
+session to review its work critically, or giving it extended thinking to
+deliberate further. Both add effort to a reader that already holds the reasoning
+it would have to question. The remedy is architectural, so read each option for
+*which instance receives the artifact*, not for how hard that instance is asked
+to look.
+:::
+
 "Independent" has an operational meaning: a separate session, or a subagent,
 which receives the artifact and the criteria and **not** the conversation that
-produced them. In Claude Code that is a reviewer subagent — its own context
-window, read-only tools, checked into the repository so the team shares one
-reviewer. D3's TS 3.6 puts the same instance in a pipeline; what belongs here is
-why the instance has to be a different one.
+produced them. In Claude Code that is a reviewer subagent, running in its own
+context window, restricted to read-only tools, and checked into the repository
+so the team shares one reviewer. D3's TS 3.6 puts the same instance in a
+pipeline; what belongs here is why the instance has to be a different one.
 
 ### Splitting a review that is too large for one pass
 
@@ -717,7 +734,7 @@ worth reading.
 ```
 
 Two cautions keep this honest. A confidence reported from inside the generating
-context inherits that context's blind spot — the verification pass is worth
+context inherits that context's blind spot, so the verification pass is worth
 running in the independent instance. And a self-reported number is a signal for
 routing, not a measurement: what turns it into one is comparing it against
 findings whose verdict you already know.
@@ -734,7 +751,7 @@ The distractors are seductive because each names a real capability. Moving to a
 model with a larger context window answers dilution with capacity, confusing how
 much can be held with how evenly it is attended to. Instructing the same session
 to "review your work critically" or enabling extended thinking on it both stay
-inside the transcript that caused the bias — the guide rules out exactly these
+inside the transcript that caused the bias. The guide rules out exactly these
 two by name. Three full passes with a consensus vote sounds rigorous and
 discards every genuine bug that only one pass saw. And asking developers to split
 their pull requests moves the work onto people without changing the system.

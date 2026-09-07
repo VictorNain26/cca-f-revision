@@ -14,6 +14,7 @@
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Aller au contenu</a>
 
 <nav class="navbar">
   <a class="home" href="index.html">CCA-F</a>
@@ -33,18 +34,36 @@
   <a href="en/D5_Context_Fiabilite_15pct.html">EN</a>
 </div>
 
+<main id="content" tabindex="-1">
+
 <div class="header-bar">
 <h1>D5 — Gestion du contexte et fiabilité (15 %)</h1>
 <p>Quinze pour cent du score, six task statements, et le domaine qui pose une
 question différente des quatre précédents. D1 à D4 demandent comment construire
 la chose : la boucle, les outils, la configuration, le prompt. D5 demande ce qui
-est encore vrai après deux heures de fonctionnement — quels chiffres ont survécu
+est encore vrai après deux heures de fonctionnement : quels chiffres ont survécu
 au résumeur, de quel échec de subagent le coordinateur a seulement entendu
 parler, quelle affirmation du rapport final se laisse encore remonter jusqu'à la
 page dont elle vient.</p>
 <p>Une section par task statement, dans l'ordre du guide et sous le libellé du
 guide, pour qu'une question rencontrée le jour J corresponde à une section d'ici
 sans traduction.</p>
+</div>
+
+<div class="toc">
+<strong>Table des matières</strong>
+<ol>
+<li><a href="#s1">5.1 — Manage conversation context to preserve critical information across long interactions</a></li>
+<li><a href="#s2">5.2 — Design effective escalation and ambiguity resolution patterns</a></li>
+<li><a href="#s3">5.3 — Implement error propagation strategies across multi-agent systems</a></li>
+<li><a href="#s4">5.4 — Manage context effectively in large codebase exploration</a></li>
+<li><a href="#s5">5.5 — Design human review workflows and confidence calibration</a></li>
+<li><a href="#s6">5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis</a></li>
+</ol>
+</div>
+
+<details class="cross-refs" open>
+<summary>Ce que ce cours possède, ce qu’il renvoie ailleurs</summary>
 <p>Quatre cours renvoient à celui-ci, et les quatre dettes sont réglées
 ci-dessous. <strong>D0</strong> a nommé les trois modes de défaillance d'une fenêtre de
 contexte pleine — lost-in-the-middle, accumulation, compression progressive — et
@@ -62,20 +81,7 @@ hérite relèvent des TS 1.2 et 1.3. Le mécanisme des hooks — les événement
 et <code>fork_session</code> relèvent du TS 1.7. La passation structurée à un humain relève
 du TS 1.4. Chacune reçoit ici une phrase et un renvoi, jamais un second
 développement.</p>
-</div>
-
-<div class="toc">
-<strong>Table des matières</strong>
-<ol>
-<li><a href="#s1">5.1 — Manage conversation context to preserve critical information across long interactions</a></li>
-<li><a href="#s2">5.2 — Design effective escalation and ambiguity resolution patterns</a></li>
-<li><a href="#s3">5.3 — Implement error propagation strategies across multi-agent systems</a></li>
-<li><a href="#s4">5.4 — Manage context effectively in large codebase exploration</a></li>
-<li><a href="#s5">5.5 — Design human review workflows and confidence calibration</a></li>
-<li><a href="#s6">5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis</a></li>
-<li><a href="#s7">Questions d'auto-évaluation</a></li>
-</ol>
-</div>
+</details>
 
 <div class="section-header"><h2 id="s1">1. 5.1 — Manage conversation context to preserve critical information across long interactions</h2></div>
 
@@ -86,7 +92,7 @@ promotionnel a été évoqué »</em>. Rien n'a échoué. Le résumeur a fait ex
 que font les résumeurs : il a gardé la forme de la conversation et laissé tomber
 les détails précis.</p>
 <p>C'est le premier des trois risques que le guide nomme, et les trois méritent
-d'être tenus comme un ensemble parce que chacun a sa parade — et répondre avec la
+d'être tenus comme un ensemble parce que chacun a sa parade, et répondre avec la
 mauvaise parade est la façon dont on rate ce task statement.</p>
 <table>
 <thead>
@@ -114,11 +120,11 @@ mauvaise parade est la façon dont on rate ce task statement.</p>
 </tr>
 </tbody>
 </table>
-<p>D0 possède l'anatomie derrière ce tableau — pourquoi chaque requête renvoie tout
+<p>D0 possède l'anatomie derrière ce tableau : pourquoi chaque requête renvoie tout
 l'historique, et pourquoi un résultat d'outil est un coût récurrent et non
 ponctuel. L'un des points de connaissance du guide pour ce task statement relève
-de cette anatomie et mérite d'être redit en une ligne : <strong>l'historique complet de
-la conversation doit être passé dans chaque requête API suivante</strong>, parce que
+de cette anatomie et mérite d'être redit en une ligne : <strong>l'historique complet
+de la conversation doit être passé dans chaque requête API suivante</strong>, parce que
 l'API ne stocke rien entre les appels et qu'un historique tronqué est un modèle
 qui a réellement oublié.</p>
 <h3>Le bloc de faits du dossier</h3>
@@ -170,10 +176,10 @@ compression. Décomposer la <em>demande</em> en investigations parallèles relè
 TS 1.4 et vit en D1 ; ce que ce task statement ajoute, c'est la couche dans
 laquelle leurs résultats sont réécrits.</p>
 <h3>Réduire la sortie des outils avant qu'elle ne s'accumule</h3>
-<p>Le chiffre du guide lui-même : une consultation de commande retourne <strong>plus de 40
-champs quand 5 sont pertinents</strong> pour la tâche en cours. Ces 40 champs ne sont pas
-seulement présents une fois — ils sont renvoyés à chaque requête suivante pour
-tout le reste de la session.</p>
+<p>Le chiffre du guide lui-même : une consultation de commande retourne <strong>plus de
+40 champs quand 5 sont pertinents</strong> pour la tâche en cours. Ces 40 champs ne
+sont pas seulement présents une fois ; ils sont renvoyés à chaque requête
+suivante pour tout le reste de la session.</p>
 <pre><code class="language-text">lookup_order(ORD-67890) →
   order_id, status, total, items, return_eligible        ← les 5 qui décident
   warehouse_route, carrier_scac, pick_wave, audit_flags,
@@ -181,13 +187,13 @@ tout le reste de la session.</p>
 </code></pre>
 <p>Le skill consiste à réduire <strong>avant</strong> que le résultat n'entre dans le contexte,
 c'est-à-dire entre le retour de l'outil et la lecture du modèle. <strong>Le guide ne
-nomme aucun mécanisme pour cela</strong> — il énonce le skill et s'arrête là. Un
+nomme aucun mécanisme pour cela</strong> : il énonce le skill et s'arrête là. Un
 mécanisme se tient exactement dans cette fenêtre : un hook <code>PostToolUse</code>, dont
 l'<code>updatedToolOutput</code> remplace la sortie d'un outil avant que Claude ne la voie.
 La documentation du SDK présente ce champ pour un autre usage — normaliser des
-formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est propre
-à la normalisation, donc il sert aussi celui-ci. La déduction est celle de ce
-cours ; le champ et son moment d'exécution sont ceux de la documentation.</p>
+formats hétérogènes, ce qui relève du TS 1.5 — et rien dans ce champ n'est
+propre à la normalisation, donc il sert aussi celui-ci. La déduction est celle
+de ce cours ; le champ et son moment d'exécution sont ceux de la documentation.</p>
 <pre><code class="language-python">async def trim_order_lookup(input_data, tool_use_id, context):
     if input_data[&quot;tool_name&quot;] != &quot;lookup_order&quot;:
         return {}
@@ -274,10 +280,10 @@ d'outils » → accumulation → réduire aux champs pertinents.</p>
 la compression. <strong>Passer à un modèle à fenêtre de contexte plus large</strong> repousse
 la limite sans rien protéger : une conversation assez longue atteint aussi la
 nouvelle limite, et la même compression détruit les mêmes faits. <strong>Compacter
-moins souvent</strong> est la même esquive formulée côté fréquence — cela change quand
-les nombres sont détruits, pas si. <strong>Demander au résumeur de garder chaque nombre
-et chaque date</strong> est le plus tentant parce qu'il nomme le bon symptôme, et c'est
-une demande plutôt qu'une garantie.</p>
+moins souvent</strong> est la même esquive formulée côté fréquence : cela change quand
+les nombres sont détruits, pas si. <strong>Demander au résumeur de garder chaque
+nombre et chaque date</strong> est le plus tentant parce qu'il nomme le bon symptôme,
+et c'est une demande plutôt qu'une garantie.</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Jeter les tours les plus anciens pour faire de la place.</strong> L'API ne stocke
@@ -290,7 +296,52 @@ gardé, et les détails précis partent en premier. Deux générations plus tard
 « le client a signalé un article endommagé à 89,99 $ le 15 janvier et a refusé un
 remplacement » devient « le client avait un problème avec une commande ».</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d5-q1" data-domain="D5" data-task="5.1">
+<summary>Q1 Assay settings the summary stops carrying</summary>
+<div>
+<p><strong>Scenario:</strong> A lab assistant walks a technician through a three-hour assay. At step 2 the two of them fixed the reagent lot, a 1:250 dilution and which plate reader to use. Sixty steps later the raw turns have been replaced by two successive summaries, and the assistant proposes "the usual dilution" without naming one.</p>
+<p><strong>Question:</strong> What keeps those settings usable to the end of the run?</p>
+<p data-opt="a">A) Have the assistant search back through the earlier turns whenever it needs a setting, so no value has to be repeated in the prompt.</p>
+<p data-opt="b">B) Pin the fixed settings in a <code>run_context</code> block rebuilt into every prompt.</p>
+<p data-opt="c">C) Ask the technician to restate the lot and the dilution at the start of each phase, so the values keep re-entering the conversation.</p>
+<p data-opt="d">D) Lower the sampling temperature, so the assistant stops reaching for a habitual value in place of the one it was given.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: the fixed settings pinned outside the summarized history</p>
+<p><strong>Why:</strong> summarization compresses by nature, and a lot number, a ratio and an instrument are the kind of detail it drops first. Rebuilt into every prompt from a block of its own, they never travel through the compressor at all.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">There is nothing left to search: the summaries replaced the turns that held those values.</li>
+<li data-opt="c">Moves the burden onto the technician, and each restated value is compressed again a few steps later.</li>
+<li data-opt="d">Temperature governs the choice between candidate tokens, not what the context still carries.</li>
+</ul>
+</div>
+</details>
+
+<details id="d5-q6" data-domain="D5" data-task="5.1">
+<summary>Q6 A bring-up session running out of room</summary>
+<div>
+<p><strong>Scenario:</strong> A hardware bring-up assistant is 120 turns into debugging a prototype board and near the context limit. Turn 3 recorded the errata in the pin mapping and the supply rail the team agreed nobody would touch. The work has to continue in this session.</p>
+<p><strong>Question:</strong> Which strategy keeps the session going without losing those two constraints?</p>
+<p data-opt="a">A) Move the older turns into a transcript file the assistant can open when it needs them, so the window holds only recent exchanges.</p>
+<p data-opt="b">B) Compress the older turns to recover budget, and hold the two constraints in a pinned block that sits outside the region the compression is allowed to rewrite.</p>
+<p data-opt="c">C) Trim every tool result down to its closing lines as it arrives, so the window fills more slowly from here.</p>
+<p data-opt="d">D) Hand each remaining subsystem to its own fresh subagent, briefed on that subsystem alone, and keep only their reports in the main thread.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: compression for budget, a pinned block for what must not be diluted</p>
+<p><strong>Why:</strong> the session has two problems and each needs its own answer. Compression buys room; it cannot promise that any particular line survives it. Pinning the errata and the untouchable rail outside the compressed region is what guarantees they are still there at turn 200. That is the line to hold: a prohibition has to sit in the context whenever an action is chosen, because the assistant cannot look up a rail it does not know it is about to touch, while a notes file answers a question the agent knows it has.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Archives the transcript whole instead of distilling anything: the errata and the rail stay buried in 120 turns of debugging, no more prominent in the file than they were in the window. Written notes earn their keep on findings someone has boiled down and goes back to read, which is a different job from keeping a standing prohibition in force.</li>
+<li data-opt="c">Slows saturation and protects nothing: turn 3 still sits in the part that gets compressed.</li>
+<li data-opt="d">Every brief that omits the untouchable rail is a subagent free to touch it.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=5.1">Toutes les questions de la banque sur 5.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s2">2. 5.2 — Design effective escalation and ambiguity resolution patterns</h2></div>
 
@@ -329,14 +380,14 @@ testée — sur les signaux autorisés à la déplacer.</p>
 </table>
 <p>Deux de ces quatre méritent leur propre phrase, parce que le libellé du guide est
 précis et que les quasi-réponses sont la matière des distracteurs.</p>
-<p><strong>Une lacune de politique n'est pas la même chose qu'un cas complexe.</strong> L'exemple
-du guide lui-même : le client demande l'alignement sur le prix d'un concurrent, et
-la politique tarifaire ne traite que les ajustements de prix sur votre propre
-site. La demande n'est pas difficile — aligner un prix, c'est un appel d'outil.
-Elle est <em>non tranchée</em>. Rien dans la politique ne l'autorise et rien ne
-l'interdit, donc l'accorder serait l'agent en train d'inventer la politique
-commerciale. C'est cela, le déclencheur, et « le cas était complexe » ne l'est
-pas.</p>
+<p><strong>Une lacune de politique n'est pas la même chose qu'un cas complexe.</strong>
+L'exemple du guide lui-même : le client demande l'alignement sur le prix d'un
+concurrent, et la politique tarifaire ne traite que les ajustements de prix sur
+votre propre site. La demande n'est pas difficile, puisque aligner un prix,
+c'est un appel d'outil. Elle est <em>non tranchée</em>. Rien dans la politique ne
+l'autorise et rien ne l'interdit, donc l'accorder serait l'agent en train
+d'inventer la politique commerciale. C'est cela, le déclencheur, et « le cas
+était complexe » ne l'est pas.</p>
 <p><strong>Plusieurs correspondances sont une ambiguïté, pas une escalade.</strong> Trois
 sociétés partagent un nom commercial ; la parade est de demander un numéro de
 contrat ou un domaine de facturation. Choisir le compte le plus récemment actif
@@ -365,6 +416,17 @@ pour empêcher.</p>
 <p>La confiance auto-déclarée revient en 5.5 comme une partie de la <em>bonne</em> réponse,
 sous une autre forme et pour un autre usage. La distinction y est posée, et il
 vaut la peine de lire les deux sections l'une contre l'autre une fois.</p>
+<div class="key-concept">
+<p><strong>Trois déclencheurs, et une ambiguïté n'en fait pas partie.</strong> Le guide accepte
+qu'un client demande un humain, qu'il y ait une lacune ou une exception dans la
+politique, et l'incapacité à progresser réellement : les trois sont vérifiables
+sans interroger le modèle. Le ton et la confiance auto-déclarée sont rejetés
+parce qu'ils estiment la difficulté d'un cas, et la difficulté n'a jamais été un
+déclencheur ; l'exemple de l'alignement de prix tient en un appel d'outil, et il
+escalade parce que la politique n'a rien tranché. Une consultation qui retourne
+plusieurs correspondances est le cas à garder à part : elle appelle un
+identifiant discriminant, pas un humain.</p>
+</div>
 <h3>Les trois comportements, et celui qui est testé</h3>
 <p>Le guide sépare l'escalade immédiate de la proposition de résoudre, et la
 séparation tient à ce que le client a réellement dit.</p>
@@ -419,28 +481,28 @@ Pourquoi : la politique ne couvre que nos propres ajustements de prix. Le silenc
            n'est pas une autorisation.
 </code></pre>
 <p>Les critères portent la règle ; les exemples portent son application aux cas où
-la règle est ambiguë — ce qui est toute la raison pour laquelle un critère avait
+la règle est ambiguë, ce qui est toute la raison pour laquelle un critère avait
 besoin d'exemples. Les critères seuls laissent « est-ce une lacune de
-politique ? » à trancher de nouveau à chaque tour. Les exemples seuls généralisent de trois
-cas vers une politique que personne n'a écrite.</p>
+politique ? » à trancher de nouveau à chaque tour. Les exemples seuls
+généralisent de trois cas vers une politique que personne n'a écrite.</p>
 <p>Quand l'agent escalade effectivement en cours de traitement, ce qu'il remet à
 l'humain — identité du client, cause racine, montant, action recommandée, dans un
 résumé qui tient sans le transcript — est la <strong>passation structurée</strong>, testée au
 TS 1.4 et développée en D1.4.</p>
 <div class="exam-tip">
-<p>Le scénario vous dit quel déclencheur s'est allumé ; la formulation du message du
-client est toute la question.</p>
-<p>« Je veux un responsable » → escalader maintenant, et <em>pas</em> « investiguer d'abord,
-puis escalader si besoin » — cette réponse a l'air consciencieuse et elle fait
-attendre, à travers une investigation qu'il n'a pas voulue, un client qui a déjà
-demandé. « C'est scandaleux » → reconnaître, résoudre, escalader sur réitération.
-« La politique ne traite pas ce cas » → escalader, et non « appliquer la règle
-analogue la plus proche ». « Trois clients correspondent » → demander un autre
-identifiant, et non « prendre le plus probable ».</p>
+<p>Le scénario vous dit quel déclencheur s'est allumé ; la formulation du message
+du client est toute la question.</p>
+<p>« Je veux un responsable » → escalader maintenant, et <em>pas</em> « investiguer
+d'abord, puis escalader si besoin ». Cette réponse a l'air consciencieuse et
+elle fait attendre, à travers une investigation qu'il n'a pas voulue, un client
+qui a déjà demandé. « C'est scandaleux » → reconnaître, résoudre, escalader sur
+réitération. « La politique ne traite pas ce cas » → escalader, et non
+« appliquer la règle analogue la plus proche ». « Trois clients correspondent »
+→ demander un autre identifiant, et non « prendre le plus probable ».</p>
 <p>Les mauvaises réponses récurrentes sont celles qui sonnent comme de la mesure :
 un score de sentiment, un seuil de confiance auto-déclarée, un classifieur
-entraîné qui exigerait des données d'escalade étiquetées dont personne ne dispose.
-Chacune remplace une règle énoncée par une règle inférée.</p>
+entraîné qui exigerait des données d'escalade étiquetées dont personne ne
+dispose. Chacune remplace une règle énoncée par une règle inférée.</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Investiguer d'abord alors qu'un humain a été explicitement demandé.</strong> Le libellé
@@ -452,7 +514,53 @@ liste. Le silence de la politique, si. Un agent qui escalade sur la difficulté
 escalade sur son propre malaise, ce qui est le proxy de la confiance en soi sous
 un autre chapeau.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.2&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d5-q2" data-domain="D5" data-task="5.2">
+<summary>Q2 A guest at the end of their patience</summary>
+<div>
+<p><strong>Scenario:</strong> A hotel messaging agent receives: "Third time this month the room key has died on me. I'm done." The guest has not asked for a person. Reissuing the key and crediting loyalty points both sit inside the agent's authority.</p>
+<p><strong>Question:</strong> What is the correct behavior?</p>
+<p data-opt="a">A) Ask the guest up front whether they would rather be transferred to a person, so the choice belongs to them and not to the agent.</p>
+<p data-opt="b">B) Name the repeat failure, reissue the key, credit the points, and hand off only if asked.</p>
+<p data-opt="c">C) Hold the thread until a duty manager approves the credit, since a fault recurring three times in one month is no longer routine.</p>
+<p data-opt="d">D) Mirror the exasperation at length, since tone is the strongest signal here.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: name it, fix it, and hand off only on request</p>
+<p><strong>Why:</strong> exasperation is not a request for a human, and it says nothing about how hard the case is. This one sits inside the agent's authority, so the agent closes it — while still telling the guest their experience was heard.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Offers a handoff nobody asked for, and turns a case the agent can close into a queue.</li>
+<li data-opt="c">Invents an approval gate over a gesture the agent was already granted.</li>
+<li data-opt="d">Sympathy and still no working key; being heard is worth one sentence, not a paragraph.</li>
+</ul>
+</div>
+</details>
+
+<details id="d5-q7" data-domain="D5" data-task="5.2">
+<summary>Q7 Two signals that stop the agent deciding alone <strong>(Select the 2 correct answers.)</strong></summary>
+<div>
+<p><strong>Scenario:</strong> A software licensing support agent is deep into a long ticket. The renewal discount being asked for is neither allowed nor forbidden by the pricing policy, and the account lookup returns three companies sharing the same trading name.</p>
+<p><strong>Question:</strong> Which two responses does the escalation policy require here?</p>
+<p data-opt="a">A) Escalate on the policy gap the discount request falls into.</p>
+<p data-opt="b">B) Escalate because the ticket is long and the window is filling up.</p>
+<p data-opt="c">C) Ask for a discriminating identifier before acting on any of the three accounts.</p>
+<p data-opt="d">D) Pick the account with the most recent renewal, as the likeliest match.</p>
+<p data-opt="e">E) Score the customer's tone and escalate if it reads negative.</p>
+<hr>
+<p class="correct" data-answer="a c">Answers: the policy gap, and the ambiguous account match</p>
+<p><strong>Why:</strong> policy silence on the case is a reliable trigger, because granting the discount is a commercial decision nobody delegated. Multiple matches call for a discriminating identifier — a contract number, a billing domain — never a guess: acting on the wrong company's contract is the failure that identity checks exist to prevent.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">A filling window is a technical constraint with technical remedies, not a business reason to involve a human.</li>
+<li data-opt="d">"Most recent renewal" is a heuristic dressed as reasoning, and it can select the wrong account just as easily.</li>
+<li data-opt="e">Tone does not correlate with case complexity, and nothing here turns on how the customer feels.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=5.2">Toutes les questions de la banque sur 5.2</a></p>
+</div>
 
 <div class="section-header"><h2 id="s3">3. 5.3 — Implement error propagation strategies across multi-agent systems</h2></div>
 
@@ -526,15 +634,15 @@ cachera derrière une formule commune comme « pas de données » :</p>
 </tbody>
 </table>
 <p>Les deux sont opposées par le sens et identiques d'apparence dès lors que les
-deux sont rapportées comme « pas de données ». Les rapporter de la même façon est
-la manière dont un coordinateur conclut qu'un ingénieur n'a aucune certification
-alors que le système de badges a simplement omis de répondre — une découverte
-fausse, produite avec pleine confiance, à partir d'une erreur qui n'a jamais été
-remontée.</p>
+deux sont rapportées comme « pas de données ». Les rapporter de la même façon
+est la manière dont un coordinateur conclut qu'un ingénieur n'a aucune
+certification alors que le système de badges a simplement omis de répondre : une
+découverte fausse, produite avec pleine confiance, à partir d'une erreur qui n'a
+jamais été remontée.</p>
 <h3>Récupérer localement, propager ce que vous ne pouvez pas résoudre</h3>
 <p>Le partage des rôles du guide : <strong>les subagents implémentent la récupération
 locale des échecs transitoires, et ne propagent que ce qu'ils ne peuvent pas
-résoudre</strong> — avec ce qui a été tenté et les résultats partiels éventuels
+résoudre</strong>, avec ce qui a été tenté et les résultats partiels éventuels
 attachés.</p>
 <pre><code class="language-python">async def search_topic(query: str):
     partial, attempts = [], []
@@ -563,11 +671,11 @@ attachés.</p>
     }
 </code></pre>
 <p>Deux moitiés, et l'examen teste la frontière entre elles. Réessayer une erreur
-réseau transitoire à l'intérieur du subagent est juste — un coordinateur n'a pas
+réseau transitoire à l'intérieur du subagent est juste ; un coordinateur n'a pas
 besoin d'arbitrer un hoquet. Réessayer avec un backoff exponentiel <em>puis</em>
-rapporter <code>&quot;search unavailable&quot;</code> est l'anti-pattern déguisé en bonne ingénierie :
-la récupération était bonne, le rapport a détruit tout ce dont le coordinateur
-avait besoin.</p>
+rapporter <code>&quot;search unavailable&quot;</code> est l'anti-pattern déguisé en bonne
+ingénierie : la récupération était bonne, le rapport a détruit tout ce dont le
+coordinateur avait besoin.</p>
 <p>Une conséquence à connaître, parce qu'elle met en échec tout le dispositif : une
 erreur d'API qui interrompt un subagent — une limite de débit, par exemple —
 <strong>n'est jamais délivrée comme résultat de ce subagent</strong>. Il n'y a rien à
@@ -649,7 +757,31 @@ conclusion sur une personne.</p>
 été payés. S'ils ne sont ni dans la charge utile ni dans un fichier, ils
 n'existent plus.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.3&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d5-q3" data-domain="D5" data-task="5.3">
+<summary>Q3 Nothing on file, or nobody answered</summary>
+<div>
+<p><strong>Scenario:</strong> A compliance agent checks an engineer's certifications in three systems. The HR record holds two certificates, the training platform holds none for this engineer, and the badge system's connector returns a gateway error. The agent reports the last two the same way, as "no data".</p>
+<p><strong>Question:</strong> How should the three outcomes reach the coordinator?</p>
+<p data-opt="a">A) Let the coordinator tell them apart from the response times, since a connector that gives up takes far longer than one answering with nothing.</p>
+<p data-opt="b">B) Send the coordinator a prose note describing what each system did, so nothing is lost and it can judge for itself.</p>
+<p data-opt="c">C) Return one typed outcome per system: records found, none on file, lookup never completed.</p>
+<p data-opt="d">D) Conclude that the engineer holds no badge certification, since neither of those two systems produced one.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: one typed outcome per system, the unanswered lookup kept apart</p>
+<p><strong>Why:</strong> "none on file" answers the question and is coverage information; a gateway error means the question was never put, so a retry decision is still open. The typed outcome carries <code>failure_type</code>, the query attempted and any <code>partial_results</code>, which is what lets the coordinator retry one system and annotate the other.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Reads an outcome off a timing side effect, which a fast-failing connector breaks straight away.</li>
+<li data-opt="b">A narrative is not a decidable outcome; the coordinator has to branch on it, not read it.</li>
+<li data-opt="d">Turns an unanswered lookup into a finding about the engineer, which is the error with consequences.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=5.3">Toutes les questions de la banque sur 5.3</a></p>
+</div>
 
 <div class="section-header"><h2 id="s4">4. 5.4 — Manage context effectively in large codebase exploration</h2></div>
 
@@ -657,13 +789,13 @@ n'existent plus.</p>
 à l'agent comment la réconciliation de stock est déclenchée et il répond que « les
 jobs de réconciliation suivent en général le pattern observateur » — alors qu'il a
 lu <code>StockLedgerSync</code> et tracé ses trois appelants une heure plus tôt.</p>
-<p>Cette phrase est le diagnostic. Le guide décrit le symptôme avec précision : <strong>des
-réponses incohérentes, et des références à des « patterns typiques » plutôt qu'aux
-classes précises découvertes plus tôt</strong>. Le modèle a cessé de répondre depuis la
-codebase et s'est mis à répondre depuis le cas général, parce que les éléments
-précis ne sont plus exploitables dans son contexte. Aucune instruction ne corrige
-cela — on ne peut pas demander à un agent de se souvenir de ce qu'il ne détient
-plus.</p>
+<p>Cette phrase est le diagnostic. Le guide décrit le symptôme avec précision :
+<strong>des réponses incohérentes, et des références à des « patterns typiques »
+plutôt qu'aux classes précises découvertes plus tôt</strong>. Le modèle a cessé de
+répondre depuis la codebase et s'est mis à répondre depuis le cas général, parce
+que les éléments précis ne sont plus exploitables dans son contexte. Aucune
+instruction ne corrige cela. On ne peut pas demander à un agent de se souvenir
+de ce qu'il ne détient plus.</p>
 <h3>Les fichiers scratchpad</h3>
 <p>La première parade est un fichier. L'agent y consigne ses découvertes clés, et les
 relit quand une question ultérieure en a besoin.</p>
@@ -710,10 +842,10 @@ dépendance casse.</p>
 <p><strong>Et résumez entre les phases.</strong> Le skill est facile à sauter et le guide
 l'énonce explicitement : avant de lancer les subagents de la phase suivante,
 résumer les découvertes clés de la phase en cours et <strong>injecter ce résumé dans
-leur contexte initial</strong>. Un subagent n'hérite de rien (TS 1.3) — ni de
-l'historique du parent, ni des découvertes de la phase précédente. Sans le résumé
-injecté, la phase deux redécouvre ce que la phase un savait déjà, ou pire, la
-contredit sans le savoir.</p>
+leur contexte initial</strong>. Un subagent n'hérite de rien (TS 1.3) : ni de
+l'historique du parent, ni des découvertes de la phase précédente. Sans le
+résumé injecté, la phase deux redécouvre ce que la phase un savait déjà, ou
+pire, la contredit sans le savoir.</p>
 <h3><code>/compact</code>, et ce qu'il ne promet pas</h3>
 <p>C'est le renvoi que D3 devait à ce domaine, et le guide le place ici : <strong>utiliser
 <code>/compact</code> pour réduire l'usage du contexte pendant les sessions d'exploration
@@ -775,14 +907,14 @@ agents.</p>
 terminée et que l'analyse a été interrompue, et reprend sans relancer le travail
 déjà fait. Le manifeste porte l'état du workflow ; le fichier de chaque agent
 porte ses découvertes, sa couverture et ses lacunes.</p>
-<p>C'est un mécanisme différent du scratchpad, et les confondre est une erreur bon
-marché : un scratchpad contrecarre la <em>dégradation</em> à l'intérieur de la session d'un
-agent, un manifeste survit à un <em>crash</em> à l'échelle d'un workflow. La
-documentation du SDK pointe dans le même sens pour les sessions en général —
-capturer les résultats dont vous avez besoin comme état applicatif et les passer
-dans le prompt d'une session neuve est plus robuste que de reprendre une session
-dont les résultats d'outils ont vieilli. La reprise de session elle-même,
-<code>--resume</code> et <code>fork_session</code>, relève du TS 1.7 et vit en D1.</p>
+<p>C'est un mécanisme différent du scratchpad, et les confondre est une erreur
+vite commise : un scratchpad contrecarre la <em>dégradation</em> à l'intérieur de la
+session d'un agent, un manifeste survit à un <em>crash</em> à l'échelle d'un workflow.
+La documentation du SDK pointe dans le même sens pour les sessions en général,
+où capturer les résultats dont vous avez besoin comme état applicatif et les
+passer dans le prompt d'une session neuve est plus robuste que de reprendre une
+session dont les résultats d'outils ont vieilli. La reprise de session
+elle-même, <code>--resume</code> et <code>fork_session</code>, relève du TS 1.7 et vit en D1.</p>
 <div class="key-concept">
 <p><strong>Quatre mécanismes, quatre rôles différents.</strong> La délégation empêche la sortie
 verbeuse d'entrer dans le contexte principal. Un scratchpad ramène des
@@ -795,13 +927,14 @@ réponses sont les trois autres.</p>
 <p>« L'agent cite des patterns typiques au lieu des classes qu'il a lues » est la
 formule signature de la dégradation du contexte, et la réponse est un scratchpad
 qu'il relit, la délégation de la découverte verbeuse, ou les deux.</p>
-<p>Les distracteurs visent chacun le symptôme. <strong>Redémarrer dans une session propre</strong>
-supprime la dégradation en jetant l'investigation, et la même session longue la
-reproduit puisque rien n'a été rendu persistant. <strong>Augmenter <code>max_tokens</code></strong>
-confond deux budgets : ce paramètre borne la longueur de la réponse générée, pas
-ce que l'agent détient encore en entrée. <strong>Dire à l'agent de se concentrer sur le
-code réel et de citer ses sources</strong> lui décrit le symptôme — aucune instruction ne
-restaure une information qui n'est plus exploitable.</p>
+<p>Les distracteurs visent chacun le symptôme. <strong>Redémarrer dans une session
+propre</strong> supprime la dégradation en jetant l'investigation, et la même session
+longue la reproduit puisque rien n'a été rendu persistant. <strong>Augmenter
+<code>max_tokens</code></strong> confond deux budgets : ce paramètre borne la longueur de la
+réponse générée, pas ce que l'agent détient encore en entrée. <strong>Dire à l'agent
+de se concentrer sur le code réel et de citer ses sources</strong> lui décrit le
+symptôme, et aucune instruction ne restaure une information qui n'est plus
+exploitable.</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Déléguer une étape dont le travail intermédiaire vous est nécessaire.</strong> Un
@@ -813,7 +946,31 @@ L'isolation n'est gratuite que quand le trajet n'a vraiment aucun intérêt.</p>
 skills de ce task statement, et c'est celui qui ne garantit rien sur un fait
 donné.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.4&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d5-q8" data-domain="D5" data-task="5.4">
+<summary>Q8 An exploration session that drifts</summary>
+<div>
+<p><strong>Scenario:</strong> Deep into an audit of a legacy inventory module, the agent answers that "stock reconciliation jobs usually follow the observer pattern", although it had located <code>StockLedgerSync</code> and its callers an hour earlier. The investigation has to continue on the same files.</p>
+<p><strong>Question:</strong> Which response treats the cause?</p>
+<p data-opt="a">A) Raise <code>max_tokens</code> and ask for fuller answers, so the replies have room to carry the detail that went missing.</p>
+<p data-opt="b">B) Have the agent boil its findings down into a scratchpad file it rereads, and hand verbose discovery to a subagent that returns only a summary.</p>
+<p data-opt="c">C) Rerun the exploration in a clean session and carry nothing over from this one, so the window is uncluttered again.</p>
+<p data-opt="d">D) Tell the agent to concentrate on the real code it read and to cite its sources for every claim.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: a scratchpad it rereads, plus delegation to a subagent</p>
+<p><strong>Why:</strong> reaching for a "typical pattern" instead of the class it actually read is the signature of context degradation. The two remedies are complementary: the scratchpad holds findings the agent has already boiled down, so what the audit learned stays readable once the window no longer holds it, and a subagent that hands back a summary only keeps verbose discovery output out of the main thread in the first place.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">That parameter bounds answer length; it has no effect on what the agent still holds.</li>
+<li data-opt="c">Starting over with no summary injected discards the audit and reproduces the same drift.</li>
+<li data-opt="d">An instruction cannot restore information that is no longer usable in the context.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=5.4">Toutes les questions de la banque sur 5.4</a></p>
+</div>
 
 <div class="section-header"><h2 id="s5">5. 5.5 — Design human review workflows and confidence calibration</h2></div>
 
@@ -822,7 +979,7 @@ opérations propose de couper la relecture humaine sur les extractions à haute
 confiance. Creusez le chiffre : les factures scannées sont à 60 %, tandis que le
 champ du numéro de TVA est faux 40 % du temps.</p>
 <p>Rien dans ces 97 % n'est faux. C'est une moyenne sur une population, et une
-moyenne masque la structure par construction — ce qui est le premier point de
+moyenne masque la structure par construction, ce qui est le premier point de
 connaissance du guide et le piège sur lequel tout ce task statement est bâti.</p>
 <p>Ce task statement pose deux questions séparées, et les confondre est la façon dont
 ses distracteurs fonctionnent :</p>
@@ -850,14 +1007,14 @@ chiffre de tête. L'ordre compte autant que l'analyse : <strong>valider par segm
 d'automatiser</strong>, pas après. Automatiser d'abord et mesurer ensuite, c'est faire
 arriver la mesure par les réclamations clients.</p>
 <p>L'<strong>échantillonnage aléatoire stratifié</strong> est ce qui garde la mesure honnête une
-fois l'automatisation en marche. L'échantillon est tiré <strong>à l'intérieur de chaque
-segment</strong> plutôt que sur la population entière, parce qu'un tirage aléatoire
-simple dans une population dominée par les PDF natifs ne contiendra presque aucun
-formulaire manuscrit — précisément le segment qui échoue. Le guide lui donne deux
-rôles : mesurer le <strong>taux d'erreur des extractions à haute confiance</strong>, et
-<strong>détecter les patterns d'erreur nouveaux</strong> — ceux qu'aucune règle existante
-n'attrape, et qui par définition ne peuvent pas être trouvés en regardant là où
-l'on sait déjà regarder.</p>
+fois l'automatisation en marche. L'échantillon est tiré <strong>à l'intérieur de
+chaque segment</strong> plutôt que sur la population entière, parce qu'un tirage
+aléatoire simple dans une population dominée par les PDF natifs ne contiendra
+presque aucun formulaire manuscrit, précisément le segment qui échoue. Le guide
+lui donne deux rôles : mesurer le <strong>taux d'erreur des extractions à haute
+confiance</strong>, et <strong>détecter les patterns d'erreur nouveaux</strong>, ceux qu'aucune
+règle existante n'attrape, et qui par définition ne peuvent pas être trouvés en
+regardant là où l'on sait déjà regarder.</p>
 <pre><code class="language-text">Volume quotidien 9 000 → tirer 40 dans chaque strate, pas 200 sur l'ensemble
   PDF natif      6 300 → 40 tirés
   photographié   1 900 → 40 tirés
@@ -897,9 +1054,9 @@ modèle ou humain — et un score moyen comme métrique de tête. Construire le 
 la calibration par champ ci-dessus viennent du guide.</p>
 <p>Deux choses passent en priorité dans la file de relecture, et le guide nomme les
 deux : la <strong>faible confiance du modèle</strong>, et les <strong>documents sources ambigus ou
-contradictoires</strong> — deux totaux qui divergent, une date illisible, un champ
-raturé. La seconde ne dépend pas du tout de l'avis du modèle ; c'est une propriété
-de l'entrée.</p>
+contradictoires</strong>, c'est-à-dire deux totaux qui divergent, une date illisible,
+un champ raturé. La seconde ne dépend pas du tout de l'avis du modèle ; c'est
+une propriété de l'entrée.</p>
 <div class="key-concept">
 <p><strong>Les deux visages de la confiance, et pourquoi ce n'est pas une contradiction.</strong>
 En 5.2, un score de confiance auto-déclaré est un déclencheur d'escalade peu
@@ -913,20 +1070,21 @@ deux elle propose.</p>
 </div>
 <div class="exam-tip">
 <p>« 97 % au global » dans un scénario est l'indice, et la réponse est toujours :
-ventiler par type de document et par champ, et confirmer la constance dans chaque
-segment <em>avant</em> de réduire la relecture.</p>
+ventiler par type de document et par champ, et confirmer la constance dans
+chaque segment <em>avant</em> de réduire la relecture.</p>
 <p>Les distracteurs se rangent en deux familles. Contre la mesure : <strong>comparer les
 trimestres jusqu'à ce que l'agrégat paraisse stable</strong> — quatre trimestres d'un
-agrégat ne révèlent aucune structure ; <strong>ne relire que les types de documents qui
-ont déjà produit des réclamations</strong> — un signal tardif, puisque l'erreur est
+agrégat ne révèlent aucune structure ; <strong>ne relire que les types de documents
+qui ont déjà produit des réclamations</strong> — un signal tardif, puisque l'erreur est
 arrivée chez le client, et biaisé, puisque seules les erreurs visibles
 reviennent.</p>
-<p>Contre le routage : <strong>un score de confiance par document</strong>, qui est de nouveau le
-problème de l'agrégat ; <strong>le modèle qui note sa propre certitude de 1 à 10</strong>, qui
-est la version non calibrée et ne correspond à aucun taux d'erreur connu ;
-<strong>échantillonner une part fixe au hasard et relire celle-là</strong> — une confusion
-d'usage, puisque l'échantillonnage stratifié mesure un taux d'erreur et détecte
-des patterns nouveaux, il n'alloue pas une capacité rare là où est le risque.</p>
+<p>Contre le routage : <strong>un score de confiance par document</strong>, qui est de nouveau
+le problème de l'agrégat ; <strong>le modèle qui note sa propre certitude de 1 à 10</strong>,
+qui est la version non calibrée et ne correspond à aucun taux d'erreur connu ;
+<strong>échantillonner une part fixe au hasard et relire celle-là</strong>, ce qui est une
+confusion d'usage, puisque l'échantillonnage stratifié mesure un taux d'erreur
+et détecte des patterns nouveaux, et n'alloue pas une capacité rare là où est le
+risque.</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Automatiser d'abord, mesurer ensuite.</strong> Le libellé du guide est « avant
@@ -936,7 +1094,52 @@ production.</p>
 <p><strong>Un seuil de confiance jamais confronté à des données étiquetées.</strong> Le nombre est
 arbitraire, et le taux d'automatisation qu'il produit est une coïncidence.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.5&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d5-q4" data-domain="D5" data-task="5.5">
+<summary>Q4 One figure for every kind of permit</summary>
+<div>
+<p><strong>Scenario:</strong> A building-permit agent routes applications to the right municipal desk. For last quarter it reports 91% correct routing over everything it handled, and the operations team wants to switch off the human check on that basis.</p>
+<p><strong>Question:</strong> What has to be established first?</p>
+<p data-opt="a">A) Recompute the figure per permit category and per intake channel, and confirm it holds in each.</p>
+<p data-opt="b">B) Compare the quarter against the three before it, and switch the check off once the level has held steady for a full year.</p>
+<p data-opt="c">C) Spot-check the agent's stated reasons instead of its destinations.</p>
+<p data-opt="d">D) Have the agent rate its own certainty on each application, and keep the human check only on the ones it rates lowest.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: recompute per category and per channel before switching anything off</p>
+<p><strong>Why:</strong> one number over everything can sit at 91% while faxed applications run at 60% and historic-district cases at 55%. Each segment has to be drawn by stratified random sampling for the breakdown to mean anything, and that segment-level measurement is the precondition for removing the check, not a follow-up to it.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">A stable aggregate is still an aggregate; four quarters of it reveal no structure.</li>
+<li data-opt="c">A convincing reason and a correct desk are different things, and only one of them is being looked at.</li>
+<li data-opt="d">Uncalibrated self-rating sorts the queue by the agent's opinion, which is highest exactly where it is wrong.</li>
+</ul>
+</div>
+</details>
+
+<details id="d5-q9" data-domain="D5" data-task="5.5">
+<summary>Q9 Two reviewers, nine thousand declarations</summary>
+<div>
+<p><strong>Scenario:</strong> A customs pipeline extracts nine thousand declaration line items a day. Your two reviewers get through about four hundred between them, and you want that capacity spent where it changes an outcome.</p>
+<p><strong>Question:</strong> How should review be routed?</p>
+<p data-opt="a">A) Rank whole declarations by certainty and work down from the weakest.</p>
+<p data-opt="b">B) Score each field on its own, and tune the cut-off on a hand-checked sample.</p>
+<p data-opt="c">C) Put every declaration through a second extraction pass, and queue the ones where the two passes disagree with each other.</p>
+<p data-opt="d">D) Rotate the reviewers through each field type on a fixed weekly cycle, so no part of the form goes unchecked for long.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: per-field scores, cut-off tuned on hand-checked data</p>
+<p><strong>Why:</strong> field granularity spends the reviewer where the doubt is — a declaration whose only shaky value is <code>hs_code</code> does not need a full reread. And a cut-off means nothing until it has been set against data someone checked by hand: ground truth is what says which score level carries an error rate you can live with.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">One number per declaration averages the safe fields with the doubtful one, so it queues near-perfect documents and waves a single bad field through.</li>
+<li data-opt="c">Two passes of one model agree most readily where it is confidently wrong, so the queue fills with disagreements that were never the dangerous cases.</li>
+<li data-opt="d">A calendar decides what gets looked at, and the doubtful fields wait their turn like everything else.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=5.5">Toutes les questions de la banque sur 5.5</a></p>
+</div>
 
 <div class="section-header"><h2 id="s6">6. 5.6 — Preserve information provenance and handle uncertainty in multi-source synthesis</h2></div>
 
@@ -974,6 +1177,16 @@ l'appel qui l'a lancé, donc un format qui sépare le contenu des métadonnées 
 source, nom du document, numéro de page, date de publication — doit y être exigé,
 sans quoi il n'arrivera pas.</li>
 </ul>
+<div class="key-concept">
+<p><strong>La provenance se préserve, elle ne se restaure jamais.</strong> L'URL, la date et la
+méthodologie n'existent que dans l'étape qui a lu la source, si bien que tout
+remède agissant après la compression demande à un agent de reconstruire ce qu'il
+n'a jamais reçu : une passe finale qui « ajoute les citations », un agent de
+synthèse chargé d'attacher les sources lui-même. C'est pourquoi l'exigence
+retombe sur le prompt du subagent et sur l'obligation de l'agent de synthèse de
+faire passer les mappings. Dans un scénario, trouvez l'étape où l'attribution
+existait encore ; les mauvaises réponses agissent toutes en aval de celle-ci.</p>
+</div>
 <h3>Valeurs contradictoires : annoter, ne pas choisir</h3>
 <p>Deux sources crédibles donnent des chiffres différents pour la même grandeur.
 L'instruction du guide est nette : <strong>annoter le conflit avec l'attribution des
@@ -1035,10 +1248,11 @@ LACUNES DE COUVERTURE
 document. La provenance et la couverture répondent à la même question du lecteur
 par deux côtés : sur quoi ceci repose-t-il, et que lui manque-t-il.</p>
 <h3>Rendre chaque type de contenu dans sa forme propre</h3>
-<p>Le dernier skill porte sur le format de sortie, et c'est celui qui prend les gens
-de court parce que rien en amont n'est cassé quand il se déclenche. Un agent de
-synthèse reçoit du matériau hétérogène et est tenté de tout couler dans une seule
-forme — de la prose en général, parce que la prose est le défaut.</p>
+<p>Le dernier skill porte sur le format de sortie, et c'est celui qui prend les
+gens de court parce que rien en amont n'est cassé quand il se déclenche. Un
+agent de synthèse reçoit du matériau hétérogène et est tenté de tout couler dans
+une seule forme, de la prose en général, parce que la prose est le format par
+défaut.</p>
 <table>
 <thead>
 <tr>
@@ -1070,19 +1284,19 @@ et inexploitables.</p>
 <div class="exam-tip">
 <p>Quand un scénario reproche à un rapport de synthèse d'être <strong>difficile à
 exploiter</strong> alors que le contenu est exact et bien sourcé, ne cherchez pas en
-amont — les subagents ont fait leur travail. Le défaut est le rendu uniforme à
-l'étape de synthèse, et la correction consiste à instruire l'agent de synthèse de
-rendre chaque type de contenu dans sa forme propre.</p>
+amont : les subagents ont fait leur travail. Le défaut est le rendu uniforme à
+l'étape de synthèse, et la correction consiste à instruire l'agent de synthèse
+de rendre chaque type de contenu dans sa forme propre.</p>
 <p>Quand le reproche est que les <strong>affirmations ne peuvent pas être tracées</strong>,
 regardez l'étape de résumé au milieu, et exigez des mappings affirmation-source
-structurés que les agents en aval préservent — pas une passe finale demandant à
-l'agent de synthèse d'« ajouter les citations », ce qui revient à lui demander de
-reconstituer des URL qu'il n'a plus.</p>
+structurés que les agents en aval préservent, pas une passe finale demandant à
+l'agent de synthèse d'« ajouter les citations », ce qui revient à lui demander
+de reconstituer des URL qu'il n'a plus.</p>
 <p>Sur les statistiques contradictoires, trois mauvaises réponses reviennent :
 <strong>garder le chiffre le plus récent</strong> (la récence est un départage arbitraire qui
 supprime une preuve valide), <strong>faire la moyenne des deux</strong> (fabriquer un nombre
-qu'aucune source ne rapporte), et <strong>écarter la statistique</strong> (appauvrir le rapport
-au lieu de qualifier l'incertitude).</p>
+qu'aucune source ne rapporte), et <strong>écarter la statistique</strong> (appauvrir le
+rapport au lieu de qualifier l'incertitude).</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Laisser l'agent de synthèse être le premier endroit où l'attribution compte.</strong>
@@ -1092,96 +1306,11 @@ d'analyse est de rapporter les deux valeurs avec leur attribution, annotées.
 Choisir entre elles est la décision du coordinateur, et elle devrait être
 visible.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;5.6&quot;</code>.</p>
 
-<div class="section-header"><h2 id="s7" class="page-break">7. Questions d'auto-évaluation</h2></div>
-
-<details id="d5-q1" data-domain="D5" data-task="5.1">
-<summary>Q1 (D5) — Assay settings the summary stops carrying</summary>
-<div>
-<p><strong>Scenario:</strong> A lab assistant walks a technician through a three-hour assay. At step 2 the two of them fixed the reagent lot, a 1:250 dilution and which plate reader to use. Sixty steps later the raw turns have been replaced by two successive summaries, and the assistant proposes "the usual dilution" without naming one.</p>
-<p><strong>Question:</strong> What keeps those settings usable to the end of the run?</p>
-<p data-opt="a">A) Have the assistant search back through the earlier turns whenever it needs a setting, so no value has to be repeated in the prompt.</p>
-<p data-opt="b">B) Pin the fixed settings in a <code>run_context</code> block rebuilt into every prompt.</p>
-<p data-opt="c">C) Ask the technician to restate the lot and the dilution at the start of each phase, so the values keep re-entering the conversation.</p>
-<p data-opt="d">D) Lower the sampling temperature, so the assistant stops reaching for a habitual value in place of the one it was given.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: the fixed settings pinned outside the summarized history</p>
-<p><strong>Why:</strong> summarization compresses by nature, and a lot number, a ratio and an instrument are the kind of detail it drops first. Rebuilt into every prompt from a block of its own, they never travel through the compressor at all.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">There is nothing left to search: the summaries replaced the turns that held those values.</li>
-<li data-opt="c">Moves the burden onto the technician, and each restated value is compressed again a few steps later.</li>
-<li data-opt="d">Temperature governs the choice between candidate tokens, not what the context still carries.</li>
-</ul>
-</div>
-</details>
-
-<details id="d5-q2" data-domain="D5" data-task="5.2">
-<summary>Q2 (D5) — A guest at the end of their patience</summary>
-<div>
-<p><strong>Scenario:</strong> A hotel messaging agent receives: "Third time this month the room key has died on me. I'm done." The guest has not asked for a person. Reissuing the key and crediting loyalty points both sit inside the agent's authority.</p>
-<p><strong>Question:</strong> What is the correct behavior?</p>
-<p data-opt="a">A) Ask the guest up front whether they would rather be transferred to a person, so the choice belongs to them and not to the agent.</p>
-<p data-opt="b">B) Name the repeat failure, reissue the key, credit the points, and hand off only if asked.</p>
-<p data-opt="c">C) Hold the thread until a duty manager approves the credit, since a fault recurring three times in one month is no longer routine.</p>
-<p data-opt="d">D) Mirror the exasperation at length, since tone is the strongest signal here.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: name it, fix it, and hand off only on request</p>
-<p><strong>Why:</strong> exasperation is not a request for a human, and it says nothing about how hard the case is. This one sits inside the agent's authority, so the agent closes it — while still telling the guest their experience was heard.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Offers a handoff nobody asked for, and turns a case the agent can close into a queue.</li>
-<li data-opt="c">Invents an approval gate over a gesture the agent was already granted.</li>
-<li data-opt="d">Sympathy and still no working key; being heard is worth one sentence, not a paragraph.</li>
-</ul>
-</div>
-</details>
-
-<details id="d5-q3" data-domain="D5" data-task="5.3">
-<summary>Q3 (D5) — Nothing on file, or nobody answered</summary>
-<div>
-<p><strong>Scenario:</strong> A compliance agent checks an engineer's certifications in three systems. The HR record holds two certificates, the training platform holds none for this engineer, and the badge system's connector returns a gateway error. The agent reports the last two the same way, as "no data".</p>
-<p><strong>Question:</strong> How should the three outcomes reach the coordinator?</p>
-<p data-opt="a">A) Let the coordinator tell them apart from the response times, since a connector that gives up takes far longer than one answering with nothing.</p>
-<p data-opt="b">B) Send the coordinator a prose note describing what each system did, so nothing is lost and it can judge for itself.</p>
-<p data-opt="c">C) Return one typed outcome per system: records found, none on file, lookup never completed.</p>
-<p data-opt="d">D) Conclude that the engineer holds no badge certification, since neither of those two systems produced one.</p>
-<hr>
-<p class="correct" data-answer="c">Answer: one typed outcome per system, the unanswered lookup kept apart</p>
-<p><strong>Why:</strong> "none on file" answers the question and is coverage information; a gateway error means the question was never put, so a retry decision is still open. The typed outcome carries <code>failure_type</code>, the query attempted and any <code>partial_results</code>, which is what lets the coordinator retry one system and annotate the other.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Reads an outcome off a timing side effect, which a fast-failing connector breaks straight away.</li>
-<li data-opt="b">A narrative is not a decidable outcome; the coordinator has to branch on it, not read it.</li>
-<li data-opt="d">Turns an unanswered lookup into a finding about the engineer, which is the error with consequences.</li>
-</ul>
-</div>
-</details>
-
-<details id="d5-q4" data-domain="D5" data-task="5.5">
-<summary>Q4 (D5) — One figure for every kind of permit</summary>
-<div>
-<p><strong>Scenario:</strong> A building-permit agent routes applications to the right municipal desk. For last quarter it reports 91% correct routing over everything it handled, and the operations team wants to switch off the human check on that basis.</p>
-<p><strong>Question:</strong> What has to be established first?</p>
-<p data-opt="a">A) Recompute the figure per permit category and per intake channel, and confirm it holds in each.</p>
-<p data-opt="b">B) Compare the quarter against the three before it, and switch the check off once the level has held steady for a full year.</p>
-<p data-opt="c">C) Spot-check the agent's stated reasons instead of its destinations.</p>
-<p data-opt="d">D) Have the agent rate its own certainty on each application, and keep the human check only on the ones it rates lowest.</p>
-<hr>
-<p class="correct" data-answer="a">Answer: recompute per category and per channel before switching anything off</p>
-<p><strong>Why:</strong> one number over everything can sit at 91% while faxed applications run at 60% and historic-district cases at 55%. Each segment has to be drawn by stratified random sampling for the breakdown to mean anything, and that segment-level measurement is the precondition for removing the check, not a follow-up to it.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">A stable aggregate is still an aggregate; four quarters of it reveal no structure.</li>
-<li data-opt="c">A convincing reason and a correct desk are different things, and only one of them is being looked at.</li>
-<li data-opt="d">Uncalibrated self-rating sorts the queue by the agent's opinion, which is highest exactly where it is wrong.</li>
-</ul>
-</div>
-</details>
-
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
 <details id="d5-q5" data-domain="D5" data-task="5.6">
-<summary>Q5 (D5) — Two figures that disagree</summary>
+<summary>Q5 Two figures that disagree</summary>
 <div>
 <p><strong>Scenario:</strong> A synthesis agent receives two readmission rates for the same procedure: 9.4% from a 2022 national registry built on claims data, and 6.1% from a 2025 hospital survey. Both sources are credible and the methods differ.</p>
 <p><strong>Question:</strong> What goes into the report?</p>
@@ -1200,91 +1329,10 @@ visible.</p>
 </ul>
 </div>
 </details>
-
-<details id="d5-q6" data-domain="D5" data-task="5.1">
-<summary>Q6 (D5) — A bring-up session running out of room</summary>
-<div>
-<p><strong>Scenario:</strong> A hardware bring-up assistant is 120 turns into debugging a prototype board and near the context limit. Turn 3 recorded the errata in the pin mapping and the supply rail the team agreed nobody would touch. The work has to continue in this session.</p>
-<p><strong>Question:</strong> Which strategy keeps the session going without losing those two constraints?</p>
-<p data-opt="a">A) Move the older turns into a transcript file the assistant can open when it needs them, so the window holds only recent exchanges.</p>
-<p data-opt="b">B) Compress the older turns to recover budget, and hold the two constraints in a pinned block that sits outside the region the compression is allowed to rewrite.</p>
-<p data-opt="c">C) Trim every tool result down to its closing lines as it arrives, so the window fills more slowly from here.</p>
-<p data-opt="d">D) Hand each remaining subsystem to its own fresh subagent, briefed on that subsystem alone, and keep only their reports in the main thread.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: compression for budget, a pinned block for what must not be diluted</p>
-<p><strong>Why:</strong> the session has two problems and each needs its own answer. Compression buys room; it cannot promise that any particular line survives it. Pinning the errata and the untouchable rail outside the compressed region is what guarantees they are still there at turn 200. That is the line to hold: a prohibition has to sit in the context whenever an action is chosen, because the assistant cannot look up a rail it does not know it is about to touch, while a notes file answers a question the agent knows it has.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Archives the transcript whole instead of distilling anything: the errata and the rail stay buried in 120 turns of debugging, no more prominent in the file than they were in the window. Written notes earn their keep on findings someone has boiled down and goes back to read, which is a different job from keeping a standing prohibition in force.</li>
-<li data-opt="c">Slows saturation and protects nothing: turn 3 still sits in the part that gets compressed.</li>
-<li data-opt="d">Every brief that omits the untouchable rail is a subagent free to touch it.</li>
-</ul>
+<p class="to-test"><a href="Practice_Questions.html?task=5.6">Toutes les questions de la banque sur 5.6</a></p>
 </div>
-</details>
 
-<details id="d5-q7" data-domain="D5" data-task="5.2">
-<summary>Q7 (D5) — Two signals that stop the agent deciding alone <strong>(Select the 2 correct answers.)</strong></summary>
-<div>
-<p><strong>Scenario:</strong> A software licensing support agent is deep into a long ticket. The renewal discount being asked for is neither allowed nor forbidden by the pricing policy, and the account lookup returns three companies sharing the same trading name.</p>
-<p><strong>Question:</strong> Which two responses does the escalation policy require here?</p>
-<p data-opt="a">A) Escalate on the policy gap the discount request falls into.</p>
-<p data-opt="b">B) Escalate because the ticket is long and the window is filling up.</p>
-<p data-opt="c">C) Ask for a discriminating identifier before acting on any of the three accounts.</p>
-<p data-opt="d">D) Pick the account with the most recent renewal, as the likeliest match.</p>
-<p data-opt="e">E) Score the customer's tone and escalate if it reads negative.</p>
-<hr>
-<p class="correct" data-answer="a c">Answers: the policy gap, and the ambiguous account match</p>
-<p><strong>Why:</strong> policy silence on the case is a reliable trigger, because granting the discount is a commercial decision nobody delegated. Multiple matches call for a discriminating identifier — a contract number, a billing domain — never a guess: acting on the wrong company's contract is the failure that identity checks exist to prevent.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">A filling window is a technical constraint with technical remedies, not a business reason to involve a human.</li>
-<li data-opt="d">"Most recent renewal" is a heuristic dressed as reasoning, and it can select the wrong account just as easily.</li>
-<li data-opt="e">Tone does not correlate with case complexity, and nothing here turns on how the customer feels.</li>
-</ul>
-</div>
-</details>
-
-<details id="d5-q8" data-domain="D5" data-task="5.4">
-<summary>Q8 (D5) — An exploration session that drifts</summary>
-<div>
-<p><strong>Scenario:</strong> Deep into an audit of a legacy inventory module, the agent answers that "stock reconciliation jobs usually follow the observer pattern", although it had located <code>StockLedgerSync</code> and its callers an hour earlier. The investigation has to continue on the same files.</p>
-<p><strong>Question:</strong> Which response treats the cause?</p>
-<p data-opt="a">A) Raise <code>max_tokens</code> and ask for fuller answers, so the replies have room to carry the detail that went missing.</p>
-<p data-opt="b">B) Have the agent boil its findings down into a scratchpad file it rereads, and hand verbose discovery to a subagent that returns only a summary.</p>
-<p data-opt="c">C) Rerun the exploration in a clean session and carry nothing over from this one, so the window is uncluttered again.</p>
-<p data-opt="d">D) Tell the agent to concentrate on the real code it read and to cite its sources for every claim.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: a scratchpad it rereads, plus delegation to a subagent</p>
-<p><strong>Why:</strong> reaching for a "typical pattern" instead of the class it actually read is the signature of context degradation. The two remedies are complementary: the scratchpad holds findings the agent has already boiled down, so what the audit learned stays readable once the window no longer holds it, and a subagent that hands back a summary only keeps verbose discovery output out of the main thread in the first place.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">That parameter bounds answer length; it has no effect on what the agent still holds.</li>
-<li data-opt="c">Starting over with no summary injected discards the audit and reproduces the same drift.</li>
-<li data-opt="d">An instruction cannot restore information that is no longer usable in the context.</li>
-</ul>
-</div>
-</details>
-
-<details id="d5-q9" data-domain="D5" data-task="5.5">
-<summary>Q9 (D5) — Two reviewers, nine thousand declarations</summary>
-<div>
-<p><strong>Scenario:</strong> A customs pipeline extracts nine thousand declaration line items a day. Your two reviewers get through about four hundred between them, and you want that capacity spent where it changes an outcome.</p>
-<p><strong>Question:</strong> How should review be routed?</p>
-<p data-opt="a">A) Rank whole declarations by certainty and work down from the weakest.</p>
-<p data-opt="b">B) Score each field on its own, and tune the cut-off on a hand-checked sample.</p>
-<p data-opt="c">C) Put every declaration through a second extraction pass, and queue the ones where the two passes disagree with each other.</p>
-<p data-opt="d">D) Rotate the reviewers through each field type on a fixed weekly cycle, so no part of the form goes unchecked for long.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: per-field scores, cut-off tuned on hand-checked data</p>
-<p><strong>Why:</strong> field granularity spends the reviewer where the doubt is — a declaration whose only shaky value is <code>hs_code</code> does not need a full reread. And a cut-off means nothing until it has been set against data someone checked by hand: ground truth is what says which score level carries an error rate you can live with.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">One number per declaration averages the safe fields with the doubtful one, so it queues near-perfect documents and waves a single bad field through.</li>
-<li data-opt="c">Two passes of one model agree most readily where it is confidently wrong, so the queue fills with disagreements that were never the dangerous cases.</li>
-<li data-opt="d">A calendar decides what gets looked at, and the doubtful fields wait their turn like everything else.</li>
-</ul>
-</div>
-</details>
+</main>
 
 <nav class="doc-nav">
   <a class="prev" href="D4_Prompt_Engineering_20pct.html"><span class="label">Précédent</span><span class="title">D4 — Prompt engineering</span></a>

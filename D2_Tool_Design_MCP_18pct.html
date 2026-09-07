@@ -14,6 +14,7 @@
 </head>
 <body id="top">
 
+<a class="skip-link" href="#content">Aller au contenu</a>
 
 <nav class="navbar">
   <a class="home" href="index.html">CCA-F</a>
@@ -33,14 +34,31 @@
   <a href="en/D2_Tool_Design_MCP_18pct.html">EN</a>
 </div>
 
+<main id="content" tabindex="-1">
+
 <div class="header-bar">
 <h1>D2 — Conception d'outils et intégration MCP (18 %)</h1>
 <p>Dix-huit pour cent du score, cinq task statements, et le domaine où l'examen
 cesse de demander ce qu'un agent peut appeler pour demander ce que vous placez
 devant lui : le libellé d'une description, la forme d'une erreur, la taille d'un
 jeu d'outils, le fichier où un serveur est déclaré. Une section par task
-statement, dans l'ordre du guide et sous le libellé du guide — pour qu'une
+statement, dans l'ordre du guide et sous le libellé du guide, pour qu'une
 question repérée le jour J corresponde à une section d'ici sans traduction.</p>
+</div>
+
+<div class="toc">
+<strong>Table des matières</strong>
+<ol>
+<li><a href="#s1">2.1 — Concevoir des interfaces d'outils claires, avec des descriptions et des frontières nettes</a></li>
+<li><a href="#s2">2.2 — Implémenter des réponses d'erreur structurées pour les outils MCP</a></li>
+<li><a href="#s3">2.3 — Distribuer les outils entre les agents et configurer le choix d'outil</a></li>
+<li><a href="#s4">2.4 — Intégrer des serveurs MCP dans Claude Code et dans les workflows d'agents</a></li>
+<li><a href="#s5">2.5 — Sélectionner et employer efficacement les outils intégrés (Read, Write, Edit, Bash, Grep, Glob)</a></li>
+</ol>
+</div>
+
+<details class="cross-refs" open>
+<summary>Ce que ce cours possède, ce qu’il renvoie ailleurs</summary>
 <p>D0 et D1 sont supposés acquis, et tous deux renvoient ici. D0 a nommé l'anatomie
 d'un outil — <code>name</code>, <code>description</code>, <code>input_schema</code> — et a dit deux fois que
 <strong>c'est en D2.1 que se développe la question du libellé qui fait choisir au
@@ -57,19 +75,7 @@ coordinateur relève du TS 5.3 ; ce cours possède la <strong>forme</strong> de 
 possède ce que le coordinateur en fait. Et ce qui fait <em>charger</em> une description
 dans une session Claude Code — les fichiers <code>.claude/agents/</code>, <code>allowedTools</code>,
 les settings — relève du domaine 3.</p>
-</div>
-
-<div class="toc">
-<strong>Table des matières</strong>
-<ol>
-<li><a href="#s1">2.1 — Concevoir des interfaces d'outils claires, avec des descriptions et des frontières nettes</a></li>
-<li><a href="#s2">2.2 — Implémenter des réponses d'erreur structurées pour les outils MCP</a></li>
-<li><a href="#s3">2.3 — Distribuer les outils entre les agents et configurer le choix d'outil</a></li>
-<li><a href="#s4">2.4 — Intégrer des serveurs MCP dans Claude Code et dans les workflows d'agents</a></li>
-<li><a href="#s5">2.5 — Sélectionner et employer efficacement les outils intégrés (Read, Write, Edit, Bash, Grep, Glob)</a></li>
-<li><a href="#s6">Questions d'auto-évaluation</a></li>
-</ol>
-</div>
+</details>
 
 <div class="section-header"><h2 id="s1">1. 2.1 — Concevoir des interfaces d'outils claires, avec des descriptions et des frontières nettes</h2></div>
 
@@ -181,8 +187,8 @@ misrouting.</li>
 de livrer <code>create_pr</code>, <code>review_pr</code> et <code>merge_pr</code> en trois outils. La même
 économie que réclame la règle de comptage de 2.3, appliquée dès la conception.</li>
 </ul>
-<p>Le nom lui-même doit respecter <code>^[a-zA-Z0-9_-]{1,64}$</code> — lettres, chiffres,
-tiret bas et tiret, jusqu'à soixante-quatre caractères.</p>
+<p>Le nom lui-même doit respecter <code>^[a-zA-Z0-9_-]{1,64}$</code>, ce qui autorise
+lettres, chiffres, tiret bas et tiret, jusqu'à soixante-quatre caractères.</p>
 <div class="key-concept">
 <p><strong>Retourner du signal, pas du remplissage.</strong> Un outil qui répond par un mur de
 texte convenu dépense le contexte de l'agent en lignes dont aucune décision ne
@@ -203,7 +209,7 @@ answering anything.
 <p>Rien dans cette phrase ne nomme un outil. Mais « verify the customer » ressemble
 assez à <code>get_customer</code>, et « always » porte plus loin que n'importe quelle
 formulation propre à un tour : le modèle appelle désormais <code>get_customer</code> sur
-des tours où l'identité n'est pas en jeu — y compris « quels sont vos horaires
+des tours où l'identité n'est pas en jeu, y compris « quels sont vos horaires
 d'ouverture ». Les descriptions d'outils sont bonnes. C'est l'instruction
 au-dessus d'elles qui a routé le tour.</p>
 <p>La compétence du guide est une relecture, pas une réécriture : <strong>relire le
@@ -236,11 +242,35 @@ assez à un collègue, parce que le collègue ira lire le code. Le modèle, non.
 <p><strong>Laisser le schéma porter le sens à lui seul.</strong> Un paramètre nommé <code>mode</code> avec
 un <code>enum</code> de cinq valeurs et aucune description par valeur est une décision que
 le modèle doit prendre sans information. Les descriptions de champs font partie
-de la surface descriptive de l'outil — avec le SDK Python MCP elles viennent du
+de la surface descriptive de l'outil. Avec le SDK Python MCP elles viennent du
 <code>Field(description=…)</code> posé sur chaque paramètre, et le SDK construit le schéma
 à partir des annotations de type qui les entourent.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;2.1&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d2-q1" data-domain="D2" data-task="2.1">
+<summary>Q1 (Logistics) — Two tool descriptions that read alike</summary>
+<div>
+<p><strong>Scenario:</strong> a delivery assistant routes "where is my parcel" requests to <code>find_package</code> 38% of the time, when they belong to <code>find_shipment</code>. <code>find_shipment</code> is described as "finds a shipment and returns its details", <code>find_package</code> as "finds a package and returns its details" — although <code>find_package</code> only returns warehouse scan events.</p>
+<p><strong>Question:</strong> what is the right fix?</p>
+<p data-opt="a">A) Rename <code>find_package</code> to <code>list_warehouse_scans</code> and rewrite its description around the scan events.</p>
+<p data-opt="b">B) Add a routing classifier that labels every request before any tool is offered.</p>
+<p data-opt="c">C) Add worked routing examples to the assistant system prompt, teaching the distinction by demonstration.</p>
+<p data-opt="d">D) Expand only the <code>find_shipment</code> description so delivery wording pulls those requests to it.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: rename the overlapping tool and rewrite its description</p>
+<p><strong>Why:</strong> two near-identical descriptions leave the model nothing to discriminate on. The new name and the rewritten description finally say what that tool really returns — warehouse scan events, not a parcel location — so the functional overlap disappears at its source, where the selection decision is actually made.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">Over-engineering: it bypasses natural language understanding instead of repairing the ambiguity.</li>
+<li data-opt="c">Examples cost tokens on every turn and leave the ambiguous description in place.</li>
+<li data-opt="d">Improving one side keeps the other just as attractive for the same requests.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=2.1">Toutes les questions de la banque sur 2.1</a></p>
+</div>
 
 <div class="section-header"><h2 id="s2">2. 2.2 — Implémenter des réponses d'erreur structurées pour les outils MCP</h2></div>
 
@@ -255,7 +285,7 @@ d'erreur uniformes empêchent l'agent de prendre les décisions de récupératio
 appropriées.</strong> L'agent fera quand même <em>quelque chose</em>. Il réessaiera quatre fois
 un refus de permission, ou renoncera sur un timeout qui se serait dissipé à la
 deuxième tentative, parce que rien dans la charge utile ne les distingue.</p>
-<p><code>isError</code> est le drapeau que MCP vous donne — il dit à l'agent que l'appel a
+<p><code>isError</code> est le drapeau que MCP vous donne : il dit à l'agent que l'appel a
 échoué au lieu de retourner des données. Tout ce qui rend cet échec actionnable,
 c'est vous qui le posez à côté.</p>
 <pre><code class="language-json">{
@@ -269,24 +299,24 @@ c'est vous qui le posez à côté.</p>
 <div class="key-concept">
 <p><strong><code>errorCategory</code>, <code>isRetryable</code> et la description lisible par un humain ne
 sont pas des champs du protocole MCP.</strong> Ce sont une convention applicative, et
-elles vivent à l'intérieur du texte du bloc de contenu — en prose ou en JSON
+elles vivent à l'intérieur du texte du bloc de contenu, en prose ou en JSON
 sérialisé. Ce que le protocole vous donne, c'est <code>isError</code> ; la structure, c'est
 à vous de l'imposer, et le guide vous teste sur le fait de l'imposer de manière
 cohérente.</p>
 <p>Deux points de forme qui vont avec. <code>content</code> est un <strong>tableau de blocs de
-contenu</strong>, jamais une chaîne nue ni un objet — les métadonnées structurées
+contenu</strong>, jamais une chaîne nue ni un objet. Les métadonnées structurées
 doivent donc vivre à l'intérieur d'un bloc, ce qui est précisément pourquoi on
 les encode en texte. Et la même convention côté API Claude est un bloc
 <code>tool_result</code> portant <code>is_error: true</code>, dont le <code>content</code> est ce que le modèle
 lit pour décider de la suite. Même discipline, enveloppe différente.</p>
 <p>Enfin, un détail d'orthographe qu'il vaut mieux neutraliser avant qu'il ne vous
 coûte un point : <strong>le guide lui-même écrit à la fois <code>isRetryable</code> et
-<code>retriable</code></strong>, à deux puces d'intervalle dans le même bloc « Skills in » —
-<code>isRetryable</code> pour le booléen général, <code>retriable: false</code> pour les violations de
-règle métier. Aucune des deux n'est un champ normalisé, donc aucune ne peut être
-celle qui piège : ce sont des conventions applicatives portées dans le contenu de
-l'erreur, comme <code>errorCategory</code>. Une option qui emploie une graphie n'est pas
-fausse parce qu'elle n'a pas employé l'autre.</p>
+<code>retriable</code></strong>, à deux puces d'intervalle dans le même bloc « Skills in ». Il
+emploie <code>isRetryable</code> pour le booléen général et <code>retriable: false</code> pour les
+violations de règle métier. Aucune des deux n'est un champ normalisé, donc
+aucune ne peut être celle qui piège : ce sont des conventions applicatives
+portées dans le contenu de l'erreur, comme <code>errorCategory</code>. Une option qui
+emploie une graphie n'est pas fausse parce qu'elle n'a pas employé l'autre.</p>
 </div>
 <h3>Deux mécanismes d'erreur, et un seul est le vôtre</h3>
 <p>Avant les catégories, une frontière que le protocole trace et dont un
@@ -314,12 +344,12 @@ ne sont pas interchangeables.</p>
 </tbody>
 </table>
 <p>Relisez la seconde ligne deux fois, parce qu'elle est contre-intuitive et
-qu'elle est tout ce task statement. <strong>Une règle métier violée n'est pas une
+qu'elle résume à elle seule ce task statement. <strong>Une règle métier violée n'est pas une
 erreur de protocole.</strong> L'appel est parvenu à l'outil, l'outil a tourné, et il a
-décidé que l'opération ne devait pas avoir lieu — la réponse revient donc comme
-un résultat normal dont <code>isError</code> vaut vrai et dont l'agent peut lire le contenu.
-Une réservation au-delà de l'horizon de 90 jours n'est pas une requête malformée :
-c'est une requête que l'outil a comprise et refusée.</p>
+décidé que l'opération ne devait pas avoir lieu. La réponse revient donc comme
+un résultat normal dont <code>isError</code> vaut vrai et dont l'agent peut lire le
+contenu. Une réservation au-delà de l'horizon de 90 jours n'est pas une requête
+malformée : c'est une requête que l'outil a comprise et refusée.</p>
 <p>C'est pourquoi tout ce qui suit porte sur le <em>contenu</em> d'un résultat plutôt que
 sur des codes d'erreur. Les erreurs de protocole sont l'affaire du transport et
 vous n'avez rien à y concevoir. Les erreurs d'exécution sont les vôtres, et la
@@ -363,10 +393,10 @@ y mettez.</p>
 </tbody>
 </table>
 <p>Les deux colonnes de droite sont tout l'enjeu. La retryabilité est une
-affirmation sur la possibilité qu'une répétition de l'appel réussisse, et elle est
-connaissable au niveau de l'outil, pas au niveau de l'agent. <strong>Des métadonnées
-structurées évitent les tentatives de retry gaspillées</strong> — c'est la formulation
-du guide, et le gaspillage se facture à la tentative.</p>
+affirmation sur la possibilité qu'une répétition de l'appel réussisse, et elle
+est connaissable au niveau de l'outil, pas au niveau de l'agent. <strong>Des
+métadonnées structurées évitent les tentatives de retry gaspillées</strong>. C'est la
+formulation du guide, et le gaspillage se facture à la tentative.</p>
 <p>La ligne la plus mal lue est <code>validation</code>. Elle est retryable, et son retry
 n'est pas une répétition : l'agent répare ses propres arguments et rappelle. La
 classer à côté de <code>permission</code> parce que « l'appel a échoué pour une raison que
@@ -410,10 +440,10 @@ c'est celle qui produit des réponses fausses silencieuses plutôt que bruyantes
 </tr>
 </tbody>
 </table>
-<p>Confondez-les et vous obtenez l'un de deux défauts. Signalez le résultat vide
+<p>Confondez-les et vous obtenez l'un des deux défauts. Signalez le résultat vide
 comme une erreur et l'agent réessaie une question à laquelle il a déjà été
 répondu. Signalez le timeout comme un résultat vide et l'agent conclut, de bonne
-foi, qu'il n'y a rien à trouver — et le trou n'apparaît jamais dans la réponse
+foi, qu'il n'y a rien à trouver, et le trou n'apparaît jamais dans la réponse
 finale.</p>
 <pre><code class="language-json">// Pas une erreur : le catalogue a bien été interrogé, il ne contient aucune correspondance.
 { &quot;isError&quot;: false, &quot;content&quot;: [{ &quot;type&quot;: &quot;text&quot;,
@@ -421,9 +451,9 @@ finale.</p>
 </code></pre>
 <h3>Récupération locale, et ce qui franchit la frontière</h3>
 <p>Le guide demande une <strong>récupération locale des erreurs à l'intérieur des
-subagents</strong> : un subagent traite lui-même ses échecs transient et ne propage au
-coordinateur que ce qu'il ne peut pas résoudre localement — <strong>accompagné de ses
-résultats partiels et de ce qu'il a tenté</strong>.</p>
+subagents</strong> : un subagent traite lui-même ses échecs transitoires et ne propage
+au coordinateur que ce qu'il ne peut pas résoudre localement, <strong>accompagné de
+ses résultats partiels et de ce qu'il a tenté</strong>.</p>
 <pre><code class="language-json">{
   &quot;status&quot;: &quot;partial&quot;,
   &quot;completed&quot;: [&quot;order_lookup&quot;, &quot;customer_profile&quot;],
@@ -458,23 +488,69 @@ que l'agent ne peut plus prendre : l'appel vaut-il d'être répété, et a-t-il
 vraiment reçu un résultat vide ou n'est-il jamais passé ?</p>
 <p>Les distracteurs adoucissent le défaut au lieu de le réparer. Dire qu'un timeout
 est « un délai, pas un vrai échec » et retirer le drapeau masque l'échec
-entièrement. Qualifier la charge utile de malformée se trompe de défaut — elle se
-parse et parvient intacte à l'agent ; elle est vide de métadonnées de décision,
-pas cassée. Reprocher au message d'être trop court pour un humain vise le mauvais
-lecteur. Et affirmer que les quatre catégories viennent de la spécification MCP
-inverse l'arrangement réel : <code>isError</code> appartient au protocole, les catégories
-sont les vôtres.</p>
+entièrement. Qualifier la charge utile de malformée se trompe de défaut : elle
+se parse et parvient intacte à l'agent ; elle est vide de métadonnées de
+décision, pas cassée. Reprocher au message d'être trop court pour un humain vise
+le mauvais lecteur. Et affirmer que les quatre catégories viennent de la
+spécification MCP inverse l'arrangement réel : <code>isError</code> appartient au
+protocole, les catégories sont les vôtres.</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Lever une exception brute et laisser le framework la sérialiser en chaîne.</strong>
 Un <code>ValueError</code> Python remonté par le SDK devient un message, et un message sans
 catégorie est un <code>&quot;Operation failed&quot;</code> avec plus de mots. Attrapez-le, classez-le,
 et retournez la charge utile structurée.</p>
-<p><strong>Propager au coordinateur chaque échec transient.</strong> Cela convertit un retry que
-le subagent pouvait faire en silence en un aller-retour, et le coordinateur a
-moins de contexte pour décider que le subagent qui a passé l'appel.</p>
+<p><strong>Propager au coordinateur chaque échec transitoire.</strong> Cela convertit un retry
+que le subagent pouvait faire en silence en un aller-retour, et le coordinateur
+a moins de contexte pour décider que le subagent qui a passé l'appel.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;2.2&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d2-q3" data-domain="D2" data-task="2.2">
+<summary>Q3 (Field Service) — One error payload for two different outcomes</summary>
+<div>
+<p><strong>Scenario:</strong> the <code>search_parts</code> tool answers <code>{"isError": true, "content": [{"type": "text", "text": "Operation failed"}]}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.</p>
+<p><strong>Question:</strong> why does this design block the agent?</p>
+<p data-opt="a">A) It cannot tell a valid empty result from an access failure, so retrying is guesswork.</p>
+<p data-opt="b">B) A timeout is a delay, not a real failure, so the error flag should stay unset.</p>
+<p data-opt="c">C) The payload is malformed JSON, so the runtime discards it before the agent ever sees a result and the failure never reaches the retry logic at all.</p>
+<p data-opt="d">D) The message is too short for the technician to act on in the field.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: an empty result and an access failure become indistinguishable</p>
+<p><strong>Why:</strong> the agent decides from two signals — whether the call is worth repeating (<code>isRetryable</code>) and what it really received. A <code>transient</code> timeout calls for a retry, an empty catalog hit is a legitimate success. Merged into one payload, the agent can neither justify a retry nor state that nothing was found, and the run ends in wasted retries or silent gaps in the answer.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">The timeout is a genuine failure and the flag belongs there; what is missing is everything around it.</li>
+<li data-opt="c">The payload parses and reaches the agent intact — nothing is discarded on the way. Its shape could be tighter, but reformatting alone would not make the message actionable.</li>
+<li data-opt="d">Length is not the problem; the absence of decision metadata is.</li>
+</ul>
+</div>
+</details>
+
+<details id="d2-q5" data-domain="D2" data-task="2.2">
+<summary>Q5 (Scheduling) — What an actionable error response carries <strong>(Select the 2 correct answers.)</strong></summary>
+<div>
+<p><strong>Scenario:</strong> you are designing the error responses of the <code>book_appointment</code> MCP tool so the agent can decide what to do next.</p>
+<p><strong>Question:</strong> which statements are accurate?</p>
+<p data-opt="a">A) Returning <code>{"isError": true, "content": "Booking failed"}</code> already tells the agent enough to decide on a retry.</p>
+<p data-opt="b">B) A calendar backend answering <code>503</code> is a transient failure and should carry <code>isRetryable: true</code> encoded in the <code>text</code> block of the content.</p>
+<p data-opt="c">C) A validation failure — a required field left empty — is non-retryable like a permission denial, so the agent must hand the call over to a human.</p>
+<p data-opt="d">D) The <code>transient</code>, <code>validation</code>, <code>business</code> and <code>permission</code> categories come from the official MCP specification.</p>
+<p data-opt="e">E) A slot search that legitimately finds no availability must be reported differently from a backend timeout.</p>
+<hr>
+<p class="correct" data-answer="b e">Answers: the retryability signal, and the split between an empty result and a failure</p>
+<p><strong>Why:</strong> the agent needs two things — whether the failure is worth repeating, and what it actually received. A valid search with no free slot is a success; a timeout demands a retry decision. Conflating them yields either pointless retries or silent gaps in the final report.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">That is the anti-pattern itself: a uniform error carries no basis for any decision.</li>
+<li data-opt="c">A missing required field is the textbook <code>validation</code> case, and that category is retryable once the argument is fixed: the agent repairs its own input and calls again. Handing over to a human with no retry is the <code>permission</code> row.</li>
+<li data-opt="d">They are an application-level convention encoded in the text block, not a formal part of the MCP spec.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=2.2">Toutes les questions de la banque sur 2.2</a></p>
+</div>
 
 <div class="section-header"><h2 id="s3">3. 2.3 — Distribuer les outils entre les agents et configurer le choix d'outil</h2></div>
 
@@ -485,7 +561,7 @@ sélection d'outil en augmentant la complexité de la décision.</strong></p>
 <p>C'est la dette de D1, et il vaut la peine d'être précis sur ce qu'elle affirme.
 Rien ne se dégrade dans le modèle ; ce qui se dégrade, c'est la décision.
 Dix-huit descriptions, dont certaines voisines, produisent un problème de
-sélection qu'aucune description individuelle ne peut résoudre — ce qui explique
+sélection qu'aucune description individuelle ne peut résoudre, ce qui explique
 pourquoi le remède de 2.1 est la mauvaise réponse ici, et pourquoi lire l'énoncé
 compte plus que connaître les deux remèdes.</p>
 <div class="exam-tip">
@@ -499,10 +575,10 @@ distracteur qui attrape ceux qui n'ont appris qu'une des deux réponses.</p>
 </div>
 <h3>L'accès aux outils cadré sur le rôle</h3>
 <p>Le deuxième point de connaissance explique ce qui se passe mal au-delà du
-nombre : <strong>les agents dotés d'outils hors de leur spécialité tendent à en faire un mauvais usage</strong>
-— le cas du guide lui-même est un agent de synthèse qui se met à faire des
-recherches web. L'outil est là, le tour est difficile, et y recourir est un geste
-localement sensé qui produit un travail que personne n'a demandé.</p>
+nombre : <strong>les agents dotés d'outils hors de leur spécialité tendent à en faire
+un mauvais usage</strong>. Le cas du guide lui-même est un agent de synthèse qui se met
+à faire des recherches web. L'outil est là, le tour est difficile, et y recourir
+est un geste localement sensé qui produit un travail que personne n'a demandé.</p>
 <p>Chaque subagent reçoit donc les outils dont son rôle a besoin, et pas d'autres :</p>
 <table>
 <thead>
@@ -556,11 +632,11 @@ résultats de moteur de recherche au lieu de documents.</p>
 </code></pre>
 <div class="key-concept">
 <p><strong>Une contrainte à l'interface l'emporte sur une contrainte dans le prompt.</strong>
-« Ne récupère que des documents » est une instruction que le modèle met en balance
-avec tout le reste de son contexte. Un outil qui rejette une URL non documentaire
-est un contrat : le mauvais appel cesse d'être découragé et devient impossible, et
-il retourne une erreur <code>validation</code> sur laquelle l'agent peut agir — soit 2.2 qui
-arrive comme conséquence de conception.</p>
+« Ne récupère que des documents » est une instruction que le modèle met en
+balance avec tout le reste de son contexte. Un outil qui rejette une URL non
+documentaire est un contrat : le mauvais appel cesse d'être découragé et devient
+impossible, et il retourne une erreur <code>validation</code> sur laquelle l'agent peut
+agir, soit 2.2 qui arrive comme conséquence de conception.</p>
 </div>
 <h3>Les outils cross-role, cadrés plutôt qu'ouverts</h3>
 <p>Le cadrage strict a un coût, et le guide en nomme le cas : l'agent de synthèse a
@@ -589,11 +665,11 @@ précis</strong> :</p>
 }
 </code></pre>
 <p>Deux propriétés en font un outil cross-role cadré plutôt qu'un trou dans le
-cadrage. Il est plus étroit en capacité que l'outil qu'il remplace — il confronte
-une affirmation à une source nommée, il ne cherche pas. Et sa description dit où
-s'arrête son mandat, si bien que <strong>les cas complexes continuent de passer par le
-coordinateur</strong>. Le cas simple et fréquent obtient un chemin direct ; le reste
-préserve l'architecture.</p>
+cadrage. Il est plus étroit en capacité que l'outil qu'il remplace : il
+confronte une affirmation à une source nommée, il ne cherche pas. Et sa
+description dit où s'arrête son mandat, si bien que <strong>les cas complexes
+continuent de passer par le coordinateur</strong>. Le cas simple et fréquent obtient un
+chemin direct ; le reste préserve l'architecture.</p>
 <h3><code>tool_choice</code>, et ce qu'il garantit ici</h3>
 <p><code>tool_choice</code> est le champ de requête qui décide si appeler un outil est
 facultatif, obligatoire, ou obligatoire et nommé. <strong>Le champ lui-même — ses
@@ -629,18 +705,18 @@ répare pas.</p>
 </code></pre>
 <p>Notez ce que l'appel forcé achète et ce qu'il n'achète pas. Il fixe la
 <strong>première</strong> action du tour. Séquencer le reste est affaire de traiter le
-résultat et d'émettre une autre requête — l'ordonnancement vit dans votre boucle,
+résultat et d'émettre une autre requête. L'ordonnancement vit dans votre boucle,
 pas dans un paramètre unique.</p>
 <div class="exam-tip">
 <p><code>tool_choice: {&quot;type&quot;: &quot;any&quot;}</code> garantit qu'un outil est appelé. Il ne garantit
 pas que ce soit le <em>bon</em>, et il ne dit rien de la forme de ce qui revient. Une
 option qui le propose comme remède à un scénario de misrouting répond à un
 problème de sélection par une contrainte d'appel.</p>
-<p>La sélection forcée est la réponse quand l'énoncé nomme un ordre — « le
+<p>La sélection forcée est la réponse quand l'énoncé nomme un ordre : « le
 screening doit tourner avant tout le reste », « les métadonnées doivent être
-extraites avant l'enrichissement ». Une phrase dans la description d'outil disant
-qu'il doit toujours passer en premier reste probabiliste là où le paramètre est
-déterministe.</p>
+extraites avant l'enrichissement ». Une phrase dans la description d'outil
+disant qu'il doit toujours passer en premier reste probabiliste là où le
+paramètre est déterministe.</p>
 </div>
 <div class="anti-pattern">
 <p><strong>Donner tous les outils à un agent « au cas où ».</strong> Cela n'achète rien dont
@@ -655,20 +731,66 @@ coordinateur en fin de passe.</strong> Cela supprime les allers-retours et cela 
 aussi que la synthèse a été écrite avant que quoi que ce soit n'y ait été
 vérifié.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;2.3&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d2-q2" data-domain="D2" data-task="2.3">
+<summary>Q2 (Data Platform) — A subagent holding a tool that runs anything</summary>
+<div>
+<p><strong>Scenario:</strong> a reporting subagent owns <code>execute_sql</code>, which accepts any statement against the warehouse. Traces show it browsing <code>information_schema</code> and joining raw event tables instead of reading the curated reporting views.</p>
+<p><strong>Question:</strong> what is the right fix?</p>
+<p data-opt="a">A) Replace <code>execute_sql</code> with <code>run_report_query</code>, which takes a view name plus filters and rejects anything else.</p>
+<p data-opt="b">B) Remove <code>execute_sql</code> and route every query through the coordinator, which already knows which curated views to read.</p>
+<p data-opt="c">C) Keep the tool and add a denylist of raw table names to its handler.</p>
+<p data-opt="d">D) Instruct the subagent in its system prompt to read only the curated views.</p>
+<hr>
+<p class="correct" data-answer="a">Answer: swap the generic tool for a constrained one</p>
+<p><strong>Why:</strong> a constrained replacement applies least privilege at the interface — the wrong call becomes impossible rather than discouraged.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="b">Adds a coordination round trip to a frequent and legitimate need of the subagent.</li>
+<li data-opt="c">A denylist enumerates known bad names and goes stale as soon as a new raw table ships.</li>
+<li data-opt="d">A prompt instruction stays probabilistic where a tool contract is deterministic.</li>
+</ul>
+</div>
+</details>
+
+<details id="d2-q4" data-domain="D2" data-task="2.3">
+<summary>Q4 (Compliance) — A screening step that must never be skipped</summary>
+<div>
+<p><strong>Scenario:</strong> a compliance assistant must call <code>screen_sanctions</code> on the counterparty before it produces anything else on that turn.</p>
+<p><strong>Question:</strong> which <code>tool_choice</code> value guarantees it?</p>
+<p data-opt="a">A) <code>{"type": "auto"}</code></p>
+<p data-opt="b">B) <code>{"type": "any"}</code></p>
+<p data-opt="c">C) <code>{"type": "tool", "name": "screen_sanctions"}</code></p>
+<p data-opt="d">D) A sentence in the tool description stating that it must always run first.</p>
+<hr>
+<p class="correct" data-answer="c">Answer: forced selection naming the screening tool</p>
+<p><strong>Why:</strong> forced selection pins that exact tool for the turn. The rest of the workflow proceeds on later turns, once the screening result sits in context.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">The default mode lets Claude answer with no tool call at all.</li>
+<li data-opt="b">It forces a call but leaves the choice of tool open, so ordering is not guaranteed.</li>
+<li data-opt="d">Description text stays probabilistic where an API parameter is deterministic.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=2.3">Toutes les questions de la banque sur 2.3</a></p>
+</div>
 
 <div class="section-header"><h2 id="s4">4. 2.4 — Intégrer des serveurs MCP dans Claude Code et dans les workflows d'agents</h2></div>
 
-<p>Avant la configuration, une phrase sur ce qui est configuré. <strong>MCP déplace la
-charge de la définition et de l'exécution des outils hors de votre application,
-vers des serveurs dédiés.</strong> Sans lui, exposer GitHub à Claude signifie écrire,
-tester et maintenir un schéma et une fonction pour chaque opération sur les
-dépôts, les pull requests et les issues que vous voulez couvrir. Avec lui, vous
-vous connectez à un serveur MCP GitHub qui les porte déjà.</p>
+<p>Tout ce que ce task statement configure est une connexion à un serveur MCP.
+<strong>MCP déplace la charge de la définition et de l'exécution des outils hors de
+votre application, vers des serveurs dédiés.</strong> Sans lui, exposer GitHub à Claude
+signifie écrire, tester et maintenir un schéma et une fonction pour chaque
+opération sur les dépôts, les pull requests et les issues que vous voulez
+couvrir. Avec lui, vous vous connectez à un serveur MCP GitHub qui les porte
+déjà.</p>
 <p>C'est aussi la réponse à la question que le cours signale comme confusion
-courante : <strong>MCP et le tool use ne sont pas la même chose.</strong> Le tool use, c'est la
-manière dont Claude appelle un outil. MCP, c'est d'où l'outil vient — quelqu'un
-d'autre l'a déjà écrit.</p>
+courante : <strong>MCP et le tool use ne sont pas la même chose.</strong> Le tool use, c'est
+la manière dont Claude appelle un outil. MCP, c'est d'où l'outil vient :
+quelqu'un d'autre l'a déjà écrit.</p>
 <h3>Les deux portées</h3>
 <p>Un serveur se déclare à l'une de deux portées, et le choix tient à une seule
 question : est-ce que toute l'équipe en a besoin ?</p>
@@ -702,7 +824,7 @@ le comportement de l'outil concordent.</p>
 <p>Les deux coexistent. <strong>Les outils de tous les serveurs MCP configurés sont
 découverts à la connexion et disponibles simultanément à l'agent</strong>, quelle que
 soit la portée qui les a déclarés. Mettre un serveur personnel dans
-<code>~/.claude.json</code> ne vous coupe pas des serveurs projet — vous avez l'union.</p>
+<code>~/.claude.json</code> ne vous coupe pas des serveurs projet. Vous avez l'union.</p>
 <p>Cette propriété de découverte-à-la-connexion mérite d'être tenue comme un
 mécanisme et pas seulement comme un fait. Le client demande à chaque serveur ce
 qu'il fournit — un <code>ListToolsRequest</code>, auquel répond un <code>ListToolsResult</code> — et
@@ -725,10 +847,10 @@ l'agent travaille sans eux exactement comme si vous ne l'aviez jamais déclaré.
 }
 </code></pre>
 <p><code>${GITHUB_TOKEN}</code> se résout au lancement, depuis l'environnement propre au
-développeur. Le fichier peut être committé et partagé ; chaque coéquipier fournit
-son propre credential, et le dépôt n'en porte jamais aucun. <code>type</code> dit comment le
-serveur est joint — <code>&quot;stdio&quot;</code> pour un processus lancé par <code>command</code>, <code>&quot;http&quot;</code>
-pour un serveur joint à une <code>url</code>.</p>
+développeur. Le fichier peut être committé et partagé ; chaque coéquipier
+fournit son propre credential, et le dépôt n'en porte jamais aucun. <code>type</code> dit
+comment le serveur est joint : <code>&quot;stdio&quot;</code> pour un processus lancé par <code>command</code>,
+<code>&quot;http&quot;</code> pour un serveur joint à une <code>url</code>.</p>
 <p>Deux propriétés de la substitution méritent d'être retenues. Elle accepte une
 <strong>valeur par défaut</strong>, écrite <code>${VAR:-default}</code>, ce qui permet à un réglage
 optionnel d'être livré avec une valeur pendant qu'un credential reste
@@ -757,10 +879,10 @@ tard n'y change rien : l'historique git le garde. Le credential doit être
 considéré comme compromis et renouvelé. <code>${VAR}</code> ou le <code>~/.claude.json</code> non
 versionné sont les deux endroits légitimes.</p>
 <p><strong>Un serveur personnel, spécifique à une machine, ajouté au <code>.mcp.json</code>
-versionné</strong> — un chemin absolu sous le répertoire personnel de quelqu'un, un
-binaire que personne d'autre n'a. Chaque clone hérite d'un serveur qui ne peut pas
-démarrer. Il a sa place dans <code>~/.claude.json</code>, où il charge toujours pour son
-auteur et n'atteint personne d'autre.</p>
+versionné</strong>, pointant vers un chemin absolu sous le répertoire personnel de
+quelqu'un ou vers un binaire que personne d'autre n'a. Chaque clone hérite d'un
+serveur qui ne peut pas démarrer. Il a sa place dans <code>~/.claude.json</code>, où il
+charge toujours pour son auteur et n'atteint personne d'autre.</p>
 </div>
 <h3>Les resources, et pourquoi elles existent à côté des tools</h3>
 <p>Les serveurs MCP exposent trois primitives, et le guide est explicite sur les
@@ -799,9 +921,9 @@ que vous les reconnaissiez comme distracteur.</p>
 </table>
 <p>Une resource est plus proche d'un handler HTTP <code>GET</code> que d'un outil : une URI
 entre, des données sortent, et <strong>c'est votre application qui décide quand la
-lire</strong> — le modèle ne l'appelle pas. Une resource directe a une URI statique ; une
-resource templatée porte des paramètres dans l'URI, que le SDK analyse et passe à
-votre fonction en arguments nommés.</p>
+lire</strong>. Le modèle ne l'appelle pas. Une resource directe a une URI statique ;
+une resource templatée porte des paramètres dans l'URI, que le SDK analyse et
+passe à votre fonction en arguments nommés.</p>
 <pre><code class="language-python">@mcp.resource(&quot;docs://documents&quot;, mime_type=&quot;application/json&quot;)
 def list_docs() -&gt; list[str]:
     return list(docs.keys())            # le catalogue
@@ -817,12 +939,12 @@ def fetch_doc(doc_id: str) -&gt; str:      # une entrée, par paramètre d'URI
 lui-même et la raison pour laquelle les resources sont testées : exposer un
 catalogue — des résumés d'issues, une hiérarchie de documentation, un schéma de
 base de données — <strong>réduit les appels d'outils exploratoires.</strong></p>
-<p>Sans cela, un agent interrogé sur une table qu'il n'a jamais vue dépense trois ou
-quatre appels à découvrir que la table existe, puis ses colonnes, puis ses clés.
-Avec le schéma exposé en resource, l'application le lit une fois et le met dans le
-prompt, et le premier appel que fait l'agent est celui qui fait le travail.
-<code>mime_type</code> dit au client comment parser ce qui revient — <code>application/json</code> pour
-des données structurées, <code>text/plain</code> pour du texte.</p>
+<p>Sans cela, un agent interrogé sur une table qu'il n'a jamais vue dépense trois
+ou quatre appels à découvrir que la table existe, puis ses colonnes, puis ses
+clés. Avec le schéma exposé en resource, l'application le lit une fois et le met
+dans le prompt, et le premier appel que fait l'agent est celui qui fait le
+travail. <code>mime_type</code> dit au client comment parser ce qui revient :
+<code>application/json</code> pour des données structurées, <code>text/plain</code> pour du texte.</p>
 <p>La division du travail est la chose à retenir : <strong>les tools servent le modèle,
 les resources servent votre application, les prompts servent vos utilisateurs.</strong></p>
 </div>
@@ -852,14 +974,14 @@ a literal string you can spell exactly.
 </code></pre>
 <div class="exam-tip">
 <p>Quand un énoncé décrit un agent qui préfère un outil intégré à un outil MCP plus
-capable, la réponse est de réparer la description — c'est le levier le moins
+capable, la réponse est de réparer la description, qui est le levier le moins
 coûteux et celui qui traite la cause.</p>
-<p>Ce n'est pas de retirer ou de désactiver l'outil intégré, ce qui ôte une capacité
-légitimement utile pour les recherches littérales. Ce n'est pas d'ajouter au
-system prompt une instruction disant à l'agent de préférer l'outil MCP, ce qui est
-le piège de sensibilité aux mots-clés de 2.1 érigé en politique. Et ce n'est pas
-de construire une couche de routage devant les outils, ce qui remplace un
-correctif de deux phrases par un composant à maintenir.</p>
+<p>Ce n'est pas de retirer ou de désactiver l'outil intégré, ce qui ôte une
+capacité légitimement utile pour les recherches littérales. Ce n'est pas
+d'ajouter au system prompt une instruction disant à l'agent de préférer l'outil
+MCP, ce qui est le piège de sensibilité aux mots-clés de 2.1 érigé en politique.
+Et ce n'est pas de construire une couche de routage devant les outils, ce qui
+remplace un correctif de deux phrases par un composant à maintenir.</p>
 </div>
 <h3>Serveur communautaire ou serveur sur mesure</h3>
 <p>La dernière compétence est une décision « acheter ou construire » assortie d'un
@@ -870,15 +992,39 @@ N'importe qui peut écrire un serveur, et les fournisseurs de services en publie
 souvent d'officiels : l'intégration standard que vous vous apprêtez à écrire
 existe probablement, maintenue, avec ses schémas déjà éprouvés.</p>
 <div class="anti-pattern">
-<p><strong>Écrire un serveur Jira sur mesure parce que celui de la communauté manque un
-champ.</strong> Vous avez adopté une charge de maintenance pour un delta. Le cadrage de
-l'examen lui-même est que les serveurs sur mesure sont pour ce qui est réellement
-spécifique à l'équipe.</p>
-<p><strong>Dupliquer une capacité intégrée dans un serveur MCP.</strong> Si <code>Grep</code> répond déjà au
-besoin, un serveur qui fait du grep est une deuxième manière de faire une seule chose — et
-le problème de sélection de 2.3, offert.</p>
+<p><strong>Écrire un serveur Jira sur mesure parce qu'il manque un champ à celui de la
+communauté.</strong> Vous avez adopté une charge de maintenance pour un delta. Le
+cadrage de l'examen lui-même est que les serveurs sur mesure sont pour ce qui
+est réellement spécifique à l'équipe.</p>
+<p><strong>Dupliquer une capacité intégrée dans un serveur MCP.</strong> Si <code>Grep</code> répond déjà
+au besoin, un serveur qui fait du grep est une deuxième manière de faire une
+seule chose. Il vous vaut en prime le problème de sélection de 2.3.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;2.4&quot;</code>.</p>
+
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
+<details id="d2-q6" data-domain="D2" data-task="2.4">
+<summary>Q6 (Data Platform) — A personal server in the shared config</summary>
+<div>
+<p><strong>Scenario:</strong> a pull request adds a <code>vault-notes</code> entry to the repository's tracked <code>.mcp.json</code>. Its <code>command</code> field launches <code>note-indexer</code> from the author's home directory and points at <code>~/Notes/</code>, a folder that exists on that laptop alone. The author's rationale: one file, one place to look.</p>
+<p><strong>Question:</strong> what should the reviewer ask for?</p>
+<p data-opt="a">A) Merge it, then let each teammate delete the entry from their own checkout when the launch fails.</p>
+<p data-opt="b">B) Move the entry to the author's user-scoped configuration.</p>
+<p data-opt="c">C) Merge it after wrapping the launch command in a guard that exits quietly on machines without the binary, so nobody else sees an error.</p>
+<p data-opt="d">D) Merge it and list <code>.mcp.json</code> in <code>.gitignore</code>, so the entry stops reaching anyone else.</p>
+<hr>
+<p class="correct" data-answer="b">Answer: the entry belongs to the user scope, not to the tracked file</p>
+<p><strong>Why:</strong> whatever the tracked file holds arrives with every clone, while <code>~/.claude.json</code> stays on one machine. Both load at connection time, so the author keeps the tool without shipping a path nobody else has.</p>
+<p class="incorrect"><strong>Why the others are wrong:</strong></p>
+<ul>
+<li data-opt="a">Every checkout drifts from the branch, and the next pull brings the entry straight back.</li>
+<li data-opt="c">Silences the symptom while still shipping a machine-specific path to the whole team.</li>
+<li data-opt="d">The file is already tracked, so ignoring it now changes nothing — and it would hide the shared servers too.</li>
+</ul>
+</div>
+</details>
+<p class="to-test"><a href="Practice_Questions.html?task=2.4">Toutes les questions de la banque sur 2.4</a></p>
+</div>
 
 <div class="section-header"><h2 id="s5">5. 2.5 — Sélectionner et employer efficacement les outils intégrés (Read, Write, Edit, Bash, Grep, Glob)</h2></div>
 
@@ -931,11 +1077,19 @@ décrits comme « cherchant ». Glob n'ouvre jamais un fichier : il fait
 correspondre des chemins. Grep se moque du nom de fichier : il fait correspondre
 du contenu. « Trouve tous les fichiers de test du parcours de commande », c'est
 Glob. « Trouve tous les appelants de <code>applyDiscount</code> », c'est Grep.</p>
+<div class="key-concept">
+<p><strong>Les deux s'appellent « recherche » ; un seul ouvre un fichier.</strong> Les deux
+formes de distracteur sont cette confusion jouée dans un sens ou dans l'autre :
+<code>Glob</code> proposé pour une recherche de contenu, et une correspondance de contenu
+comme <code>describe(</code> proposée pour ce qui est en réalité un motif de nom. Lisez la
+demande pour savoir ce qui est mis en correspondance, un chemin ou un octet,
+avant de lire les noms d'outils.</p>
+</div>
 <h3>Quand <code>Edit</code> échoue, <code>Read</code> + <code>Write</code> est le repli documenté</h3>
 <p><code>Edit</code> fonctionne en faisant correspondre un texte qui doit être <strong>unique dans
-le fichier</strong>. Quand l'ancre apparaît plus d'une fois, la modification est refusée
-— délibérément, parce que l'outil ne peut pas savoir de quelle occurrence vous
-parliez.</p>
+le fichier</strong>. Quand l'ancre apparaît plus d'une fois, la modification est
+refusée, et le refus est délibéré : l'outil ne peut pas savoir de quelle
+occurrence vous parliez.</p>
 <p>Le guide nomme le repli : <strong><code>Read</code> le fichier en entier, amender le contenu, et
 le <code>Write</code> en retour.</strong></p>
 <pre><code class="language-text"># runbooks/db-failover.yaml — la ligne « owner: unassigned » apparaît 23 fois.
@@ -1002,137 +1156,9 @@ shell là où un outil intégré répond directement. Tout lire d'emblée est pr
 comme de la rigueur et c'est un épuisement du contexte. Et rendre la tâche à un
 humain, alors que le repli documenté existe, n'achète rien.</p>
 </div>
-<p><strong>À tester</strong> — les questions de la banque étiquetées <code>data-task=&quot;2.5&quot;</code>.</p>
 
-<div class="section-header"><h2 id="s6" class="page-break">6. Questions d'auto-évaluation</h2></div>
-
-<details id="d2-q1" data-domain="D2" data-task="2.1">
-<summary>Q1 (Logistics) — Two tool descriptions that read alike</summary>
-<div>
-<p><strong>Scenario:</strong> a delivery assistant routes "where is my parcel" requests to <code>find_package</code> 38% of the time, when they belong to <code>find_shipment</code>. <code>find_shipment</code> is described as "finds a shipment and returns its details", <code>find_package</code> as "finds a package and returns its details" — although <code>find_package</code> only returns warehouse scan events.</p>
-<p><strong>Question:</strong> what is the right fix?</p>
-<p data-opt="a">A) Rename <code>find_package</code> to <code>list_warehouse_scans</code> and rewrite its description around the scan events.</p>
-<p data-opt="b">B) Add a routing classifier that labels every request before any tool is offered.</p>
-<p data-opt="c">C) Add worked routing examples to the assistant system prompt, teaching the distinction by demonstration.</p>
-<p data-opt="d">D) Expand only the <code>find_shipment</code> description so delivery wording pulls those requests to it.</p>
-<hr>
-<p class="correct" data-answer="a">Answer: rename the overlapping tool and rewrite its description</p>
-<p><strong>Why:</strong> two near-identical descriptions leave the model nothing to discriminate on. The new name and the rewritten description finally say what that tool really returns — warehouse scan events, not a parcel location — so the functional overlap disappears at its source, where the selection decision is actually made.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">Over-engineering: it bypasses natural language understanding instead of repairing the ambiguity.</li>
-<li data-opt="c">Examples cost tokens on every turn and leave the ambiguous description in place.</li>
-<li data-opt="d">Improving one side keeps the other just as attractive for the same requests.</li>
-</ul>
-</div>
-</details>
-
-<details id="d2-q2" data-domain="D2" data-task="2.3">
-<summary>Q2 (Data Platform) — A subagent holding a tool that runs anything</summary>
-<div>
-<p><strong>Scenario:</strong> a reporting subagent owns <code>execute_sql</code>, which accepts any statement against the warehouse. Traces show it browsing <code>information_schema</code> and joining raw event tables instead of reading the curated reporting views.</p>
-<p><strong>Question:</strong> what is the right fix?</p>
-<p data-opt="a">A) Replace <code>execute_sql</code> with <code>run_report_query</code>, which takes a view name plus filters and rejects anything else.</p>
-<p data-opt="b">B) Remove <code>execute_sql</code> and route every query through the coordinator, which already knows which curated views to read.</p>
-<p data-opt="c">C) Keep the tool and add a denylist of raw table names to its handler.</p>
-<p data-opt="d">D) Instruct the subagent in its system prompt to read only the curated views.</p>
-<hr>
-<p class="correct" data-answer="a">Answer: swap the generic tool for a constrained one</p>
-<p><strong>Why:</strong> a constrained replacement applies least privilege at the interface — the wrong call becomes impossible rather than discouraged.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">Adds a coordination round trip to a frequent and legitimate need of the subagent.</li>
-<li data-opt="c">A denylist enumerates known bad names and goes stale as soon as a new raw table ships.</li>
-<li data-opt="d">A prompt instruction stays probabilistic where a tool contract is deterministic.</li>
-</ul>
-</div>
-</details>
-
-<details id="d2-q3" data-domain="D2" data-task="2.2">
-<summary>Q3 (Field Service) — One error payload for two different outcomes</summary>
-<div>
-<p><strong>Scenario:</strong> the <code>search_parts</code> tool answers <code>{"isError": true, "content": [{"type": "text", "text": "Operation failed"}]}</code> both when the supplier catalog times out and when the requested part number matches nothing in stock.</p>
-<p><strong>Question:</strong> why does this design block the agent?</p>
-<p data-opt="a">A) It cannot tell a valid empty result from an access failure, so retrying is guesswork.</p>
-<p data-opt="b">B) A timeout is a delay, not a real failure, so the error flag should stay unset.</p>
-<p data-opt="c">C) The payload is malformed JSON, so the runtime discards it before the agent ever sees a result and the failure never reaches the retry logic at all.</p>
-<p data-opt="d">D) The message is too short for the technician to act on in the field.</p>
-<hr>
-<p class="correct" data-answer="a">Answer: an empty result and an access failure become indistinguishable</p>
-<p><strong>Why:</strong> the agent decides from two signals — whether the call is worth repeating (<code>isRetryable</code>) and what it really received. A <code>transient</code> timeout calls for a retry, an empty catalog hit is a legitimate success. Merged into one payload, the agent can neither justify a retry nor state that nothing was found, and the run ends in wasted retries or silent gaps in the answer.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="b">The timeout is a genuine failure and the flag belongs there; what is missing is everything around it.</li>
-<li data-opt="c">The payload parses and reaches the agent intact — nothing is discarded on the way. Its shape could be tighter, but reformatting alone would not make the message actionable.</li>
-<li data-opt="d">Length is not the problem; the absence of decision metadata is.</li>
-</ul>
-</div>
-</details>
-
-<details id="d2-q4" data-domain="D2" data-task="2.3">
-<summary>Q4 (Compliance) — A screening step that must never be skipped</summary>
-<div>
-<p><strong>Scenario:</strong> a compliance assistant must call <code>screen_sanctions</code> on the counterparty before it produces anything else on that turn.</p>
-<p><strong>Question:</strong> which <code>tool_choice</code> value guarantees it?</p>
-<p data-opt="a">A) <code>{"type": "auto"}</code></p>
-<p data-opt="b">B) <code>{"type": "any"}</code></p>
-<p data-opt="c">C) <code>{"type": "tool", "name": "screen_sanctions"}</code></p>
-<p data-opt="d">D) A sentence in the tool description stating that it must always run first.</p>
-<hr>
-<p class="correct" data-answer="c">Answer: forced selection naming the screening tool</p>
-<p><strong>Why:</strong> forced selection pins that exact tool for the turn. The rest of the workflow proceeds on later turns, once the screening result sits in context.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">The default mode lets Claude answer with no tool call at all.</li>
-<li data-opt="b">It forces a call but leaves the choice of tool open, so ordering is not guaranteed.</li>
-<li data-opt="d">Description text stays probabilistic where an API parameter is deterministic.</li>
-</ul>
-</div>
-</details>
-
-<details id="d2-q5" data-domain="D2" data-task="2.2">
-<summary>Q5 (Scheduling) — What an actionable error response carries <strong>(Select the 2 correct answers.)</strong></summary>
-<div>
-<p><strong>Scenario:</strong> you are designing the error responses of the <code>book_appointment</code> MCP tool so the agent can decide what to do next.</p>
-<p><strong>Question:</strong> which statements are accurate?</p>
-<p data-opt="a">A) Returning <code>{"isError": true, "content": "Booking failed"}</code> already tells the agent enough to decide on a retry.</p>
-<p data-opt="b">B) A calendar backend answering <code>503</code> is a transient failure and should carry <code>isRetryable: true</code> encoded in the <code>text</code> block of the content.</p>
-<p data-opt="c">C) A validation failure — a required field left empty — is non-retryable like a permission denial, so the agent must hand the call over to a human.</p>
-<p data-opt="d">D) The <code>transient</code>, <code>validation</code>, <code>business</code> and <code>permission</code> categories come from the official MCP specification.</p>
-<p data-opt="e">E) A slot search that legitimately finds no availability must be reported differently from a backend timeout.</p>
-<hr>
-<p class="correct" data-answer="b e">Answers: the retryability signal, and the split between an empty result and a failure</p>
-<p><strong>Why:</strong> the agent needs two things — whether the failure is worth repeating, and what it actually received. A valid search with no free slot is a success; a timeout demands a retry decision. Conflating them yields either pointless retries or silent gaps in the final report.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">That is the anti-pattern itself: a uniform error carries no basis for any decision.</li>
-<li data-opt="c">A missing required field is the textbook <code>validation</code> case, and that category is retryable once the argument is fixed: the agent repairs its own input and calls again. Handing over to a human with no retry is the <code>permission</code> row.</li>
-<li data-opt="d">They are an application-level convention encoded in the text block, not a formal part of the MCP spec.</li>
-</ul>
-</div>
-</details>
-
-<details id="d2-q6" data-domain="D2" data-task="2.4">
-<summary>Q6 (Data Platform) — A personal server in the shared config</summary>
-<div>
-<p><strong>Scenario:</strong> a pull request adds a <code>vault-notes</code> entry to the repository's tracked <code>.mcp.json</code>. Its <code>command</code> field launches <code>note-indexer</code> from the author's home directory and points at <code>~/Notes/</code>, a folder that exists on that laptop alone. The author's rationale: one file, one place to look.</p>
-<p><strong>Question:</strong> what should the reviewer ask for?</p>
-<p data-opt="a">A) Merge it, then let each teammate delete the entry from their own checkout when the launch fails.</p>
-<p data-opt="b">B) Move the entry to the author's user-scoped configuration.</p>
-<p data-opt="c">C) Merge it after wrapping the launch command in a guard that exits quietly on machines without the binary, so nobody else sees an error.</p>
-<p data-opt="d">D) Merge it and list <code>.mcp.json</code> in <code>.gitignore</code>, so the entry stops reaching anyone else.</p>
-<hr>
-<p class="correct" data-answer="b">Answer: the entry belongs to the user scope, not to the tracked file</p>
-<p><strong>Why:</strong> whatever the tracked file holds arrives with every clone, while <code>~/.claude.json</code> stays on one machine. Both load at connection time, so the author keeps the tool without shipping a path nobody else has.</p>
-<p class="incorrect"><strong>Why the others are wrong:</strong></p>
-<ul>
-<li data-opt="a">Every checkout drifts from the branch, and the next pull brings the entry straight back.</li>
-<li data-opt="c">Silences the symptom while still shipping a machine-specific path to the whole team.</li>
-<li data-opt="d">The file is already tracked, so ignoring it now changes nothing — and it would hide the shared servers too.</li>
-</ul>
-</div>
-</details>
-
+<div class="section-quiz">
+<h3 class="section-quiz-title">Teste-toi sur cette section</h3>
 <details id="d2-q7" data-domain="D2" data-task="2.5">
 <summary>Q7 (Site Reliability) — One step among twenty-three identical ones</summary>
 <div>
@@ -1153,6 +1179,10 @@ humain, alors que le repli documenté existe, n'achète rien.</p>
 </ul>
 </div>
 </details>
+<p class="to-test"><a href="Practice_Questions.html?task=2.5">Toutes les questions de la banque sur 2.5</a></p>
+</div>
+
+</main>
 
 <nav class="doc-nav">
   <a class="prev" href="D1_Architecture_Orchestration_27pct.html"><span class="label">Précédent</span><span class="title">D1 — Architecture et orchestration</span></a>

@@ -4,13 +4,15 @@
 
 Twenty per cent of the score, six task statements, and a subject that looks
 deceptively soft: files in a repository. One section per task statement, in the
-guide's own order and under the guide's own wording — so that a question spotted
+guide's own order and under the guide's own wording, so that a question spotted
 on exam day maps to a section here without translation.
 
+<!-- cross-refs:start -->
+
 D0 and D1 are assumed. D1 taught the machinery *inside* an agent: the loop,
-subagents, hooks as SDK callbacks, sessions. D3 is the layer above it — the
-files and flags that configure a running Claude Code, and the working habits
-that decide whether a session goes well.
+subagents, hooks as SDK callbacks, sessions. D3 is the layer above it: the files
+and flags that configure a running Claude Code, and the working habits that
+decide whether a session goes well.
 
 The guide places neighbouring notions elsewhere, and this course honours that.
 The hook mechanism — events, `permissionDecision`, `updatedInput` — is tested in
@@ -21,6 +23,8 @@ pointer is **D5.4**. Each of those gets a sentence and a pointer here, never a
 second development. What D1 explicitly deferred to this course — subagent
 definitions under `.claude/agents/`, and hooks as a *place to put a rule* rather
 than as an API — lands in 3.2.
+
+<!-- cross-refs:end -->
 
 ## 3.1 — Configure CLAUDE.md files with appropriate hierarchy, scoping, and modular organization
 <!-- ts:3.1 | src:exam guide TS 3.1 (the three levels, user-level not shared by version control, @import, .claude/rules/ as the modular alternative, /memory) ; 06claudecode101 L8 (what CLAUDE.md solves, its contents are appended to the prompt, project versus user, @path references) ; 01claudecodeinaction L2 (CLAUDE.md is guidance and not enforced configuration, every line competes with every other, imports expand inline and do not reduce context, specific and checkable rules, naming the replacement, the emphasis budget, hard rules belong in a hook) ; code.claude.com/docs/en/memory (four-hop import depth, .claude/rules/ layout, what /memory lists and what /context confirms) -->
@@ -48,7 +52,7 @@ copies it there.
 
 ::: exam-tip
 The signature of a hierarchy fault is **"it works for everyone except the newest
-person"** — or except the machine rebuilt from an image, or except CI. An
+person"**, or except the machine rebuilt from an image, or except CI. An
 instruction the veterans apply and the last arrival never received is sitting at
 user level. The fix is to move it to the project level and commit it.
 
@@ -92,8 +96,8 @@ standard everywhere.
 ```
 
 Rules without path scoping load at launch, with the same standing as
-`.claude/CLAUDE.md`. Adding a `paths` field to a rule makes it conditional —
-that is TS 3.3, below, and it is the only thing that actually shrinks what gets
+`.claude/CLAUDE.md`. Adding a `paths` field to a rule makes it conditional. That
+is TS 3.3, below, and it is the only thing that actually shrinks what gets
 loaded.
 
 ::: anti-pattern
@@ -115,7 +119,7 @@ Three habits follow from it, and they are worth knowing because they are also
 the shape of the wrong answers:
 
 - **Specific and checkable.** "Put new API routes in `src/api/handlers`, one per
-  file" — not "follow best practices for API routes". If you cannot verify
+  file", not "follow best practices for API routes". If you cannot verify
   whether a rule was followed, neither can Claude.
 - **Name the replacement.** "Use named exports, not default exports" closes the
   question; "don't use default exports" leaves it open.
@@ -124,7 +128,7 @@ the shape of the wrong answers:
 
 And the rule that does not belong in the file at all: anything that must *never*
 happen. "Never push to `main`" written in CLAUDE.md is a hope. A hook is code
-that runs at a fixed point and can refuse the action — the mechanism is D1's
+that runs at a fixed point and can refuse the action. The mechanism is D1's
 TS 1.5; where a given rule belongs is 3.2, below.
 
 ::: key-concept
@@ -135,10 +139,10 @@ is.
 
 **The guide is the law here.** Its skill reads "using the `/memory` command to
 verify which memory files are loaded and diagnose inconsistent behavior across
-sessions" — answer `/memory`. Field nuance, so you are not surprised at a
-terminal: the current documentation splits the job, with `/memory` listing and
-opening the files and `/context` reporting which ones actually loaded into the
-running session.
+sessions", and the answer is `/memory`. Field nuance, so you are not surprised
+at a terminal: the current documentation splits the job, with `/memory` listing
+and opening the files and `/context` reporting which ones actually loaded into
+the running session.
 :::
 
 **To test** — bank questions tagged `data-task="3.1"`.
@@ -209,7 +213,7 @@ the whole trace. That is the answer whenever a skill's *output volume* is the
 problem: codebase-wide analysis that prints every path it inspected,
 brainstorming that explores five options you did not keep.
 
-**`allowed-tools`** restricts tool access during skill execution — for example
+**`allowed-tools`** restricts tool access during skill execution, for example
 limiting a skill to file-write operations so it cannot do anything destructive.
 That is the guide's wording and the one to answer with. Field nuance, for your
 own machine: the current documentation describes the field as *pre-approving*
@@ -221,19 +225,19 @@ pool is `disallowed-tools`.
 invokes the skill without arguments is told which parameter it expects.
 
 ::: exam-tip
-A skill runs, produces a wall of output, and the session that follows has visibly
-lost the thread. The answer is `context: fork`. Two neighbouring options are
-plausible and neither moves the output. `allowed-tools` changes what the skill
-may *do*, not where what it writes lands. And a "be concise" line added to the
-skill body asks the model to write less rather than to write elsewhere —
-reduced or not, the output still arrives in the main session.
+A skill runs, produces a wall of output, and the session that follows has
+visibly lost the thread. The answer is `context: fork`. Two neighbouring options
+are plausible and neither moves the output. `allowed-tools` changes what the
+skill may *do*, not where what it writes lands. And a "be concise" line added to
+the skill body asks the model to write less rather than to write elsewhere.
+Reduced or not, the output still arrives in the main session.
 :::
 
 ### Personal variants, and why the name matters
 
 Skills with the same name are resolved by source, and a personal skill wins over
 a project skill. Clone a repository that ships `.claude/skills/review/`, keep
-your own `~/.claude/skills/review/`, and `/review` runs yours — silently, on your
+your own `~/.claude/skills/review/`, and `/review` runs yours, silently, on your
 machine only.
 
 ::: key-concept
@@ -274,7 +278,7 @@ says no*. A Claude Code hook is a command declared in settings, so it answers
 with an **exit code**: `2` blocks, and what it wrote on standard error is fed
 back to Claude as the reason. An Agent SDK hook is a callback in your process
 and answers with a JSON `permissionDecision`. Same event, same intent, two
-conventions — and `exit 1` is the trap on the Claude Code side: it looks like
+conventions. And `exit 1` is the trap on the Claude Code side: it looks like
 failure and blocks nothing.
 
 ```bash
@@ -321,9 +325,10 @@ invokes the thing, a hook is not the answer.
 ## 3.3 — Apply path-specific rules for conditional convention loading
 <!-- ts:3.3 | src:exam guide TS 3.3 (rules files with a YAML paths field of glob patterns, loading only when editing matching files to cut irrelevant context and tokens, the advantage of globs over directory-level CLAUDE.md for conventions spanning several directories, the paths: ["terraform/**/*"] and **/*.test.tsx examples) ; code.claude.com/docs/en/memory#path-specific-rules (the paths frontmatter, the glob table, rules without paths loading unconditionally, the read-time trigger, ~/.claude/rules/) -->
 
-3.1 left one problem open. Splitting CLAUDE.md into `.claude/rules/` files makes
-the instructions maintainable, and loads exactly as many tokens as before.
-Adding a `paths` field to a rule is what makes the loading conditional.
+Splitting CLAUDE.md into `.claude/rules/` files makes the instructions
+maintainable, and loads exactly as many tokens as before: that is the
+problem 3.1 left open. Adding a `paths` field to a rule is what makes the
+loading conditional.
 
 ```markdown
 ---
@@ -363,9 +368,9 @@ the convention really is local: everything under `terraform/` obeys these taggin
 rules, and nothing outside does.
 
 A path-scoped rule is attached to a **pattern**. It is the right answer when the
-files sharing a convention do not share a directory — and the canonical case is
-test files, colocated with the code they cover and therefore scattered through
-the whole tree. Writing a CLAUDE.md in each of forty directories to say the same
+files sharing a convention do not share a directory. The canonical case is test
+files, colocated with the code they cover and therefore scattered through the
+whole tree. Writing a CLAUDE.md in each of forty directories to say the same
 three things about tests is unmaintainable, and a single root CLAUDE.md saying
 them costs every session that never opens a test.
 
@@ -389,7 +394,7 @@ edited.
 
 ::: key-concept
 **The guide is the law here.** It writes that path-scoped rules load "when
-editing matching files" — if an option turns on the word *editing*, that is the
+editing matching files". If an option turns on the word *editing*, that is the
 one. Field nuance, for your own machine: the current documentation says
 path-scoped rules trigger when Claude *reads* a file matching the pattern, so in
 practice the rule is already in context before your first edit. Same mechanism,
@@ -399,10 +404,10 @@ same `paths`, same globs; only the trigger differs.
 ::: anti-pattern
 **Using path scoping to enforce something.** A rule that loads is still a rule
 Claude reads, with the adherence properties of any instruction. "Every Terraform
-resource must carry a `cost_center` tag" as a path-scoped rule shapes the writing;
-it does not guarantee the outcome. If the requirement is a gate, it is a hook or
-a CI check — and the two are complements, not alternatives: the rule gets it
-right most of the time, the gate catches the rest.
+resource must carry a `cost_center` tag" as a path-scoped rule shapes the
+writing; it does not guarantee the outcome. If the requirement is a gate, it is
+a hook or a CI check. The two are complements, not alternatives: the rule gets
+it right most of the time, the gate catches the rest.
 :::
 
 **To test** — bank questions tagged `data-task="3.3"`.
@@ -412,7 +417,7 @@ right most of the time, the gate catches the rest.
 <!-- owns:plan-mode -->
 
 **Plan mode** is a permission mode in which Claude reads, searches and runs
-read-only commands, asks its clarifying questions, and returns a plan — without
+read-only commands, asks its clarifying questions, and returns a plan, without
 editing anything. **Direct execution** is the ordinary mode: you describe the
 change and Claude makes it.
 
@@ -436,7 +441,7 @@ The choice is not about caution, it is about **where the decisions are**.
 Plan mode earns its keep for one reason: iterating on a plan is far cheaper than
 letting a run happen and cleaning up after it. The place to course-correct is
 before a line is written. And when the plan comes back, read it rather than skim
-it — an unread plan is an approval you did not actually give.
+it: an unread plan is an approval you did not actually give.
 
 ### The Explore subagent
 
@@ -454,11 +459,22 @@ available for planning and then implementing.
 It is not tied to plan mode. You can ask for exploration through the subagent
 outside plan mode when all you want is a summary of how something works.
 
+::: key-concept
+**Plan mode decides, Explore keeps the window clear, and the guide combines
+them.** They answer two different shortages: plan mode when something has to be
+settled before any file changes, Explore when a discovery phase fills the window
+with reads you will never need again. Neither implies the other, and neither
+excludes the other: a multi-phase task that has to be scoped *and* is running out
+of room during discovery takes both, which is the combination the guide names.
+The distractors answer the context shortage alone, with compaction or a restart,
+and leave the decision unmade.
+:::
+
 ### The combination the guide asks about
 
 Plan mode and direct execution are not a permanent allegiance. The common shape
 is both, in order: plan the library migration, approve the plan, then execute it
-directly. The approved plan becomes the scope of the writing phase — the
+directly. The approved plan becomes the scope of the writing phase. The
 arbitration happened before any file changed.
 
 ::: exam-tip
@@ -469,7 +485,7 @@ direct execution.
 
 The subtlest distractor proposes starting in direct execution and switching to
 plan mode if it turns out to be complicated. It sounds prudent and it ignores
-that the scenario has already established the complexity — you would be
+that the scenario has already established the complexity: you would be
 discovering, at cost, something you were told. Two blunter ones: plan mode
 everywhere on principle, which spends deliberation on a one-line fix; and giving
 exhaustive instructions up front in direct execution, which assumes you know the
@@ -543,8 +559,8 @@ be a **reliable source of truth**: a suite that passes on broken code turns
 iteration into false confidence. And "done" has to be the gates having run and
 been observed, not a summary that says they passed.
 
-The guide's sharpest version of this is for edge cases: rather than describing
-the problem, supply the specific case — this input, this expected output, for
+The guide's sharpest version of this is for edge cases. Rather than describing
+the problem, supply the specific case: this input, this expected output, for
 instance the null value your migration script mishandles.
 
 ### The interview pattern
@@ -581,10 +597,21 @@ Error handling that is missing *and* input validation that is wrong are one
 message: a unified answer has to place them together. Renaming a variable and
 changing a return type are two conversations.
 
+::: key-concept
+**Four techniques, four different failures.** Output that varies between runs
+is an under-specified transformation, and the answer is worked pairs. Code
+nobody can judge is a missing gate, and the answer is tests written first. A
+design you cannot state is an incomplete specification, and the answer is
+letting Claude interview you. Fixes that undo each other are a feedback
+question, and it turns on interdependence, never on how many problems there
+are.
+:::
+
 ::: anti-pattern
-**Batching independent problems to save round-trips.** It is more token-efficient
-and it gives up the per-step validation that made sequential feedback worth
-choosing — you find out at the end which of the five changes was wrong.
+**Batching independent problems to save round-trips.** It is more
+token-efficient and it gives up the per-step validation that made sequential
+feedback worth choosing: you find out at the end which of the five changes was
+wrong.
 
 **Splitting interacting problems for control.** Each fix is made without sight
 of the others, so the second one dismantles the first. The criterion is
@@ -597,7 +624,7 @@ interdependence, never the number of problems.
 <!-- ts:3.6 | src:exam guide TS 3.6 (the -p / --print flag for non-interactive mode, --output-format json and --json-schema for structured CI output, CLAUDE.md as the mechanism carrying testing standards, fixture conventions and review criteria to a CI-invoked Claude Code, session context isolation for review, including prior findings when re-running a review, providing existing test files, documenting testing standards to reduce low-value test output) ; 01claudecodeinaction L6 (-p as the short form of --print, one-shot with no interactive UI, pairing --output-format json with --json-schema and reading the object from structured_output with jq, capturing session_id for a later --resume, --bare for deterministic CI runs), L8 (a fresh session or subagent with no memory of how the code was built catches what the original run talked itself past) ; 06claudecode101 L7 (a subagent reviewer with fresh eyes and read-only tools, checked into the repo) ; code.claude.com/docs/en/headless (--bare skips auto-discovery of hooks, skills, plugins, MCP servers and CLAUDE.md; without it claude -p loads the same context an interactive session would) -->
 
 Claude Code is interactive by default. Invoked in a pipeline with no one to
-answer a prompt, it waits — and the runner eventually kills it at the step
+answer a prompt, it waits, and the runner eventually kills it at the step
 timeout. Everything in this task statement follows from that.
 
 ### `-p`, and the shape of the output
@@ -644,11 +671,11 @@ never from the workflow file.
 ### What the CI instance knows
 
 A CI-invoked Claude Code has no session history and nobody to ask. The guide's
-answer to that is **CLAUDE.md**: the committed project file is the mechanism that
-carries testing standards, fixture conventions and review criteria to the
+answer to that is **CLAUDE.md**: the committed project file is the mechanism
+that carries testing standards, fixture conventions and review criteria to the
 instance running in the pipeline. Document which fixtures exist and what makes a
 test worth writing, and test generation stops producing low-value tests that
-re-cover ground the suite already holds — which is also why you put the existing
+re-cover ground the suite already holds, which is also why you put the existing
 test files in context when you ask for new ones.
 
 ::: key-concept
@@ -659,21 +686,20 @@ faster and run deterministically.
 
 Be deliberate here, because a common misreading of this pair is wrong: it
 attributes that skipping to `-p` itself. The documentation attributes it to
-`--bare` and states that without it,
-`claude -p` loads the same context an interactive session would — and the guide's
-own TS 3.6 depends on CLAUDE.md reaching the CI instance, which it could not do
-if `-p` dropped it. The pipeline gets your CLAUDE.md unless you asked for bare
-mode; and if you did ask for it, you also gave up the standards the guide is
-telling you to rely on.
+`--bare` and states that without it, `claude -p` loads the same context an
+interactive session would. The guide's own TS 3.6 depends on CLAUDE.md reaching
+the CI instance, which it could not do if `-p` dropped it. The pipeline gets
+your CLAUDE.md unless you asked for bare mode; and if you did ask for it, you
+also gave up the standards the guide is telling you to rely on.
 :::
 
 ### Reviewing is a second instance's job
 
 The session that wrote the code is the worst reviewer of it. It carries the
-reasoning that produced the code and questions its own decisions least — the
-same bias as an author proof-reading their own text. Review runs in an
-**independent instance**: a separate session, or a subagent with no memory of how
-the code was built. Fresh eyes catch what the original run talked itself past.
+reasoning that produced the code and questions its own decisions least, the same
+bias as an author proof-reading their own text. Review runs in an **independent
+instance**: a separate session, or a subagent with no memory of how the code was
+built. Fresh eyes catch what the original run talked itself past.
 
 Two operational rules complete the picture, and both are guide skills:
 
@@ -691,28 +717,28 @@ A CI instance ignoring the project's testing conventions → the committed
 CLAUDE.md carries them. Reviewing code Claude just wrote → an independent
 instance.
 
-The distractors come in two families. **Invented mechanisms**: a `CLAUDE_HEADLESS`
-environment variable, a `--batch` flag, a `--no-tty` option. They are plausible
-because *headless* and *batch* really are the vocabulary of this domain, and none
-of the three exists — an unrecognised option does not change the mode.
-**Workarounds**: redirecting stdin from `/dev/null`, which treats the symptom
-without turning on the documented mode; wrapping the call in `timeout`, which
-turns a long hang into a short one and still produces nothing; and regex-parsing
-the prose, which moves the fragility into your own code instead of removing it.
+The distractors come in two families. **Invented mechanisms**: a
+`CLAUDE_HEADLESS` environment variable, a `--batch` flag, a `--no-tty` option.
+They are plausible because *headless* and *batch* really are the vocabulary of
+this domain, and none of the three exists. An unrecognised option does not
+change the mode. **Workarounds**: redirecting stdin from `/dev/null`, which
+treats the symptom without turning on the documented mode; wrapping the call in
+`timeout`, which turns a long hang into a short one and still produces nothing;
+and regex-parsing the prose, which moves the fragility into your own code
+instead of removing it.
 :::
 
 ::: anti-pattern
 **Re-running the review from scratch on every push.** Claude has no memory
 between runs, so it re-reports everything it found last time. The pull request
 accumulates duplicates until nobody reads the bot. The fix is not to review less
-often — it is to include the prior findings and ask for the delta.
+often; it is to include the prior findings and ask for the delta.
 
 **Letting the job that generated the code also review it, to save a run.** One
 job costs less than two, and it buys the review the guide names as the least
-effective one — the reasoning that wrote the code is still in the window.
-**Why an independent instance catches what a self-review misses, and how to
-split a large review into per-file and cross-file passes, is developed in
-D4.6.**
+effective one: the reasoning that wrote the code is still in the window. **Why
+an independent instance catches what a self-review misses, and how to split a
+large review into per-file and cross-file passes, is developed in D4.6.**
 :::
 
 **To test** — bank questions tagged `data-task="3.6"`.

@@ -87,3 +87,59 @@ test('renderCourse ne colle pas deux paragraphes d une même puce', () => {
     'une puce à plusieurs paragraphes garde ses <p>, sinon le texte se retrouve aboutÃ©');
   assert.match(html, /<p>Second paragraphe de la même puce\.<\/p>/);
 });
+
+test('renderCourse rattache la section à son task statement via la ligne « À tester »', () => {
+  const md = '## 5.1 — Une section\n\nDu texte.\n\n**To test** — bank questions tagged `data-task="5.1"`.\n';
+  const { sections } = renderCourse(md);
+  assert.equal(sections[0].task, '5.1');
+});
+
+test('renderCourse lit le rattachement quelle que soit la langue de la ligne', () => {
+  const md = '## 5.2 — Une section\n\nDu texte.\n\n**À tester** — les questions de la banque étiquetées `data-task="5.2"`.\n';
+  assert.equal(renderCourse(md).sections[0].task, '5.2');
+});
+
+test('renderCourse retire la ligne « À tester » du corps, car la page la réémet en lien', () => {
+  const md = '## S\n\nDu texte.\n\n**To test** — bank questions tagged `data-task="1.1"`.\n';
+  const { sections } = renderCourse(md);
+  assert.match(sections[0].html, /Du texte\./);
+  assert.doesNotMatch(sections[0].html, /data-task/);
+  assert.doesNotMatch(sections[0].html, /To test/);
+});
+
+test('renderCourse laisse task indéfini quand la section ne porte pas la ligne', () => {
+  assert.equal(renderCourse('## S\n\nDu texte.\n').sections[0].task, undefined);
+});
+
+test('renderCourse sort ::: cross-refs du chapeau, pour que le bandeau ne le porte pas', () => {
+  const md = '# T\n\nLe cadrage.\n\n<!-- cross-refs:start -->\n\nD1 a renvoyé ici.\n\n<!-- cross-refs:end -->\n\n## S\n\nA.\n';
+  const { lead, crossRefs } = renderCourse(md);
+  assert.match(lead, /Le cadrage\./);
+  assert.doesNotMatch(lead, /D1 a renvoyé ici/);
+  assert.match(crossRefs, /D1 a renvoyé ici/);
+});
+
+test('renderCourse rend crossRefs vide quand le cours n’en a pas', () => {
+  assert.equal(renderCourse('# T\n\nLe cadrage.\n\n## S\n\nA.\n').crossRefs, '');
+});
+
+/* Le filtre ne doit reconnaître que la ligne de rattachement, pas n'importe
+ * quelle prose qui cite l'attribut : la supprimer perdrait du contenu sans
+ * qu'aucun contrôle puisse le voir, puisqu'ils comparent la page à ce rendu. */
+test('renderCourse ne supprime pas un paragraphe qui cite data-task au fil du texte', () => {
+  const md = '## S\n\n**Note :** le rendu pose `data-task="1.1"` sur chaque question, ce qui sert au filtre.\n';
+  const { sections } = renderCourse(md);
+  assert.match(sections[0].html, /Note/);
+  assert.equal(sections[0].task, undefined);
+});
+
+test('renderCourse retire aussi une seconde ligne « À tester », qui serait publiée en texte mort', () => {
+  const md = '## S\n\nA.\n\n**To test** — tagged `data-task="1.1"`.\n\n**To test** — tagged `data-task="1.2"`.\n';
+  const { sections } = renderCourse(md);
+  assert.equal(sections[0].task, '1.1');
+  assert.doesNotMatch(sections[0].html, /data-task/);
+});
+
+test('renderCourse accepte la ligne sans ponctuation finale', () => {
+  assert.equal(renderCourse('## S\n\n**To test** — tagged `data-task="3.4"`\n').sections[0].task, '3.4');
+});

@@ -53,7 +53,7 @@ test('les questions sont insérées là où le marqueur les place', () => {
 test('un bloc de questions est frère de la prose, pas imbriqué dedans', () => {
   const { html } = render(page('## S\n<!-- id:s -->\n\nProse.\n\n<!-- questions:1-1 -->\n'), [question(1)]);
   const details = doc(html).querySelector('details');
-  assert.equal(details.parentElement.tagName, 'BODY');
+  assert.equal(details.parentElement.tagName, 'MAIN');
   assert.ok(details.querySelector(':scope > summary'));
   assert.ok(details.querySelector(':scope > div'));
 });
