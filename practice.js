@@ -52,13 +52,20 @@
   const isH2 = (el) => el.matches('.section-header');
   const isH3 = (el) => el.tagName === 'H3';
 
-  const hideEmptyGroups = (root, isBoundary) => {
+  const hideEmptyGroups = (root, isBoundary, isTerminator = () => false) => {
     let group = null;
     const groups = [];
     for (const node of root.children) {
       if (isBoundary(node)) {
         group = { boundary: node, body: [] };
         groups.push(group);
+        continue;
+      }
+      /* Sans terminateur, le dernier h3 de la page absorbe tout ce qui le suit :
+       * une task hors plage masquait alors la section « Couverture », qui ne
+       * porte aucune question et doit rester lisible sous n'importe quel filtre. */
+      if (isTerminator(node)) {
+        group = null;
         continue;
       }
       group?.body.push(node);
@@ -92,7 +99,7 @@
 
   const hideEmptyHeadings = () => {
     const root = document.querySelector('main') || document.body;
-    hideEmptyGroups(root, isH3);
+    hideEmptyGroups(root, isH3, isH2);
     hideEmptyGroups(root, isH2);
     hideEmptyTocEntries();
   };

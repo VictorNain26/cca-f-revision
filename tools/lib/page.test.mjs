@@ -209,7 +209,9 @@ test('renderPage rend les renvois inter-cours hors du bandeau, mais visibles', (
 test('renderPage pose un point d’ancrage de contenu et son lien d’évitement', () => {
   const html = renderPage({ course: sectioned, quizzes: [], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
   assert.match(html, /<a class="skip-link" href="#content">/);
-  assert.match(html, /<main id="content">/);
+  /* tabindex="-1" : sans lui le focus ne suit pas le lien d'évitement, qui
+   * déplace alors la vue sans déplacer le curseur clavier. */
+  assert.match(html, /<main id="content" tabindex="-1">/);
 });
 
 test('renderQuiz garde le numéro, dont quiz.js fait sa pastille', () => {
@@ -236,4 +238,17 @@ test('renderQuiz garde la parenthèse quand elle ne répète pas le domaine', ()
 test('renderQuiz retire le scénario quand la page le porte déjà en titre', () => {
   const html = renderQuiz({ ...quiz, domain: 'D1', summary: 'Q1 (Customer Support) — Deterministic tool ordering' }, { stripScenario: true });
   assert.match(html, /<summary>Q1 Deterministic tool ordering<\/summary>/);
+});
+
+/* D0 posait trois encadrés « Teste-toi sur cette section » sans une seule
+ * question : ses sections renvoient à des task statements d'autres domaines. */
+test('renderPage ne pose pas d’encadré de rappel vide quand la section n’a aucune question', () => {
+  const html = renderPage({ course: sectioned, quizzes: [], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  assert.doesNotMatch(html, /section-quiz/);
+  assert.match(html, /<p class="to-test">/);
+});
+
+test('renderPage renvoie vers la banque pour les tasks qui n’ont que des questions terminales', () => {
+  const html = renderPage({ course: sectioned, quizzes: [q('x-q1', '9.9')], lang: 'fr', slug: 'D0_API_Fundamentals.html', nav });
+  assert.match(html, /\?task=9\.9/);
 });

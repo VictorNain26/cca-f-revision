@@ -218,7 +218,11 @@ export function renderPracticePage({ markdown, quizzes, nav }) {
 
 ${renderNav(links, slug)}
 
-<main id="content">
+<main id="content" tabindex="-1">
+
+<noscript>
+<p class="task-filter">Le filtre par task statement demande JavaScript : les 112 questions sont affichées ci-dessous, dans l'ordre des scénarios.</p>
+</noscript>
 
 <div class="header-bar">
 <h1>${h1}</h1>

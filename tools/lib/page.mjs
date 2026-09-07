@@ -255,18 +255,25 @@ export function renderPage({ course, quizzes, lang, slug, nav }) {
     ...(leftover.length ? [`<li><a href="#${quizSectionId}">${strings.quizHeading}</a></li>`] : []),
   ].join('\n');
 
+  const toTestLine = (task) =>
+    `<p class="to-test"><a href="${assetPath('Practice_Questions.html', lang)}?task=${task}">${strings.toTest(task)}</a></p>`;
+
   /* Fin de section : l'apprenant s'arrête et se teste. C'est la frontière que
    * le segmenting demande — franchie par un acte de rappel, pas par un résumé,
-   * puisque sur un QCM c'est discriminer qui coûte, pas se remémorer. */
+   * puisque sur un QCM c'est discriminer qui coûte, pas se remémorer.
+   *
+   * L'encadré n'est posé que s'il porte vraiment des questions. Sans ce garde,
+   * D0 publiait trois boîtes « Teste-toi sur cette section » vides, liseré
+   * compris, qui annonçaient un test et n'en contenaient aucun : ses sections
+   * pointent vers des task statements d'autres domaines, que ses propres
+   * questions ne couvrent pas. Le renvoi vers la banque, lui, reste utile seul. */
   const sectionQuizHtml = (section) => {
     const own = bySection.get(section.id) || [];
-    const toTest = section.task
-      ? `<p class="to-test"><a href="${assetPath('Practice_Questions.html', lang)}?task=${section.task}">${strings.toTest(section.task)}</a></p>`
-      : '';
-    if (!own.length && !toTest) return '';
+    const toTest = section.task ? toTestLine(section.task) : '';
+    if (!own.length) return toTest ? `\n\n${toTest}` : '';
     return [
       '\n\n<div class="section-quiz">',
-      own.length ? `<h3 class="section-quiz-title">${strings.sectionQuiz}</h3>` : '',
+      `<h3 class="section-quiz-title">${strings.sectionQuiz}</h3>`,
       own.map(renderQuiz).join('\n\n'),
       toTest,
       '</div>',
@@ -277,8 +284,17 @@ export function renderPage({ course, quizzes, lang, slug, nav }) {
     .map((s, i) => `<div class="section-header"><h2 id="${s.id}">${i + 1}. ${s.heading}</h2></div>\n\n${s.html}${sectionQuizHtml(s)}`)
     .join('\n\n');
 
+  /* Les tasks du bloc terminal n'apparaissent dans aucune section : sans ces
+   * renvois, deux questions de D0 (2.3, 4.3) ne menaient à aucune question de
+   * banque, alors que le reste du corpus y mène 35 fois. */
+  const leftoverLinks = [...new Set(leftover.map((q) => q.task))]
+    .filter((task) => task && !course.sections.some((s) => s.task === task))
+    .sort()
+    .map(toTestLine)
+    .join('\n');
+
   const quizSectionHtml = leftover.length
-    ? `${'\n\n'}<div class="section-header"><h2 id="${quizSectionId}" class="page-break">${quizSectionNumber}. ${strings.quizHeading}</h2></div>\n\n${leftover.map(renderQuiz).join('\n\n')}`
+    ? `${'\n\n'}<div class="section-header"><h2 id="${quizSectionId}" class="page-break">${quizSectionNumber}. ${strings.quizHeading}</h2></div>\n\n${leftover.map(renderQuiz).join('\n\n')}${leftoverLinks ? `\n\n${leftoverLinks}` : ''}`
     : '';
 
   /* Ouvert par défaut, et c'est une décision mesurée : replié, le bloc enterrait
@@ -314,7 +330,7 @@ export function renderPage({ course, quizzes, lang, slug, nav }) {
 
 ${navbarHtml}${langSwitchHtml}
 
-<main id="content">
+<main id="content" tabindex="-1">
 
 <div class="header-bar">
 <h1>${course.title}</h1>
